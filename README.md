@@ -416,3 +416,7 @@ PPTX, PDF, ten page PNGs, preview, evidence manifest and QA reports are written 
 ## Local MCP server
 
 The stdio MCP server exposes the local project API to MCP clients. Start the API in one terminal, then configure the MCP client to run `node src/mcp.mjs`; see [`docs/MCP_SERVER.md`](docs/MCP_SERVER.md) for Codex and Claude Code examples. The server accepts only a loopback API URL, performs no web research or model calls, and expects the MCP host to request user approval for project edits, source import and render jobs.
+
+## Codex and Claude Code Skills
+
+This repository includes the same AIAutoSlides presentation workflow Skill in `.agents/skills/aiautoslides/` for Codex and `.claude/skills/aiautoslides/` for Claude Code. Start a new session in the repository to discover it; the canonical copy is `skills/aiautoslides/SKILL.md`. The Skill guides the local evidence-first validate → build → QA → render → inspect workflow. It does not grant API access or call a model; AI planning remains explicitly opt-in. `npm test` checks that the host-specific copies stay synchronized. Details and verification are in [`docs/M8_AGENT_SKILLS_REPORT.md`](docs/M8_AGENT_SKILLS_REPORT.md).

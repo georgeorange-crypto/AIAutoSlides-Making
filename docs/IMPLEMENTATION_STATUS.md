@@ -43,7 +43,7 @@
 ## Remaining beyond Phase 1
 
 - Phase 0 bakeoff is incomplete for some requested engines/task groups; blocked and unrun candidates remain identified in `docs/POC_RESULTS.md`.
-- Phase 2 research/document extraction, OpenAlex/Crossref/arXiv retrieval, web crawl and licensed media integrations remain planned/blocked; none are called by this API.
+- Phase 2 has bounded, opt-in OpenAlex/Crossref/arXiv metadata search and local PDF/DOCX text extraction with offline PDF OCR. Search candidates stay unverified; paper downloads, crawlers, embedded document image extraction and licensed media integrations remain incomplete and are not called by the local workflow API.
 - Phase 3 audience/narrative/media intelligence and rendered-image critic remain planned.
 - Phase 4 local stdio MCP server over the loopback API is implemented; full UI, remote auth/scopes and Android remain planned.
 - Full Presentation IR element coverage, native Mermaid shape rendering and unchanged-slide hash preservation remain incomplete.
@@ -59,3 +59,10 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - Presentation IR image elements use position/alt text and a declared local asset. PptxGenJS checks MIME, SHA-256, 25 MB size, workspace containment, symlink paths and risky SVG markup. Rights state is never auto-approved.
 - Slidev now has `runIR()` and `npm run render:slidev-ir`; it stages local image assets and renders PDF/PNG. A real 9-page synthetic PDF and nine PNGs were generated. Editable PPTX for the richer image/process fixture was stopped by QA after Slidev produced 0 editable-text slides.
 - Automated local checks are rerunning. Human visual sign-off, scientific verification, real-source OCR accuracy review, blind human scores, manual repair timing and cloud/API account actions were explicitly skipped.
+
+## Local Agent integration follow-on — 2026-11-12
+
+- `src/mcp.mjs` exposes the loopback REST project workflow through stdio MCP. The API must be started separately; this server is not remote, authenticated or multi-user.
+- One shared evidence-first presentation Skill is available to Codex at `.agents/skills/aiautoslides/` and Claude Code at `.claude/skills/aiautoslides/`; both are checked against `skills/aiautoslides/SKILL.md` by an automated test.
+- The Skill uses local deterministic import, validate, build, structural QA and preview commands. It requires review of every rendered page and keeps scientific verification and human visual approval pending until performed.
+- Optional AI planning and scholarly search remain separate opt-in network workflows. The Skill does not invoke them, and source evidence/metadata is never promoted to verified automatically.
