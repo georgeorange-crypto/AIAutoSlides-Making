@@ -7,6 +7,8 @@ const REQUIRED=['run_id','run_timestamp','observation_id'];
 const sha256=value=>crypto.createHash('sha256').update(value).digest('hex');
 
 export function parseRunCsv(text){
+  const headerLine=text.replace(/^\uFEFF/,'').split(/\r?\n/).findIndex(line=>line.trim()&&!line.startsWith('#'))+1;
+  text=text.replace(/^\uFEFF/,'').replace(/^#.*(?:\r?\n|$)/gm,'');
   const records=[];let row=[],cell='',quoted=false;
   for(let i=0;i<text.length;i++){
     const c=text[i];
@@ -21,11 +23,11 @@ export function parseRunCsv(text){
   if(data.some(r=>r.length!==headers.length))throw new Error('CSV rows must match the header column count');
   const rows=data.filter(r=>r.some(v=>v!=='')).map(values=>Object.fromEntries(headers.map((h,i)=>[h,values[i]])));
   if(!rows.length)throw new Error('Run CSV must contain at least one observation');
-  return {headers,rows};
+  return {headers,rows,headerLine};
 }
 
 export function buildRunManifest(csv,sourcePath='input.csv'){
-  const {headers,rows}=parseRunCsv(csv), seen=new Set(), timestamps=new Set();
+  const {headers,rows,headerLine}=parseRunCsv(csv), seen=new Set(), timestamps=new Set();
   const observations=rows.map((row,index)=>{
     const {run_id,run_timestamp,observation_id}=row;
     if(!run_id.trim()||!observation_id.trim())throw new Error(`Row ${index+2} has an empty run_id or observation_id`);
@@ -35,7 +37,7 @@ export function buildRunManifest(csv,sourcePath='input.csv'){
     if(seen.has(key))throw new Error(`Duplicate observation_id ${observation_id} in run ${run_id}`);
     seen.add(key);
     const values=Object.fromEntries(headers.filter(h=>!REQUIRED.includes(h)).map(h=>[h,row[h]]));
-    return {run_id,run_timestamp,observation_id,source_row:index+2,values,row_sha256:sha256(JSON.stringify([run_id,run_timestamp,observation_id,values]))};
+    return {run_id,run_timestamp,observation_id,source_row:index+headerLine+1,values,row_sha256:sha256(JSON.stringify([run_id,run_timestamp,observation_id,values]))};
   });
   const runTimestamps=new Map();
   for(const value of timestamps){const [run,timestamp]=value.split('\0');if(runTimestamps.has(run)&&runTimestamps.get(run)!==timestamp)throw new Error(`Run ${run} contains inconsistent run_timestamp values`);runTimestamps.set(run,timestamp);}

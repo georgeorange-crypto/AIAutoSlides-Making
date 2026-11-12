@@ -43,6 +43,26 @@ The generated talk has eight slides with stable IDs, speaker notes, an editable 
 
 CSV columns: `category,value,unit,sample_n`; values must be finite and nonnegative. Each row is one plotted category. The importer does not aggregate repetitions or infer statistical uncertainty.
 
+### Reproducible local refresh and Talk/Reading editions (M2)
+
+For an authorized local repeated-run CSV, refresh the deck and keep the previous refresh report as the baseline on later runs. A changed source rebuilds the deck; unchanged input skips PPTX generation while still recording the check duration. The report records exact source/run diffs, hashes, build QA, first and subsequent pipeline times. Rendering and human repair/review time are separate and are not inferred by automation.
+
+```powershell
+node src/refresh-runs.mjs D:\data\run-summary.csv outputs\my-study\runs.pptx
+# later refresh: compare against the previous report
+node src/refresh-runs.mjs D:\data\run-summary.csv outputs\my-study\runs.pptx outputs\my-study\runs.pptx.refresh.json 4.5
+```
+
+This workflow is local-only and writes a source-derived storyboard, evidence ledger, QA, and JSON/Markdown refresh reports beside the deck. The optional last argument records operator-measured repair minutes; it is never inferred by the software. Review reported removals and source changes. Hashes prove byte identity only; verify source provenance, units, protocol, and research assumptions yourself.
+
+To create presentation and reading editions from one validated storyboard and evidence ledger:
+
+```powershell
+npm run build:dual -- examples/research-demo.json sources/evidence.json outputs\research-demo
+```
+
+This writes `-talk.pptx` and `-reading.pptx` plus a shared-evidence graph report. Talk preserves the authored sequence. Reading appends cited source records, chart methods, and deterministic figure-data pages. Both decks retain the same evidence IDs and source graph hash. Warnings for unverified evidence remain visible.
+
 ### Native line chart (Milestone 2 first step)
 
 The same deterministic importer can create an editable PowerPoint line chart from a synthetic ordered series:

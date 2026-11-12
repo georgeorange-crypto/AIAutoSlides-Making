@@ -12,6 +12,11 @@ test('run audit assigns stable identities and hashes source rows',()=>{
   assert.match(manifest.source.sha256,/^[a-f0-9]{64}$/);
 });
 
+test('run audit preserves physical source rows after comment preambles and UTF-8 BOM',()=>{
+  const manifest=buildRunManifest('\uFEFF# SYNTHETIC fixture\nrun_id,run_timestamp,observation_id,value\nr1,2026-11-01T12:00:00Z,o1,1','fixture.csv');
+  assert.equal(manifest.observations[0].source_row,3);
+});
+
 test('run diff reports additions, changed values, and removed observations',()=>{
   const before=buildRunManifest(csv([]));
   const after=buildRunManifest(['run_id,run_timestamp,observation_id,latency_ms','run-a,2026-11-01T12:00:00Z,obs-1,11','run-a,2026-11-01T12:00:00Z,obs-3,14'].join('\n'));

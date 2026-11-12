@@ -49,3 +49,13 @@ jobs:
             outputs/synthetic-repeated-demo.evidence-manifest.json
             outputs/synthetic-repeated-demo.qa.json
             outputs/synthetic-repeated-demo.qa.md
+            outputs/m2-dual/research-demo-talk.pptx
+            outputs/m2-dual/research-demo-talk.qa.json
+            outputs/m2-dual/research-demo-talk.qa.md
+            outputs/m2-dual/research-demo-talk.evidence-manifest.json
+            outputs/m2-dual/research-demo-reading.pptx
+            outputs/m2-dual/research-demo-reading.qa.json
+            outputs/m2-dual/research-demo-reading.qa.md
+            outputs/m2-dual/research-demo-reading.evidence-manifest.json
+            outputs/m2-dual/research-demo-shared-evidence.json
+            outputs/m2-dual/research-demo-shared-evidence.md

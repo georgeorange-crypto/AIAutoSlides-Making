@@ -1,6 +1,6 @@
 # M2 figure core implementation report
 
-**Status:** M2 in progress; this report documents the figure-support tranche, not completion of the full milestone.
+**Status:** M2 implementation complete; local CI-equivalent and visual acceptance passed on synthetic fixtures. Real-study verification remains an input-specific human task.
 **Date:** 2026-11-12.
 **Branch:** `dev`.
 
@@ -27,16 +27,28 @@
 
 I inspected every page in the three new 8-slide previews and inspected each full-resolution chart slide. The review caught that straight-line interpolation was not a faithful ECDF; the final ECDF is a visible staircase with grouped ties. QA reports have zero structural errors and exact numeric agreement for chart caches/workbooks. Their warnings identify intentionally synthetic, unverified teaching evidence.
 
-## Remaining M2 work
+## M2 scope and acceptance
 
-- Added a local experiment run-audit CLI. It requires stable `run_id`, ISO `run_timestamp`, and per-run `observation_id`, hashes exact source bytes and normalized source rows, and compares saved manifests with explicit added/changed/removed observations. Unit tests cover identity, hashes, all three diff classes, duplicate IDs, inconsistent timestamps and missing required columns. A local end-to-end run reported exactly 1 added, 1 changed and 1 removed row. This is an integrity/change report; it does not prove authenticity, validate units, or establish scientific correctness.
-- The confidence-interval workflow is implemented and demonstrated only with synthetic data. It must not be treated as research evidence. Real user inputs are marked unverified until compared against their source records; adequacy of the normal approximation and independence remains a human research-design judgment.
-- Paired/crossover runs, protocol drift, unequal variance tests, multiple-comparison adjustment, and within-run observations are outside the implemented contract.
-- Real-experiment data refresh/diff and first-run/second-run production-time reporting are not implemented; no timings or manual-repair totals are claimed.
-- Shared-evidence `talk` / `reading` deck outputs remain future work.
-- PDF/DOCX offline source adapters remain optional and unimplemented.
+- The local run audit hashes source bytes and normalized rows, retains run/observation identity, and reports added/changed/removed observations. Duplicate IDs, inconsistent timestamps, missing fields, comment preambles and BOM handling have regression coverage. These hashes establish integrity/change identity only; they do not establish source authenticity, valid units, or scientific correctness.
+- `src/refresh-runs.mjs` now completes the local CSV → run diff → storyboard/evidence generation → validation → conditional PPTX rebuild → structural QA path. It records first-run and subsequent pipeline elapsed times, input and PPTX hashes, changed rows, build status, QA path, and optional operator-supplied human repair minutes. A third unchanged run skips PPTX rebuilding. No network or paid API is used.
+- `src/build-dual.mjs` branches Talk and Reading decks from one validated storyboard/evidence graph. Talk preserves the authored sequence; Reading appends cited source records, chart methods, and deterministic figure data. Both output reports share a graph hash and citation IDs.
+- Unit/integration coverage now has 26 passing tests. `npm run check` covers imports, validation, generated PPTX and chart QA, repeated-run uncertainty bars, refresh diff/rebuild/no-op behavior, and both presentation profiles. GitHub Actions uploads both profile PPTX files and their lineage/QA reports.
+- Both Talk (7 slides) and Reading (11 slides) were exported with local PowerPoint to PDF/PNG. I opened and visually reviewed all 18 rendered pages; values, chart, source appendix and data appendix are visible and legible. Full-size render artifacts are under ignored `outputs/m2-dual/`.
+- No real experiment CSV was supplied. Actual scientific provenance, design suitability, and source-to-study correctness therefore remain unverified; fixture timings are software-pipeline timings on synthetic teaching data, not research productivity evidence. Human repair duration is user-entered if measured, never inferred.
+- Paired/crossover inference, protocol-drift analysis, unequal-variance comparisons, multiple-comparison correction, and within-run repeated observations are outside the current statistical contract. Optional offline PDF/DOCX parsing/OCR remains deferred; the milestone's local CSV path is complete.
 
-M2 remains open. Next priority: validate this schema against an authorized real repeated-run export, then measure deterministic deck update time and add paired/design-aware inference only if an actual use case requires it. No private or real experiment data was supplied or uploaded in this tranche.
+## M2 completion verification (2026-11-12)
+
+| Command / review | Result |
+|---|---|
+| `npm test` | Passed, 26/26 tests. |
+| `npm run check` | Passed end-to-end: dependencies/license check, test suite, Markdown/CSV importers, validation, 7 chart/style deck builds, structural QA and dual-profile build. Expected warnings for synthetic and unverified evidence remain. |
+| Refresh integration test | Passed first build, one changed observation and rebuild, operator-reported repair time, then unchanged source/no rebuild; QA errors empty, PPTX hash stable on no-op. |
+| Dual deck generation and source graph | Passed; 7-slide Talk + 11-slide Reading, one shared graph hash and evidence IDs; QA reports have zero errors. |
+| PDF/PNG rendering and manual review | Passed; Talk 7 pages and Reading 11 pages rendered locally and every page opened/reviewed. |
+| Real-data review | Not performed: no real experimental run-summary CSV was supplied. |
+
+**M2 is complete as a software capability and verified against explicitly synthetic inputs.** Do not interpret this as validation of any actual study. Next phase: M3 audience/storyboard intelligence and a rule-linked slide critic, while preserving a human review gate.
 
 ## Local run-audit tranche verification (2026-11-12)
 
