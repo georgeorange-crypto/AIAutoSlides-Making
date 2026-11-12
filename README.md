@@ -277,7 +277,7 @@ GitHub Actions runs `npm ci` and `npm run check`, then uploads both PPTX outputs
 
 ## Tool Matrix and Workflow V2 (P0 registry tranche)
 
-The V2 architecture and original task briefs are preserved in `docs/ARCHITECTURE_V2.md` and `docs/AI4Slides_*.md`. The first registry tranche adds 52 candidate manifests, a versioned adapter contract and versioned Source/Evidence IR, Presentation IR and Run Manifest schemas. Cataloguing does not mean a tool is integrated or tested; see `docs/INTEGRATION_STATUS.md` for the audited boundary and next phase.
+The V2 architecture and original task briefs are preserved in `docs/ARCHITECTURE_V2.md` and `docs/AI4Slides_*.md`. The current local registry contains 55 candidate/integrated manifests, a versioned adapter contract and versioned Source/Evidence IR, Presentation IR and Run Manifest schemas. Cataloguing does not mean a tool is integrated or tested; see `docs/INTEGRATION_STATUS.md` for the audited boundary and next phase.
 
 ```powershell
 npm exec ai4slides -- tools list
@@ -335,7 +335,7 @@ Recommendations include a primary and alternatives per stage plus implementation
 
 ### Presentation IR → native PptxGenJS (Phase 1 slice)
 
-The versioned Presentation IR is semantically validated before rendering. The local adapter maps supported text, bullets, tables, cards, process and chart elements into the existing evidence-first renderer. It writes a PPTX, mapped storyboard/evidence inputs, per-element lineage, structural QA and a run manifest in the selected output directory. Unsupported elements fail explicitly; source verification is never upgraded.
+The versioned Presentation IR is semantically validated before rendering. The local PptxGenJS adapter maps supported text, bullets, tables, cards, process, positioned local images and chart elements into the evidence-first renderer. It writes a PPTX, mapped inputs, per-element lineage, structural QA and a run manifest. Local images require source/hash/license/rights metadata; restricted rights and external URLs are rejected. Source verification is never upgraded.
 
 ```powershell
 npm run render:ir -- --input examples/phase1/pptxgenjs-ir.json --out outputs/phase1/my-deck
@@ -345,6 +345,14 @@ npm run tools -- tools test pptxgenjs-ir
 ```
 
 The checked-in input is synthetic QA data. The PptxGenJS adapter emits native PowerPoint charts; source verification warnings remain in the report. The mapping covers a documented element subset. Mermaid source is preserved as text, not converted to editable diagram geometry.
+
+Slidev is an optional local PDF/PNG backend and editable-PPTX comparison. It compiles Presentation IR, stages hash-checked local assets and preserves lineage:
+
+```powershell
+npm run render:slidev-ir -- --input examples/phase1/pptxgenjs-ir.json --out outputs/phase1/slidev-preview --formats pdf,png
+```
+
+Set `SLIDEV_CLI` and `SLIDEV_CHROME_PATH` after installing Slidev and Chrome in an isolated local environment. PDF/PNG are the default. PPTX export is rejected when Slidev rasterizes content and fails editable-text/source-lineage QA; Slidev does not produce native chart objects. Use PptxGenJS for the primary editable research deck.
 
 ### Local projects API (Phase 1)
 

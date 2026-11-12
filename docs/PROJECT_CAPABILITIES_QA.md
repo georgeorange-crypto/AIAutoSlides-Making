@@ -26,7 +26,7 @@
 
 **答：当前没有 HTML → PPTX 的集成流程。**
 
-现有生成路径以结构化 JSON 分镜为主，也支持受控 Markdown 大纲和 CSV 图表数据导入。HTML/网页幻灯片，以及 Slidev、Quarto、Marp 等路线在文档里作为后续评估对象或参考资料出现，但没有作为当前输出后端接入。网页转 PPT 的保真度和对象可编辑性需要单独试验，不能默认等同于原生 PPTX。
+现有生成路径以结构化 JSON 分镜为主，也支持受控 Markdown 大纲和 CSV 图表数据导入。Slidev 已作为可选本地 PDF/PNG 与 PPTX 对照后端接入；复杂 HTML、图片或 SVG 可能栅格化，不能默认等同于原生 PPTX。Quarto、Marp 等仍是参考候选，网页转 PPT 的对象可编辑性需要单独验证。
 
 参考：`src/cli.mjs`、`src/import-markdown.mjs`、`src/import-csv.mjs`；`docs/CODEX_MASTER_PROMPT.md` 的 Multi-backend 路线；`docs/REFERENCES.md` 的工具资料。
 
@@ -104,12 +104,13 @@ M3 已加入受众/目标/时长字段、可选 AI 分镜、按规则 ID 和页�
 
 ## Q10. 集成了市面上的 Slides 制作产品或项目吗？
 
-**答：集成了 PptxGenJS 作为底层 PPTX 生成库；没有接入 Gamma、Canva、Slidev 等完整制作产品。**
+**答：集成了 PptxGenJS 原生 PPTX 后端和可选 Slidev 本地导出适配器；没有接入 Gamma、Canva 等云端制作产品。**
 
 - **PptxGenJS**：当前实际使用，负责生成原生可编辑 PPTX 对象。
 - **PowerPoint/LibreOffice**：可用于本地预览渲染或 PDF 导出。
 - **OpenAI Responses API**：可选文案分镜接口，不是 Slides 产品。
-- **Quarto、Slidev、Marp、Frontend Slides、Gamma、Canva、Beautiful.ai、Figma Slides、Google Slides、Napkin AI**：文档中作为参考、潜在比较对象或未来适配方向出现，目前没有相应集成。
+- **Slidev**：本地 IR→Markdown→PDF/PNG 路线可用；复杂内容可能在 PPTX 中栅格化，输出经过 lineage/QA 门槛。
+- **Quarto、Marp、Frontend Slides、Gamma、Canva、Beautiful.ai、Figma Slides、Google Slides、Napkin AI**：文档中作为参考或潜在候选；云端/API 功能按当前指令跳过。
 
 参考：`package.json`、`scripts/preview.mjs`、`docs/REFERENCES.md`、`docs/RESEARCH_APPLICATION_MATRIX.md`。
 
@@ -163,5 +164,3 @@ M3 已加入受众/目标/时长字段、可选 AI 分镜、按规则 ID 和页�
 `type:"timeline"` 为每个事件显示时间标签、标题和可选说明，使用原生连接线、圆形标记和文本框。QA 核对事件标记数量、顺序及文字与分镜一致。时间标签只是作者提供的显示文字，不会解析日期或验证计划是否已获批准、是否已经执行。
 
 参考：`src/render.mjs`、`src/validate.mjs`、`src/qa.mjs`、`src/cli.mjs`、`docs/SCHEMA.md`。
-
-

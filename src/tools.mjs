@@ -9,13 +9,14 @@ import {pdfjsAdapter} from '../packages/adapters/pdfjs.mjs';
 import {ooxmlTextAdapter} from '../packages/adapters/ooxml-text.mjs';
 import {mermaidAdapter} from '../packages/adapters/mermaid.mjs';
 import {crossrefAdapter} from '../packages/adapters/crossref.mjs';
+import {slidevAdapter} from '../packages/adapters/slidev.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
 import {createCanvaOAuthServer} from './canva-oauth.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[crossrefAdapter.manifest.id,crossrefAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[crossrefAdapter.manifest.id,crossrefAdapter],[slidevAdapter.manifest.id,slidevAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
@@ -44,7 +45,7 @@ async function main(){
    'deterministic-planner':['Local rule-based planner provides reproducible fallback.','Less flexible narrative than an optional AI draft; all generated claims still need evidence IDs.'],
    pptxgenjs:['Current MVP backend; emits native editable text, shapes, tables and chart objects through the validated Presentation IR adapter.','Supports the declared IR mapping; incremental editing is not available and Mermaid source is retained as text.'],
    'python-pptx':['Python API can inspect/edit OOXML objects and offers a separate implementation option.','Not integrated here; unsupported PowerPoint parts may not round-trip, so preservation tests are required.'],
-   slidev:['Markdown/Vue plus browser rendering is useful for web-first talks and rapid style iteration.','PPTX export may simplify/rasterize elements and needs object-level QA; not the default scientific deck route.'],
+   slidev:['Integrated local Presentation IR adapter: PDF/PNG preview and lineage-preserving asset staging.','PPTX export may rasterize complex content and is rejected when editable-text QA fails; no native chart objects.'],
    mermaid:['Compact text DSL for common flowcharts; keep editable source alongside SVG preview.','SVG embedded in PPTX is an image object, not editable native PowerPoint shapes.'],
    d2:['Alternative diagram DSL and layout engine for architecture/flow diagrams.','Separate executable not installed; rendered SVG is not native editable PPTX shapes.'],
    graphviz:['Mature graph layout option for node-edge diagrams.','Separate executable not installed; SVG is not native editable PPTX shapes.'],
