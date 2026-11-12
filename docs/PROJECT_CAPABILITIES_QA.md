@@ -36,7 +36,7 @@
 
 当前支持的图表包括柱状图、折线图、散点图和经验累积分布图（CDF），并有多系列数据路径。图表由 PptxGenJS 生成 PowerPoint 原生图表对象，图表数据和转换信息可以写入来源清单。CSV 数据转换强调确定性：图表数值来自输入数据，而不是由 AI 补写。
 
-`architecture` slide 从分组、节点、标签和方向边 JSON 生成原生 PowerPoint 形状、文本与连接线，并校验 ID、端点和页面范围。它不是任意架构导入器，也不会自动优化复杂布局。SVG 可作为可追溯图片嵌入，但 SVG 内容仍是单一图片对象。十页 synthetic AI Systems 示例在 `examples/multimodal/`；源和指标明确标为 hypothetical/verified:false，且需要后续获得可用的渲染环境后逐页视觉审核。
+`architecture` slide 从分组、节点、标签和方向边 JSON 生成原生 PowerPoint 形状、文本与连接线，并校验 ID、端点和页面范围。它不是任意架构导入器，也不会自动优化复杂布局。受限 `table` slide 使用原生 PowerPoint 单元格并在 evidence manifest 中保留数据和来源；支持范围为 2–6 列、1–10 行。SVG 可作为可追溯图片嵌入，但 SVG 内容仍是单一图片对象。十页 synthetic AI Systems 示例在 `examples/multimodal/`；源和指标明确标为 hypothetical/verified:false。PowerPoint 16.0 与 Poppler 已输出 PDF 和逐页 PNG；视觉检查完成，正式人工签核仍待审核者逐页记录。
 
 参考：`src/import-csv.mjs`、`src/render.mjs`、`src/statistics.mjs`、`docs/M2_FIGURE_CORE_REPORT.md`、`docs/CODEX_MASTER_PROMPT.md` 的 `plots/`、`layouts/` 和 Visual Assets 设计。
 
@@ -138,6 +138,14 @@ M3 已加入受众/目标/时长字段、可选 AI 分镜、按规则 ID 和页�
 
 ## 综合判断与建议迭代顺序
 
-当前项目更像是一个**证据可追溯、离线优先的结构化 PPTX 生成器与开发工作区**，而不是全自动多模态 PPT Agent。Milestone 3A 首个切片已提供本地图片 manifest 和 PPTX 图片对象嵌入；完整十页示例、可编辑架构图和逐页视觉 QA 仍未完成。先完成这些端到端回归，再评估通用 CLI/API、Codex/Claude Code Skill 或 MCP 封装。
+当前项目是一个**证据可追溯、离线优先的结构化 PPTX 生成器与开发工作区**，不是全自动多模态 PPT Agent。M3A 已完成本地图片溯源与嵌入、原生架构图、10 页 synthetic 示例、机器 QA 和可渲染逐页审查流程；正式的人类逐页签核仍由审核者完成。原生表格页已实现受限结构化输入与证据清单，代码片段页和自动版式选择仍未实现。通用 CLI/API、Codex/Claude Code Skill 或 MCP 应在这些主要内容版式补齐并通过真实产物验证后评估。
+
+## Q13. 能否在 PPTX 中生成可编辑表格？
+
+**答：可以生成原生可编辑 PowerPoint 表格，并把表格数据和来源写入证据清单。**
+
+`type:"table"` 接收 2–6 个表头、1–10 行数据，单元格接受有限长度字符串或有限数值；每行列数必须与表头一致，且必须引用证据 ID。PPTX 使用 PowerPoint 表格单元格对象，不是截图或 SVG。QA 检查原生表格数量、页面位置和单元格文本是否与分镜一致。当前不支持跨页自动拆表、合并单元格或自动从任意文件提取并设计表格。
+
+参考：`src/validate.mjs`、`src/render.mjs`、`src/qa.mjs`、`src/cli.mjs`、`docs/SCHEMA.md`。
 
 

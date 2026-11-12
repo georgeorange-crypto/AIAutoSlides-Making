@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import {empiricalCdfStep,studentTMeanInterval} from './statistics.mjs';
 
-const VALID_TYPES = new Set(['cover','statement','bullets','metrics','chart','process','architecture','closing']);
-const MANUAL_ONLY_TYPES = new Set(['metrics','chart','process','architecture']);
+const VALID_TYPES = new Set(['cover','statement','bullets','metrics','chart','process','architecture','table','closing']);
+const MANUAL_ONLY_TYPES = new Set(['metrics','chart','process','architecture','table']);
 
 function isString(value) { return typeof value === 'string' && value.trim().length > 0; }
 function boundedText(value, max=350) { return isString(value) && value.length <= max; }
@@ -123,6 +123,14 @@ export function validateDeck(input, ledger) {
         const ids=new Set();for(const [j,node] of g.nodes.entries()){if(!isString(node.id)||ids.has(node.id)||!boundedText(node.label,65)||!inside(node))errors.push(`${where}: diagram.nodes[${j}] requires unique id, label, and in-bounds geometry`);ids.add(node.id);}
         for(const [j,edge] of g.edges.entries())if(!ids.has(edge.from)||!ids.has(edge.to)||edge.from===edge.to)errors.push(`${where}: diagram.edges[${j}] must connect two distinct known node IDs`);
       }
+    }
+    if(s.type==='table'){
+      const t=s.table,headers=t?.headers,rows=t?.rows;
+      if(!t||!Array.isArray(headers)||headers.length<2||headers.length>6||headers.some(v=>!boundedText(v,45)))errors.push(`${where}: table requires 2–6 nonempty headers (<=45 characters)`);
+      if(!Array.isArray(rows)||rows.length<1||rows.length>10)errors.push(`${where}: table requires 1–10 data rows`);
+      else if(Array.isArray(headers)&&headers.length>=2&&rows.some(row=>!Array.isArray(row)||row.length!==headers.length||row.some(cell=>!(typeof cell==='string'&&cell.length<=90||typeof cell==='number'&&Number.isFinite(cell)))))errors.push(`${where}: each table row must match the header count and contain only strings (<=90 characters) or finite numbers`);
+      if(t?.caption!==undefined&&!boundedText(t.caption,180))errors.push(`${where}: table caption must contain 1–180 characters`);
+      if(!(s.evidence_ids?.length))errors.push(`${where}: table requires evidence IDs`);
     }
     if (s.type==='bullets' && (!s.body?.length || s.body.length>5)) errors.push(`${where}: bullets requires 1–5 body items`);
     if(s.type==='statement' && !s.evidence_ids?.length) warnings.push(`${where}: assertion has no evidence ID; confirm this is not presented as a finding`);

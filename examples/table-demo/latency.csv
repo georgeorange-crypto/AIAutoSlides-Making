@@ -1,0 +1,4 @@
+condition,latency_ms,sample_n
+hypothetical baseline,420,3
+hypothetical cached path,315,3
+hypothetical routed path,360,3

@@ -132,6 +132,18 @@ function architecture(s,d,t) {
     txt(s,node.label,{x:node.x+0.12,y:node.y+0.14,w:node.w-0.24,h:node.h-0.28,fontFace:t.bodyFontFace,fontSize:Math.min(16,node.label.length>28?12:16),bold:true,color:t.title,align:'center',fit:'shrink'});
   });
 }
+function editableTable(s,d,t) {
+  addTop(s,d,t);addTitle(s,d,t);
+  const table=d.table,columns=table.headers.length,totalRows=table.rows.length+1,x=0.82,y=2.64,w=11.70;
+  const rowH=Math.max(0.34,Math.min(0.72,3.75/totalRows)),fontSize=Math.max(9.5,Math.min(14.5,15.5-Math.max(0,columns-3)*1.1-Math.max(0,table.rows.length-6)*0.45));
+  const cell=(value,options)=>({text:String(value),options});
+  const rows=[
+    table.headers.map(header=>cell(header,{bold:true,color:'FFFFFF',fill:{color:t.accent},align:'left'})),
+    ...table.rows.map((row,rowIndex)=>row.map(value=>cell(value,{color:t.text,fill:{color:rowIndex%2===0?t.surface:t.surfaceAlt},align:typeof value==='number'?'right':'left'})))
+  ];
+  s.addTable(rows,{x,y,w,rowH,colW:w/columns,margin:[0.07,0.10,0.07,0.10],fontFace:t.bodyFontFace,fontSize,color:t.text,border:{type:'solid',pt:0.65,color:t.line},valign:'middle',autoPage:false,objectName:'Editable evidence table'});
+  if(table.caption)txt(s,table.caption,{x:0.86,y:y+rowH*totalRows+0.14,w:11.5,h:0.34,fontFace:t.bodyFontFace,fontSize:12.5,color:t.muted,valign:'top',fit:'shrink'});
+}
 function bullets(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
   const list=d.body||[];
@@ -168,6 +180,7 @@ export async function generatePresentation(deck,evidence,theme,outputPath,assets
     else if(d.type==='chart') chart(s,d,theme,pptx);
     else if(d.type==='process') process(s,d,theme);
     else if(d.type==='architecture') architecture(s,d,theme);
+    else if(d.type==='table') editableTable(s,d,theme);
     else if(d.type==='bullets') bullets(s,d,theme);
     else if(d.type==='closing') closing(s,d,theme);
     for(const visual of d.visuals||[]){

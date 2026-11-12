@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "title": "Native editable table demonstration",
+    "subtitle": "Synthetic/hypothetical values · not research evidence",
+    "audience": "Research group",
+    "goal": "Demonstrate a source-linked, editable PowerPoint table",
+    "duration_minutes": 2,
+    "aspect_ratio": "16:9",
+    "theme": "academic-light",
+    "status": "SYNTHETIC DEMO — NOT RESEARCH EVIDENCE"
+  },
+  "slides": [
+    {
+      "slide_id": "S01",
+      "type": "cover",
+      "kicker": "SYNTHETIC / HYPOTHETICAL",
+      "title": "A table can stay editable and source-linked",
+      "body": ["This fixture demonstrates native PowerPoint table cells.", "All values are fictional and unverified."],
+      "evidence_ids": []
+    },
+    {
+      "slide_id": "S02",
+      "type": "table",
+      "kicker": "SYNTHETIC INPUT DATA",
+      "title": "Three hypothetical rows map directly from the CSV",
+      "table": {
+        "headers": ["Condition", "Latency (ms)", "Sample n"],
+        "rows": [
+          ["Hypothetical baseline", 420, 3],
+          ["Hypothetical cached path", 315, 3],
+          ["Hypothetical routed path", 360, 3]
+        ],
+        "caption": "Synthetic fixture only; these are not benchmark results."
+      },
+      "evidence_ids": ["E_SYN_TABLE"],
+      "speaker_notes": "Identify the values as fictional teaching data. Do not present them as measured system results."
+    }
+  ]
+}

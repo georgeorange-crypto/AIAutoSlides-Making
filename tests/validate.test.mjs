@@ -54,6 +54,13 @@ test('unsupported types and non-16:9 aspect ratios are rejected',()=>{
 });
 test('visual asset placements are bounded by the 16:9 slide canvas',()=>{const d=deepCopy(sample);d.slides[1].visuals=[{asset_id:'A1',x:12.8,y:2,w:1,h:1}];assert.match(validateDeck(d,ledger).errors.join(' '),/within 16:9 slide bounds/);d.slides[1].visuals[0]={asset_id:'A1',x:8,y:2,w:4,h:3};assert.deepEqual(validateDeck(d,ledger).errors,[]);});
 test('native architecture diagrams require unique nodes and valid directed edges',()=>{const d=deepCopy(sample);d.slides[1]={slide_id:'S02',type:'architecture',title:'Hypothetical architecture',evidence_ids:['E1'],diagram:{groups:[{label:'Plane',x:1,y:2.5,w:10,h:3.5}],nodes:[{id:'a',label:'Input',x:1.5,y:3.5,w:2,h:1},{id:'b',label:'Worker',x:8,y:3.5,w:2,h:1}],edges:[{from:'a',to:'b'}]}};assert.deepEqual(validateDeck(d,ledger).errors,[]);d.slides[1].diagram.edges[0].to='missing';assert.match(validateDeck(d,ledger).errors.join(' '),/known node IDs/);});
+test('editable table validation enforces shape, evidence, and bounded cell values',()=>{
+ const d=deepCopy(sample);d.slides[2]={slide_id:'S03',type:'table',title:'Synthetic comparison table',evidence_ids:['E1'],table:{headers:['Condition','Latency (ms)'],rows:[['Baseline',420],['Cached',315]],caption:'Synthetic values only'}};
+ assert.deepEqual(validateDeck(d,ledger).errors,[]);
+ d.slides[2].table.rows[1]=['Cached'];assert.match(validateDeck(d,ledger).errors.join(' '),/each table row must match/);
+ d.slides[2].table.rows[1]=['Cached',Number.NaN];assert.match(validateDeck(d,ledger).errors.join(' '),/each table row must match/);
+ d.slides[2].table.rows[1]=['Cached',315];d.slides[2].evidence_ids=[];assert.match(validateDeck(d,ledger).errors.join(' '),/table requires evidence IDs/);
+});
 test('excessive text is surfaced as a readability warning',()=>{
  const d=deepCopy(sample);d.slides[1].body=['Readable start. '+'x'.repeat(195)];assert.ok(validateDeck(d,ledger).warnings.some(w=>/long body item/.test(w)));
 });

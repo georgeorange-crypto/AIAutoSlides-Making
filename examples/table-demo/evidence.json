@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "id": "E_SYN_TABLE",
+      "label": "Synthetic latency fixture",
+      "source": "latency.csv",
+      "locator": "rows 2–4; SHA-256 D3F9E4D401C9483F2018FC9BAAB37ADCA8DF7EEB897E689F9CAB3034B4E9B40E; synthetic illustrative values only",
+      "verified": false,
+      "note": "Fictional teaching data. Not measured system performance."
+    }
+  ]
+}
