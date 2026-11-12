@@ -1,7 +1,7 @@
 # M4 local update benchmark
 
-**Run date:** 2026-11-12  
-**Task:** First build and controlled one-row update of the bundled synthetic repeated-run dataset  
+**Run date:** 2026-11-12
+**Task:** First build and controlled one-row update of the bundled synthetic repeated-run dataset
 **Status:** Mechanical pipeline benchmark; not a competitor comparison or scientific result.
 
 ## Procedure
