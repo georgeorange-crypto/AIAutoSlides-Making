@@ -10,10 +10,13 @@ import os
 import socket
 import sys
 from pathlib import Path
+from urllib.robotparser import RobotFileParser
 from urllib.parse import urlparse
 
 MAX_INPUT_BYTES = 100 * 1024 * 1024
 MAX_OUTPUT_CHARS = 10 * 1024 * 1024
+CRAWLER_USER_AGENT = "AIAutoSlides/0.1 (single-page research import; https://github.com/georgeorange-crypto/AIAutoSlides-Making)"
+MAX_ROBOTS_BYTES = 512 * 1024
 
 
 def assert_public_host(hostname, resolver=socket.getaddrinfo):
@@ -56,6 +59,42 @@ def allowed_page_request(request_url, origin_host):
 
 def emit(value):
     sys.stdout.write(json.dumps(value, ensure_ascii=False) + "\n")
+
+
+def robots_allows(robots_text, page_url, user_agent=CRAWLER_USER_AGENT):
+    """Parse a robots.txt response and return its policy for this crawler."""
+    parsed = urlparse(page_url)
+    robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
+    parser = RobotFileParser(robots_url)
+    parser.parse(robots_text.splitlines())
+    return parser.can_fetch(user_agent, page_url)
+
+
+async def preflight_robots(page_url):
+    """Fetch robots.txt independently and fail closed unless policy is known."""
+    import aiohttp
+
+    parsed = urlparse(page_url)
+    robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
+    timeout = aiohttp.ClientTimeout(total=15)
+    headers = {"User-Agent": CRAWLER_USER_AGENT, "Accept": "text/plain,*/*;q=0.1"}
+    async with aiohttp.ClientSession(timeout=timeout, headers=headers) as session:
+        async with session.get(robots_url, allow_redirects=False) as response:
+            if response.status in (404, 410):
+                return
+            if response.status != 200:
+                raise PermissionError(f"robots.txt returned HTTP {response.status}; refusing to crawl")
+            body = bytearray()
+            async for chunk in response.content.iter_chunked(8192):
+                body.extend(chunk)
+                if len(body) > MAX_ROBOTS_BYTES:
+                    raise PermissionError("robots.txt exceeds 512 KiB; refusing to crawl")
+    try:
+        text = body.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise PermissionError("robots.txt is not valid UTF-8; refusing to crawl") from exc
+    if not robots_allows(text, page_url):
+        raise PermissionError("robots.txt disallows this URL; refusing to crawl")
 
 
 def doctor():
@@ -109,14 +148,16 @@ def extract_docling(source):
 
 
 async def crawl4ai(url, timeout_seconds=30):
-    from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, CacheMode
+    from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 
     parsed = urlparse(url)
     if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or parsed.port not in (None, 443):
         raise ValueError("Crawler accepts public HTTPS URLs only; credentials and non-default ports are rejected")
     assert_public_host(parsed.hostname)
+    await preflight_robots(url)
     config = CrawlerRunConfig(cache_mode=CacheMode.BYPASS, check_robots_txt=True, page_timeout=timeout_seconds * 1000, wait_until="domcontentloaded", excluded_tags=["script", "style", "noscript", "iframe", "form"])
-    async with AsyncWebCrawler(verbose=False) as crawler:
+    browser_config = BrowserConfig(user_agent=CRAWLER_USER_AGENT)
+    async with AsyncWebCrawler(config=browser_config, verbose=False) as crawler:
         async def restrict_egress(page, context, **_kwargs):
             async def route_filter(route):
                 request_url = urlparse(route.request.url)

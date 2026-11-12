@@ -14,5 +14,5 @@ function pythonCommand(){
 test('research crawler worker rejects private DNS and cross-origin browser requests',t=>{
  const python=pythonCommand();if(!python){t.skip('Python is not installed');return;}
  const result=spawnSync(python.exe,[...python.prefix,'-m','unittest','discover','-s','workers/research','-p','test_worker_policy.py','-v'],{cwd:root,encoding:'utf8',windowsHide:true,timeout:30000});
- assert.equal(result.status,0,`${result.stdout}\n${result.stderr}`);assert.match(result.stderr,/Ran 3 tests/);
+ assert.equal(result.status,0,`${result.stdout}\n${result.stderr}`);assert.match(result.stderr,/Ran 4 tests/);
 });
