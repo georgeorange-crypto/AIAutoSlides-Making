@@ -1,2 +1,3 @@
 examples/research-workflow/fixtures/*.pdf binary
 examples/phase1/assets/*.svg binary
+examples/multimodal/assets/*.svg text eol=lf
