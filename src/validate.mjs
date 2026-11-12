@@ -54,6 +54,12 @@ export function validateDeck(input, ledger) {
     if(s.speaker_notes!==undefined && !boundedText(s.speaker_notes,2000)) errors.push(`${where}: speaker_notes must contain 1–2000 characters`);
     if(s.figure_description!==undefined&&(!isString(s.figure_description)||s.figure_description.length>550))errors.push(`${where}: figure_description must contain 1–550 characters`);
     if(s.figure_description!==undefined&&s.type!=='chart')errors.push(`${where}: figure_description is only supported on chart slides`);
+    if(s.visuals!==undefined){
+      if(!Array.isArray(s.visuals))errors.push(`${where}: visuals must be an array`);
+      else for(const [j,v] of s.visuals.entries()){
+        if(!v||!isString(v.asset_id)||![v.x,v.y,v.w,v.h].every(Number.isFinite)||v.x<0||v.y<0||v.w<=0||v.h<=0||v.x+v.w>13.333||v.y+v.h>7.5)errors.push(`${where}: visuals[${j}] requires asset_id and positive x/y/w/h within 16:9 slide bounds`);
+      }
+    }
     if(s.claim_support!==undefined){
       if(!Array.isArray(s.claim_support))errors.push(`${where}: claim_support must be an array`);
       else for(const [j,record] of s.claim_support.entries()){

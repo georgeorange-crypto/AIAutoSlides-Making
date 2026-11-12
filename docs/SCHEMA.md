@@ -44,6 +44,12 @@ The local build is **fully offline** after dependencies are installed; AI planni
 
 Each `evidence_ids` item must match an entry from `sources/evidence.json`. No source ID may be silently invented or ignored.
 
+### Local image assets (M3A first vertical slice)
+
+An optional `--assets <manifest.json>` can accompany `validate` and `build`. Manifest paths resolve relative to the manifest file. Each `assets[]` entry requires a unique `asset_id`, `path`, exact `type` and `mime_type` (`image/png`, `image/jpeg`, or `image/svg+xml`), matching file `sha256`, nonempty `source` and `license`, and boolean `verified`. Duplicate file hashes, missing files, invalid MIME/type pairs, and stale hashes are errors. `verified:false` means provenance/permission has not received human confirmation; a syntactically valid license string is not legal validation.
+
+Slides may contain `visuals:[{"asset_id":"A1","x":7.1,"y":2.3,"w":5.2,"h":2.5}]`; geometry uses inches on the 13.333 × 7.5 slide canvas. Unknown asset IDs and out-of-bounds placements fail. SVGs are embedded as picture objects and can be replaced/cropped/resized as one object; their vector primitives are not native editable PowerPoint shapes. With no asset manifest, existing decks build as before. CLI builds copy asset hash, provenance, verification state, and associated slide IDs into the evidence manifest.
+
 ### Claim-to-source review records (M3)
 
 Factual `statement`, `metrics`, and `chart` slides can record one `claim_support` entry per cited source ID:

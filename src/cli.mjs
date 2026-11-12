@@ -7,6 +7,7 @@ import {loadEvidence,validateDeck} from './validate.mjs';
 import {generatePresentation} from './render.mjs';
 import {patchPptxErrorBars} from './chart-error-bars.mjs';
 import {buildGateError} from './review-state.mjs';
+import {loadAssetManifest,assetManifestReport} from './assets.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const argv=process.argv.slice(2);
@@ -26,6 +27,7 @@ try{
   const raw=JSON.parse(fs.readFileSync(input,'utf8'));
   const evidence=loadEvidence(evidenceFile);
   const {deck,errors,warnings}=validateDeck(raw,evidence);
+  const assetFile=arg('assets',null),assets=loadAssetManifest(assetFile,deck);
   const used=new Set(deck?.slides?.flatMap(s=>s.evidence_ids||[])||[]);
   for(const e of evidence.entries) if(used.has(e.id) && !e.verified) warnings.push(`Evidence ${e.id} is not independently verified (${e.locator||'no locator'})`);
   const report={ok:errors.length===0,errors,warnings,source:path.relative(process.cwd(),input),evidence:path.relative(process.cwd(),evidenceFile),slides:deck?.slides?.length??0};
@@ -39,13 +41,13 @@ try{
   const themeFile=path.join(root,'themes',`${themeName}.json`);
   const theme=JSON.parse(fs.readFileSync(themeFile,'utf8'));
   const output=abs(arg('out','outputs/presentation.pptx'));
-  await generatePresentation(deck,evidence,theme,output);
+  await generatePresentation(deck,evidence,theme,output,assets);
   const errorBarSeries=patchPptxErrorBars(output,deck);
   report.theme=themeName;
   report.output=path.relative(process.cwd(),output);
   fs.writeFileSync(output.replace(/\.pptx$/i,'')+'.review.json',JSON.stringify(report,null,2)+'\n');
   const lineageSlides=deck.slides.map((s,i)=>({slide_id:s.slide_id||`S${String(i+1).padStart(2,'0')}`,slide_number:i+1,assertion:s.assertion_title||s.title,evidence_ids:s.evidence_ids||[],sources:(s.evidence_ids||[]).map(id=>{const e=evidence.entries.find(v=>v.id===id),hash=(e.locator||'').match(/SHA-256\s+([a-f0-9]{64})/i)?.[1]||null;return{id,label:e.label,source:e.source,source_sha256:hash,locator:e.locator||null,verification_status:e.verified?'verified':'unverified'};})}));
-  const lineage={schema_version:1,generated_at:new Date().toISOString(),storyboard:{path:path.relative(process.cwd(),input),sha256:crypto.createHash('sha256').update(fs.readFileSync(input)).digest('hex')},evidence_ledger:{path:path.relative(process.cwd(),evidenceFile),sha256:crypto.createHash('sha256').update(fs.readFileSync(evidenceFile)).digest('hex')},slides:lineageSlides,figures:deck.slides.flatMap((s,i)=>s.type==='chart'?[{figure_id:s.figure_id||`F${String(i+1).padStart(2,'0')}`,slide_id:lineageSlides[i].slide_id,assertion:s.assertion_title||s.title,kind:s.chart.kind,unit:s.chart.unit,categories:s.chart.categories||null,x_values:s.chart.x_values||null,raw_values:s.chart.raw_values||null,series:s.chart.series||[{name:s.chart.series_name||'Series',values:s.chart.values}],uncertainty:s.chart.uncertainty||null,transform:s.chart.uncertainty?'per-condition mean and Student-t interval from independent run_values; run IDs, observation IDs, and source row numbers retained':s.chart.kind==='cdf'?'empirical CDF right-continuous staircase; ties grouped; probability = cumulative count / raw n':s.chart.kind==='scatter'?'row-wise x/y observations copied from source values':(s.chart.series?.length>1?'one-to-one source values grouped by series and category':'identity mapping from storyboard values to editable PptxGenJS chart'),source_ids:s.evidence_ids,source_locators:lineageSlides[i].sources.map(x=>x.locator),source_sha256:lineageSlides[i].sources.map(x=>x.source_sha256).filter(Boolean)}]:[])};
+  const lineage={schema_version:1,generated_at:new Date().toISOString(),storyboard:{path:path.relative(process.cwd(),input),sha256:crypto.createHash('sha256').update(fs.readFileSync(input)).digest('hex')},evidence_ledger:{path:path.relative(process.cwd(),evidenceFile),sha256:crypto.createHash('sha256').update(fs.readFileSync(evidenceFile)).digest('hex')},assets:assetManifestReport(assets),slides:lineageSlides,figures:deck.slides.flatMap((s,i)=>s.type==='chart'?[{figure_id:s.figure_id||`F${String(i+1).padStart(2,'0')}`,slide_id:lineageSlides[i].slide_id,assertion:s.assertion_title||s.title,kind:s.chart.kind,unit:s.chart.unit,categories:s.chart.categories||null,x_values:s.chart.x_values||null,raw_values:s.chart.raw_values||null,series:s.chart.series||[{name:s.chart.series_name||'Series',values:s.chart.values}],uncertainty:s.chart.uncertainty||null,transform:s.chart.uncertainty?'per-condition mean and Student-t interval from independent run_values; run IDs, observation IDs, and source row numbers retained':s.chart.kind==='cdf'?'empirical CDF right-continuous staircase; ties grouped; probability = cumulative count / raw n':s.chart.kind==='scatter'?'row-wise x/y observations copied from source values':(s.chart.series?.length>1?'one-to-one source values grouped by series and category':'identity mapping from storyboard values to editable PptxGenJS chart'),source_ids:s.evidence_ids,source_locators:lineageSlides[i].sources.map(x=>x.locator),source_sha256:lineageSlides[i].sources.map(x=>x.source_sha256).filter(Boolean)}]:[])};
   fs.writeFileSync(output.replace(/\.pptx$/i,'')+'.evidence-manifest.json',JSON.stringify(lineage,null,2)+'\n');
   console.log(`Created ${output} (${report.slides} slides) and review report${errorBarSeries?`; ${errorBarSeries} series with editable native error bars`:''}`);
 }catch(err){console.error(`[FATAL] ${err.message}`);process.exit(1);}

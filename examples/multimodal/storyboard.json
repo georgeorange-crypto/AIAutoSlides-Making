@@ -1,0 +1,8 @@
+{
+  "meta": {"title":"Hypothetical AI Systems study","subtitle":"Synthetic workflow demonstration · not empirical research","audience":"Systems research group","audience_profile":"research_group","goal":"Demonstrate the local asset-to-slide pipeline","duration_minutes":3,"aspect_ratio":"16:9","theme":"keynote-minimal","status":"SYNTHETIC / HYPOTHETICAL"},
+  "slides": [
+    {"slide_id":"S01","type":"cover","kicker":"SYNTHETIC / HYPOTHETICAL","title":"A local asset can retain its source trail","body":["Pipeline demonstration, not a scientific result"],"evidence_ids":[],"speaker_notes":"This entire project is hypothetical and demonstrates implementation only."},
+    {"slide_id":"S02","type":"statement","kicker":"VISUAL ASSET","title":"The imported SVG remains a slide image object","body":["Asset identity, SHA-256, source, license and review status are recorded in the manifest."],"evidence_ids":["E_SYNTHETIC"],"visuals":[{"asset_id":"A_SYSTEM_TOPOLOGY","x":7.1,"y":2.3,"w":5.2,"h":2.5}],"speaker_notes":"The SVG is embedded; its internal paths are not separate editable PowerPoint shapes."},
+    {"slide_id":"S03","type":"process","kicker":"NEXT MILESTONE","title":"Build toward a complete multimodal authoring workflow","steps":["Collect sources","Storyboard","Native diagrams","Render + review"],"body":["This example verifies asset provenance and embedding only."],"evidence_ids":["E_SYNTHETIC"],"speaker_notes":"Later milestones must add richer diagram primitives and page-by-page visual QA."}
+  ]
+}

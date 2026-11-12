@@ -52,6 +52,7 @@ test('CDF CSV import sorts observations and computes rank divided by raw n',()=>
 test('unsupported types and non-16:9 aspect ratios are rejected',()=>{
  const d=deepCopy(sample);d.meta.aspect_ratio='4:3';d.slides[1].type='unknown';const errors=validateDeck(d,ledger).errors.join(' ');assert.match(errors,/Only 16:9/);assert.match(errors,/unsupported type/);
 });
+test('visual asset placements are bounded by the 16:9 slide canvas',()=>{const d=deepCopy(sample);d.slides[1].visuals=[{asset_id:'A1',x:12.8,y:2,w:1,h:1}];assert.match(validateDeck(d,ledger).errors.join(' '),/within 16:9 slide bounds/);d.slides[1].visuals[0]={asset_id:'A1',x:8,y:2,w:4,h:3};assert.deepEqual(validateDeck(d,ledger).errors,[]);});
 test('excessive text is surfaced as a readability warning',()=>{
  const d=deepCopy(sample);d.slides[1].body=['Readable start. '+'x'.repeat(195)];assert.ok(validateDeck(d,ledger).warnings.some(w=>/long body item/.test(w)));
 });

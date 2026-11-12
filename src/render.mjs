@@ -48,15 +48,16 @@ function cover(s,d,t,meta) {
 function statement(s,d,t) {
   addTop(s,d,t);
   // The claim itself takes the stage; short supporting evidence below.
-  const fs=d.title.length>90?35:d.title.length>65?42:49;
-  txt(s,d.title,{x:0.77,y:1.45,w:11.4,h:2.36,fontFace:t.headFontFace,fontSize:fs,bold:true,color:t.title,valign:'mid',fit:'shrink'});
+  const hasVisual=(d.visuals||[]).length>0;
+  const fs=hasVisual?37:d.title.length>90?35:d.title.length>65?42:49;
+  txt(s,d.title,{x:0.77,y:1.45,w:hasVisual?6.0:11.4,h:2.36,fontFace:t.headFontFace,fontSize:fs,bold:true,color:t.title,valign:'mid',fit:'shrink'});
   line(s,0.80,4.24,4.50,4.24,t.accent);
   if(d.layout==='two-column-contrast' && (d.body||[]).length>=2){
     panel(s,0.80,4.52,5.55,1.70,t);panel(s,6.70,4.52,5.55,1.70,t,true);
     (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:1.04+i*5.9,y:4.83,w:5.05,h:1.10,fontFace:t.bodyFontFace,fontSize:19,color:t.text,valign:'mid',fit:'shrink'}));
     return;
   }
-  (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.80,y:4.65+i*0.89,w:11.35,h:0.74,fontFace:t.bodyFontFace,fontSize:20,color:i===0?t.text:t.muted,valign:'top',fit:'shrink'}));
+  (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.80,y:4.65+i*0.89,w:hasVisual?5.9:11.35,h:0.74,fontFace:t.bodyFontFace,fontSize:20,color:i===0?t.text:t.muted,valign:'top',fit:'shrink'}));
 }
 function metrics(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
@@ -128,7 +129,7 @@ function closing(s,d,t) {
   txt(s,'DISCUSS / DECIDE / ACT',{x:0.86,y:6.50,w:9.2,h:0.22,fontFace:t.bodyFontFace,fontSize:11.5,bold:true,charSpacing:1.3,color:t.accent});
 }
 
-export async function generatePresentation(deck,evidence,theme,outputPath) {
+export async function generatePresentation(deck,evidence,theme,outputPath,assets=new Map()) {
   const pptx=new pptxgen();
   pptx.layout='LAYOUT_WIDE';
   pptx.author='AIAutoSlides Making';
@@ -147,6 +148,10 @@ export async function generatePresentation(deck,evidence,theme,outputPath) {
     else if(d.type==='process') process(s,d,theme);
     else if(d.type==='bullets') bullets(s,d,theme);
     else if(d.type==='closing') closing(s,d,theme);
+    for(const visual of d.visuals||[]){
+      const asset=assets.get(visual.asset_id);
+      if(asset) s.addImage({path:asset.resolved_path,x:visual.x,y:visual.y,w:visual.w,h:visual.h,sizingContain:true});
+    }
     addFooter(s,i,deck.slides.length,d,ledger,theme,deck.meta);
     const notes=d.speaker_notes||d.notes,accessibleNotes=d.figure_description?`Figure description: ${d.figure_description}${notes?`\n\n${notes}`:''}`:notes;
     if(typeof accessibleNotes==='string' && accessibleNotes.trim()) s.addNotes(accessibleNotes);

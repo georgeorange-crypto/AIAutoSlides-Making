@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {
+      "asset_id": "A_SYSTEM_TOPOLOGY",
+      "path": "assets/system-topology.svg",
+      "type": "image/svg+xml",
+      "mime_type": "image/svg+xml",
+      "sha256": "e66f0d323ec6af6ead6b8c7a6ea80f6662d15207ac479d3418e759f2a163ee34",
+      "source": "Original hypothetical demo illustration generated for this repository",
+      "license": "CC0-1.0",
+      "verified": false
+    }
+  ]
+}
+
