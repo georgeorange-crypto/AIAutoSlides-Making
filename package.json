@@ -58,7 +58,8 @@
     "from:repeated": "node src/import-repeated.mjs examples/from-csv/synthetic-repeated-runs.csv outputs/synthetic-repeated/storyboard.json",
     "render:slidev-ir": "node src/render-slidev-ir.mjs",
     "assets:research": "node src/asset-research.mjs",
-    "arxiv:ingest": "node src/arxiv-ingest.mjs"
+    "arxiv:ingest": "node src/arxiv-ingest.mjs",
+    "research:ingest": "node src/research-ingest.mjs"
   },
   "dependencies": {
     "@tesseract.js-data/chi_sim": "1.0.0",
