@@ -1,3 +1,14 @@
+* text=auto
 examples/research-workflow/fixtures/*.pdf binary
 examples/phase1/assets/*.svg binary
 examples/multimodal/assets/*.svg text eol=lf
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.gif -text
+*.webp -text
+*.pdf -text
+*.pptx -text
+*.zip -text
+*.woff -text
+*.woff2 -text
