@@ -1,0 +1,44 @@
+{
+  "id": "ooxml-text-replacer",
+  "name": "AIAutoSlides exact-text OOXML editor",
+  "kind": "editor",
+  "official_url": "https://github.com/georgeorange-crypto/AIAutoSlides-Making",
+  "version": "not-pinned",
+  "interface": "Node API + CLI",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "exact-single-run-text-replacement",
+    "untouched-slide-xml-preservation",
+    "before-after-page-comparison"
+  ],
+  "inputs": [
+    "pptx",
+    "exact-text-edit-request"
+  ],
+  "outputs": [
+    "pptx",
+    "edit-report",
+    "before-after-previews"
+  ],
+  "dependencies": [
+    "root fflate dependency"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "free-local",
+  "editable": "native",
+  "license": {
+    "identifier": "MIT",
+    "review_status": "verified-in-repository",
+    "note": "Internal project code; root package.json declares MIT."
+  },
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/ooxml-text.mjs",
+  "probe": null,
+  "limitations": "Edits one exact editable text run at a time; chart/image/master/note editing and arbitrary vendor-extension round-trip fidelity are not claimed.",
+  "status": "e2e-tested"
+}

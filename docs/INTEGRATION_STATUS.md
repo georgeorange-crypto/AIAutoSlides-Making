@@ -10,10 +10,12 @@ Date: 2026-11-12. Current checkout is `dev`; this section supersedes the histori
 - Verified on Windows with `pdfjs-dist@5.4.624`, PowerPoint 16.0 COM, and Poppler `pdftoppm 26.07.0`. The 10-page result was rendered and every page visually inspected. No paid API or external upload was used.
 - `npm test`: 74/74 passed. `npm run check`: passed end to end. `npm run validate` and `npm run build`: passed with the existing three warnings (missing chart sample size and two unverified example evidence entries).
 - Full workflow command: `npm run workflow:research`. Artifacts: `outputs/research-workflow/research-workflow.pptx`, `.pdf`, ten `research-workflow-page-*.png` files, `.qa.json`, `.evidence-manifest.json`, `.preview.json`, and `run-manifest.json`.
+- Added a separate `modify-existing` text-only route: `npm run fixture:existing-pptx` and `npm run workflow:existing-pptx -- --input ... --request ... --out ...`. A three-slide synthetic deck verified exact edit targeting, source immutability, unchanged slide OOXML hashes, retained native chart parts, and identical PowerPoint-rendered PNG hashes for untouched pages 1 and 3. The changed page was visually inspected. `pptx-automizer` itself remains catalogued, not integrated.
+- In the current shared worktree, `npm test` and the full `npm run check` both passed with 85 tests. This count includes concurrent uncommitted tests outside this selective-edit commit.
 
 ## Remaining P1 work
 
-The P1 ecosystem tranche is not complete: Docling, MarkItDown, PyMuPDF, Matplotlib, Mermaid, Graphviz/D2, Quarto, Marp and LibreOffice adapters/routes are not verified by this slice; importing and selectively editing an existing PPTX template with unchanged-page visual comparison is also outstanding. Do not describe these as tested. Next implement the existing-PPTX selective replacement route with a fixture, before/after snapshots and OOXML/visual checks, then continue isolated adapter integrations.
+The P1 ecosystem tranche is not complete: Docling, MarkItDown, PyMuPDF, Matplotlib, Mermaid, Graphviz/D2, Quarto, Marp and LibreOffice adapters/routes are not verified by these slices. Existing-deck editing is limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain outstanding. Do not describe these as tested. Next continue isolated parser/figure/backend adapters and expand existing-PPTX editing only with object-specific fixtures and fidelity checks.
 
 ---
 
