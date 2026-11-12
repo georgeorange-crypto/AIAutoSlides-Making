@@ -55,7 +55,19 @@ node src/qa.mjs outputs/synthetic-line-demo.pptx
 node scripts/preview.mjs outputs/synthetic-line-demo.pptx
 ```
 
-Line values may be signed; bar values must be nonnegative and start at zero. This step uses synthetic values. Scatter, CDF, waterfall, multi-series, and repeated-run uncertainty displays remain future work.
+Line values may be signed; bar values must be nonnegative and start at zero. This step uses synthetic values. See the supported multi-series, scatter, and CDF chart workflow below. Waterfall and repeated-run uncertainty displays remain future work.
+
+### Local experiment run audit
+
+For a local experiment export, use the run-audit tool to make a source-hashed manifest and compare a later export with a saved baseline. This tool does not upload data and does not create a research deck. The CSV must include `run_id`, one ISO `run_timestamp` per run, and unique `observation_id` values within each run; all other columns are preserved and included in row hashes.
+
+```powershell
+node src/run-audit.mjs D:\data\experiment.csv outputs\experiment-audit.json
+# after a later export, compare it to the saved manifest
+node src/run-audit.mjs D:\data\experiment.csv outputs\experiment-audit-next.json outputs\experiment-audit.json
+```
+
+Each command writes JSON and Markdown reports. The comparison is keyed by `(run_id, observation_id)` and reports added, changed, and removed rows, source SHA-256 values, and row numbers. Removed rows are reported for review, never silently discarded. Source-row numbers describe the current file layout and can change when row order changes; stable observation IDs and content hashes are the identity checks. Keep both the input CSV and baseline manifest in the same authorized local storage. The synthetic-only `from:csv` slide importer remains intentionally separate from this audit command.
 
 ## Markdown outline workflow
 

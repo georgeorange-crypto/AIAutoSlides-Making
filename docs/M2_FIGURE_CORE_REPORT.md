@@ -25,9 +25,21 @@ I inspected every page in the three new 8-slide previews and inspected each full
 
 ## Remaining M2 work
 
+- Added a local experiment run-audit CLI. It requires stable `run_id`, ISO `run_timestamp`, and per-run `observation_id`, hashes exact source bytes and normalized source rows, and compares saved manifests with explicit added/changed/removed observations. Unit tests cover identity, hashes, all three diff classes, duplicate IDs, inconsistent timestamps and missing required columns. A local end-to-end run reported exactly 1 added, 1 changed and 1 removed row. This is an integrity/change report; it does not prove authenticity, validate units, or establish scientific correctness.
 - Do not produce confidence intervals or error bars until an input contract and real repeated-run evidence support them. The current synthetic fixtures do not qualify.
 - Real-experiment data refresh/diff and first-run/second-run production-time reporting are not implemented; no timings or manual-repair totals are claimed.
 - Shared-evidence `talk` / `reading` deck outputs remain future work.
 - PDF/DOCX offline source adapters remain optional and unimplemented.
 
-M2 remains open. Next priority: a local-only experiment CSV contract with stable run IDs, source-row provenance and repeatable re-render/diff reporting, without requiring upload or external API use.
+M2 remains open. Next priority: validated experiment measurement schemas and statistically sound repeated-run summaries from authorized real input, followed by deterministic deck update/diff measurement. No experiment data was supplied for this tranche, and none was uploaded.
+
+## Local run-audit tranche verification (2026-11-12)
+
+| Command | Result |
+|---|---|
+| `npm test` | Passed; 20 tests. |
+| `npm run check` | Passed; dependencies, tests, imports, validation, deck builds and structural QA for all supported chart examples. Expected warnings remain for synthetic or unverified evidence and missing demo sample size. |
+| `node src/run-audit.mjs <csv> <manifest.json>` | Passed on a temporary local fixture; wrote JSON and Markdown. |
+| `node src/run-audit.mjs <csv> <next.json> <baseline.json>` | Passed; identified one added, one changed and one removed observation. |
+| `npm run preview` | Attempted but PowerPoint COM did not return in the available window; no claim of a fresh render is made. This tranche did not change slide rendering. Existing figure preview review above belongs to the prior figure tranche. |
+| `git diff --check` | Passed; Git reported line-ending normalization notices only. |
