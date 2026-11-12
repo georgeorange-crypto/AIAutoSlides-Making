@@ -6,7 +6,7 @@ import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {migrateLegacyEvidence,migrateLegacyStoryboard,createRunManifest} from '../packages/contracts/migrate.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const run=(...args)=>spawnSync(process.execPath,[path.join(root,'src/tools.mjs'),...args],{cwd:root,encoding:'utf8',timeout:15000});
+const run=(...args)=>spawnSync(process.execPath,[path.join(root,'src/tools.mjs'),...args],{cwd:root,encoding:'utf8',timeout:30000});
 
 test('catalog entries carry required metadata and safe initial verification states',()=>{
  const dir=path.join(root,'registry/catalog'),files=fs.readdirSync(dir).filter(x=>x.endsWith('.yaml'));
@@ -19,7 +19,7 @@ test('the three versioned IR schemas are valid JSON with contract IDs and versio
 });
 test('tools list is local and includes the full catalogue',()=>{const r=run('tools','list');assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/53 catalog entries/);assert.match(r.stdout,/pptxgenjs/);assert.match(r.stdout,/ooxml-text-replacer/);});
 test('tools doctor gives actionable blocked status for catalog-only tool',()=>{const r=run('tools','doctor','docling');assert.equal(r.status,1);assert.match(r.stdout,/docling: blocked/);assert.match(r.stdout,/Executable 'docling' not found/);});
-test('tools test refuses to label catalogue metadata as a smoke test',()=>{const r=run('tools','test','mermaid');assert.equal(r.status,1);assert.match(r.stdout,/No adapter smoke test is implemented/);});
+test('Mermaid doctor and smoke test distinguish installed from blocked optional worker',()=>{const doctor=run('tools','doctor','mermaid');if(doctor.status===0){assert.match(doctor.stdout,/mermaid: available/);const smoke=run('tools','test','mermaid');assert.equal(smoke.status,0,smoke.stdout+smoke.stderr);assert.match(smoke.stdout,/mermaid: smoke-tested/);assert.match(smoke.stdout,/nodes_verified/);}else{assert.match(doctor.stdout,/mermaid: blocked/);assert.match(doctor.stdout,/npm run deps:mermaid/);}});
 test('tools test creates and inspects a real PptxGenJS deck with a native chart',()=>{const r=run('tools','test','pptxgenjs');assert.equal(r.status,0,r.stdout+r.stderr);assert.match(r.stdout,/pptxgenjs: smoke-tested/);assert.match(r.stdout,/native_chart.*true/);});
 test('tools test performs a real local PPTX text-edit smoke test',()=>{const r=run('tools','test','ooxml-text-replacer');assert.equal(r.status,0,r.stdout+r.stderr);assert.match(r.stdout,/ooxml-text-replacer: smoke-tested/);assert.match(r.stdout,/untouched_slides_identical_xml/);});
 test('workflow recommendation returns stage-specific alternatives without running them',()=>{const r=run('tools','recommend','research');assert.equal(r.status,0,r.stderr);const x=JSON.parse(r.stdout);assert.ok(x.stages.length>=3);assert.equal(x.stages[0].primary.id,'pdfjs-dist');assert.ok(x.stages[0].alternatives.some(t=>t.id==='docling'));assert.match(x.stages.find(s=>s.stage==='editable deck').primary.implementation,/working legacy local backend/);assert.equal(x.stages.find(s=>s.stage==='editable deck').alternatives[0].execution,'not run by recommendation');assert.match(x.policy,/never invoked/);});

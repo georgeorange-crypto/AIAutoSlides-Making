@@ -1,0 +1,11 @@
+{
+  "name": "@aiautoslides/mermaid-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated optional Mermaid CLI worker for local diagram rendering",
+  "dependencies": {
+    "@mermaid-js/mermaid-cli": "12.2.0",
+    "puppeteer": "25.0.2"
+  }
+}
