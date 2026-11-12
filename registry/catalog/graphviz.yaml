@@ -1,0 +1,43 @@
+{
+  "id": "graphviz",
+  "name": "Graphviz",
+  "kind": "diagram",
+  "official_url": "https://gitlab.com/graphviz/graphviz",
+  "version": "not-pinned",
+  "interface": "DSL/CLI/file format",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "diagram"
+  ],
+  "inputs": [
+    "diagram-dsl"
+  ],
+  "outputs": [
+    "svg",
+    "png",
+    "editable-source"
+  ],
+  "dependencies": [
+    "independent executable/runtime"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "partial",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": {
+    "command": "dot"
+  },
+  "limitations": "SVG is an image object in PPTX unless rebuilt as native shapes; retain source DSL.",
+  "status": "catalogued"
+}

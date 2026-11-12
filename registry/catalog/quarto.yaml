@@ -1,0 +1,45 @@
+{
+  "id": "quarto",
+  "name": "Quarto",
+  "kind": "deck-backend",
+  "official_url": "https://github.com/quarto-dev/quarto-cli",
+  "version": "not-pinned",
+  "interface": "CLI",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "deck-backend"
+  ],
+  "inputs": [
+    "markdown",
+    "qmd",
+    "html"
+  ],
+  "outputs": [
+    "html",
+    "pdf",
+    "pptx"
+  ],
+  "dependencies": [
+    "independent executable/runtime"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "partial",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": {
+    "command": "quarto"
+  },
+  "limitations": "PPTX export may rasterize or simplify elements; object-level QA required.",
+  "status": "catalogued"
+}

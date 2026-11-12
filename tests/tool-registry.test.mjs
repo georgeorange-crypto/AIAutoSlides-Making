@@ -1,0 +1,31 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {migrateLegacyEvidence,migrateLegacyStoryboard,createRunManifest} from '../packages/contracts/migrate.mjs';
+const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const run=(...args)=>spawnSync(process.execPath,[path.join(root,'src/tools.mjs'),...args],{cwd:root,encoding:'utf8',timeout:15000});
+
+test('catalog entries carry required metadata and safe initial verification states',()=>{
+ const dir=path.join(root,'registry/catalog'),files=fs.readdirSync(dir).filter(x=>x.endsWith('.yaml'));
+ assert.ok(files.length>=50);
+ for(const file of files){const x=JSON.parse(fs.readFileSync(path.join(dir,file),'utf8'));for(const key of ['id','official_url','license','version','interface','platforms','capabilities','inputs','outputs','dependencies','needs_network','needs_auth','expected_cost','editable','verification_status'])assert.ok(key in x,`${file} missing ${key}`);assert.equal(x.license.review_status,'needs-review');}
+});
+test('the three versioned IR schemas are valid JSON with contract IDs and version',()=>{
+ const dir=path.join(root,'packages/contracts');
+ for(const [file,id] of [['source-evidence.schema.json','source-evidence-1.0.0.json'],['presentation.schema.json','presentation-1.0.0.json'],['run-manifest.schema.json','run-manifest-1.0.0.json']]){const schema=JSON.parse(fs.readFileSync(path.join(dir,file),'utf8'));assert.equal(schema.properties.schema_version.const,'1.0.0');assert.ok(schema.$id.endsWith(id));}
+});
+test('tools list is local and includes the full catalogue',()=>{const r=run('tools','list');assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/52 catalog entries/);assert.match(r.stdout,/pptxgenjs/);});
+test('tools doctor gives actionable blocked status for catalog-only tool',()=>{const r=run('tools','doctor','docling');assert.equal(r.status,1);assert.match(r.stdout,/docling: blocked/);assert.match(r.stdout,/Executable 'docling' not found/);});
+test('tools test refuses to label catalogue metadata as a smoke test',()=>{const r=run('tools','test','mermaid');assert.equal(r.status,1);assert.match(r.stdout,/No adapter smoke test is implemented/);});
+test('tools test creates and inspects a real PptxGenJS deck with a native chart',()=>{const r=run('tools','test','pptxgenjs');assert.equal(r.status,0,r.stdout+r.stderr);assert.match(r.stdout,/pptxgenjs: smoke-tested/);assert.match(r.stdout,/native_chart.*true/);});
+test('workflow recommendation returns stage-specific alternatives without running them',()=>{const r=run('tools','recommend','research');assert.equal(r.status,0,r.stderr);const x=JSON.parse(r.stdout);assert.ok(x.stages.length>=3);assert.equal(x.stages[0].primary.id,'pdfjs-dist');assert.ok(x.stages[0].alternatives.some(t=>t.id==='docling'));assert.match(x.stages.find(s=>s.stage==='editable deck').primary.implementation,/working legacy local backend/);assert.equal(x.stages.find(s=>s.stage==='editable deck').alternatives[0].execution,'not run by recommendation');assert.match(x.policy,/never invoked/);});
+test('OAuth status and doctor are local config-only and do not contact providers',()=>{const r=run('tools','auth-status');assert.equal(r.status,0);assert.match(r.stdout,/google-slides: not configured/);const d=run('tools','doctor','google-slides');assert.equal(d.status,1);assert.match(d.stdout,/Set GOOGLE_OAUTH_CLIENT_FILE/);});
+test('legacy evidence and storyboard migrate while preserving IDs, notes and unknown-ID errors',()=>{
+ const ev=migrateLegacyEvidence({entries:[{id:'E1',source:'paper.pdf',locator:'p. 2',verified:false}]});assert.equal(ev.sources[0].source_id,'E1');assert.equal(ev.sources[0].verification_status,'unverified');
+ const ir=migrateLegacyStoryboard({meta:{title:'Example'},slides:[{type:'statement',title:'Claim',evidence_ids:['E1'],speaker_notes:'Say this.'}]},{evidence:{entries:[{id:'E1',source:'paper.pdf'}]}});assert.equal(ir.slides[0].slide_id,'S01');assert.equal(ir.slides[0].speaker_notes,'Say this.');assert.deepEqual(ir.slides[0].evidence_ids,['E1']);
+ assert.throws(()=>migrateLegacyStoryboard({slides:[{type:'chart',title:'Bad',evidence_ids:['EX']} ]},{evidence:{entries:[]}}),/Unknown evidence IDs/);
+});
+test('run manifest preserves outputs and hashes provided content',()=>{const m=createRunManifest({runId:'r1',workflow:'research',outputs:[{path:'deck.pptx',content:'fixture'}]});assert.match(m.outputs[0].sha256,/^[a-f0-9]{64}$/);assert.equal(m.schema_version,'1.0.0');});

@@ -1,0 +1,42 @@
+{
+  "id": "wikimedia-commons",
+  "name": "Wikimedia Commons API",
+  "kind": "asset",
+  "official_url": "https://commons.wikimedia.org/wiki/Commons:API",
+  "version": "not-pinned",
+  "interface": "API, SDK or local package",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "asset"
+  ],
+  "inputs": [
+    "query",
+    "image",
+    "svg"
+  ],
+  "outputs": [
+    "licensed-asset",
+    "png",
+    "svg",
+    "asset-manifest"
+  ],
+  "dependencies": [],
+  "needs_network": true,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "raster",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": null,
+  "limitations": "License and permission are asset-specific. Generated imagery must not encode scientific data or fake citations.",
+  "status": "catalogued"
+}

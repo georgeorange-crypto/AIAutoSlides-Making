@@ -1,0 +1,19 @@
+{
+  "content": "",
+  "slides_markdown": [
+    "# Synthetic local-first presentation pipeline\nA hypothetical systems design for evidence-preserving technical talks. SYNTHETIC / HYPOTHETICAL TEST MATERIAL. S01 · E_SYN_01.",
+    "# Design the pipeline around evidence\nProblem: tools draft and arrange slides, while scientific review needs exact data mapping, source lineage, and explicit uncertainty. Test: can independent render backends produce the same editable talk without changing evidence meaning? S02 · E_SYN_01.",
+    "# Separate evidence from presentation layout\nSource files → evidence ledger → storyboard + figures → backend adapter → PPTX / PDF / HTML. Keep source manifest and QA beside rendered output. S03 · E_SYN_01.",
+    "# Keep figures deterministic\nSynthetic fixture values (not results): load tier A 120 req/s; tier B 240 req/s; tier C 360 req/s. Preserve each value and unit exactly. S04 · E_SYN_01.",
+    "# Layout intent should survive backend changes\nAssertion: one claim per slide. Evidence: show source and data. Review: keep caveats visible. Synthetic design example only. S05 · E_SYN_01.",
+    "# Track limitations as structured output\nUnsupported chart → warning; raster-only element → editability report; missing source ID → build error; unverified evidence → pending state; provider call → opt-in and cost boundary. S06 · E_SYN_01.",
+    "# Compare capabilities, not marketing labels\nCheck export via local command; inspect text, shapes and charts; visually review every page; preserve source IDs in sidecar; record version, dependencies and services. S07 · E_SYN_01.",
+    "# A backend is useful only when its boundary is clear\nLocal renderer: repeatable exports without model calls. AI service: optional drafting with provider and cost disclosed. Scientific QA: outside renderer, checking every output. S08 · E_SYN_01.",
+    "# Recommendation for this test\nKeep evidence ledger and chart data in a backend-neutral contract. Use mature renderers through isolated adapters; promote one only after same-input, editable-object, and visual checks pass. This synthetic fixture establishes no research performance. S09 · E_SYN_01."
+  ],
+  "instructions": "Use the supplied fixed slide content only. Do not invent claims, numerical values, sources, or research results. Preserve the SYNTHETIC/HYPOTHETICAL status on the title and numeric slide. Export an editable PPTX.",
+  "n_slides": 9,
+  "language": "English",
+  "template": "general",
+  "export_as": "pptx"
+}

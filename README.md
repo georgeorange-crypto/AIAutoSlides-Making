@@ -230,6 +230,47 @@ M4's local-source import, synthetic update-cost benchmark, open-source editable-
 
 GitHub Actions runs `npm ci` and `npm run check`, then uploads both PPTX outputs and QA reports. It does not use paid APIs. Local preview rendering uses installed desktop software and is not part of CI.
 
+## Tool Matrix and Workflow V2 (P0 registry tranche)
+
+The V2 architecture and original task briefs are preserved in `docs/ARCHITECTURE_V2.md` and `docs/AI4Slides_*.md`. The first registry tranche adds 52 candidate manifests, a versioned adapter contract and versioned Source/Evidence IR, Presentation IR and Run Manifest schemas. Cataloguing does not mean a tool is integrated or tested; see `docs/INTEGRATION_STATUS.md` for the audited boundary and next phase.
+
+```powershell
+npm exec ai4slides -- tools list
+npm exec ai4slides -- tools doctor
+npm exec ai4slides -- tools test pptxgenjs
+npm exec ai4slides -- tools test docling
+```
+
+The last command reports `blocked` until an executable adapter exists. Discovery and doctor do not contact external services. Existing `npm run build`, `npm run validate`, `npm run test`, and `npm run check` remain the legacy pipeline.
+
+### Local Google Slides authorization test
+
+The repository now includes a loopback-only Google OAuth test page. It uses PKCE and requests OpenID identity or Google Slides read-only access. It can read the title and slide count of a presentation ID you enter. It does not create or edit a deck, upload local files, persist tokens, or send source materials. Google login is **not** end-to-end verified until you configure your own OAuth Desktop client and complete consent.
+
+1. In Google Cloud Console, configure OAuth consent and create an OAuth client with application type **Desktop app**; enable Google Slides API for that project.
+2. Save its downloaded client JSON locally. Do not commit or send it.
+3. Run:
+
+```powershell
+$env:GOOGLE_OAUTH_CLIENT_FILE = "D:\path\to\client_secret.json"
+npm run connect:google
+```
+
+Open the printed `http://127.0.0.1:<port>` address. Click a consent button when ready; the Slides button asks for `presentations.readonly`. Enter an existing presentation ID only if you want to verify metadata access. Stop with Ctrl+C, then clear the environment variable with `Remove-Item Env:GOOGLE_OAUTH_CLIENT_FILE`.
+
+Compare open-source and hosted options by workflow stage:
+
+```powershell
+npm run tools -- tools recommend research
+npm run tools -- tools recommend pitch
+npm run tools -- tools recommend modify
+npm run tools -- tools recommend update
+npm run tools -- tools recommend web
+npm run tools -- tools recommend multiengine
+```
+
+Recommendations include a primary and alternatives per stage plus implementation, network, auth, cost, editability, and trade-off fields. They are advisory: the command does not install, authenticate, or run candidates. Check `npm run tools -- tools doctor <id>` before relying on a local executable; catalog membership and upstream licenses are not integration evidence.
+
 ## Verified in this checkout
 
 On 2026-11-12, `npm ci`, `npm run check`, and PowerPoint-to-PDF-to-PNG preview completed on this Windows checkout (Node.js 24.14.0, PptxGenJS 4.0.1, fflate 0.8.3). Manual page review covers the 7-slide research deck, the 8-slide Markdown deck, and five 8-slide CSV chart decks: bar, line, multi-series line, scatter, and ECDF. The repeated-run Student-t deck has structural QA coverage (native error-bar values equal source intervals), but its fresh pixel preview has not been manually reviewed because the PowerPoint COM renderer hung on that attempt. Other visual and QA limitations remain; the research-demo report warns because E1/E2 are unverified and its chart lacks a sample count. Synthetic fixture reports warn by design and are not empirical evidence.

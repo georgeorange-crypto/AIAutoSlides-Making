@@ -1,0 +1,41 @@
+{
+  "id": "poppler",
+  "name": "Poppler",
+  "kind": "parser",
+  "official_url": "https://poppler.freedesktop.org/",
+  "version": "not-pinned",
+  "interface": "library or CLI",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "local-pdf-text-extraction"
+  ],
+  "inputs": [
+    "pdf"
+  ],
+  "outputs": [
+    "text-with-page-locators"
+  ],
+  "dependencies": [
+    "local install or root npm dependency"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "not-applicable",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": {
+    "command": "pdftoppm"
+  },
+  "limitations": "Existing document import supports local PDF text extraction; individual engine adapter contract and fixtures are not registered.",
+  "status": "catalogued"
+}

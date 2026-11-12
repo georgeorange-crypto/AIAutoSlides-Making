@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "id": "E_SYN_01",
+      "label": "Synthetic backend bake-off fixture",
+      "source": "Project-authored hypothetical systems-design test material",
+      "locator": "examples/open-source-bakeoff/synthetic-systems-talk.md",
+      "verified": false,
+      "note": "Fictional technical architecture and synthetic load tiers 120/240/360 req/s. Not research findings or measured benchmark results."
+    }
+  ]
+}

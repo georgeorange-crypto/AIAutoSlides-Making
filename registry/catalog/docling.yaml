@@ -1,0 +1,47 @@
+{
+  "id": "docling",
+  "name": "Docling",
+  "kind": "parser",
+  "official_url": "https://github.com/docling-project/docling",
+  "version": "not-pinned",
+  "interface": "Python API/CLI or Node library",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "parser"
+  ],
+  "inputs": [
+    "pdf",
+    "pptx",
+    "docx",
+    "html",
+    "web"
+  ],
+  "outputs": [
+    "source-document-ir",
+    "page-locators",
+    "assets"
+  ],
+  "dependencies": [
+    "isolated runtime required"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "not-applicable",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": {
+    "command": "docling"
+  },
+  "limitations": "Playwright web access requires explicit URL authorization; no page restrictions may be bypassed.",
+  "status": "catalogued"
+}

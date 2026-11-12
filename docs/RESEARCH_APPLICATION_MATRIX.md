@@ -72,3 +72,16 @@ The current codebase is MIT licensed. Only PptxGenJS and fflate are runtime depe
 # Milestone 3A asset slice
 
 Local PNG/JPEG/SVG input, manifest checks (SHA-256, MIME, source, license, verification), slide association and PPTX picture embedding are implemented in `src/assets.mjs`, `src/cli.mjs`, and `src/render.mjs`. SVG content remains one picture object; native editable architecture diagrams are not implemented by this slice. See `docs/M3A_ASSET_SLICE_REPORT.md`.
+
+## Open-source reuse decisions across M1–M4
+
+| Stage | Reused or preferred option | Alternatives and selection rule | Implemented boundary |
+|---|---|---|---|
+| M1 authoring/output | PptxGenJS for native editable PowerPoint shapes, text, and charts. | python-pptx can inspect or alter OOXML independently; use only after unsupported-part preservation tests. | Legacy local build is production path; registry smoke test writes and inspects a temporary native-chart deck. Unified IR adapter remains pending. |
+| M2 charts/evidence | Native PptxGenJS charts and in-project deterministic source/claim checks. | Vega-Lite/Matplotlib are useful figure-spec or image-render alternatives; retain source data and do not call them native editable charts. | Native chart data and evidence lineage are validated. External chart renderers remain candidates. |
+| M3 design/assets | Original project themes, local asset manifest, and native PowerPoint architecture shapes. Mermaid/D2/Graphviz can be optional source DSLs. | Prefer native shapes for editable architecture; use external SVG only when vector image editability is acceptable and provenance is kept. | Existing M3A SVG assets are one picture object; architecture fixture uses native shapes. No third-party slide templates/assets copied. |
+| M4 document/backend/cloud | PDF.js for local selectable-text PDF import; Slidev as an optional web-first export comparison; Google Slides read-only OAuth test for account/API access. | Docling for layout-rich local extraction, MarkItDown for text-first fallback, python-pptx or pptx-automizer for narrow OOXML work, Presenton for isolated self-hosted comparison. | PDF.js and Slidev paths have local evidence; OAuth implementation is mock-tested and awaits user-configured real consent. Other choices remain candidates and are not invoked by the recommender. |
+
+Candidate choice is based on document/slide fidelity, editability, lineage preservation, local reproducibility, installation burden, auth/network/cost, and license. Machine-readable alternatives are exposed by `node src/tools.mjs tools recommend <research|pitch|modify|update|web|multiengine>`. The recommendation command is advisory and does not download, authenticate, or execute candidates. Catalog license entries remain `needs-review` until each project and its transitive dependencies are audited for the intended distribution.
+
+Google authorization implementation follows the official desktop-app loopback + PKCE guidance and asks for the narrow Slides read-only scope: [Google OAuth for desktop apps](https://developers.google.com/identity/protocols/oauth2/native-app), [Slides API scopes](https://developers.google.com/workspace/slides/api/scopes), and [presentations.get](https://developers.google.com/workspace/slides/api/reference/rest/v1/presentations/get). It does not request write access.

@@ -1,0 +1,46 @@
+{
+  "id": "libreoffice",
+  "name": "LibreOffice",
+  "kind": "review-render",
+  "official_url": "https://www.libreoffice.org/",
+  "version": "not-pinned",
+  "interface": "CLI, COM host, or local code",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "review-render"
+  ],
+  "inputs": [
+    "pptx",
+    "pdf",
+    "evidence-ir",
+    "asset-manifest"
+  ],
+  "outputs": [
+    "pdf",
+    "png-pages",
+    "qa-report"
+  ],
+  "dependencies": [
+    "renderer-dependent"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "not-applicable",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": {
+    "command": "soffice"
+  },
+  "limitations": "Structural checks do not replace page-by-page human visual inspection or factual verification.",
+  "status": "catalogued"
+}

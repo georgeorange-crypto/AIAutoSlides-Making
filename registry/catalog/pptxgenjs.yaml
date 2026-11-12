@@ -1,0 +1,40 @@
+{
+  "id": "pptxgenjs",
+  "name": "PptxGenJS",
+  "kind": "deck-backend",
+  "official_url": "https://github.com/gitbrent/PptxGenJS",
+  "version": "not-pinned",
+  "interface": "Node library",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "native-editable-pptx",
+    "native-charts"
+  ],
+  "inputs": [
+    "presentation-ir"
+  ],
+  "outputs": [
+    "pptx"
+  ],
+  "dependencies": [
+    "root npm dependency"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "native",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "smoke-tested",
+  "adapter": "legacy renderer is already used by src/render.mjs; contract adapter wraps dependency probe and runs a temporary native-chart fixture",
+  "probe": null,
+  "limitations": "Unified Presentation IR adapter run() still pending; no end-to-end workflow status is claimed.",
+  "status": "smoke-tested"
+}

@@ -1,0 +1,41 @@
+{
+  "id": "canva",
+  "name": "Canva REST APIs and MCP",
+  "kind": "service-backend",
+  "official_url": "https://www.canva.dev/docs/apps/rest-apis/reference/",
+  "version": "not-pinned",
+  "interface": "REST/MCP/OAuth",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "service-backend"
+  ],
+  "inputs": [
+    "brief",
+    "storyboard",
+    "assets"
+  ],
+  "outputs": [
+    "hosted-deck",
+    "pptx",
+    "pdf"
+  ],
+  "dependencies": [],
+  "needs_network": true,
+  "needs_auth": true,
+  "expected_cost": "unknown",
+  "editable": "partial",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": null,
+  "limitations": "Requires explicit account authorization and scoped permissions; no credentials are present or tested.",
+  "status": "catalogued"
+}
