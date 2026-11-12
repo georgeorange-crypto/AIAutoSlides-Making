@@ -68,6 +68,12 @@ test('editable code validation enforces supported language, bounded lines, wraps
  d.slides[2].code.language='python';d.slides[2].evidence_ids=[];assert.match(validateDeck(d,ledger).errors.join(' '),/code requires evidence IDs/);
  d.slides[2].evidence_ids=['E1'];d.slides[2].code.lines=Array(14).fill('x'.repeat(180));assert.match(validateDeck(d,ledger).errors.join(' '),/more than 20 visual lines/);
 });
+test('timeline validation requires 3–6 labeled events and evidence',()=>{
+ const d=deepCopy(sample);d.slides[2]={slide_id:'S03',type:'timeline',title:'Synthetic research plan',evidence_ids:['E1'],timeline:{events:[{when:'Week 1',label:'Prepare fixture'},{when:'Week 2',label:'Run local test'},{when:'Week 3',label:'Review output'}]}};
+ assert.deepEqual(validateDeck(d,ledger).errors,[]);
+ d.slides[2].timeline.events[1].label='';assert.match(validateDeck(d,ledger).errors.join(' '),/timeline requires 3–6 events/);
+ d.slides[2].timeline.events[1].label='Run local test';d.slides[2].evidence_ids=[];assert.match(validateDeck(d,ledger).errors.join(' '),/timeline requires evidence IDs/);
+});
 test('excessive text is surfaced as a readability warning',()=>{
  const d=deepCopy(sample);d.slides[1].body=['Readable start. '+'x'.repeat(195)];assert.ok(validateDeck(d,ledger).warnings.some(w=>/long body item/.test(w)));
 });

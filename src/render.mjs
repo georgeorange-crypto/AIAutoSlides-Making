@@ -154,6 +154,19 @@ function editableCode(s,d,t,slideNumber){
   const rowH=Math.min(0.225,3.62/segments.length),startY=y+0.52;
   segments.forEach((segment,index)=>txt(s,segment.text,{x:x+0.22,y:startY+index*rowH,w:w-0.44,h:rowH,fontFace:'Consolas',fontSize:12.3,color:t.text,valign:'mid',fit:'shrink',objectName:`Code_S${String(d.slide_id||`S${String(slideNumber).padStart(2,'0')}`).replace(/^S/,'')}_L${String(segment.line).padStart(2,'0')}_P${String(segment.part).padStart(2,'0')}`}));
 }
+function timeline(s,d,t,slideNumber){
+  addTop(s,d,t);addTitle(s,d,t);
+  const events=d.timeline.events,left=1.08,right=12.25,y=4.05,span=right-left,colW=Math.min(2.0,span/events.length+0.12);
+  line(s,left,y,right,y,t.line);
+  events.forEach((event,index)=>{
+    const x=left+span*index/(events.length-1),id=`Timeline_S${String(d.slide_id||`S${String(slideNumber).padStart(2,'0')}`).replace(/^S/,'')}_E${String(index+1).padStart(2,'0')}`;
+    s.addShape(Shape.ellipse,{x:x-0.11,y:y-0.11,w:0.22,h:0.22,fill:{color:t.accent},line:{color:t.background,width:1.4},objectName:`${id}_Marker`});
+    txt(s,event.when,{x:x-colW/2,y:3.20,w:colW,h:0.35,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,align:'center',valign:'mid',fit:'shrink',objectName:`${id}_When`});
+    line(s,x,y+0.14,x,4.40,t.line);
+    txt(s,event.label,{x:x-colW/2,y:4.52,w:colW,h:0.58,fontFace:t.bodyFontFace,fontSize:15,bold:true,color:t.title,align:'center',valign:'top',fit:'shrink',objectName:`${id}_Label`});
+    if(event.detail)txt(s,event.detail,{x:x-colW/2,y:5.18,w:colW,h:0.80,fontFace:t.bodyFontFace,fontSize:11.2,color:t.muted,align:'center',valign:'top',fit:'shrink',objectName:`${id}_Detail`});
+  });
+}
 function bullets(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
   const list=d.body||[];
@@ -192,6 +205,7 @@ export async function generatePresentation(deck,evidence,theme,outputPath,assets
     else if(d.type==='architecture') architecture(s,d,theme);
     else if(d.type==='table') editableTable(s,d,theme);
     else if(d.type==='code') editableCode(s,d,theme,i+1);
+    else if(d.type==='timeline') timeline(s,d,theme,i+1);
     else if(d.type==='bullets') bullets(s,d,theme);
     else if(d.type==='closing') closing(s,d,theme);
     for(const visual of d.visuals||[]){

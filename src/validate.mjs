@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import {empiricalCdfStep,studentTMeanInterval} from './statistics.mjs';
 import {CODE_LANGUAGES,codeSegments} from './code-snippet.mjs';
 
-const VALID_TYPES = new Set(['cover','statement','bullets','metrics','chart','process','architecture','table','code','closing']);
-const MANUAL_ONLY_TYPES = new Set(['metrics','chart','process','architecture','table','code']);
+const VALID_TYPES = new Set(['cover','statement','bullets','metrics','chart','process','architecture','table','code','timeline','closing']);
+const MANUAL_ONLY_TYPES = new Set(['metrics','chart','process','architecture','table','code','timeline']);
 
 function isString(value) { return typeof value === 'string' && value.trim().length > 0; }
 function boundedText(value, max=350) { return isString(value) && value.length <= max; }
@@ -138,6 +138,11 @@ export function validateDeck(input, ledger) {
       if(!c||!CODE_LANGUAGES.has(c.language)||!boundedText(c.filename,100)||!Array.isArray(c.lines)||c.lines.length<1||c.lines.length>14||c.lines.some(line=>typeof line!=='string'||line.length>180||/[\t\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(line)))errors.push(`${where}: code requires a supported language, filename, and 1–14 printable source lines (<=180 characters each)`);
       else if(codeSegments(c.lines).length>20)errors.push(`${where}: code wraps to more than 20 visual lines; shorten the snippet`);
       if(!(s.evidence_ids?.length))errors.push(`${where}: code requires evidence IDs`);
+    }
+    if(s.type==='timeline'){
+      const events=s.timeline?.events;
+      if(!Array.isArray(events)||events.length<3||events.length>6||events.some(event=>!boundedText(event?.when,24)||!boundedText(event?.label,55)||(event.detail!==undefined&&!boundedText(event.detail,100))))errors.push(`${where}: timeline requires 3–6 events with when (<=24), label (<=55), and optional detail (<=100 characters)`);
+      if(!(s.evidence_ids?.length))errors.push(`${where}: timeline requires evidence IDs`);
     }
     if (s.type==='bullets' && (!s.body?.length || s.body.length>5)) errors.push(`${where}: bullets requires 1–5 body items`);
     if(s.type==='statement' && !s.evidence_ids?.length) warnings.push(`${where}: assertion has no evidence ID; confirm this is not presented as a finding`);

@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "title": "Editable research timeline demonstration",
+    "subtitle": "Synthetic project schedule",
+    "audience": "Research group",
+    "theme": "academic-light",
+    "status": "SYNTHETIC / HYPOTHETICAL"
+  },
+  "slides": [
+    {"slide_id":"S01","type":"cover","title":"Milestones stay editable","body":["A hypothetical timeline fixture"],"evidence_ids":[]},
+    {
+      "slide_id":"S02",
+      "type":"timeline",
+      "title":"A four-step hypothetical research plan",
+      "evidence_ids":["E_SYN_TIMELINE"],
+      "speaker_notes":"These dates are illustrative planning labels, not an approved or completed schedule.",
+      "timeline":{"events":[
+        {"when":"Week 1","label":"Prepare inputs","detail":"Freeze the synthetic fixture and checks."},
+        {"when":"Week 2","label":"Run local tests","detail":"Collect deterministic outputs."},
+        {"when":"Week 3","label":"Review results","detail":"Inspect claims, limits and rendered pages."},
+        {"when":"Week 4","label":"Plan follow-up","detail":"Choose the next experiment after review."}
+      ]}
+    }
+  ]
+}

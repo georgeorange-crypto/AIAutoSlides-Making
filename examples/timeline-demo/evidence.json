@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "id": "E_SYN_TIMELINE",
+      "label": "Synthetic milestone plan",
+      "source": "examples/timeline-demo/storyboard.json",
+      "locator": "Slide S02 timeline field; hypothetical project schedule",
+      "verified": false,
+      "note": "Fictional planning example, not an executed research schedule."
+    }
+  ]
+}

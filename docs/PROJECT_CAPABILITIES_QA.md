@@ -156,4 +156,12 @@ M3 已加入受众/目标/时长字段、可选 AI 分镜、按规则 ID 和页�
 
 参考：`src/code-snippet.mjs`、`src/validate.mjs`、`src/render.mjs`、`src/qa.mjs`、`docs/SCHEMA.md`。
 
+## Q15. 能否制作可编辑的时间线？
+
+**答：可以生成含 3–6 个事件的原生 PowerPoint 时间线。**
+
+`type:"timeline"` 为每个事件显示时间标签、标题和可选说明，使用原生连接线、圆形标记和文本框。QA 核对事件标记数量、顺序及文字与分镜一致。时间标签只是作者提供的显示文字，不会解析日期或验证计划是否已获批准、是否已经执行。
+
+参考：`src/render.mjs`、`src/validate.mjs`、`src/qa.mjs`、`src/cli.mjs`、`docs/SCHEMA.md`。
+
 

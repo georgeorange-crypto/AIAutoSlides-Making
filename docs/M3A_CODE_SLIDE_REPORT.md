@@ -14,7 +14,7 @@ Date: 2026-11-12 · Scope: one deterministic, source-linked code layout.
 | Check | Result |
 |---|---|
 | Targeted tests | Passed: 23 tests, including snippet validation, wrap preservation, PPTX editability, evidence lineage and QA exact-match. |
-| Full `npm run check` | Failed in an unrelated concurrent `tests/tool-registry.test.mjs` Mermaid smoke test: the generated SVG missed expected fixture labels. The code slide and 98 of 99 project tests passed. |
+| Full `npm run check` | Passed on the latest checkout: 102 tests, 0 failures, plus dependency, critic, import, build, QA, repeated-run and dual-edition checks. The earlier Mermaid smoke-test failure was resolved in a concurrent adapter update before this full rerun. |
 | Example | Validated and built: 2 slides, 6 native code text objects (five source lines, one wrapped). |
 | QA | No structural errors; exact code match true. Evidence warning is expected because the fixture is synthetic and unverified. |
 | Preview | PowerPoint 16.0 exported PDF; Poppler rendered both PNG pages. Both were visually inspected; code and filename are legible and fit within the slide. |

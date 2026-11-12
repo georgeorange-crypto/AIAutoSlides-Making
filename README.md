@@ -305,3 +305,16 @@ node scripts/preview.mjs outputs/code-demo.pptx
 ```
 
 The example is synthetic. QA compares each displayed segment with the source lines, but does not validate code behavior or font availability. See [`docs/M3A_CODE_SLIDE_REPORT.md`](docs/M3A_CODE_SLIDE_REPORT.md).
+
+## Editable timeline slides
+
+Use `type: "timeline"` for 3–6 ordered events with `when`, `label`, optional `detail`, and evidence IDs. The renderer uses editable PowerPoint lines, markers, and text. Time labels are display text; the tool does not parse dates or confirm that a plan is approved or completed.
+
+```powershell
+node src/cli.mjs validate --input examples/timeline-demo/storyboard.json --evidence examples/timeline-demo/evidence.json
+node src/cli.mjs build --input examples/timeline-demo/storyboard.json --evidence examples/timeline-demo/evidence.json --out outputs/timeline-demo.pptx
+node src/qa.mjs outputs/timeline-demo.pptx
+node scripts/preview.mjs outputs/timeline-demo.pptx
+```
+
+The included timeline is synthetic and hypothetical. See [`docs/M3A_TIMELINE_REPORT.md`](docs/M3A_TIMELINE_REPORT.md).
