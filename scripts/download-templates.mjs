@@ -194,7 +194,7 @@ async function fetchOne(item) {
     };
   } catch (error) {
     if (tempPath) fs.rmSync(tempPath, { force: true });
-    return { template_id: item.template_id, status: 'failed', reason: error.name === 'AbortError' ? 'timeout' : error.message };
+    return { template_id: item.template_id, status: 'failed', reason: error.name === 'AbortError' ? 'timeout' : error.message, cause_code: error.cause?.code ?? null };
   } finally {
     clearTimeout(timer);
   }
@@ -216,7 +216,10 @@ fs.mkdirSync(assetRoot, { recursive: true });
 const results = [];
 for (const item of downloadTargets) {
   console.log(`Fetching ${item.template_id} ...`);
-  results.push(await fetchOne(item));
+  const result = await fetchOne(item);
+  result.asset_label = item.asset_label;
+  result.source_url = item.download_url;
+  results.push(result);
 }
 const attemptedIds = new Set(downloadTargets.map(item => item.template_id));
 for (const item of records) {

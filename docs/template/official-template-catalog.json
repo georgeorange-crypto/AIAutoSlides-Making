@@ -6,7 +6,7 @@
     "entries": 57,
     "method": "Official source pages inspected; direct download links recorded when found; local file acquisition is separate from license clearance and editability QA.",
     "null_policy": "unknown / null rather than invented data",
-    "direct_link_resolution": "27 direct files listed; protected, dead, and non-template resources are recorded as skipped",
+    "direct_link_resolution": "26 public download targets attempted; 16 downloaded locally, 10 failed; restricted, dead, and non-template resources remain source-page references",
     "download_execution": {
       "date": "2026-11-12T20:54:08.594Z",
       "downloaded": 16,
@@ -195,7 +195,9 @@
         {
           "label": "S-SPIRE PowerPoint template",
           "url": "https://stanfordmedicine.box.com/s/j1o1hmk7myq450ed3nyifvqd8z4do4c6?download=1",
-          "filename": "stanford-ssspire.pptx"
+          "filename": "stanford-ssspire.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "received_html_instead_of_a_template_file"
         }
       ]
     },
@@ -1708,12 +1710,16 @@
         {
           "label": "NIH IRP 16:9 master template",
           "url": "https://irp.nih.gov/system/files/media/file/2022-01/IRP_MasterPPT_2019-02-08_16x9.pptx",
-          "filename": "nih-irp-16x9.pptx"
+          "filename": "nih-irp-16x9.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
         },
         {
           "label": "NIH IRP 4:3 master template",
           "url": "https://irp.nih.gov/system/files/media/file/2022-01/IRP_MasterPPT_112618_4x3.pptx",
-          "filename": "nih-irp-4x3.pptx"
+          "filename": "nih-irp-4x3.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
         }
       ]
     },
@@ -1760,7 +1766,9 @@
         {
           "label": "NASA IXPE presentation template",
           "url": "https://ixpe.msfc.nasa.gov/for_scientists/templates/IXPE-Presentation-Template.pptx",
-          "filename": "nasa-ixpe-template.pptx"
+          "filename": "nasa-ixpe-template.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
         }
       ]
     },
@@ -1847,32 +1855,44 @@
         {
           "label": "CDC presentation teal",
           "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/PowerPoint-_template_teal508.pptx",
-          "filename": "cdc-presentation-teal.pptx"
+          "filename": "cdc-presentation-teal.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
         },
         {
           "label": "CDC presentation orange",
           "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/PowerPoint_template_orange508.pptx",
-          "filename": "cdc-presentation-orange.pptx"
+          "filename": "cdc-presentation-orange.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
         },
         {
           "label": "CDC presentation purple",
           "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/PowerPoint-_template_purple508.pptx",
-          "filename": "cdc-presentation-purple.pptx"
+          "filename": "cdc-presentation-purple.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
         },
         {
           "label": "CDC webinar teal",
           "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/toolkit-webinar-template-teal.pptx",
-          "filename": "cdc-webinar-teal.pptx"
+          "filename": "cdc-webinar-teal.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
         },
         {
           "label": "CDC webinar orange",
           "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/toolkit-webinar-template-orange.pptx",
-          "filename": "cdc-webinar-orange.pptx"
+          "filename": "cdc-webinar-orange.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
         },
         {
           "label": "CDC webinar purple",
           "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/toolkit-webinar-template-purple.pptx",
-          "filename": "cdc-webinar-purple.pptx"
+          "filename": "cdc-webinar-purple.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
         }
       ]
     },
