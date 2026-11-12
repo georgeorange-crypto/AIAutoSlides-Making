@@ -1,0 +1,952 @@
+{
+  "status": "warning",
+  "scope": "PPTX structure, text-shape bounds and overlaps, minimum text size, theme contrast, chart-value and native error-bar integrity, and source checks; rendered pixels require human review",
+  "pptx": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\outputs\\open-source-bakeoff\\adapter\\presentation.pptx",
+  "pptx_sha256": "61fd7780fa56c3c4722646a69671a08cbe091e2ace2804a47e43e63cfd921d98",
+  "aspectRatio": 1.7786,
+  "slideCount": 9,
+  "editableTextSlideCount": 9,
+  "nativeShapeCount": 72,
+  "nativeConnectorCount": 0,
+  "nativeChartCount": 0,
+  "nativeErrorBarSeriesCount": 0,
+  "errorBarsMatch": true,
+  "embeddedChartWorkbookCount": 0,
+  "chartData": {
+    "storyboardValues": [],
+    "expectedChartCacheValues": [],
+    "chartCacheValues": [],
+    "embeddedWorkbookValues": [],
+    "exactMatch": true
+  },
+  "theme": null,
+  "slides": [
+    {
+      "slide": 1,
+      "editableText": 4,
+      "nativeShapes": 3,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 507504,
+          "y": 1554956,
+          "w": 6633121,
+          "h": 1140619
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 2864644,
+          "w": 7128272,
+          "h": 257175
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 3321844,
+          "w": 5852666,
+          "h": 190500
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 3,
+      "textOverlaps": [],
+      "textBoundsCount": 3,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 2,
+      "editableText": 6,
+      "nativeShapes": 6,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 371475,
+          "w": 5661868,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 923925,
+          "w": 1178421,
+          "h": 314325
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 1428750,
+          "w": 8286750,
+          "h": 419100
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 2257425,
+          "w": 1798141,
+          "h": 314325
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 2762250,
+          "w": 8101459,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 4705350,
+          "w": 3918496,
+          "h": 152400
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 6,
+      "textOverlaps": [],
+      "textBoundsCount": 6,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 3,
+      "editableText": 2,
+      "nativeShapes": 2,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "images": 1,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 371475,
+          "w": 6747867,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 2006352,
+          "w": 4913412,
+          "h": 190500
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 2,
+      "textOverlaps": [],
+      "textBoundsCount": 2,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 4,
+      "editableText": 11,
+      "nativeShapes": 14,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 371475,
+          "w": 4059585,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 1057275,
+          "w": 943719,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 7277993,
+          "y": 1057275,
+          "w": 1446907,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 1546771,
+          "w": 915888,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 7911554,
+          "y": 1546771,
+          "w": 813346,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 2036266,
+          "w": 925116,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 7911554,
+          "y": 2036266,
+          "w": 813346,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 2525762,
+          "w": 934343,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 7911554,
+          "y": 2525762,
+          "w": 813346,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 3043833,
+          "w": 8286750,
+          "h": 419100
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 10,
+      "textOverlaps": [],
+      "textBoundsCount": 10,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 5,
+      "editableText": 8,
+      "nativeShapes": 8,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 371475,
+          "w": 7148513,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 723900,
+          "y": 1285875,
+          "w": 2292251,
+          "h": 441871
+        },
+        {
+          "ok": true,
+          "x": 3530501,
+          "y": 1285875,
+          "w": 2292400,
+          "h": 441871
+        },
+        {
+          "ok": true,
+          "x": 6337250,
+          "y": 1285875,
+          "w": 2292251,
+          "h": 441871
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 2121991,
+          "w": 4260056,
+          "h": 190500
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 5,
+      "textOverlaps": [],
+      "textBoundsCount": 5,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 6,
+      "editableText": 11,
+      "nativeShapes": 11,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 371475,
+          "w": 5704582,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 914400,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 962025,
+          "w": 3263801,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 1216223,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 1263848,
+          "w": 3953173,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 1518047,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 1565672,
+          "w": 2462064,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 1819870,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 1867495,
+          "w": 3366641,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 2121694,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 2169319,
+          "w": 3701802,
+          "h": 190500
+        }
+      ],
+      "overlaps": [
+        {
+          "shape_a": 2,
+          "shape_b": 3,
+          "text_a": "▪ ",
+          "text_b": "Unsupported chart type → explicit warning",
+          "area_emu2": 15395067000
+        },
+        {
+          "shape_a": 4,
+          "shape_b": 5,
+          "text_a": "▪ ",
+          "text_b": "Raster-only element → object-level editability report",
+          "area_emu2": 15395067000
+        },
+        {
+          "shape_a": 6,
+          "shape_b": 7,
+          "text_a": "▪ ",
+          "text_b": "Missing source ID → build error",
+          "area_emu2": 15395067000
+        },
+        {
+          "shape_a": 8,
+          "shape_b": 9,
+          "text_a": "▪ ",
+          "text_b": "Unverified evidence → visible pending state",
+          "area_emu2": 15395067000
+        },
+        {
+          "shape_a": 10,
+          "shape_b": 11,
+          "text_a": "▪ ",
+          "text_b": "Provider call → explicit opt-in and cost boundary",
+          "area_emu2": 15395067000
+        }
+      ],
+      "smallText": [],
+      "editableTextShapes": 11,
+      "textOverlaps": [
+        {
+          "shape_a": 2,
+          "shape_b": 3,
+          "text_a": "▪ ",
+          "text_b": "Unsupported chart type → explicit warning",
+          "area_emu2": 15395067000
+        },
+        {
+          "shape_a": 4,
+          "shape_b": 5,
+          "text_a": "▪ ",
+          "text_b": "Raster-only element → object-level editability report",
+          "area_emu2": 15395067000
+        },
+        {
+          "shape_a": 6,
+          "shape_b": 7,
+          "text_a": "▪ ",
+          "text_b": "Missing source ID → build error",
+          "area_emu2": 15395067000
+        },
+        {
+          "shape_a": 8,
+          "shape_b": 9,
+          "text_a": "▪ ",
+          "text_b": "Unverified evidence → visible pending state",
+          "area_emu2": 15395067000
+        },
+        {
+          "shape_a": 10,
+          "shape_b": 11,
+          "text_a": "▪ ",
+          "text_b": "Provider call → explicit opt-in and cost boundary",
+          "area_emu2": 15395067000
+        }
+      ],
+      "textBoundsCount": 11,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 7,
+      "editableText": 13,
+      "nativeShapes": 19,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 371475,
+          "w": 6575524,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 1057275,
+          "w": 589508,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 2312045,
+          "y": 1057275,
+          "w": 1512243,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 1546771,
+          "w": 598884,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 2312045,
+          "y": 1546771,
+          "w": 2695426,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 2036266,
+          "w": 831800,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 2312045,
+          "y": 2036266,
+          "w": 3226891,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 2525762,
+          "w": 645319,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 2312045,
+          "y": 2525762,
+          "w": 2397472,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 3015258,
+          "w": 710952,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 2312045,
+          "y": 3015258,
+          "w": 2499568,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 3504754,
+          "w": 934343,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 2312045,
+          "y": 3504754,
+          "w": 3711625,
+          "h": 190500
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 13,
+      "textOverlaps": [],
+      "textBoundsCount": 13,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 8,
+      "editableText": 8,
+      "nativeShapes": 5,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 371475,
+          "w": 7853065,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 857250,
+          "w": 4391323,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 1238250,
+          "w": 4988123,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 1619250,
+          "w": 5220593,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 2000250,
+          "w": 3833812,
+          "h": 190500
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 5,
+      "textOverlaps": [],
+      "textBoundsCount": 5,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 9,
+      "editableText": 4,
+      "nativeShapes": 4,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 371475,
+          "w": 4574084,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 857250,
+          "w": 5389215,
+          "h": 190500
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 1238250,
+          "w": 8383488,
+          "h": 419100
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 1847850,
+          "w": 5974407,
+          "h": 190500
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 4,
+      "textOverlaps": [],
+      "textBoundsCount": 4,
+      "textBoundsPass": true
+    }
+  ],
+  "errors": [],
+  "warnings": [
+    "Build review report or its source inputs are missing; source completeness could not be checked",
+    "Slide 6 has 5 overlapping text-shape pair(s); inspect for unintended overlap",
+    "One or more slides include raster images; image-only status requires visual review"
+  ],
+  "objectiveFindings": [
+    {
+      "id": "STRUCTURE-WARNING",
+      "severity": "warning",
+      "message": "Build review report or its source inputs are missing; source completeness could not be checked"
+    },
+    {
+      "id": "STRUCTURE-WARNING",
+      "severity": "warning",
+      "message": "Slide 6 has 5 overlapping text-shape pair(s); inspect for unintended overlap"
+    },
+    {
+      "id": "STRUCTURE-WARNING",
+      "severity": "warning",
+      "message": "One or more slides include raster images; image-only status requires visual review"
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        2,
+        3
+      ],
+      "text": [
+        "▪ ",
+        "Unsupported chart type → explicit warning"
+      ],
+      "area_emu2": 15395067000,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        4,
+        5
+      ],
+      "text": [
+        "▪ ",
+        "Raster-only element → object-level editability report"
+      ],
+      "area_emu2": 15395067000,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        6,
+        7
+      ],
+      "text": [
+        "▪ ",
+        "Missing source ID → build error"
+      ],
+      "area_emu2": 15395067000,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        8,
+        9
+      ],
+      "text": [
+        "▪ ",
+        "Unverified evidence → visible pending state"
+      ],
+      "area_emu2": 15395067000,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        10,
+        11
+      ],
+      "text": [
+        "▪ ",
+        "Provider call → explicit opt-in and cost boundary"
+      ],
+      "area_emu2": 15395067000,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "FONT-RISK-001",
+      "severity": "review",
+      "message": "Font substitution is not encoded as a verifiable PPTX fact; compare these theme fonts with the target system.",
+      "font_families": []
+    }
+  ],
+  "humanReview": {
+    "status": "render_blocked",
+    "pages": [
+      {
+        "slide": 1,
+        "slide_id": "S01",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 2,
+        "slide_id": "S02",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 3,
+        "slide_id": "S03",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 4,
+        "slide_id": "S04",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 5,
+        "slide_id": "S05",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 6,
+        "slide_id": "S06",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 7,
+        "slide_id": "S07",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 8,
+        "slide_id": "S08",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 9,
+        "slide_id": "S09",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      }
+    ]
+  },
+  "visualReview": {
+    "status": "render_blocked",
+    "renderer": null,
+    "preview_manifest": null,
+    "decision_manifest": null,
+    "pages": [
+      {
+        "slide": 1,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 2,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 3,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 4,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 5,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 6,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 7,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 8,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 9,
+        "png": null,
+        "rendered": false
+      }
+    ],
+    "reason": "Render every page with scripts/preview.mjs, then inspect each image and record the reviewer decision."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "adapter": "slidev",
+  "backend_version": "53.1.0",
+  "input": {
+    "path": "synthetic-systems-talk.md",
+    "sha256": "baaef895bbb304c1a8066c522dbf982152547eed5ddd7cec2fc38471c94cf013"
+  },
+  "artifacts": [
+    {
+      "kind": "pptx",
+      "path": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\outputs\\open-source-bakeoff\\adapter\\presentation.pptx",
+      "sha256": "61fd7780fa56c3c4722646a69671a08cbe091e2ace2804a47e43e63cfd921d98"
+    },
+    {
+      "kind": "pdf",
+      "path": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\outputs\\open-source-bakeoff\\adapter\\presentation.pdf",
+      "sha256": "c1abfeb04e69eb98403ba3851c7d78e1e09adbafda13c57459b899259b7e42e6"
+    },
+    {
+      "kind": "png",
+      "path": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\outputs\\open-source-bakeoff\\adapter\\slidev-png",
+      "sha256": "94a8af43db2f86268b7d603898efce6611987a59736c6231a121b315b5b3d1ea"
+    },
+    {
+      "kind": "source-manifest",
+      "path": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\outputs\\open-source-bakeoff\\adapter\\slide-lineage.json",
+      "sha256": "e11486eb98a1198737e622c8bcd81608304716053b32e6ff6ddb4025b56d31dc"
+    }
+  ],
+  "warnings": [
+    "Slidev export does not create native PowerPoint chart objects. Complex DOM/SVG content may be rasterized.",
+    "A copied lineage sidecar is provenance metadata; the adapter does not assert that slide contents match it."
+  ]
+}

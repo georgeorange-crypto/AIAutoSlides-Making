@@ -56,7 +56,7 @@ The host validates IR, stages only user-authorized local content, invokes an ada
 
 1. Preserve current build and schemas; normalize storyboard/evidence/assets into IR in a sidecar conversion layer.
 2. Add capability discovery and per-backend manifest adapter without changing the default.
-3. Add Slidev adapter using Markdown plus editable export; validate evidence sidecar, native charts, notes, and output QA.
+3. **Implemented as a first adapter slice:** `packages/adapters/slidev.mjs` plus `scripts/run-slidev-backend.mjs` accepts Slidev Markdown, emits editable PPTX/PDF/PNG, hashes outputs, and copies an optional lineage sidecar. The synthetic 9-slide run and object/visual QA are retained under `artifacts/open-source-bakeoff/slidev-adapter/`. Native chart parity, semantic validation of the sidecar against slide contents, and existing-deck import remain open acceptance items.
 4. Add Presenton only if fixed-content API can run without a paid provider and output provenance can be reconstructed.
 5. Add PPTAgent Skill as an optional agent workflow; route fully offline/static scaffolding separately from LLM-driven generation.
 6. Promote a backend only after repeated synthetic and user-authorized corpus tests show layout, editability, scientific fidelity, and operating-cost acceptability.

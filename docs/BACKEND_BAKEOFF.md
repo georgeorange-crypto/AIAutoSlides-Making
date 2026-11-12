@@ -28,6 +28,7 @@ Files are local ignored outputs (not committed):
 
 - `outputs/open-source-bakeoff/slidev-systems-talk.pptx`
 - `outputs/open-source-bakeoff/slidev-systems-talk.pdf`
+- `outputs/open-source-bakeoff/slidev-contact-sheet.png` (9-page overview; individual pages remain available under `slidev-png/`)
 - `outputs/open-source-bakeoff/slidev-png/1.png` … `9.png`
 - `outputs/open-source-bakeoff/slidev-objects.json` (object counts)
 - `outputs/open-source-bakeoff/slidev.qa.json` and `.md` (AIAutoSlides package inspection)
@@ -68,3 +69,9 @@ Use the exact Slidev commands in [`examples/open-source-bakeoff/README.md`](../e
 2. Add a data-backed native chart and visible lineage labels to the shared fixture; inspect charts/workbooks, notes, text, shapes, images and overflow for each backend.
 3. Assess importing/editing an existing synthetic PPTX; none of the completed external POCs in this phase demonstrates that workflow.
 4. Pin container digest and all transitive licenses before adapter development. Do not enable cloud generation in default builds or CI.
+
+## Phase 2: isolated Slidev adapter
+
+The CLI integration is now implemented in `packages/adapters/slidev.mjs` and `scripts/run-slidev-backend.mjs`, using the versioned local tool-adapter protocol. It accepts the original synthetic Markdown, exports `pptx-editable`, PDF, and PNG, optionally copies the stable slide/evidence lineage sidecar, and writes a versioned manifest with input and artifact hashes. It is opt-in and leaves the default PptxGenJS build unchanged. No AI/provider call or network content is used.
+
+The adapter was run end to end with Slidev `53.1.0`, Node `v24.14.0`, and local Chrome. It produced all three formats and a nine-page PNG set. `node src/qa.mjs` reported **9 slides, 9 text-editable slides, 0 native charts**; all nine pages were visually inspected with no clipping or overlap found. PPTX, PDF, all PNG pages, lineage sidecar, manifest, and QA JSON/Markdown are committed under [`artifacts/open-source-bakeoff/slidev-adapter/`](../artifacts/open-source-bakeoff/slidev-adapter/). Adapter tests cover format selection, sidecar copying, manifest writing, and invalid input. This does not establish native chart support, sidecar-to-content semantic validation, import of existing decks, or parity with the AIAutoSlides scientific IR.
