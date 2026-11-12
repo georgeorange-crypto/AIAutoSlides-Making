@@ -31,5 +31,12 @@
 
 - OCR is intentionally out of scope; scanned documents must be processed separately and the output manually checked.
 - This adapter extracts text and provenance; it does not automatically create claims, slides, or verify claim-to-source entailment.
-- Next: compare export fidelity/editability for an optional open-source backend if one is installed/valuable, then add repeated-run timing samples and a human-measured repair-time protocol before reporting stable speed claims.
+- An optional open-source export backend was evaluated on a three-slide synthetic fixture. Slidev `pptx-editable` preserved editable text with no raster pictures in this case, but rendered with weaker theme/layout fidelity and did not provide the project's evidence lineage or chart QA contract. The measured comparison and adoption decision are in [`M4_BACKEND_COMPARISON.md`](M4_BACKEND_COMPARISON.md). It remains optional and outside default dependencies/CI.
+- The local update-cost benchmark remains one synthetic run, not a stable speed claim. Human-measured repair-time protocol and repeated samples remain future work.
 - Google Slides/Canva adapters and PowerPoint/Google sync are not included; they require separate user authorization and account/API configuration.
+
+## M4 current completion boundary
+
+- Delivered locally: offline PDF/DOCX source extraction, source hashes and locators, the synthetic first-build/one-row-update benchmark, and an evidence-backed comparison of the native PPTX route with one open-source editable-PPTX exporter.
+- Ecosystem review: official capability and developer docs for Google Slides, Canva, Gamma, Beautiful.ai, Figma Slides, Microsoft PowerPoint/Copilot, Napkin, Quarto, Slidev and Marp were checked and mapped to adapter decisions in [`M4_ECOSYSTEM_REVIEW.md`](M4_ECOSYSTEM_REVIEW.md).
+- Not delivered: cloud sync/authenticated account adapters, OCR, scientific source verification, chart parity for alternate backends, repeated timing distributions, or manual repair-time measurement. These are not represented as completed.

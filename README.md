@@ -211,6 +211,8 @@ The selection command writes the confirmed theme profile to `docs/design.md` and
 
 See [`docs/PROJECT_CAPABILITIES_QA.md`](docs/PROJECT_CAPABILITIES_QA.md) for the current capability Q&A; [`docs/LOCAL_SLIDE_GUIDANCE.md`](docs/LOCAL_SLIDE_GUIDANCE.md) for an offline summary of presentation guidance by institution and use case; [`docs/REFERENCES.md`](docs/REFERENCES.md) for source links; [`docs/RESEARCH_APPLICATION_MATRIX.md`](docs/RESEARCH_APPLICATION_MATRIX.md) for source-to-code traceability; [`docs/PRODUCT_BENCHMARK.md`](docs/PRODUCT_BENCHMARK.md) for a measurement protocol; and [`docs/SCHEMA.md`](docs/SCHEMA.md) and [`docs/CODEX_MASTER_PROMPT.md`](docs/CODEX_MASTER_PROMPT.md) for data contracts and roadmap.
 
+M4's local-source import, synthetic update-cost benchmark, open-source editable-PPTX comparison and official ecosystem capability review are documented in [`docs/M4_IMPLEMENTATION_REPORT.md`](docs/M4_IMPLEMENTATION_REPORT.md), [`docs/M4_UPDATE_BENCHMARK.md`](docs/M4_UPDATE_BENCHMARK.md), [`docs/M4_BACKEND_COMPARISON.md`](docs/M4_BACKEND_COMPARISON.md), and [`docs/M4_ECOSYSTEM_REVIEW.md`](docs/M4_ECOSYSTEM_REVIEW.md). The Slidev comparison is an optional, locally reproduced prototype and is not part of default dependencies or CI. No cloud account or provider API was connected.
+
 ## CI and repository state
 
 GitHub Actions runs `npm ci` and `npm run check`, then uploads both PPTX outputs and QA reports. It does not use paid APIs. Local preview rendering uses installed desktop software and is not part of CI.
