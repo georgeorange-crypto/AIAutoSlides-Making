@@ -180,6 +180,17 @@ Get-Content outputs/imports/paper.md
 
 The command writes `.md`, `.manifest.json`, and `.evidence.json` files under the selected output prefix. When an existing ledger is supplied, its entries are copied and the new unverified entry is appended to the generated ledger; the original ledger is not modified. DOCX tables are linearized, headers/footers and image OCR are not extracted. Use the generated evidence ID in a storyboard and cite the exact excerpt/locator in `claim_support`.
 
+### Local update benchmark (synthetic)
+
+Run a reproducible first-generation / one-row-update timing and structural fidelity check on the bundled synthetic repeated-run fixture:
+
+```powershell
+npm run benchmark:update
+Get-Content outputs/m4/update-benchmark.benchmark.md
+```
+
+This measures the local CSV import, validation, PPTX build, and structural QA pipeline. It reports source diffs, evidence-ID coverage, native chart/workbook values, and editability; it does not measure human repair time or prove cross-platform office rendering quality. The recorded workstation run is in [`docs/M4_UPDATE_BENCHMARK.md`](docs/M4_UPDATE_BENCHMARK.md).
+
 To compare the built-in themes, generate a 2-slide cover/chart preview in each theme, inspect the six PNGs, and confirm a selection explicitly. No proprietary template or asset is copied.
 
 ```powershell

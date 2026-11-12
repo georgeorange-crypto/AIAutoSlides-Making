@@ -61,3 +61,13 @@ jobs:
             outputs/m2-dual/research-demo-shared-evidence.md
             outputs/research-demo-critique.json
             outputs/research-demo-critique.md
+            outputs/m4/update-benchmark.benchmark.json
+            outputs/m4/update-benchmark.benchmark.md
+            outputs/m4/update-benchmark-first.pptx
+            outputs/m4/update-benchmark-first.qa.json
+            outputs/m4/update-benchmark-first.qa.md
+            outputs/m4/update-benchmark-first.evidence-manifest.json
+            outputs/m4/update-benchmark-updated.pptx
+            outputs/m4/update-benchmark-updated.qa.json
+            outputs/m4/update-benchmark-updated.qa.md
+            outputs/m4/update-benchmark-updated.evidence-manifest.json

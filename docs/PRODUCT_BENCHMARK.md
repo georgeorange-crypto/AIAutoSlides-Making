@@ -2,6 +2,8 @@
 
 This is a measurement plan, **not a results report**. No competitor has been scored and no speed or quality advantage is claimed.
 
+The first local update-pipeline measurement is recorded separately in [`M4_UPDATE_BENCHMARK.md`](M4_UPDATE_BENCHMARK.md). It covers only one synthetic repeated-run task and is not a competitor comparison or a substitute for the protocol below.
+
 ## Tasks and inputs
 
 | Task | Controlled input | Required deliverable | Numerical data status |

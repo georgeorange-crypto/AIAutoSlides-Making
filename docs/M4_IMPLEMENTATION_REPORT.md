@@ -20,9 +20,16 @@
 - PDF integration test confirms Poppler extracted selectable text from a generated synthetic one-page PDF. The parser unit tests retain blank page locators and reject image-only/no-text input with the OCR limitation.
 - `git diff --check`: passed; Git emitted only line-ending normalization notices.
 
+## Update-pipeline benchmark tranche
+
+- Added `npm run benchmark:update` to `npm run check`. It only accepts the bundled fixture when it is explicitly marked `SYNTHETIC`, changes one value from 52 ms to 53 ms, then runs first build and second refresh through import, validation, PPTX build and structural QA.
+- Recorded one local run in [`M4_UPDATE_BENCHMARK.md`](M4_UPDATE_BENCHMARK.md): first run **1,486 ms**, one-row update **1,368 ms**. Exactly one observation changed; no rows were added or removed.
+- Both 8-slide decks had 8/8 editable-text slides, one native chart, one native error-bar series, zero raster pictures, exact chart/workbook values and exact error-bar data. Seven factual slides had valid evidence IDs (7/7). These measurements do not include human repair time or rendered visual review.
+- Raw machine-readable result includes source and PPTX SHA-256 hashes, runtime/dependency versions and machine details. Results are synthetic and from a single run; do not use as a product performance claim.
+
 ## Scope limits / next M4 work
 
 - OCR is intentionally out of scope; scanned documents must be processed separately and the output manually checked.
 - This adapter extracts text and provenance; it does not automatically create claims, slides, or verify claim-to-source entailment.
-- Next: add a repeatable deck update/repair benchmark using measured timings already supported by `src/refresh-runs.mjs`, and compare export fidelity/editability for an optional open-source backend before implementing external sync adapters.
+- Next: compare export fidelity/editability for an optional open-source backend if one is installed/valuable, then add repeated-run timing samples and a human-measured repair-time protocol before reporting stable speed claims.
 - Google Slides/Canva adapters and PowerPoint/Google sync are not included; they require separate user authorization and account/API configuration.

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "benchmark": "synthetic repeated-run local update",
+  "created_at": "2026-11-12T17:08:04.600Z",
+  "source": {
+    "path": "examples/from-csv/synthetic-repeated-runs.csv",
+    "sha256_first_run": "83cf15cf61584eb6654d02ea93c13730c3aa984b1c53c4c20dbd55bf7482b76e",
+    "sha256_updated_run": "c2adc1b6d04a4648fee958944959b5cb4e4ab90fc90fc4b4b487f9e1883d5164",
+    "observations": 20,
+    "runs": 20,
+    "synthetic_only": true
+  },
+  "update": {
+    "changed_observation": {
+      "run_id": "baseline-01",
+      "observation_id": "obs-b01",
+      "previous_row": 3,
+      "current_row": 3,
+      "previous_sha256": "e547e2d6633e75f9854cc2e5aa950e4d6a48db23a82874238efcce7904279a0d",
+      "current_sha256": "8105bbcebe091b172bf018d7798052f3d71004596bc77de617c6a142b843c362"
+    },
+    "value_before": 52,
+    "value_after": 53,
+    "added": 0,
+    "changed": 1,
+    "removed": 0
+  },
+  "timing": {
+    "first_run_ms": 1485.7643,
+    "second_update_ms": 1367.7826,
+    "second_build_performed": true,
+    "scope": "Local CSV import, validation, PPTX generation, and structural QA; excludes PDF rendering, human visual review, and human repair."
+  },
+  "output": {
+    "first_pptx_sha256": "a784a99eb3d3bc1f6d907984396c855402470835bc5cb58dcbf3b190d25fd0a0",
+    "updated_pptx_sha256": "89ef9a0ad37502ae3cecfba977b85f0d500d050f8a1c5aef723653c43bfa1f83",
+    "first_deck_differs_from_updated": true
+  },
+  "quality": {
+    "slides": 8,
+    "editable_text_slides": 8,
+    "native_charts": 1,
+    "native_error_bar_series": 1,
+    "raster_images": 0,
+    "first_chart_values_exact": true,
+    "updated_chart_values_exact": true,
+    "first_error_bars_exact": true,
+    "updated_error_bars_exact": true,
+    "factual_slides": 7,
+    "slides_with_valid_evidence_ids": 7,
+    "chart_values_checked": 2,
+    "manual_repair_minutes": null,
+    "visual_review": "not performed for the repeated-run benchmark decks; only the separate 7-slide keynote demo was visually inspected."
+  },
+  "runtime": {
+    "node": "v24.14.0",
+    "pptxgenjs": "4.0.1",
+    "fflate": "0.8.3",
+    "platform": "win32",
+    "arch": "x64",
+    "os": "Windows_NT",
+    "release": "10.0.26300",
+    "cpu": "AMD Ryzen 9 7945HX with Radeon Graphics",
+    "logical_cpu_count": 32,
+    "total_memory_bytes": 16308015104
+  },
+  "limitations": [
+    "Synthetic fixture demonstrates pipeline mechanics only and cannot support scientific or product-performance claims.",
+    "This is one local run per stage; elapsed time is descriptive and hardware/load dependent.",
+    "Human repair time, blind design ratings, and pixel-level review were not measured.",
+    "Editable-text coverage and exact chart/workbook/error-bar checks are structural QA metrics, not complete office-app interoperability tests."
+  ]
+}
