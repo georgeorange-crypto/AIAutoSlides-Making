@@ -1,6 +1,6 @@
 # RFC: backend-neutral scientific presentation platform
 
-**Status:** Proposed after first local backend bake-off. No renderer rewrite is proposed.
+**Status:** Incremental implementation. A Slidev Markdown exporter and a bounded Presentation IR mapping slice are available; native chart parity, asset/layout coverage, and other backends remain proposed.
 
 ## Design goal
 
@@ -54,9 +54,9 @@ The host validates IR, stages only user-authorized local content, invokes an ada
 
 ## Integration sequence
 
-1. Preserve current build and schemas; normalize storyboard/evidence/assets into IR in a sidecar conversion layer.
+1. **Partially implemented:** `packages/adapters/slidev-ir.mjs` maps Presentation IR 1.0.0 text, bullets, tables, cards, callouts, Mermaid, and an SVG chart fallback to Slidev Markdown. It preserves source state, slide/evidence IDs, element/source mappings, and hashes. Windows POC generated PPTX/PDF/PNG with Slidev 53.1.0 using `networkidle`; structural and lineage checks passed. The chart remains non-native. Asset placement, arbitrary transforms, and full schema/figure coverage remain open.
 2. Add capability discovery and per-backend manifest adapter without changing the default.
-3. **Implemented as a first adapter slice:** `packages/adapters/slidev.mjs` plus `scripts/run-slidev-backend.mjs` accepts Slidev Markdown, emits editable PPTX/PDF/PNG, hashes outputs, and copies an optional lineage sidecar. The synthetic 9-slide run and object/visual QA are retained under `artifacts/open-source-bakeoff/slidev-adapter/`. Native chart parity, semantic validation of the sidecar against slide contents, and existing-deck import remain open acceptance items.
+3. **Implemented as a first adapter slice for Slidev Markdown input and a bounded IR POC:** `packages/adapters/slidev.mjs` plus `scripts/run-slidev-backend.mjs` emits editable PPTX/PDF/PNG, hashes outputs, and validates optional lineage against every PPTX notes slide. Markdown-only evidence is under `artifacts/open-source-bakeoff/slidev-adapter/`; IR export, object QA, and visual review are under `artifacts/open-source-bakeoff/slidev-ir/`. Native chart objects, asset/layout parity, and existing-deck import remain open acceptance items.
 4. Add Presenton only if fixed-content API can run without a paid provider and output provenance can be reconstructed.
 5. Add PPTAgent Skill as an optional agent workflow; route fully offline/static scaffolding separately from LLM-driven generation.
 6. Promote a backend only after repeated synthetic and user-authorized corpus tests show layout, editability, scientific fidelity, and operating-cost acceptability.

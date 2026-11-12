@@ -12,6 +12,9 @@ function options(args) {
     else if(name==='input') result.inputFile=resolve(value);
     else if(name==='out') result.outputDir=resolve(value);
     else if(name==='lineage') result.lineageFile=resolve(value);
+    else if(name==='project-dir') result.projectDir=resolve(value);
+    else if(name==='timeout') result.renderTimeoutMs=Number(value);
+    else if(name==='wait-until') result.waitUntil=value;
     else throw new Error(`Unknown option: ${key}`);
   }
   return result;

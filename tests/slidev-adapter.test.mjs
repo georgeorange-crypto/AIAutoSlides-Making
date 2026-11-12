@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import os from 'node:os';
 import path from 'node:path';
 import {mkdtemp,mkdir,readFile,writeFile,rm} from 'node:fs/promises';
+import {zipSync,strToU8} from 'fflate';
 import {createSlidevAdapter} from '../packages/adapters/slidev.mjs';
 
 test('Slidev adapter exports selected formats and preserves lineage as a sidecar',async()=>{
@@ -11,24 +12,32 @@ test('Slidev adapter exports selected formats and preserves lineage as a sidecar
     const input=path.join(root,'deck.md'),lineage=path.join(root,'lineage.json'),out=path.join(root,'out');
     await writeFile(input,'# Synthetic slide\n');
     await writeFile(lineage,'{"slides":[{"slide_id":"S01","evidence_ids":["E_SYN_01"]}]}\n');
-    const calls=[];
-    const adapter=createSlidevAdapter({runCommand:async(_bin,args)=>{
+    const calls=[],workingDirs=[];
+    const adapter=createSlidevAdapter({runCommand:async(_bin,args,options)=>{
       calls.push(args);
+      workingDirs.push(options?.cwd);
       if(args[0]==='--version')return 'v53.1.0';
-      const target=args[args.indexOf('--output')+1];
-      if(args[args.indexOf('--format')+1]==='png') {await mkdir(target,{recursive:true});await writeFile(path.join(target,'1.png'),'png');}
+      const format=args[args.indexOf('--format')+1],target=args[args.indexOf('--output')+1];
+      if(format==='png') {await mkdir(target,{recursive:true});await writeFile(path.join(target,'1.png'),'png');}
+      else if(format==='pptx-editable') await writeFile(target,zipSync({'ppt/notesSlides/notesSlide1.xml':strToU8('<p:notes><a:t>slide_id: S01</a:t><a:t>evidence: E_SYN_01</a:t></p:notes>'),'ppt/slides/slide1.xml':strToU8('<p:sld><a:t>Synthetic slide</a:t></p:sld>')}));
       else await writeFile(target,'artifact');
       return '';
     }});
-    const result=await adapter.run({inputFile:input,outputDir:out,formats:['pptx-editable','pdf','png'],lineageFile:lineage,binary:'fake-slidev'});
+    const result=await adapter.run({inputFile:input,outputDir:out,formats:['pptx-editable','pdf','png'],lineageFile:lineage,binary:'fake-slidev',projectDir:root,renderTimeoutMs:120000,waitUntil:'load'});
     assert.equal(result.backendVersion,'v53.1.0');
-    assert.deepEqual(result.artifacts.map(a=>a.kind),['pptx','pdf','png','source-manifest','source-manifest']);
+    assert.deepEqual(result.artifacts.map(a=>a.kind),['source-manifest','pptx','lineage-validation','pdf','png','source-manifest']);
     assert.equal(calls.filter(args=>args[0]==='export').length,3);
     assert.ok(calls.some(args=>args.includes('--with-clicks')&&args.includes('false')));
+    assert.ok(calls.some(args=>args.includes('--timeout')&&args.includes('120000')&&args.includes('--wait-until')&&args.includes('load')));
+    assert.ok(workingDirs.includes(root));
     assert.equal(await readFile(path.join(out,'slide-lineage.json'),'utf8'),await readFile(lineage,'utf8'));
     const manifest=JSON.parse(await readFile(path.join(out,'slidev-backend-manifest.json'),'utf8'));
     assert.equal(manifest.backend_version,'v53.1.0');
-    assert.equal(manifest.artifacts.length,4);
+    assert.equal(manifest.render.timeout_ms,120000);
+    assert.equal(manifest.render.wait_until,'load');
+    assert.equal(manifest.render.project_root,path.basename(root));
+    assert.equal(manifest.artifacts.length,5);
+    assert.equal(JSON.parse(await readFile(path.join(out,'lineage-validation.json'),'utf8')).status,'passed');
   } finally {await rm(root,{recursive:true,force:true});}
 });
 

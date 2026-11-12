@@ -1,0 +1,188 @@
+{
+  "schema_version": "1.0.0",
+  "source_ir_sha256": "a045cb63cebb4d24e7f37f31e44f895d60dfcb624e8eb436dd9323309fb05a09",
+  "sources": [
+    {
+      "source_id": "E_SYN_01",
+      "type": "synthetic_fixture",
+      "uri": "fixture://synthetic-systems-talk",
+      "sha256": null,
+      "locator": "examples/open-source-bakeoff/synthetic-presentation-ir.json",
+      "verification_status": "unverified"
+    }
+  ],
+  "slides": [
+    {
+      "slide_id": "S01",
+      "title": "Synthetic local-first presentation pipeline",
+      "evidence_ids": [
+        "E_SYN_01"
+      ],
+      "elements": [
+        {
+          "element_id": "S01-E01",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        }
+      ]
+    },
+    {
+      "slide_id": "S02",
+      "title": "Design the pipeline around evidence",
+      "evidence_ids": [
+        "E_SYN_01"
+      ],
+      "elements": [
+        {
+          "element_id": "S02-E01",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        },
+        {
+          "element_id": "S02-E02",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        }
+      ]
+    },
+    {
+      "slide_id": "S03",
+      "title": "Separate evidence from presentation layout",
+      "evidence_ids": [
+        "E_SYN_01"
+      ],
+      "elements": [
+        {
+          "element_id": "S03-E01",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        },
+        {
+          "element_id": "S03-E02",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        }
+      ]
+    },
+    {
+      "slide_id": "S04",
+      "title": "Keep figures deterministic",
+      "evidence_ids": [
+        "E_SYN_01"
+      ],
+      "elements": [
+        {
+          "element_id": "S04-E01",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        },
+        {
+          "element_id": "S04-E02",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        }
+      ]
+    },
+    {
+      "slide_id": "S05",
+      "title": "Layout intent should survive backend changes",
+      "evidence_ids": [
+        "E_SYN_01"
+      ],
+      "elements": [
+        {
+          "element_id": "S05-E01",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        },
+        {
+          "element_id": "S05-E02",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        }
+      ]
+    },
+    {
+      "slide_id": "S06",
+      "title": "Track limitations as structured output",
+      "evidence_ids": [
+        "E_SYN_01"
+      ],
+      "elements": [
+        {
+          "element_id": "S06-E01",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        }
+      ]
+    },
+    {
+      "slide_id": "S07",
+      "title": "Compare capabilities, not marketing labels",
+      "evidence_ids": [
+        "E_SYN_01"
+      ],
+      "elements": [
+        {
+          "element_id": "S07-E01",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        }
+      ]
+    },
+    {
+      "slide_id": "S08",
+      "title": "A backend is useful only when its boundary is clear",
+      "evidence_ids": [
+        "E_SYN_01"
+      ],
+      "elements": [
+        {
+          "element_id": "S08-E01",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        },
+        {
+          "element_id": "S08-E02",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        }
+      ]
+    },
+    {
+      "slide_id": "S09",
+      "title": "Recommendation for this test",
+      "evidence_ids": [
+        "E_SYN_01"
+      ],
+      "elements": [
+        {
+          "element_id": "S09-E01",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        },
+        {
+          "element_id": "S09-E02",
+          "source_ids": [
+            "E_SYN_01"
+          ]
+        }
+      ]
+    }
+  ],
+  "charts": []
+}

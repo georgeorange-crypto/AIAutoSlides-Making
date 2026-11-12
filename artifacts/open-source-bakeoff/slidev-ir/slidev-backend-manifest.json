@@ -1,0 +1,53 @@
+{
+  "adapter": "slidev",
+  "backend_version": "53.1.0",
+  "render": {
+    "project_root": "slidev-lab",
+    "timeout_ms": 120000,
+    "wait_until": "networkidle"
+  },
+  "input": {
+    "path": "presentation.md",
+    "sha256": "5aad3c4f5c36adc09bc5096f16b602b7d26f9c883296969f2bfdff32b14da759"
+  },
+  "lineage": {
+    "slide_count": 9,
+    "sources": [
+      {
+        "source_id": "E_SYN_01",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "kind": "source-manifest",
+      "path": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\artifacts\\open-source-bakeoff\\slidev-ir\\slide-lineage.json",
+      "sha256": "885d6b71c24b91e1e3abeaa6740efd675b3bf7ef1c371486fa0c7790ee701505"
+    },
+    {
+      "kind": "pptx",
+      "path": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\artifacts\\open-source-bakeoff\\slidev-ir\\presentation.pptx",
+      "sha256": "39f3a1a42b78f2b1e629bd16b08f3f650df2331b8cb73b584772b7d6e6a41b79"
+    },
+    {
+      "kind": "lineage-validation",
+      "path": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\artifacts\\open-source-bakeoff\\slidev-ir\\lineage-validation.json",
+      "sha256": "57d9bca2d18494c364cb44917c2a82e4087e297814713f64400ac78c9a2e354d"
+    },
+    {
+      "kind": "pdf",
+      "path": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\artifacts\\open-source-bakeoff\\slidev-ir\\presentation.pdf",
+      "sha256": "022e85a6206793501d23a2914fca5023004868971763d311a39021b9975f5407"
+    },
+    {
+      "kind": "png",
+      "path": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\artifacts\\open-source-bakeoff\\slidev-ir\\slidev-png",
+      "sha256": "8f5b307933a4648d041cbd72073aec6a37936be70da4c6d594e359942639e850"
+    }
+  ],
+  "warnings": [
+    "Slidev export does not create native PowerPoint chart objects. Complex DOM/SVG content may be rasterized.",
+    "Source E_SYN_01 remains unverified; export does not upgrade verification status."
+  ]
+}

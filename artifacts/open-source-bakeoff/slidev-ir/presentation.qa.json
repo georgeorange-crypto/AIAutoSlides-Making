@@ -1,0 +1,1803 @@
+{
+  "status": "warning",
+  "scope": "PPTX structure, text-shape bounds and overlaps, minimum text size, theme contrast, chart/table object structure, chart-value and native error-bar integrity, and source checks; rendered pixels require human review",
+  "pptx": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\artifacts\\open-source-bakeoff\\slidev-ir\\presentation.pptx",
+  "pptx_sha256": "39f3a1a42b78f2b1e629bd16b08f3f650df2331b8cb73b584772b7d6e6a41b79",
+  "aspectRatio": 1.7786,
+  "slideCount": 9,
+  "editableTextSlideCount": 9,
+  "nativeShapeCount": 79,
+  "nativeConnectorCount": 0,
+  "nativeChartCount": 0,
+  "nativeTableCount": 0,
+  "tableDataExactMatch": true,
+  "nativeErrorBarSeriesCount": 0,
+  "errorBarsMatch": true,
+  "embeddedChartWorkbookCount": 0,
+  "chartData": {
+    "storyboardValues": [],
+    "expectedChartCacheValues": [],
+    "chartCacheValues": [],
+    "embeddedWorkbookValues": [],
+    "exactMatch": true
+  },
+  "theme": null,
+  "slides": [
+    {
+      "slide": 1,
+      "editableText": 3,
+      "nativeShapes": 3,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 504825,
+          "y": 1343025,
+          "w": 8315325,
+          "h": 1543050
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 3000375,
+          "w": 7914977,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 3524250,
+          "w": 5708303,
+          "h": 228600
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 504825,
+          "y": 1343025,
+          "w": 8315325,
+          "h": 1543050
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 533400,
+          "y": 3000375,
+          "w": 7914977,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 533400,
+          "y": 3524250,
+          "w": 5708303,
+          "h": 228600
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 3,
+      "textOverlaps": [],
+      "textBoundsCount": 3,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 2,
+      "editableText": 4,
+      "nativeShapes": 6,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 333375,
+          "w": 5692378,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 885825,
+          "w": 8304853,
+          "h": 733425
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 1752600,
+          "w": 6358682,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 619125,
+          "y": 2190750,
+          "w": 1989088,
+          "h": 180975
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 516285,
+          "y": 333375,
+          "w": 5692378,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 533400,
+          "y": 885825,
+          "w": 8304853,
+          "h": 733425
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 533400,
+          "y": 1752600,
+          "w": 6358682,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 533400,
+          "y": 2133600,
+          "w": 8267700,
+          "h": 304800
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 533400,
+          "y": 2133600,
+          "w": 9525,
+          "h": 304800
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 619125,
+          "y": 2190750,
+          "w": 1989088,
+          "h": 180975
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 4,
+      "textOverlaps": [],
+      "textBoundsCount": 4,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 3,
+      "editableText": 2,
+      "nativeShapes": 2,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "tables": 0,
+      "images": 1,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 333375,
+          "w": 6805464,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 1987302,
+          "w": 5303937,
+          "h": 228600
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 516285,
+          "y": 333375,
+          "w": 6805464,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "element": "pic",
+          "index": 2,
+          "x": 533400,
+          "y": 914400,
+          "w": 8267700,
+          "h": 850106
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 533400,
+          "y": 1987302,
+          "w": 5303937,
+          "h": 228600
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 2,
+      "textOverlaps": [],
+      "textBoundsCount": 2,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 4,
+      "editableText": 10,
+      "nativeShapes": 16,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 333375,
+          "w": 4093369,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 1038225,
+          "w": 958007,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 3856881,
+          "y": 1038225,
+          "w": 1501825,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 1527721,
+          "w": 939552,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 3856881,
+          "y": 1527721,
+          "w": 823020,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 2017216,
+          "w": 930622,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 3856881,
+          "y": 2017216,
+          "w": 823020,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 2506712,
+          "w": 930176,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 3856881,
+          "y": 2506712,
+          "w": 823020,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 619125,
+          "y": 2929533,
+          "w": 2991743,
+          "h": 180975
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 516285,
+          "y": 333375,
+          "w": 4093369,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 533400,
+          "y": 1389608,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 609600,
+          "y": 1038225,
+          "w": 958007,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 3856881,
+          "y": 1038225,
+          "w": 1501825,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 533400,
+          "y": 1879104,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 609600,
+          "y": 1527721,
+          "w": 939552,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 3856881,
+          "y": 1527721,
+          "w": 823020,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 533400,
+          "y": 2368600,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 609600,
+          "y": 2017216,
+          "w": 930622,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 10,
+          "x": 3856881,
+          "y": 2017216,
+          "w": 823020,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 11,
+          "x": 533400,
+          "y": 2858095,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 12,
+          "x": 609600,
+          "y": 2506712,
+          "w": 930176,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 13,
+          "x": 3856881,
+          "y": 2506712,
+          "w": 823020,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 14,
+          "x": 533400,
+          "y": 2872383,
+          "w": 8267700,
+          "h": 304800
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 15,
+          "x": 533400,
+          "y": 2872383,
+          "w": 9525,
+          "h": 304800
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 16,
+          "x": 619125,
+          "y": 2929533,
+          "w": 2991743,
+          "h": 180975
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 10,
+      "textOverlaps": [],
+      "textBoundsCount": 10,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 5,
+      "editableText": 8,
+      "nativeShapes": 8,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 333375,
+          "w": 7196137,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "x": 723900,
+          "y": 1200150,
+          "w": 2292251,
+          "h": 479971
+        },
+        {
+          "ok": true,
+          "x": 3530501,
+          "y": 1200150,
+          "w": 2292400,
+          "h": 479971
+        },
+        {
+          "ok": true,
+          "x": 6337250,
+          "y": 1200150,
+          "w": 2292251,
+          "h": 479971
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 2045791,
+          "w": 3697188,
+          "h": 228600
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 516285,
+          "y": 333375,
+          "w": 7196137,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 533400,
+          "y": 990600,
+          "w": 2654201,
+          "h": 902791
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 723900,
+          "y": 1200150,
+          "w": 2292251,
+          "h": 479971
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 3340001,
+          "y": 990600,
+          "w": 2654350,
+          "h": 902791
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 3530501,
+          "y": 1200150,
+          "w": 2292400,
+          "h": 479971
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 6146750,
+          "y": 990600,
+          "w": 2654201,
+          "h": 902791
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 6337250,
+          "y": 1200150,
+          "w": 2292251,
+          "h": 479971
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 533400,
+          "y": 2045791,
+          "w": 3697188,
+          "h": 228600
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 5,
+      "textOverlaps": [],
+      "textBoundsCount": 5,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 6,
+      "editableText": 11,
+      "nativeShapes": 11,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 333375,
+          "w": 5820370,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 914400,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 942975,
+          "w": 3358604,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 1216223,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 1244798,
+          "w": 4083546,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 1518047,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 1546622,
+          "w": 2471142,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 1819870,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 1848445,
+          "w": 3395365,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 2121694,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 2150269,
+          "w": 3773686,
+          "h": 228600
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 516285,
+          "y": 333375,
+          "w": 5820370,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 516630,
+          "y": 914400,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 751284,
+          "y": 942975,
+          "w": 3358604,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 516630,
+          "y": 1216223,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 751284,
+          "y": 1244798,
+          "w": 4083546,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 516630,
+          "y": 1518047,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 751284,
+          "y": 1546622,
+          "w": 2471142,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 516630,
+          "y": 1819870,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 751284,
+          "y": 1848445,
+          "w": 3395365,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 10,
+          "x": 516630,
+          "y": 2121694,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 11,
+          "x": 751284,
+          "y": 2150269,
+          "w": 3773686,
+          "h": 228600
+        }
+      ],
+      "overlaps": [
+        {
+          "shape_a": 2,
+          "shape_b": 3,
+          "text_a": "▪ ",
+          "text_b": "Unsupported chart type → explicit warning",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 4,
+          "shape_b": 5,
+          "text_a": "▪ ",
+          "text_b": "Raster-only element → object-level editability report",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 6,
+          "shape_b": 7,
+          "text_a": "▪ ",
+          "text_b": "Missing source ID → build error",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 8,
+          "shape_b": 9,
+          "text_a": "▪ ",
+          "text_b": "Unverified evidence → visible pending state",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 10,
+          "shape_b": 11,
+          "text_a": "▪ ",
+          "text_b": "Provider call → explicit opt-in and cost boundary",
+          "area_emu2": 18474080400
+        }
+      ],
+      "smallText": [],
+      "editableTextShapes": 11,
+      "textOverlaps": [
+        {
+          "shape_a": 2,
+          "shape_b": 3,
+          "text_a": "▪ ",
+          "text_b": "Unsupported chart type → explicit warning",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 4,
+          "shape_b": 5,
+          "text_a": "▪ ",
+          "text_b": "Raster-only element → object-level editability report",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 6,
+          "shape_b": 7,
+          "text_a": "▪ ",
+          "text_b": "Missing source ID → build error",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 8,
+          "shape_b": 9,
+          "text_a": "▪ ",
+          "text_b": "Unverified evidence → visible pending state",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 10,
+          "shape_b": 11,
+          "text_a": "▪ ",
+          "text_b": "Provider call → explicit opt-in and cost boundary",
+          "area_emu2": 18474080400
+        }
+      ],
+      "textBoundsCount": 11,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 7,
+      "editableText": 13,
+      "nativeShapes": 19,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 333375,
+          "w": 6635800,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 1038225,
+          "w": 572988,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 2529483,
+          "y": 1038225,
+          "w": 1494086,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 1527721,
+          "w": 614214,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 2529483,
+          "y": 1527721,
+          "w": 2688134,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 2017216,
+          "w": 866626,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 2529483,
+          "y": 2017216,
+          "w": 3210371,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 2506712,
+          "w": 666452,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 2529483,
+          "y": 2506712,
+          "w": 2402532,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 2996208,
+          "w": 704999,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 2529483,
+          "y": 2996208,
+          "w": 2468166,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 609600,
+          "y": 3485704,
+          "w": 944463,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 2529483,
+          "y": 3485704,
+          "w": 3049935,
+          "h": 228600
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 516285,
+          "y": 333375,
+          "w": 6635800,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 533400,
+          "y": 1389608,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 609600,
+          "y": 1038225,
+          "w": 572988,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 2529483,
+          "y": 1038225,
+          "w": 1494086,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 533400,
+          "y": 1879104,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 609600,
+          "y": 1527721,
+          "w": 614214,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 2529483,
+          "y": 1527721,
+          "w": 2688134,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 533400,
+          "y": 2368600,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 609600,
+          "y": 2017216,
+          "w": 866626,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 10,
+          "x": 2529483,
+          "y": 2017216,
+          "w": 3210371,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 11,
+          "x": 533400,
+          "y": 2858095,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 12,
+          "x": 609600,
+          "y": 2506712,
+          "w": 666452,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 13,
+          "x": 2529483,
+          "y": 2506712,
+          "w": 2402532,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 14,
+          "x": 533400,
+          "y": 3347591,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 15,
+          "x": 609600,
+          "y": 2996208,
+          "w": 704999,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 16,
+          "x": 2529483,
+          "y": 2996208,
+          "w": 2468166,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 17,
+          "x": 533400,
+          "y": 3837087,
+          "w": 8267700,
+          "h": 9525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 18,
+          "x": 609600,
+          "y": 3485704,
+          "w": 944463,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 19,
+          "x": 2529483,
+          "y": 3485704,
+          "w": 3049935,
+          "h": 228600
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 13,
+      "textOverlaps": [],
+      "textBoundsCount": 13,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 8,
+      "editableText": 8,
+      "nativeShapes": 8,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 333375,
+          "w": 7976890,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 914400,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 942975,
+          "w": 4226421,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 1216223,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 1244798,
+          "w": 4639270,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 516630,
+          "y": 1518047,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "x": 751284,
+          "y": 1546622,
+          "w": 4222254,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 1972270,
+          "w": 3705076,
+          "h": 228600
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 516285,
+          "y": 333375,
+          "w": 7976890,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 516630,
+          "y": 914400,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 751284,
+          "y": 942975,
+          "w": 4226421,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 516630,
+          "y": 1216223,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 751284,
+          "y": 1244798,
+          "w": 4639270,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 516630,
+          "y": 1518047,
+          "w": 315468,
+          "h": 301752
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 751284,
+          "y": 1546622,
+          "w": 4222254,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 533400,
+          "y": 1972270,
+          "w": 3705076,
+          "h": 228600
+        }
+      ],
+      "overlaps": [
+        {
+          "shape_a": 2,
+          "shape_b": 3,
+          "text_a": "▪ ",
+          "text_b": "Local renderer: repeatable exports without model calls",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 4,
+          "shape_b": 5,
+          "text_a": "▪ ",
+          "text_b": "AI service: optional drafting with provider and cost disclosed",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 6,
+          "shape_b": 7,
+          "text_a": "▪ ",
+          "text_b": "Scientific QA: checks every output outside the renderer",
+          "area_emu2": 18474080400
+        }
+      ],
+      "smallText": [],
+      "editableTextShapes": 8,
+      "textOverlaps": [
+        {
+          "shape_a": 2,
+          "shape_b": 3,
+          "text_a": "▪ ",
+          "text_b": "Local renderer: repeatable exports without model calls",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 4,
+          "shape_b": 5,
+          "text_a": "▪ ",
+          "text_b": "AI service: optional drafting with provider and cost disclosed",
+          "area_emu2": 18474080400
+        },
+        {
+          "shape_a": 6,
+          "shape_b": 7,
+          "text_a": "▪ ",
+          "text_b": "Scientific QA: checks every output outside the renderer",
+          "area_emu2": 18474080400
+        }
+      ],
+      "textBoundsCount": 8,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 9,
+      "editableText": 4,
+      "nativeShapes": 6,
+      "nativeConnectors": 0,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 516285,
+          "y": 333375,
+          "w": 4629448,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 885825,
+          "w": 7767340,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "x": 533400,
+          "y": 1409700,
+          "w": 8100268,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 619125,
+          "y": 1847850,
+          "w": 4505623,
+          "h": 180975
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 516285,
+          "y": 333375,
+          "w": 4629448,
+          "h": 466725
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 533400,
+          "y": 885825,
+          "w": 7767340,
+          "h": 390525
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 533400,
+          "y": 1409700,
+          "w": 8100268,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 533400,
+          "y": 1790700,
+          "w": 8267700,
+          "h": 304800
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 533400,
+          "y": 1790700,
+          "w": 9525,
+          "h": 304800
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 619125,
+          "y": 1847850,
+          "w": 4505623,
+          "h": 180975
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 4,
+      "textOverlaps": [],
+      "textBoundsCount": 4,
+      "textBoundsPass": true
+    }
+  ],
+  "errors": [],
+  "warnings": [
+    "Build review report or its source inputs are missing; source completeness could not be checked",
+    "Slide 6 has 5 overlapping text-shape pair(s); inspect for unintended overlap",
+    "Slide 8 has 3 overlapping text-shape pair(s); inspect for unintended overlap",
+    "One or more slides include raster images; image-only status requires visual review"
+  ],
+  "objectiveFindings": [
+    {
+      "id": "STRUCTURE-WARNING",
+      "severity": "warning",
+      "message": "Build review report or its source inputs are missing; source completeness could not be checked"
+    },
+    {
+      "id": "STRUCTURE-WARNING",
+      "severity": "warning",
+      "message": "Slide 6 has 5 overlapping text-shape pair(s); inspect for unintended overlap"
+    },
+    {
+      "id": "STRUCTURE-WARNING",
+      "severity": "warning",
+      "message": "Slide 8 has 3 overlapping text-shape pair(s); inspect for unintended overlap"
+    },
+    {
+      "id": "STRUCTURE-WARNING",
+      "severity": "warning",
+      "message": "One or more slides include raster images; image-only status requires visual review"
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        2,
+        3
+      ],
+      "text": [
+        "▪ ",
+        "Unsupported chart type → explicit warning"
+      ],
+      "area_emu2": 18474080400,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        4,
+        5
+      ],
+      "text": [
+        "▪ ",
+        "Raster-only element → object-level editability report"
+      ],
+      "area_emu2": 18474080400,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        6,
+        7
+      ],
+      "text": [
+        "▪ ",
+        "Missing source ID → build error"
+      ],
+      "area_emu2": 18474080400,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        8,
+        9
+      ],
+      "text": [
+        "▪ ",
+        "Unverified evidence → visible pending state"
+      ],
+      "area_emu2": 18474080400,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 6,
+      "objects": [
+        10,
+        11
+      ],
+      "text": [
+        "▪ ",
+        "Provider call → explicit opt-in and cost boundary"
+      ],
+      "area_emu2": 18474080400,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 8,
+      "objects": [
+        2,
+        3
+      ],
+      "text": [
+        "▪ ",
+        "Local renderer: repeatable exports without model calls"
+      ],
+      "area_emu2": 18474080400,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 8,
+      "objects": [
+        4,
+        5
+      ],
+      "text": [
+        "▪ ",
+        "AI service: optional drafting with provider and cost disclosed"
+      ],
+      "area_emu2": 18474080400,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "LAYOUT-OVERLAP-001",
+      "severity": "review",
+      "slide": 8,
+      "objects": [
+        6,
+        7
+      ],
+      "text": [
+        "▪ ",
+        "Scientific QA: checks every output outside the renderer"
+      ],
+      "area_emu2": 18474080400,
+      "message": "Text-shape bounding boxes overlap; check whether the overlap is intentional."
+    },
+    {
+      "id": "FONT-RISK-001",
+      "severity": "review",
+      "message": "Font substitution is not encoded as a verifiable PPTX fact; compare these theme fonts with the target system.",
+      "font_families": []
+    }
+  ],
+  "humanReview": {
+    "status": "render_blocked",
+    "pages": [
+      {
+        "slide": 1,
+        "slide_id": "S01",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 2,
+        "slide_id": "S02",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 3,
+        "slide_id": "S03",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 4,
+        "slide_id": "S04",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 5,
+        "slide_id": "S05",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 6,
+        "slide_id": "S06",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 7,
+        "slide_id": "S07",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 8,
+        "slide_id": "S08",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 9,
+        "slide_id": "S09",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      }
+    ]
+  },
+  "visualReview": {
+    "status": "render_blocked",
+    "renderer": null,
+    "preview_manifest": null,
+    "decision_manifest": null,
+    "pages": [
+      {
+        "slide": 1,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 2,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 3,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 4,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 5,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 6,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 7,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 8,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 9,
+        "png": null,
+        "rendered": false
+      }
+    ],
+    "reason": "Render every page with scripts/preview.mjs, then inspect each image and record the reviewer decision."
+  }
+}
