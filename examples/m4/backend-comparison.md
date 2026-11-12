@@ -26,5 +26,3 @@ Synthetic content only · no research evidence
 <div>Left label: native generation</div>
 <div>Right label: optional Markdown backend</div>
 </div>
-
-
