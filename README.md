@@ -114,7 +114,15 @@ node src/qa.mjs outputs/my-talk.pptx
 node scripts/preview.mjs outputs/my-talk.pptx
 ```
 
-Supported slide types: `cover`, `statement`, `metrics`, `chart` (native bar, line, scatter or empirical CDF), `process`, `bullets`, `closing`. Deck ratio is fixed at 16:9. Bar/line CSV can use a `series` column for up to six aligned series; scatter takes numeric `x`, `x_unit`, `value`, and `unit`; CDF imports raw `value` observations and computes a right-continuous empirical staircase with grouped ties. Optional slide fields include `slide_id`, `assertion_title`, `speaker_notes`, and one of four reusable layouts: `assertion-evidence`, `two-column-contrast`, `metric-focus`, `chart-and-takeaway`.
+Supported slide types: `cover`, `statement`, `metrics`, `chart` (native bar, line, scatter or empirical CDF), `table` (native editable PowerPoint cells), `process`, `architecture` (native editable shapes and connectors), `bullets`, `closing`. Table slides accept 2–6 headers and 1–10 rows; source IDs and cell values are preserved in the evidence manifest. Deck ratio is fixed at 16:9. Bar/line CSV can use a `series` column for up to six aligned series; scatter takes numeric `x`, `x_unit`, `value`, and `unit`; CDF imports raw `value` observations and computes a right-continuous empirical staircase with grouped ties. Optional slide fields include `slide_id`, `assertion_title`, `speaker_notes`, and one of four reusable layouts: `assertion-evidence`, `two-column-contrast`, `metric-focus`, `chart-and-takeaway`.
+
+Build the explicitly synthetic editable-table fixture with:
+
+```powershell
+node src/cli.mjs validate --input examples/table-demo/storyboard.json --evidence examples/table-demo/evidence.json
+node src/cli.mjs build --input examples/table-demo/storyboard.json --evidence examples/table-demo/evidence.json --out outputs/table-demo.pptx
+node src/qa.mjs outputs/table-demo.pptx
+```
 
 ```powershell
 npm run from:multiseries
@@ -140,6 +148,10 @@ node src/qa.mjs outputs/my-runs.pptx
 ## Themes and local rendering
 
 Theme tokens live in `themes/*.json`; current options are `academic-light`, `tech-dark`, and `keynote-minimal`. The project owner's current confirmed design is `keynote-minimal`; see [`docs/design.md`](docs/design.md) and [`docs/design-tokens.json`](docs/design-tokens.json). Themes use installed fonts only; check font substitution on the actual presentation machine.
+
+### Official template source catalog
+
+The source catalog, AI usage guide, and local-only download workflow live in [`docs/template/`](docs/template/README.md). Preview the exact direct links with `npm run templates:download -- --dry-run`; fetch catalog-listed PPTX/ZIP files into the Git-ignored local evaluation directory with `npm run templates:download -- --local-evaluation`. Downloads are not added to the repository, are not automatically extracted, and do not grant reuse or redistribution rights. See [`USER_GUIDE.md`](docs/template/USER_GUIDE.md) for the workflow and limits.
 
 Windows rendering uses Microsoft PowerPoint if installed. If COM export is unavailable, open the PPTX in PowerPoint and use **File → Export → Create PDF/XPS**. Linux rendering requires LibreOffice Impress. Both paths require Poppler for PNG rendering. The preview command reports the number and paths of every page image; it does not claim to detect layout defects automatically.
 
@@ -173,14 +185,22 @@ node src/cli.mjs build --input outputs/research-reviewed.json --evidence sources
 
 ### Offline PDF/DOCX source import (M4 first tranche)
 
-Import a local research source to quoted text with page/paragraph locators, source and extracted-text hashes, a manifest, and an evidence ledger entry. Source status stays `verified:false`; extraction never verifies scientific claims or uploads the file. DOCX uses the built-in `fflate` dependency. PDF import uses Poppler `pdftotext -layout` when installed and falls back to Mozilla PDF.js (`pdfjs-dist`) without network access; use `--pdf-engine pdfjs` to select PDF.js explicitly. Image-only/scanned PDFs are rejected without OCR, and PDF.js reading order may differ from the source's visual columns, so check extracted text against the rendered PDF.
+Import a local research source to quoted text with page/paragraph locators, source and extracted-text hashes, a manifest, and an evidence ledger entry. Source status stays `verified:false`; extraction never verifies scientific claims or uploads the file. DOCX uses the built-in `fflate` dependency. PDF import uses Poppler `pdftotext -layout` when installed and falls back to Mozilla PDF.js (`pdfjs-dist`) without network access; use `--pdf-engine pdfjs` to select PDF.js explicitly. For scanned PDFs, optional OCR uses bundled Tesseract.js and bundled English (`eng`) and Simplified Chinese (`chi_sim`) models. Poppler `pdftoppm` is still needed to rasterize PDF pages. OCR remains unverified and must be checked against the rendered page.
 
 ```powershell
 npm run import:document -- --input "D:\research\paper.docx" --id E_LOCAL_PAPER --label "Paper methods section" --evidence sources/evidence.json --out-prefix outputs/imports/paper
 Get-Content outputs/imports/paper.md
 ```
 
-The command writes `.md`, `.manifest.json`, and `.evidence.json` files under the selected output prefix. When an existing ledger is supplied, its entries are copied and the new unverified entry is appended to the generated ledger; the original ledger is not modified. DOCX tables are linearized, headers/footers and image OCR are not extracted. Use the generated evidence ID in a storyboard and cite the exact excerpt/locator in `claim_support`.
+The command writes `.md`, `.manifest.json`, and `.evidence.json` files under the selected output prefix. When an existing ledger is supplied, its entries are copied and the new unverified entry is appended to the generated ledger; the original ledger is not modified. DOCX tables are linearized and headers/footers are not extracted. Use the generated evidence ID in a storyboard and cite the exact excerpt/locator in `claim_support`.
+
+For a scanned PDF, install Poppler locally and explicitly opt into OCR. Tesseract.js and its `eng`/`chi_sim` models are installed with the project dependencies; a separate Tesseract binary or language-pack installation is not needed:
+
+```powershell
+npm run import:document -- --input "D:\research\scanned-paper.pdf" --id E_LOCAL_SCAN --ocr tesseract --ocr-lang eng --out-prefix outputs/imports/scanned-paper
+```
+
+The run stays offline: the OCR engine and language models are read from local npm packages, while Poppler's `pdftoppm` performs local page rasterization. Select `--ocr-lang eng`, `chi_sim`, or `eng+chi_sim`. It fails with an actionable dependency error if `pdftoppm` is unavailable. The manifest records page-level confidence, method and language, but confidence is not scientific verification and the evidence ledger remains `verified:false`.
 
 ### Local update benchmark (synthetic)
 
@@ -203,6 +223,17 @@ Get-Content outputs/m4/repair-session.json
 ```
 
 The timer records elapsed time, edit count, deck filename and before/after SHA-256 only. It does not capture or upload deck text. Do not use placeholder or synthetic manual-repair durations in product comparisons.
+
+To collect blinded design ratings, prepare A/B copies, record each rater's scores (1–5) against the six weighted rubric dimensions, and summarize before explicitly opening the condition key:
+
+```powershell
+npm run benchmark:blind-review -- prepare --a outputs/native.pptx --b outputs/alternative.pptx --out outputs/m4/blind
+npm run benchmark:blind-review -- score --manifest outputs/m4/blind/blind-manifest.json --deck A --reviewer R01 --scores docs/M4_BLIND_REVIEW_SCORE_TEMPLATE.json --out outputs/m4/blind/rating-a.json
+npm run benchmark:blind-review -- score --manifest outputs/m4/blind/blind-manifest.json --deck B --reviewer R01 --scores docs/M4_BLIND_REVIEW_SCORE_TEMPLATE.json --out outputs/m4/blind/rating-b.json
+npm run benchmark:blind-review -- summarize --rating=outputs/m4/blind/rating-a.json --rating=outputs/m4/blind/rating-b.json --out outputs/m4/blind/summary.json
+```
+
+No ratings are prefilled. `blind-key.json` maps randomized labels to input conditions for a later explicit `unblind` command. Deck metadata or visual identity may still reveal the source, so this is label blinding rather than guaranteed perceptual blinding.
 
 To compare the built-in themes, generate a 2-slide cover/chart preview in each theme, inspect the six PNGs, and confirm a selection explicitly. No proprietary template or asset is copied.
 
@@ -236,7 +267,7 @@ node src/qa.mjs outputs/multimodal/ai-systems-synthetic.pptx
 - Audience and context matter: investment-pitch guidance is not a rulebook for systems research talks.
 - Third-party guidance is translated into independent checks; no copyrighted templates, fonts, or artwork are bundled.
 
-See [`docs/PROJECT_CAPABILITIES_QA.md`](docs/PROJECT_CAPABILITIES_QA.md) for the current capability Q&A; [`docs/LOCAL_SLIDE_GUIDANCE.md`](docs/LOCAL_SLIDE_GUIDANCE.md) for an offline summary of presentation guidance by institution and use case; [`docs/REFERENCES.md`](docs/REFERENCES.md) for source links; [`docs/RESEARCH_APPLICATION_MATRIX.md`](docs/RESEARCH_APPLICATION_MATRIX.md) for source-to-code traceability; [`docs/PRODUCT_BENCHMARK.md`](docs/PRODUCT_BENCHMARK.md) for a measurement protocol; and [`docs/SCHEMA.md`](docs/SCHEMA.md) and [`docs/CODEX_MASTER_PROMPT.md`](docs/CODEX_MASTER_PROMPT.md) for data contracts and roadmap.
+See [`docs/PROJECT_CAPABILITIES_QA.md`](docs/PROJECT_CAPABILITIES_QA.md) for the capability Q&A, [`docs/PRODUCTIZATION_AND_DESIGN_QA.md`](docs/PRODUCTIZATION_AND_DESIGN_QA.md) for App, AI integration, content design, personalization and research workflow Q&A, and [`docs/LOCAL_SLIDE_GUIDANCE.md`](docs/LOCAL_SLIDE_GUIDANCE.md) for an offline summary of presentation guidance by institution and use case; [`docs/REFERENCES.md`](docs/REFERENCES.md) for source links; [`docs/RESEARCH_APPLICATION_MATRIX.md`](docs/RESEARCH_APPLICATION_MATRIX.md) for source-to-code traceability; [`docs/PRODUCT_BENCHMARK.md`](docs/PRODUCT_BENCHMARK.md) for a measurement protocol; and [`docs/SCHEMA.md`](docs/SCHEMA.md) and [`docs/CODEX_MASTER_PROMPT.md`](docs/CODEX_MASTER_PROMPT.md) for data contracts and roadmap.
 
 M4's local-source import, synthetic update-cost benchmark, open-source editable-PPTX comparison and official ecosystem capability review are documented in [`docs/M4_IMPLEMENTATION_REPORT.md`](docs/M4_IMPLEMENTATION_REPORT.md), [`docs/M4_UPDATE_BENCHMARK.md`](docs/M4_UPDATE_BENCHMARK.md), [`docs/M4_BACKEND_COMPARISON.md`](docs/M4_BACKEND_COMPARISON.md), and [`docs/M4_ECOSYSTEM_REVIEW.md`](docs/M4_ECOSYSTEM_REVIEW.md). The Slidev comparison is an optional, locally reproduced prototype and is not part of default dependencies or CI. No cloud account or provider API was connected.
 
@@ -272,6 +303,23 @@ npm run connect:google
 
 Open the printed `http://127.0.0.1:<port>` address. Click a consent button when ready; the Slides button asks for `presentations.readonly`. Enter an existing presentation ID only if you want to verify metadata access. Stop with Ctrl+C, then clear the environment variable with `Remove-Item Env:GOOGLE_OAUTH_CLIENT_FILE`.
 
+### Local Canva login test
+
+Canva login is also available as a local loopback-only test. It uses PKCE and requests only `profile:read`, then reads the current user's display name. It does not access designs, create or export a deck, upload files, persist tokens, or send project materials. A real login still requires your own Canva Developer app and consent.
+
+1. Create a **public or private** user-facing app in the Canva Developer Portal. Enable the `profile:read` scope and register this exact redirect URL: `http://127.0.0.1:53682/callback`.
+2. Set the app's client ID and secret in your local shell (do not commit them):
+
+   ```powershell
+   $env:CANVA_CLIENT_ID = "your-client-id"
+   $env:CANVA_CLIENT_SECRET = "your-client-secret"
+   npm run connect:canva
+   ```
+
+3. Open the printed local URL and choose **Connect Canva account**. Stop with Ctrl+C, then clear both environment variables.
+
+Canva's OAuth consent and token exchange have not been exercised against a real account in this repository; automated tests use a mocked token/profile service. See [Canva OAuth documentation](https://www.canva.dev/docs/apps/rest-apis/authentication/) and [current-user profile endpoint](https://www.canva.dev/docs/apps/rest-apis/reference/users/users-profile/).
+
 Compare open-source and hosted options by workflow stage:
 
 ```powershell
@@ -284,6 +332,31 @@ npm run tools -- tools recommend multiengine
 ```
 
 Recommendations include a primary and alternatives per stage plus implementation, network, auth, cost, editability, and trade-off fields. They are advisory: the command does not install, authenticate, or run candidates. Check `npm run tools -- tools doctor <id>` before relying on a local executable; catalog membership and upstream licenses are not integration evidence.
+
+### Presentation IR → native PptxGenJS (Phase 1 slice)
+
+The versioned Presentation IR is semantically validated before rendering. The local adapter maps supported text, bullets, tables, cards, process and chart elements into the existing evidence-first renderer. It writes a PPTX, mapped storyboard/evidence inputs, per-element lineage, structural QA and a run manifest in the selected output directory. Unsupported elements fail explicitly; source verification is never upgraded.
+
+```powershell
+npm run render:ir -- --input examples/phase1/pptxgenjs-ir.json --out outputs/phase1/my-deck
+node src/qa.mjs outputs/phase1/my-deck/presentation.pptx
+npm run tools -- tools doctor pptxgenjs-ir
+npm run tools -- tools test pptxgenjs-ir
+```
+
+The checked-in input is synthetic QA data. The PptxGenJS adapter emits native PowerPoint charts; source verification warnings remain in the report. The mapping covers a documented element subset. Mermaid source is preserved as text, not converted to editable diagram geometry.
+
+### Local projects API (Phase 1)
+
+Start the loopback-only REST service with a durable workspace:
+
+```powershell
+npm run api -- --workspace D:\AIAutoSlidesData --port 8787
+```
+
+The service stores projects, slide IR revisions, source metadata, job transitions, artifacts and hashes in SQLite. Place input files in `<workspace>\incoming`; `POST /projects/{id}/sources` imports only from that directory and copies raw bytes to immutable `source-blobs/<sha256>`. Create a project with `POST /projects` and a JSON body containing `title` and `presentation_ir`; start a generation job with `POST /projects/{id}/jobs`. The local workflow inventories evidence without searching the web, plans slide takeaways and adapter capabilities, generates PPTX, renders PDF/PNG previews, runs structural QA, and records artifacts and stage logs. Set `{"preview":false}` on job creation to skip PowerPoint/Poppler previews.
+
+Available routes are documented in [`docs/API_WORKFLOW.md`](docs/API_WORKFLOW.md). The API binds only to loopback and is intended for one local user; it has no remote authentication or OS-level sandbox. Node 22.5 or newer is required for the API's built-in SQLite runtime. The legacy slide CLI remains available on the package's existing minimum Node version. A slide PATCH updates the validated IR revision; a later job rebuilds the whole deck, so unchanged-slide hash preservation is not promised.
 
 ## Verified in this checkout
 
@@ -318,3 +391,16 @@ node scripts/preview.mjs outputs/timeline-demo.pptx
 ```
 
 The included timeline is synthetic and hypothetical. See [`docs/M3A_TIMELINE_REPORT.md`](docs/M3A_TIMELINE_REPORT.md).
+
+## Ten-slide synthetic AI Systems acceptance deck
+
+The complete synthetic/hypothetical example combines local Markdown, CSV, architecture JSON, two locally sourced SVG demonstrations, a 10-slide storyboard, source notes and the evidence ledger. Rebuild all artifacts from the repository root:
+
+```powershell
+node src/cli.mjs validate --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json
+node src/cli.mjs build --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json --out outputs/multimodal/ai-systems-synthetic.pptx
+node scripts/preview.mjs outputs/multimodal/ai-systems-synthetic.pptx --renderer auto
+node src/qa.mjs outputs/multimodal/ai-systems-synthetic.pptx
+```
+
+PPTX, PDF, ten page PNGs, preview, evidence manifest and QA reports are written under `outputs/multimodal/`. Synthetic values remain unverified; the two SVGs are embedded picture objects and their `verified:false` state requires human provenance review. See [`docs/M3A_SYNTHETIC_DECK_REPORT.md`](docs/M3A_SYNTHETIC_DECK_REPORT.md).

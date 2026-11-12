@@ -1,5 +1,17 @@
 # Integration Status — P1 local workflow tranche
 
+## Phase-1 continuation update — 2026-11-12
+
+The former “Next phase” statement below predates the current IR adapter slice. `packages/core/` now contains project/profile/source/evidence/asset/claim/slide/deck/job constructors and semantic Presentation IR validation. Versioned JSON schemas cover presentation, source/evidence, project/profile, job and run-manifest objects. `packages/adapters/pptxgenjs-ir.mjs` and `src/render-ir.mjs` run the validated IR → PptxGenJS → PPTX QA path, preserve source verification state and IDs, and write lineage and run manifests. The local synthetic fixture produces a 3-slide deck with one native chart whose values match exactly. Legacy storyboard CLI remains unchanged.
+
+This is an implemented vertical slice, not the complete Phase 1: no SQLite persistence, durable workflow engine, HTTP API/MCP, source-file staging service, incremental IR slide edit, comprehensive asset geometry, or full second-engine parity is claimed. Slidev remains a separate local IR/export route with SVG/image fallback limitations.
+
+## Local automated follow-on — 2026-11-12
+
+- `ToolAdapter.run()` for `pptxgenjs` now delegates to the validated Presentation IR rendering pipeline, which produces an editable PPTX and source/QA/run-manifest sidecars. The legacy CLI stays supported.
+- Presentation IR image elements now embed workspace-local PNG/JPEG/SVG assets with checked type, SHA-256 and workspace/symlink boundaries. Rights state and source lineage are carried into sidecars; restricted rights block embedding, while unreviewed rights/license metadata stays a visible warning. No network asset fetch is performed.
+- External HTTP/MCP APIs, cloud authorization, human blind-rating, human repair-time measurement, and scientific claim verification are outside this local automated slice by the current user instruction.
+
 Date: 2026-11-12. Current checkout is `dev`; this section supersedes the historical P0 status below.
 
 ## P1 slice implemented and verified

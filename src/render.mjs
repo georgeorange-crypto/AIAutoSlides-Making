@@ -82,6 +82,8 @@ function chart(s,d,t,pptx) {
   const scatter=['scatter','cdf'].includes(c.kind);
   const series=c.series||[{name:c.series_name||'Series',values:c.values}];
   const data=scatter?[{name:'X-Axis',values:c.x_values},...series.map(v=>({name:v.name,values:v.values}))]:series.map(v=>({name:v.name,labels:c.categories,values:v.values}));
+  const chartValues=data.flatMap(item=>item.values||[]);
+  const dataLabelFormatCode=chartValues.every(Number.isInteger)?'0':'0.###';
   const chartType=c.kind==='line'?pptx.ChartType.line:scatter?pptx.ChartType.scatter:pptx.ChartType.bar;
   s.addChart(chartType,data,{
     x:1.03,y:2.86,w:11.20,h:2.91,
@@ -91,7 +93,7 @@ function chart(s,d,t,pptx) {
     catAxisLineColor:t.muted,valAxisLineColor:t.muted,
     showLegend:series.length>1,legendPos:'b',legendColor:t.text,showValue:!scatter,showTitle:false,showBorder:false,
     showCatName:false,showSerName:false,
-    dataLabelPosition:'outEnd',dataLabelColor:t.text,dataLabelFormatCode:'0.###',
+    dataLabelPosition:'outEnd',dataLabelColor:t.text,dataLabelFormatCode,
     chartColors:[t.accent,t.accent2,t.warning,t.text,'6A7D90','8757A5'],valGridLine:{color:t.line,width:0.6},
     grouping:c.kind==='line'?'standard':'clustered',barDir:'col',
     valAxisMinVal:c.kind==='cdf'?0:undefined,valAxisMaxVal:c.kind==='cdf'?1:undefined,

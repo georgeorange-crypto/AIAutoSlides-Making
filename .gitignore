@@ -6,5 +6,8 @@ node_modules/
 *.log
 outputs/*
 !outputs/.gitkeep
+workspace/
+docs/template/local-assets/**
+!docs/template/local-assets/README.md
 content/ai-storyboard.json
 __pycache__/

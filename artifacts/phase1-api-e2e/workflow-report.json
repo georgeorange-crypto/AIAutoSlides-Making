@@ -1,0 +1,389 @@
+{
+  "schema_version": "1.0.0",
+  "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+  "project_id": "c9d99a5a-421b-4ba5-8e4d-a504a67d95eb",
+  "status": "completed",
+  "created_at": "2026-11-12T20:51:56.119Z",
+  "completed_at": "2026-11-12T20:52:15.915Z",
+  "stages": [
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "import-and-validate",
+      "status": "running",
+      "at": "2026-11-12T20:51:56.119Z",
+      "detail": {}
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "import-and-validate",
+      "status": "completed",
+      "at": "2026-11-12T20:51:56.124Z",
+      "detail": {
+        "slides": 3,
+        "sources": 1
+      }
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "research-and-evidence-inventory",
+      "status": "running",
+      "at": "2026-11-12T20:51:56.126Z",
+      "detail": {}
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "research-and-evidence-inventory",
+      "status": "completed",
+      "at": "2026-11-12T20:51:56.128Z",
+      "detail": {
+        "network": "disabled",
+        "sources": 1,
+        "unverified_sources": 1,
+        "unverified_evidence": 0
+      }
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "content-plan",
+      "status": "running",
+      "at": "2026-11-12T20:51:56.130Z",
+      "detail": {}
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "content-plan",
+      "status": "completed",
+      "at": "2026-11-12T20:51:56.132Z",
+      "detail": {
+        "slides": 3
+      }
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "visual-plan-and-route",
+      "status": "running",
+      "at": "2026-11-12T20:51:56.136Z",
+      "detail": {}
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "visual-plan-and-route",
+      "status": "completed",
+      "at": "2026-11-12T20:51:56.142Z",
+      "detail": {
+        "adapter": "pptxgenjs-ir",
+        "formats": [
+          "pptx"
+        ]
+      }
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "generate-render-and-structural-qa",
+      "status": "running",
+      "at": "2026-11-12T20:51:56.144Z",
+      "detail": {}
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "generate-render-and-structural-qa",
+      "status": "completed",
+      "at": "2026-11-12T20:51:56.450Z",
+      "detail": {
+        "slides": 3,
+        "qa_status": "warning",
+        "chart_values_exact": true
+      }
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "render-preview",
+      "status": "running",
+      "at": "2026-11-12T20:51:56.452Z",
+      "detail": {}
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "render-preview",
+      "status": "completed",
+      "at": "2026-11-12T20:52:15.867Z",
+      "detail": {
+        "pages": 3,
+        "pdf": true
+      }
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "critic",
+      "status": "running",
+      "at": "2026-11-12T20:52:15.869Z",
+      "detail": {}
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "critic",
+      "status": "completed",
+      "at": "2026-11-12T20:52:15.876Z",
+      "detail": {
+        "structural_status": "warning",
+        "visual_review": "pending_human",
+        "scientific_accuracy": "not_assessed"
+      }
+    },
+    {
+      "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+      "stage": "export-and-record",
+      "status": "running",
+      "at": "2026-11-12T20:52:15.878Z",
+      "detail": {}
+    }
+  ],
+  "content_plan": {
+    "slides": [
+      {
+        "slide_id": "S01",
+        "ordinal": 1,
+        "takeaway": "Synthetic data, editable output",
+        "evidence_refs": [],
+        "time_budget_seconds": null
+      },
+      {
+        "slide_id": "S02",
+        "ordinal": 2,
+        "takeaway": "The chart retains the supplied synthetic values.",
+        "evidence_refs": [
+          "E_PHASE1_SYN"
+        ],
+        "time_budget_seconds": null
+      },
+      {
+        "slide_id": "S03",
+        "ordinal": 3,
+        "takeaway": "Keep provenance with the deck",
+        "evidence_refs": [
+          "E_PHASE1_SYN"
+        ],
+        "time_budget_seconds": null
+      }
+    ]
+  },
+  "evidence_inventory": {
+    "network": "disabled",
+    "performed": false,
+    "reason": "Phase 1 workflow inventories supplied evidence only; it does not search the web or verify claims.",
+    "unverified_source_ids": [
+      "E_PHASE1_SYN"
+    ],
+    "unverified_evidence_ids": [],
+    "unreviewed_claim_ids": []
+  },
+  "visual_plan": {
+    "adapter": "pptxgenjs-ir",
+    "capabilities": {
+      "formats": [
+        "pptx"
+      ],
+      "editableObjects": [
+        "text",
+        "shapes",
+        "tables",
+        "charts"
+      ],
+      "nativeCharts": true,
+      "localOnly": true,
+      "legacyCliPreserved": true,
+      "slideIRPatch": true,
+      "incrementalSlideEdit": false,
+      "cancelDuringInProcessRender": false
+    },
+    "negotiation": {
+      "ok": true,
+      "status": "supported",
+      "adapter_id": "pptxgenjs-ir",
+      "formats": [
+        "pptx"
+      ],
+      "capabilities": {
+        "formats": [
+          "pptx"
+        ],
+        "editableObjects": [
+          "text",
+          "shapes",
+          "tables",
+          "charts"
+        ],
+        "nativeCharts": true,
+        "localOnly": true,
+        "legacyCliPreserved": true,
+        "slideIRPatch": true,
+        "incrementalSlideEdit": false,
+        "cancelDuringInProcessRender": false
+      },
+      "reasons": []
+    },
+    "slides": [
+      {
+        "slide_id": "S01",
+        "requested_type": "cover",
+        "elements": [
+          {
+            "kind": "text",
+            "source_ids": [],
+            "media_role": "editable_text"
+          }
+        ],
+        "time_budget_seconds": null
+      },
+      {
+        "slide_id": "S02",
+        "requested_type": "chart",
+        "elements": [
+          {
+            "kind": "text",
+            "source_ids": [],
+            "media_role": "editable_text"
+          },
+          {
+            "kind": "chart",
+            "source_ids": [
+              "E_PHASE1_SYN"
+            ],
+            "media_role": "native_chart"
+          }
+        ],
+        "time_budget_seconds": null
+      },
+      {
+        "slide_id": "S03",
+        "requested_type": "closing",
+        "elements": [
+          {
+            "kind": "callout",
+            "source_ids": [],
+            "media_role": "editable_text"
+          }
+        ],
+        "time_budget_seconds": null
+      }
+    ]
+  },
+  "critique": {
+    "schema_version": "1.0.0",
+    "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+    "deck_sha256": "3610b1a7bbecd27393da6b0168a413e5beed7afaf8708f01a38bc30e7a848029",
+    "structural": {
+      "status": "warning",
+      "errors": [],
+      "warnings": [
+        "Evidence E_PHASE1_SYN is unverified: IR source is not marked verified; rendering does not verify it."
+      ],
+      "chart_values_exact": true
+    },
+    "scientific_accuracy": "not_assessed",
+    "visual_review": "pending_human",
+    "source_review": [
+      {
+        "source_id": "E_PHASE1_SYN",
+        "verification_status": "unverified"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.pptx",
+      "format": "pptx",
+      "sha256": "3610b1a7bbecd27393da6b0168a413e5beed7afaf8708f01a38bc30e7a848029"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.storyboard.json",
+      "format": "json",
+      "sha256": "90ede2d48e438efba614a43c5a8c376430cc9d2dbada0495101c15c40a213efe"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.evidence.json",
+      "format": "json",
+      "sha256": "d51718c28e9e1cab10f9e7475f372149e05288e5fec76e29b917b92576a7fb76"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.lineage.json",
+      "format": "json",
+      "sha256": "b4ca9f5e7097ced40e148e89d41e6d220cbf463b47e18540ff02d6d59423ab45"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.review.json",
+      "format": "json",
+      "sha256": "3ee32f4926ad18835f1d6bd7a7f387b088e02d753e8ca2ef3c2aa204961df3f9"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.qa.json",
+      "format": "json",
+      "sha256": "0d7b633058e97194a3c6c20cbd40dc99d35d5367bd413cf6af94b631feb4f273"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.run-manifest.json",
+      "format": "json",
+      "sha256": "f3840e76d51927d06c6546c58e0c414b334270dc9cae140b09d889a9f3ac52c7"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation-page-1.png",
+      "format": "png",
+      "sha256": "ab562fdb939efcdcf8117ccf1d5ab8965fcc5e1f3fb8d2b939f9568d78406137"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation-page-2.png",
+      "format": "png",
+      "sha256": "6b62c3ef3b2bcab3dbe450265df1a530186c8caff79820e0995141c672af8337"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation-page-3.png",
+      "format": "png",
+      "sha256": "c64558ccf8d5dc51978359d366c529b353c6d789da2f9a56850b5a62d9770804"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.pdf",
+      "format": "pdf",
+      "sha256": "6686906847bb62e2093e641725625e82f371ed0ef2e4aea26d95e992c6657b29"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\workflow.critique.json",
+      "format": "json",
+      "sha256": "5b5971a6f65fc8c157a19e3a4e52aec0441e40c7035746e099e2c173b2b5d36c"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\export\\presentation.pptx",
+      "format": "pptx",
+      "sha256": "3610b1a7bbecd27393da6b0168a413e5beed7afaf8708f01a38bc30e7a848029"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\export\\presentation.storyboard.json",
+      "format": "json",
+      "sha256": "90ede2d48e438efba614a43c5a8c376430cc9d2dbada0495101c15c40a213efe"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\export\\presentation.evidence.json",
+      "format": "json",
+      "sha256": "d51718c28e9e1cab10f9e7475f372149e05288e5fec76e29b917b92576a7fb76"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\export\\presentation.lineage.json",
+      "format": "json",
+      "sha256": "b4ca9f5e7097ced40e148e89d41e6d220cbf463b47e18540ff02d6d59423ab45"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\export\\presentation.review.json",
+      "format": "json",
+      "sha256": "3ee32f4926ad18835f1d6bd7a7f387b088e02d753e8ca2ef3c2aa204961df3f9"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\export\\presentation.qa.json",
+      "format": "json",
+      "sha256": "0d7b633058e97194a3c6c20cbd40dc99d35d5367bd413cf6af94b631feb4f273"
+    },
+    {
+      "path": "runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\export\\presentation.run-manifest.json",
+      "format": "json",
+      "sha256": "f3840e76d51927d06c6546c58e0c414b334270dc9cae140b09d889a9f3ac52c7"
+    }
+  ]
+}

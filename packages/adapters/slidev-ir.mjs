@@ -18,7 +18,7 @@ function safeMarkdown(value) {
   return String(value).replaceAll('<','&lt;').replaceAll('>','&gt;').replace(/^([ \t]*)(---+|#{1,6}\s|```|<!--)/gm,'$1\\$2');
 }
 
-function renderElement(element,slideId) {
+function renderElement(element,slideId,assetById) {
   const where=`${slideId}/${element.element_id}`;
   switch(element.kind) {
     case 'text': {
@@ -44,6 +44,22 @@ function renderElement(element,slideId) {
     case 'callout': {
       const value=requireText(element.text??element.value,`${where} callout`);
       return `> **${html(value)}**`;
+    }
+    case 'image': {
+      const asset=assetById.get(element.asset_id),uri=asset?.uri;
+      if(!asset||typeof uri!=='string'||!uri.trim())throw new Error(`${where}: image requires an asset with a project-relative uri`);
+      if(/^(?:https?:|data:|file:|\/|[a-z]:\\)/i.test(uri)||uri.replaceAll('\\','/').split('/').includes('..'))throw new Error(`${where}: Slidev image uri must be relative to the local project; remote and parent paths are not allowed`);
+      if(asset.rights_status==='restricted')throw new Error(`${where}: restricted asset '${asset.asset_id}' cannot be embedded`);
+      if(!['image/png','image/jpeg','image/svg+xml'].includes(asset.media_type))throw new Error(`${where}: unsupported image media_type '${asset.media_type}'`);
+      const publicUri=uri.startsWith('public/')?`/${uri.slice('public/'.length)}`:uri;
+      const left=(element.x/13.333*100).toFixed(3),top=(element.y/7.5*100).toFixed(3),width=(element.w/13.333*100).toFixed(3),height=(element.h/7.5*100).toFixed(3);
+      return `<img src="${html(publicUri)}" alt="${html(element.alt)}" style="position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;object-fit:contain" />`;
+    }
+    case 'process': {
+      const steps=element.steps??element.items;
+      if(!Array.isArray(steps)||steps.length<2||steps.length>6)throw new Error(`${where}: process requires 2–6 steps`);
+      const cards=steps.map((step,index)=>{const title=typeof step==='string'?step:step?.title,detail=typeof step==='object'?step.detail:'';return `<div class="p-4 rounded border"><b>${String(index+1).padStart(2,'0')} · ${html(requireText(title,`${where} step title`))}</b>${detail?`<br>${html(detail)}`:''}</div>`;}).join('\n');
+      return `<div class="grid grid-cols-${steps.length} gap-3 mt-6">\n${cards}\n</div>`;
     }
     case 'chart': {
       const kind=element.chart_kind,series=element.series;
@@ -78,7 +94,7 @@ export function compilePresentationIR(ir) {
   const sourceById=new Map();
   for(const source of sources)sourceById.set(source.source_id,source);
   const evidenceById=new Map((ir.source_ir.evidence||[]).map(item=>[item.evidence_id,item]));
-  const lineageSlides=[],markdownSlides=[],chartAudits=[];
+  const lineageSlides=[],markdownSlides=[],chartAudits=[],assetById=new Map((ir.assets||[]).map(asset=>[asset.asset_id,asset]));
   for(const slide of ir.slides) {
     const id=slide.slide_id;
     const title=oneLine(slide.title,`${id} title`);
@@ -89,10 +105,10 @@ export function compilePresentationIR(ir) {
       return {...element,source_ids:[...new Set(sourceIds.length?sourceIds:evidenceIds)]};
     });
     const assertion=slide.assertion_title?`\n## ${html(oneLine(slide.assertion_title,`${id} assertion_title`))}\n`:'';
-    const body=elements.map(element=>renderElement(element,id)).filter(Boolean).join('\n\n');
+    const body=elements.map(element=>renderElement(element,id,assetById)).filter(Boolean).join('\n\n');
     const status=evidenceIds.map(evidenceId=>`${evidenceId}: ${sourceById.get(evidenceId)?.verification_status||evidenceById.get(evidenceId)?.verification_status}`).join('; ')||'none';
     const notes=noteSafe(slide.speaker_notes||'No speaker notes supplied.');
-    const elementLineage=elements.map(element=>({element_id:element.element_id,source_ids:element.source_ids.length?element.source_ids:evidenceIds}));
+    const elementLineage=elements.map(element=>({element_id:element.element_id,...(element.kind==='image'?{asset_id:element.asset_id,alt:element.alt}:{}),source_ids:element.source_ids.length?element.source_ids:evidenceIds}));
     const elementMap=elementLineage.map(element=>`${element.element_id}=${element.source_ids.join(',')||'none'}`).join('; ');
     const comment=`<!--\nslide_id: ${id}\nevidence_ids: ${evidenceIds.join(', ')||'none'}\nverification: ${status}\nelement_sources: ${elementMap||'none'}\nSPEAKER NOTES: ${notes}\n-->`;
     markdownSlides.push([`# ${html(title)}`,assertion.trim(),body,comment].filter(Boolean).join('\n\n'));
@@ -102,8 +118,9 @@ export function compilePresentationIR(ir) {
   const deckTitle=oneLine(ir.meta.title||ir.slides[0].title,'meta.title');
   const frontmatter=['---','theme: default',`title: ${JSON.stringify(deckTitle)}`,`info: ${JSON.stringify('Generated from Presentation IR 1.0.0; evidence status is preserved, not verified.')}`,'---',''].join('\n');
   const markdown=frontmatter+markdownSlides.join('\n\n---\n\n')+'\n';
-  const lineage={schema_version:'1.0.0',source_ir_sha256:hash(Buffer.from(JSON.stringify(ir))),sources:sources.map(source=>({source_id:source.source_id,type:source.type,uri:source.uri??null,sha256:source.sha256??null,locator:source.locator??null,verification_status:source.verification_status})),evidence:ir.source_ir.evidence||[],claims:ir.source_ir.claims||[],slides:lineageSlides,charts:chartAudits};
-  return {markdown,lineage,sourceIrSha256:lineage.source_ir_sha256,warnings:validation.warnings};
+  const lineage={schema_version:'1.0.0',source_ir_sha256:hash(Buffer.from(JSON.stringify(ir))),sources:sources.map(source=>({source_id:source.source_id,type:source.type,uri:source.uri??null,sha256:source.sha256??null,locator:source.locator??null,verification_status:source.verification_status})),evidence:ir.source_ir.evidence||[],claims:ir.source_ir.claims||[],assets:(ir.assets||[]).map(asset=>({asset_id:asset.asset_id,uri:asset.uri??null,sha256:asset.sha256??null,media_type:asset.media_type,source_id:asset.source_id??null,license:asset.license??null,rights_status:asset.rights_status})),slides:lineageSlides,charts:chartAudits};
+  const usedAssetIds=new Set(ir.slides.flatMap(slide=>slide.elements.filter(element=>element.kind==='image').map(element=>element.asset_id))),requiredAssets=(ir.assets||[]).filter(asset=>usedAssetIds.has(asset.asset_id)).map(asset=>({asset_id:asset.asset_id,uri:asset.uri,sha256:asset.sha256,media_type:asset.media_type,source_id:asset.source_id,license:asset.license,rights_status:asset.rights_status})),assetWarnings=requiredAssets.flatMap(asset=>[...(asset.rights_status==='approved'?[]:[`Asset ${asset.asset_id} rights status is ${asset.rights_status}; export does not establish permission.`]),...(!asset.license?[`Asset ${asset.asset_id} has no license metadata; verify reuse rights before distribution.`]:[])]);
+  return {markdown,lineage,sourceIrSha256:lineage.source_ir_sha256,warnings:[...validation.warnings,...assetWarnings],requiredAssets};
 }
 
 export function verifyPptxLineage(pptxBytes,lineage) {

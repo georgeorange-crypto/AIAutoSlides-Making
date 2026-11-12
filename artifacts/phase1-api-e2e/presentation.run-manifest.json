@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "pptxgenjs-ir-1794516716445",
+  "workflow": "presentation-ir-render",
+  "status": "completed",
+  "started_at": "2026-11-12T20:51:56.445Z",
+  "inputs": [
+    {
+      "path": "project:c9d99a5a-421b-4ba5-8e4d-a504a67d95eb",
+      "sha256": "b712abeafa955eded6c057b7b22a12b410729e5d77c078e1e6938a938644b43f",
+      "format": "json"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "presentation.pptx",
+      "format": "pptx",
+      "sha256": "3610b1a7bbecd27393da6b0168a413e5beed7afaf8708f01a38bc30e7a848029",
+      "editable": "native"
+    },
+    {
+      "path": "presentation.storyboard.json",
+      "format": "json",
+      "sha256": "90ede2d48e438efba614a43c5a8c376430cc9d2dbada0495101c15c40a213efe",
+      "editable": "not-applicable"
+    },
+    {
+      "path": "presentation.evidence.json",
+      "format": "json",
+      "sha256": "d51718c28e9e1cab10f9e7475f372149e05288e5fec76e29b917b92576a7fb76",
+      "editable": "not-applicable"
+    },
+    {
+      "path": "presentation.lineage.json",
+      "format": "json",
+      "sha256": "b4ca9f5e7097ced40e148e89d41e6d220cbf463b47e18540ff02d6d59423ab45",
+      "editable": "not-applicable"
+    },
+    {
+      "path": "presentation.review.json",
+      "format": "json",
+      "sha256": "3ee32f4926ad18835f1d6bd7a7f387b088e02d753e8ca2ef3c2aa204961df3f9",
+      "editable": "not-applicable"
+    },
+    {
+      "path": "presentation.qa.json",
+      "format": "json",
+      "sha256": "0d7b633058e97194a3c6c20cbd40dc99d35d5367bd413cf6af94b631feb4f273",
+      "editable": "not-applicable"
+    }
+  ],
+  "tool_calls": [
+    {
+      "tool_id": "pptxgenjs-ir",
+      "version": "1.0.0",
+      "status": "completed",
+      "warnings": [
+        "Source E_PHASE1_SYN remains unverified; IR validation does not verify it",
+        "Slide 2: chart sample_size is missing; state the basis in notes before interpreting values"
+      ]
+    }
+  ],
+  "logs": [],
+  "policy": {
+    "network": "local-only",
+    "paid_api_calls": 0,
+    "synthetic_data": true,
+    "source_verification": "pending"
+  }
+}

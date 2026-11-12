@@ -6,6 +6,7 @@ import {createRequire} from 'node:module';
 import {unzipSync} from 'fflate';
 import PptxGenJS from 'pptxgenjs';
 import {defineToolAdapter} from './protocol.mjs';
+import {pptxgenjsIRAdapter} from './pptxgenjs-ir.mjs';
 
 const require = createRequire(import.meta.url);
 export const pptxgenjsAdapter = defineToolAdapter({
@@ -27,5 +28,8 @@ export const pptxgenjsAdapter = defineToolAdapter({
       return {ok:true,artifact_bytes:(await stat(output)).size,native_chart:true,cleaned_up:true};
     } finally {await rm(dir,{recursive:true,force:true});}
   },
-  async run() { throw new Error('Use the validated legacy build command; raw IR invocation is not implemented yet.'); }
+  async run(request) {
+    if(!request||typeof request!=='object'||!request.presentationIR)throw new TypeError('PptxGenJS adapter run requires presentationIR, workspace, and outputDir');
+    return pptxgenjsIRAdapter.render(request);
+  }
 });

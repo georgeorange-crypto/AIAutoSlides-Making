@@ -1,0 +1,16 @@
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"import-and-validate","status":"running","at":"2026-11-12T20:51:56.119Z","detail":{}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"import-and-validate","status":"completed","at":"2026-11-12T20:51:56.124Z","detail":{"slides":3,"sources":1}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"research-and-evidence-inventory","status":"running","at":"2026-11-12T20:51:56.126Z","detail":{}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"research-and-evidence-inventory","status":"completed","at":"2026-11-12T20:51:56.128Z","detail":{"network":"disabled","sources":1,"unverified_sources":1,"unverified_evidence":0}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"content-plan","status":"running","at":"2026-11-12T20:51:56.130Z","detail":{}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"content-plan","status":"completed","at":"2026-11-12T20:51:56.132Z","detail":{"slides":3}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"visual-plan-and-route","status":"running","at":"2026-11-12T20:51:56.136Z","detail":{}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"visual-plan-and-route","status":"completed","at":"2026-11-12T20:51:56.142Z","detail":{"adapter":"pptxgenjs-ir","formats":["pptx"]}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"generate-render-and-structural-qa","status":"running","at":"2026-11-12T20:51:56.144Z","detail":{}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"generate-render-and-structural-qa","status":"completed","at":"2026-11-12T20:51:56.450Z","detail":{"slides":3,"qa_status":"warning","chart_values_exact":true}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"render-preview","status":"running","at":"2026-11-12T20:51:56.452Z","detail":{}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"render-preview","status":"completed","at":"2026-11-12T20:52:15.867Z","detail":{"pages":3,"pdf":true}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"critic","status":"running","at":"2026-11-12T20:52:15.869Z","detail":{}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"critic","status":"completed","at":"2026-11-12T20:52:15.876Z","detail":{"structural_status":"warning","visual_review":"pending_human","scientific_accuracy":"not_assessed"}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"export-and-record","status":"running","at":"2026-11-12T20:52:15.878Z","detail":{}}
+{"job_id":"f9b72ea9-d0bf-4988-8aea-16bd953e6ce2","stage":"export-and-record","status":"completed","at":"2026-11-12T20:52:15.919Z","detail":{"artifacts":20}}

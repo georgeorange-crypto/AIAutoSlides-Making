@@ -89,7 +89,29 @@ export function validatePresentationIR(ir){
         if(!text(element.alt))errors.push(`${sid}/${eid}: image requires descriptive alt text`);
         if(![element.x,element.y,element.w,element.h].every(Number.isFinite)||element.x<0||element.y<0||element.w<=0||element.h<=0||element.x+element.w>13.333||element.y+element.h>7.5)errors.push(`${sid}/${eid}: image requires positive x/y/w/h within 16:9 slide bounds`);
       }
+      if(kind==='process'){
+        const steps=element.steps??element.items;
+        if(!Array.isArray(steps)||steps.length<2||steps.length>6||steps.some(step=>!(text(step)||text(step?.title))))errors.push(`${sid}/${eid}: process requires 2–6 steps with a title`);
+      }
       if(kind==='mermaid'&&!text(element.source))errors.push(`${sid}/${eid}: mermaid requires source`);
+      if(kind==='process'){
+        const steps=element.steps??element.items;
+        if(!Array.isArray(steps)||steps.length<2||steps.length>6||steps.some(step=>!text(typeof step==='string'?step:step?.title)||String(typeof step==='string'?step:step.title).length>45))errors.push(`${sid}/${eid}: process requires 2–6 labeled steps of at most 45 characters`);
+      }
+      if(kind==='diagram'){
+        const groups=element.groups,nodes=element.nodes,edges=element.edges,inside=box=>box&&[box.x,box.y,box.w,box.h].every(Number.isFinite)&&box.x>=0&&box.y>=2.35&&box.w>0&&box.h>0&&box.x+box.w<=13.333&&box.y+box.h<=6.85;
+        if(!Array.isArray(groups)||!groups.length||!Array.isArray(nodes)||nodes.length<2||nodes.length>12||!Array.isArray(edges)||!edges.length)errors.push(`${sid}/${eid}: diagram requires labeled groups, 2–12 nodes, and at least one edge`);
+        else{
+          for(const [index,group] of groups.entries())if(!text(group?.label)||!inside(group))errors.push(`${sid}/${eid}: diagram group ${index} requires a label and in-bounds geometry`);
+          const nodeIds=new Set();
+          for(const [index,node] of nodes.entries()){
+            if(!text(node?.id)||nodeIds.has(node.id)||!text(node?.label)||node.label.length>65||!inside(node))errors.push(`${sid}/${eid}: diagram node ${index} requires a unique ID, bounded label, and in-bounds geometry`);
+            if(text(node?.id))nodeIds.add(node.id);
+          }
+          for(const [index,edge] of edges.entries())if(!nodeIds.has(edge?.from)||!nodeIds.has(edge?.to)||edge.from===edge.to)errors.push(`${sid}/${eid}: diagram edge ${index} must connect two distinct known nodes`);
+        }
+        if(slide?.type!=='architecture')errors.push(`${sid}/${eid}: diagram elements require slide type 'architecture'`);
+      }
       if(kind==='chart'){
         if(!CHARTS.has(element.chart_kind))errors.push(`${sid}/${eid}: unsupported chart_kind '${element.chart_kind}'`);
         if(!Array.isArray(element.x_values)||element.x_values.length<2||element.x_values.some(value=>!Number.isFinite(value)))errors.push(`${sid}/${eid}: chart x_values must contain at least two finite numbers`);
@@ -98,7 +120,7 @@ export function validatePresentationIR(ir){
         if((element.source_ids??refs).length===0)errors.push(`${sid}/${eid}: chart requires source/evidence IDs`);
         if(element.chart_kind==='cdf'&&Array.isArray(element.series))for(const series of element.series)if(series.values.some((value,index)=>value<0||value>1||(index>0&&value<series.values[index-1])))errors.push(`${sid}/${eid}: CDF probabilities must be bounded [0,1] and nondecreasing`);
       }
-      const supported=new Set(['text','bullets','table','cards','callout','image','chart','mermaid','process']);
+      const supported=new Set(['text','bullets','table','cards','callout','image','chart','mermaid','process','diagram']);
       if(kind&&!supported.has(kind))errors.push(`${sid}/${eid}: unsupported element kind '${kind}'`);
     }
     if(refs.length)for(const ref of refs){const source=sourceById.get(ref),evidence=evidenceById.get(ref),verification=source?.verification_status||evidence?.verification_status;if(verification&&verification!=='verified')warnings.push(`${source?'Source':'Evidence'} ${ref} remains ${verification}; IR validation does not verify it`);}

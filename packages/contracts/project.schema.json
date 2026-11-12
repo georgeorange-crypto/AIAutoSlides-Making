@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai4slides.local/schemas/project-1.0.0.json",
+  "title": "Project and User Profile",
+  "type": "object",
+  "required": ["schema_version", "project_id", "title", "source_ids", "deck_ids", "created_at"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"}, "project_id": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1},
+    "source_ids": {"type": "array", "items": {"$ref": "#/$defs/id"}}, "deck_ids": {"type": "array", "items": {"$ref": "#/$defs/id"}},
+    "created_at": {"type": "string", "format": "date-time"}, "settings": {"type": "object"}, "profile": {"anyOf": [{"$ref": "#/$defs/profile"},{"type":"null"}]}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$", "minLength": 1},
+    "profile": {"type": "object", "required": ["schema_version", "profile_id", "preferences", "privacy"], "properties": {"schema_version": {"const": "1.0.0"}, "profile_id": {"$ref": "#/$defs/id"}, "preferences": {"type": "object"}, "privacy": {"type": "object", "properties": {"local_only": {"type": "boolean"}, "allow_network": {"type": "boolean"}, "allow_paid_api": {"type": "boolean"}}, "additionalProperties": true}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "meta": {
+    "title": "Synthetic IR to editable PowerPoint",
+    "audience": "Adapter validation",
+    "goal": "Exercise evidence mapping and native chart serialization",
+    "status": "SYNTHETIC QA FIXTURE — NOT RESEARCH DATA",
+    "theme": "academic-light"
+  },
+  "source_ir": {
+    "schema_version": "1.0.0",
+    "sources": [
+      {
+        "source_id": "E_PHASE1_SYN",
+        "type": "synthetic_fixture",
+        "uri": "fixture://phase1/native-chart",
+        "locator": "examples/phase1/pptxgenjs-ir.json",
+        "verification_status": "unverified",
+        "claims": [],
+        "assets": []
+      }
+    ]
+  },
+  "slides": [
+    {
+      "slide_id": "S01",
+      "type": "cover",
+      "title": "Synthetic data, editable output",
+      "evidence_ids": [],
+      "speaker_notes": "This fixture exercises the local adapter only.",
+      "elements": [
+        {"element_id": "S01-T01", "kind": "text", "text": "No empirical measurements are represented."}
+      ]
+    },
+    {
+      "slide_id": "S02",
+      "type": "chart",
+      "title": "Fixture values map one-to-one",
+      "assertion_title": "The chart retains the supplied synthetic values.",
+      "evidence_ids": ["E_PHASE1_SYN"],
+      "speaker_notes": "Values 12, 18, and 15 are synthetic software-test inputs.",
+      "elements": [
+        {"element_id": "S02-T01", "kind": "text", "text": "SYNTHETIC QA FIXTURE · NOT RESEARCH DATA"},
+        {
+          "element_id": "S02-C01",
+          "kind": "chart",
+          "chart_kind": "bar",
+          "title": "Synthetic values by category",
+          "x_values": [1, 2, 3],
+          "categories": ["A", "B", "C"],
+          "x_axis_label": "Fixture category",
+          "y_axis_label": "Synthetic units",
+          "series": [{"name": "Synthetic series", "values": [12, 18, 15]}],
+          "source_ids": ["E_PHASE1_SYN"]
+        }
+      ]
+    },
+    {
+      "slide_id": "S03",
+      "type": "closing",
+      "title": "Keep provenance with the deck",
+      "evidence_ids": ["E_PHASE1_SYN"],
+      "speaker_notes": "An adapter smoke test is not evidence of scientific validity.",
+      "elements": [
+        {"element_id": "S03-T01", "kind": "callout", "text": "Synthetic fixture only · source remains unverified"}
+      ]
+    }
+  ]
+}

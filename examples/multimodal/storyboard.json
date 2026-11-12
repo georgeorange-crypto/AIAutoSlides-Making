@@ -146,13 +146,11 @@
           },
           {
             "from": "scheduler",
-            "to": "worker",
-            "label": "dispatch"
+            "to": "worker"
           },
           {
             "from": "scheduler",
-            "to": "cache",
-            "label": "lookup"
+            "to": "cache"
           }
         ]
       },

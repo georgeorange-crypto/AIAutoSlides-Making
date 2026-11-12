@@ -4,6 +4,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {pptxgenjsAdapter} from '../packages/adapters/pptxgenjs.mjs';
+import {pptxgenjsIRAdapter} from '../packages/adapters/pptxgenjs-ir.mjs';
 import {pdfjsAdapter} from '../packages/adapters/pdfjs.mjs';
 import {ooxmlTextAdapter} from '../packages/adapters/ooxml-text.mjs';
 import {mermaidAdapter} from '../packages/adapters/mermaid.mjs';
@@ -13,7 +14,7 @@ import {createCanvaOAuthServer} from './canva-oauth.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
@@ -23,7 +24,7 @@ async function main(){
  if(command==='auth-status'){let state='not configured; set GOOGLE_OAUTH_CLIENT_FILE';if(process.env.GOOGLE_OAUTH_CLIENT_FILE){try{loadOAuthClient(process.env.GOOGLE_OAUTH_CLIENT_FILE);state='configured (local consent test available)';}catch(e){state=`configuration error: ${e.message}`;process.exitCode=1;}}console.log(`google-slides: ${state}`);return;}
  if(command==='recommend'){
   const workflow=id, specs={
-   research:[['document extraction',['pdfjs-dist','pymupdf','docling','markitdown']],['evidence review',['fact-review','deterministic-planner']],['editable deck',['pptxgenjs','python-pptx','slidev']],['diagrams',['mermaid','d2','graphviz']]],
+   research:[['document extraction',['pdfjs-dist','tesseract-js','pymupdf','docling','markitdown']],['evidence review',['fact-review','deterministic-planner']],['editable deck',['pptxgenjs','python-pptx','slidev']],['diagrams',['mermaid','d2','graphviz']]],
    pitch:[['editable deck',['pptxgenjs','presenton','gamma','canva','slidev']],['visual assets',['lucide','wikimedia-commons','pexels']]],
    modify:[['PPTX inspection and modification',['pptx-automizer','ooxml-inspector','powerpoint-com']]],
    update:[['data-bound deck',['pptxgenjs','python-pptx']],['charts',['vega-lite','matplotlib','echarts']]],
@@ -32,13 +33,14 @@ async function main(){
   };
   if(!workflow||!specs[workflow]){console.error(`Choose workflow: ${Object.keys(specs).join(', ')}`);process.exitCode=2;return;}
   const byId=new Map(all.map(t=>[t.id,t]));const notes={
-   'pdfjs-dist':['Integrated: local text extraction with page locators is used by document import.','Scanned pages without selectable text are rejected as needing OCR; no OCR is claimed.'],
+   'pdfjs-dist':['Integrated: local selectable-text extraction with page locators is used by document import.','Image-only scans need the separate local OCR route; PDF.js extraction itself does not verify claim truth.'],
+   'tesseract-js':['Integrated: bundled Tesseract.js 7 engine plus local eng and chi_sim traineddata performs offline OCR after Poppler rasterizes each scanned PDF page.','OCR confidence is not scientific verification; page images and extracted text still require human comparison.'],
    pymupdf:['Python library with broad PDF extraction and rendering; useful as an alternate parser after a local adapter exists.','Not installed or wired into this Node project; Python environment and license/dependency review required.'],
    docling:['Local Python pipeline can preserve richer layout/table structure; consider for complex papers.','Heavier model/runtime and not installed here; extracted claims still require evidence review.'],
    markitdown:['Text-first Office/PDF-to-Markdown fallback with a broad format set.','Not installed/wired here; layout/table fidelity differs from Docling and must be fixture-tested.'],
    'fact-review':['Use the project review gate and deterministic critic for source links, flags, and human approval.','Automated checks do not verify scientific truth or replace human fact checking.'],
    'deterministic-planner':['Local rule-based planner provides reproducible fallback.','Less flexible narrative than an optional AI draft; all generated claims still need evidence IDs.'],
-   pptxgenjs:['Current MVP backend; emits native editable text and chart objects from validated input.','Legacy CLI is integrated; unified Presentation IR adapter execution remains pending.'],
+   pptxgenjs:['Current MVP backend; emits native editable text, shapes, tables and chart objects through the validated Presentation IR adapter.','Supports the declared IR mapping; incremental editing is not available and Mermaid source is retained as text.'],
    'python-pptx':['Python API can inspect/edit OOXML objects and offers a separate implementation option.','Not integrated here; unsupported PowerPoint parts may not round-trip, so preservation tests are required.'],
    slidev:['Markdown/Vue plus browser rendering is useful for web-first talks and rapid style iteration.','PPTX export may simplify/rasterize elements and needs object-level QA; not the default scientific deck route.'],
    mermaid:['Compact text DSL for common flowcharts; keep editable source alongside SVG preview.','SVG embedded in PPTX is an image object, not editable native PowerPoint shapes.'],
@@ -55,7 +57,7 @@ async function main(){
    marp:['Simple Markdown-to-slides alternative for lightweight technical talks.','Editable PPTX export has fidelity caveats; not wired into current evidence lineage path.'],
    quarto:['Research document and citation workflows can feed presentation formats.',"Requires separate CLI/format setup and a metadata bridge to retain this project's evidence IDs."]
   };
-  const stages=specs[workflow].map(([stage,ids])=>{const options=ids.map((toolId,index)=>{const t=byId.get(toolId);if(!t)return null;let status=adapters.has(t.id)?'legacy local route available; unified IR execution pending':t.probe?.command?'candidate; local executable probe available':'catalogue candidate; no runnable adapter';if(t.id==='pdfjs-dist')status='integrated in local document importer';if(t.id==='pptxgenjs')status='working legacy local backend; adapter smoke-tested';if(t.id==='fact-review')status='project review functions available; no standalone tool adapter';const n=notes[t.id];return {rank:index+1,id:t.id,name:t.name,implementation:status,requires:{network:t.needs_network,auth:t.needs_auth,cost:t.expected_cost,editable:t.editable},why:n?.[0]||`${t.kind}; ${t.needs_network?'network required':'local/offline capable'}${t.needs_auth?'; account authorization required':''}.`,tradeoff:n?.[1]||'Candidate only. Check upstream version, license, dependencies, and format fidelity before adoption.',license_state:t.license?.review_status||'unknown',selection:index===0?'recommended default':'alternative; choose when its stated trade-off fits',execution:'not run by recommendation'};}).filter(Boolean);return {stage,primary:options[0],alternatives:options.slice(1)};});
+  const stages=specs[workflow].map(([stage,ids])=>{const options=ids.map((toolId,index)=>{const t=byId.get(toolId);if(!t)return null;let status=adapters.has(t.id)?'local adapter available':t.probe?.command?'candidate; local executable probe available':'catalogue candidate; no runnable adapter';if(['pdfjs-dist','tesseract-js'].includes(t.id))status='integrated in local document importer';if(['pptxgenjs','pptxgenjs-ir'].includes(t.id))status='validated Presentation IR → editable PPTX adapter available';if(t.id==='fact-review')status='project review functions available; no standalone tool adapter';const n=notes[t.id];return {rank:index+1,id:t.id,name:t.name,implementation:status,requires:{network:t.needs_network,auth:t.needs_auth,cost:t.expected_cost,editable:t.editable},why:n?.[0]||`${t.kind}; ${t.needs_network?'network required':'local/offline capable'}${t.needs_auth?'; account authorization required':''}.`,tradeoff:n?.[1]||'Candidate only. Check upstream version, license, dependencies, and format fidelity before adoption.',license_state:t.license?.review_status||'unknown',selection:index===0?'recommended default':'alternative; choose when its stated trade-off fits',execution:'not run by recommendation'};}).filter(Boolean);return {stage,primary:options[0],alternatives:options.slice(1)};});
   console.log(JSON.stringify({workflow,policy:'local-first suggestions; network/auth/cost tools are never invoked here; select explicitly before execution',stages},null,2));return;
  }
  if(command==='connect-google'){

@@ -1,5 +1,7 @@
 # Storyboard + Evidence contract
 
+The canonical backend-neutral Presentation IR, Project/Profile/Job and Source/Evidence/Claim contracts are documented in [`SLIDE_IR_SCHEMA.md`](SLIDE_IR_SCHEMA.md). The storyboard format below remains supported by the legacy CLI; the IR adapter contract is in [`ADAPTER_CONTRACT.md`](ADAPTER_CONTRACT.md).
+
 The local build is **fully offline** after dependencies are installed; AI planning is optional.
 
 ## Storyboard (`examples/research-demo.json`)

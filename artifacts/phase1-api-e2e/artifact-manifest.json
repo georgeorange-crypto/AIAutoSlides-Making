@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "workflow": "local-api-phase1-e2e",
+  "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+  "synthetic": true,
+  "external_calls": 0,
+  "artifacts": [
+    {
+      "path": "README.md",
+      "bytes": 1754,
+      "sha256": "54d4acb389787ca00fde344771c03dac4079d1eadec3c6b87f40e79853d15bb3"
+    },
+    {
+      "path": "input.presentation-ir.json",
+      "bytes": 2290,
+      "sha256": "b538f7649cf88b90304f9ee22c45d2ab3bc9bbbcf21c040eaa0acf137ab76a79"
+    },
+    {
+      "path": "presentation-page-1.png",
+      "bytes": 55458,
+      "sha256": "ab562fdb939efcdcf8117ccf1d5ab8965fcc5e1f3fb8d2b939f9568d78406137"
+    },
+    {
+      "path": "presentation-page-2.png",
+      "bytes": 49942,
+      "sha256": "6b62c3ef3b2bcab3dbe450265df1a530186c8caff79820e0995141c672af8337"
+    },
+    {
+      "path": "presentation-page-3.png",
+      "bytes": 48153,
+      "sha256": "c64558ccf8d5dc51978359d366c529b353c6d789da2f9a56850b5a62d9770804"
+    },
+    {
+      "path": "presentation.lineage.json",
+      "bytes": 1437,
+      "sha256": "b4ca9f5e7097ced40e148e89d41e6d220cbf463b47e18540ff02d6d59423ab45"
+    },
+    {
+      "path": "presentation.pdf",
+      "bytes": 69669,
+      "sha256": "6686906847bb62e2093e641725625e82f371ed0ef2e4aea26d95e992c6657b29"
+    },
+    {
+      "path": "presentation.pptx",
+      "bytes": 99669,
+      "sha256": "3610b1a7bbecd27393da6b0168a413e5beed7afaf8708f01a38bc30e7a848029"
+    },
+    {
+      "path": "presentation.qa.json",
+      "bytes": 16940,
+      "sha256": "0d7b633058e97194a3c6c20cbd40dc99d35d5367bd413cf6af94b631feb4f273"
+    },
+    {
+      "path": "presentation.review.json",
+      "bytes": 599,
+      "sha256": "3ee32f4926ad18835f1d6bd7a7f387b088e02d753e8ca2ef3c2aa204961df3f9"
+    },
+    {
+      "path": "presentation.run-manifest.json",
+      "bytes": 2066,
+      "sha256": "f3840e76d51927d06c6546c58e0c414b334270dc9cae140b09d889a9f3ac52c7"
+    },
+    {
+      "path": "workflow-report.json",
+      "bytes": 11405,
+      "sha256": "72ba4d5b1d00dfcaa1a89baee412756b099b56700b261666c91eadab3b17f282"
+    },
+    {
+      "path": "workflow.critique.json",
+      "bytes": 592,
+      "sha256": "5b5971a6f65fc8c157a19e3a4e52aec0441e40c7035746e099e2c173b2b5d36c"
+    },
+    {
+      "path": "workflow.events.jsonl",
+      "bytes": 2650,
+      "sha256": "e8a5c2e82b5677e494683207346ac4beddfc97baf08037de0337df3b47717590"
+    }
+  ]
+}

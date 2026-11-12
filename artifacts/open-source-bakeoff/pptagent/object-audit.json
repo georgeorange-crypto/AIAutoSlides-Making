@@ -1,0 +1,220 @@
+{
+  "schema": "aiautoslides.pptx-object-audit.v1",
+  "file": "outputs/open-source-bakeoff/pptagent-run/answer.pptx",
+  "sha256": "279df2144740168f2e0f4e306dee474c86309f4d859af3fc41ecf1834c2de56c",
+  "slideCount": 9,
+  "editableTextSlides": 9,
+  "totals": {
+    "nativeShapes": 111,
+    "nativeConnectors": 16,
+    "nativePictures": 0,
+    "nativeTables": 2,
+    "nativeChartFrames": 0
+  },
+  "slides": [
+    {
+      "slide": 1,
+      "editableTextRuns": 6,
+      "hasEditableText": true,
+      "nativeShapes": 8,
+      "nativeConnectors": 1,
+      "nativePictures": 0,
+      "nativeTables": 0,
+      "nativeChartFrames": 0,
+      "texts": [
+        "SYNTHETIC / HYPOTHETICAL TEST MATERIAL",
+        "Synthetic local-first presentation pipeline",
+        "A hypothetical design for evidence-preserving technical talks",
+        "SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED",
+        "Local-only backend test · no measured results",
+        "01 / 09"
+      ]
+    },
+    {
+      "slide": 2,
+      "editableTextRuns": 8,
+      "hasEditableText": true,
+      "nativeShapes": 11,
+      "nativeConnectors": 2,
+      "nativePictures": 0,
+      "nativeTables": 0,
+      "nativeChartFrames": 0,
+      "texts": [
+        "EVIDENCE-FIRST PRESENTATION SYSTEMS",
+        "Design the pipeline around evidence",
+        "Scientific review needs exact data mapping, source lineage, and explicit uncertainty.",
+        "Presentation tools can draft and arrange slides while review checks the source trail.",
+        "No empirical performance data",
+        "SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED",
+        "Local-only backend test · no measured results",
+        "02 / 09"
+      ]
+    },
+    {
+      "slide": 3,
+      "editableTextRuns": 11,
+      "hasEditableText": true,
+      "nativeShapes": 17,
+      "nativeConnectors": 1,
+      "nativePictures": 0,
+      "nativeTables": 0,
+      "nativeChartFrames": 0,
+      "texts": [
+        "EVIDENCE-FIRST PRESENTATION SYSTEMS",
+        "Separate evidence from presentation layout",
+        "Source files",
+        "Evidence ledger",
+        "Storyboard + figures",
+        "Backend adapter",
+        "PPTX / PDF / HTML",
+        "Source identifiers and verification state travel with the rendered deck.",
+        "SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED",
+        "Local-only backend test · no measured results",
+        "03 / 09"
+      ]
+    },
+    {
+      "slide": 4,
+      "editableTextRuns": 14,
+      "hasEditableText": true,
+      "nativeShapes": 9,
+      "nativeConnectors": 2,
+      "nativePictures": 0,
+      "nativeTables": 1,
+      "nativeChartFrames": 0,
+      "texts": [
+        "EVIDENCE-FIRST PRESENTATION SYSTEMS",
+        "Keep figures deterministic",
+        "Figure field",
+        "Hypothetical input",
+        "Load tier A",
+        "120 req/s",
+        "Load tier B",
+        "240 req/s",
+        "Load tier C",
+        "360 req/s",
+        "Synthetic fixture values, not benchmark results.",
+        "SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED",
+        "Local-only backend test · no measured results",
+        "04 / 09"
+      ]
+    },
+    {
+      "slide": 5,
+      "editableTextRuns": 12,
+      "hasEditableText": true,
+      "nativeShapes": 16,
+      "nativeConnectors": 1,
+      "nativePictures": 0,
+      "nativeTables": 0,
+      "nativeChartFrames": 0,
+      "texts": [
+        "EVIDENCE-FIRST PRESENTATION SYSTEMS",
+        "Layout intent should survive backend changes",
+        "Assertion",
+        "One claim per slide",
+        "Evidence",
+        "Show source and data",
+        "Review",
+        "Keep caveats visible",
+        "Synthetic design example · no measured results",
+        "SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED",
+        "Local-only backend test · no measured results",
+        "05 / 09"
+      ]
+    },
+    {
+      "slide": 6,
+      "editableTextRuns": 10,
+      "hasEditableText": true,
+      "nativeShapes": 21,
+      "nativeConnectors": 6,
+      "nativePictures": 0,
+      "nativeTables": 0,
+      "nativeChartFrames": 0,
+      "texts": [
+        "EVIDENCE-FIRST PRESENTATION SYSTEMS",
+        "Track limitations as structured output",
+        "Unsupported chart type → explicit warning",
+        "Raster-only element → object-level editability report",
+        "Missing source ID → build error",
+        "Unverified evidence → visible pending state",
+        "Provider call → explicit opt-in and cost boundary",
+        "SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED",
+        "Local-only backend test · no measured results",
+        "06 / 09"
+      ]
+    },
+    {
+      "slide": 7,
+      "editableTextRuns": 17,
+      "hasEditableText": true,
+      "nativeShapes": 6,
+      "nativeConnectors": 1,
+      "nativePictures": 0,
+      "nativeTables": 1,
+      "nativeChartFrames": 0,
+      "texts": [
+        "EVIDENCE-FIRST PRESENTATION SYSTEMS",
+        "Compare capabilities, not marketing labels",
+        "Check",
+        "Required evidence",
+        "Export",
+        "PPTX produced by local command",
+        "Editability",
+        "Text, shapes, charts inspected in package",
+        "Fidelity",
+        "Every rendered page reviewed",
+        "Lineage",
+        "Source IDs preserved in sidecar",
+        "Operations",
+        "Version, dependencies, services logged",
+        "SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED",
+        "Local-only backend test · no measured results",
+        "07 / 09"
+      ]
+    },
+    {
+      "slide": 8,
+      "editableTextRuns": 11,
+      "hasEditableText": true,
+      "nativeShapes": 15,
+      "nativeConnectors": 1,
+      "nativePictures": 0,
+      "nativeTables": 0,
+      "nativeChartFrames": 0,
+      "texts": [
+        "EVIDENCE-FIRST PRESENTATION SYSTEMS",
+        "A backend is useful only when its boundary is clear",
+        "Local renderer",
+        "Repeatable exports without model calls",
+        "AI service",
+        "Optional drafting; provider and cost disclosed",
+        "Scientific QA",
+        "Checks every output outside the renderer",
+        "SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED",
+        "Local-only backend test · no measured results",
+        "08 / 09"
+      ]
+    },
+    {
+      "slide": 9,
+      "editableTextRuns": 7,
+      "hasEditableText": true,
+      "nativeShapes": 8,
+      "nativeConnectors": 1,
+      "nativePictures": 0,
+      "nativeTables": 0,
+      "nativeChartFrames": 0,
+      "texts": [
+        "EVIDENCE-FIRST PRESENTATION SYSTEMS",
+        "Recommendation for this test",
+        "Keep evidence and chart data in a backend-neutral contract.",
+        "Use isolated adapters; promote a renderer only after same-input, editable-object, and visual checks pass.",
+        "SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED",
+        "Local-only backend test · no measured results",
+        "09 / 09"
+      ]
+    }
+  ]
+}

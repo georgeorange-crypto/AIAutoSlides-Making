@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "schema_version": "pptagent.standalone.final.v1",
+  "complete": true,
+  "delivery_ready": true,
+  "checks": {
+    "slide_html_count": true,
+    "slide_reviews_current": true,
+    "answer_exists": true,
+    "pptx_structure": true,
+    "build_current": true,
+    "deck_review_current": true
+  },
+  "artifact": "answer.pptx",
+  "artifact_sha256": "279df2144740168f2e0f4e306dee474c86309f4d859af3fc41ecf1834c2de56c",
+  "slides": 9,
+  "aspect_ratio": "16:9"
+}

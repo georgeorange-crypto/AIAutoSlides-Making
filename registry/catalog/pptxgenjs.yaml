@@ -3,8 +3,8 @@
   "name": "PptxGenJS",
   "kind": "deck-backend",
   "official_url": "https://github.com/gitbrent/PptxGenJS",
-  "version": "not-pinned",
-  "interface": "Node library",
+  "version": "4.0.1",
+  "interface": "Node library + Presentation IR adapter",
   "platforms": [
     "windows",
     "linux",
@@ -12,13 +12,19 @@
   ],
   "capabilities": [
     "native-editable-pptx",
-    "native-charts"
+    "native-charts",
+    "source-lineage",
+    "structural-qa",
+    "run-manifest"
   ],
   "inputs": [
-    "presentation-ir"
+    "presentation-ir-1.0.0"
   ],
   "outputs": [
-    "pptx"
+    "editable-pptx",
+    "lineage-manifest",
+    "qa-report",
+    "run-manifest"
   ],
   "dependencies": [
     "root npm dependency"
@@ -32,9 +38,9 @@
     "review_status": "needs-review",
     "note": "Verify the current upstream license and transitive dependencies before production use."
   },
-  "verification_status": "smoke-tested",
-  "adapter": "legacy renderer is already used by src/render.mjs; contract adapter wraps dependency probe and runs a temporary native-chart fixture",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/pptxgenjs.mjs delegates validated Presentation IR requests to packages/adapters/pptxgenjs-ir.mjs; legacy CLI remains supported",
   "probe": null,
-  "limitations": "Unified Presentation IR adapter run() still pending; no end-to-end workflow status is claimed.",
-  "status": "smoke-tested"
+  "limitations": "One chart/table/metric/process group per slide; Mermaid is preserved as source text in this backend; incremental slide editing is not supported.",
+  "status": "e2e-tested"
 }

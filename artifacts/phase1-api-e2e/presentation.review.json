@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "theme": "academic-light",
+  "source": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\outputs\\phase1-api-e2e-undefined\\runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.storyboard.json",
+  "evidence": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\outputs\\phase1-api-e2e-undefined\\runs\\f9b72ea9-d0bf-4988-8aea-16bd953e6ce2\\presentation.evidence.json",
+  "slides": 3,
+  "warnings": [
+    "Source E_PHASE1_SYN remains unverified; IR validation does not verify it",
+    "Slide 2: chart sample_size is missing; state the basis in notes before interpreting values"
+  ]
+}

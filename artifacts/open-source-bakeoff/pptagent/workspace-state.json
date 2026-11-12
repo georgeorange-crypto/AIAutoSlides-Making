@@ -1,0 +1,397 @@
+{
+  "schema_version": "pptagent.standalone.state.v1",
+  "renders": {
+    "slides": {
+      "slides/slide01.html": {
+        "inputs": {
+          "task": {
+            "slides": 9,
+            "aspect_ratio": "16:9",
+            "language": "English"
+          },
+          "files": {
+            "slides/slide01.html": "ee19838123ca1e4a86a79fb15374c86d7862a3cbb72feb9de3575fed6a5ca507"
+          }
+        },
+        "images": {
+          "qa/slides/slide01.jpg": "b38fc014044c5cc5058da07c394e4a8b79bc74bfa0933eec5cea3ef3c1f13225"
+        }
+      },
+      "slides/slide02.html": {
+        "inputs": {
+          "task": {
+            "slides": 9,
+            "aspect_ratio": "16:9",
+            "language": "English"
+          },
+          "files": {
+            "slides/slide02.html": "323ad4a3e3c278f667aa71e24b498e6abb27c7c271a093e9e9404f3783849fe6"
+          }
+        },
+        "images": {
+          "qa/slides/slide02.jpg": "0d5bcd675721d6d135b9f738b5c2f6d80da9f2257a1c8b050b8a8ef684d2e2ec"
+        }
+      },
+      "slides/slide03.html": {
+        "inputs": {
+          "task": {
+            "slides": 9,
+            "aspect_ratio": "16:9",
+            "language": "English"
+          },
+          "files": {
+            "slides/slide03.html": "823d02197835012a2937aa018e1daa7f5ebb6c7c574236815ab667ab944cd7ff"
+          }
+        },
+        "images": {
+          "qa/slides/slide03.jpg": "6b09a67dc0473db85f7b94644ef41c531c5bc35d684b61d54feddbb4acb7edbb"
+        }
+      },
+      "slides/slide04.html": {
+        "inputs": {
+          "task": {
+            "slides": 9,
+            "aspect_ratio": "16:9",
+            "language": "English"
+          },
+          "files": {
+            "slides/slide04.html": "c8fdb9286215d8d01418e3ac43721328cfa97b6a847746d48772d6b1c5237f45"
+          }
+        },
+        "images": {
+          "qa/slides/slide04.jpg": "a31eb0da55caee9d875d10bbef1312fc0aa5c3851d57e1888915c94f7486695c"
+        }
+      },
+      "slides/slide05.html": {
+        "inputs": {
+          "task": {
+            "slides": 9,
+            "aspect_ratio": "16:9",
+            "language": "English"
+          },
+          "files": {
+            "slides/slide05.html": "aeadb1933232a19d05eaafa1b825f639f225f6e84b871e76f5d1aa275021f713"
+          }
+        },
+        "images": {
+          "qa/slides/slide05.jpg": "43cde0c2714dc4ae38eb5a6d35fc22b39a0c7d03b10755d393d46702c1a6de27"
+        }
+      },
+      "slides/slide06.html": {
+        "inputs": {
+          "task": {
+            "slides": 9,
+            "aspect_ratio": "16:9",
+            "language": "English"
+          },
+          "files": {
+            "slides/slide06.html": "5bb980a4f7bb0281ad0088dc0695364f0546937be159c0193851dd8717a1d1a3"
+          }
+        },
+        "images": {
+          "qa/slides/slide06.jpg": "80e2363889f0ce905393446e38328902af0a6851c517d50b824d061fd4b430f4"
+        }
+      },
+      "slides/slide07.html": {
+        "inputs": {
+          "task": {
+            "slides": 9,
+            "aspect_ratio": "16:9",
+            "language": "English"
+          },
+          "files": {
+            "slides/slide07.html": "169aff4930e628c4e580ff7caddacca56549b1eb09107826a0b64721b58afa7d"
+          }
+        },
+        "images": {
+          "qa/slides/slide07.jpg": "72d3794ddcd26ca53913bc451b3274ba34735be284dbffc004051f935f0b0998"
+        }
+      },
+      "slides/slide08.html": {
+        "inputs": {
+          "task": {
+            "slides": 9,
+            "aspect_ratio": "16:9",
+            "language": "English"
+          },
+          "files": {
+            "slides/slide08.html": "4ad2ea920f644ba9443057ca76f1a00dc9daa07b3f66213336428ae8ae8ac59b"
+          }
+        },
+        "images": {
+          "qa/slides/slide08.jpg": "ed7b714eed028e4b1369c9129931201087f922d00a49047d772d0cbd35cb7842"
+        }
+      },
+      "slides/slide09.html": {
+        "inputs": {
+          "task": {
+            "slides": 9,
+            "aspect_ratio": "16:9",
+            "language": "English"
+          },
+          "files": {
+            "slides/slide09.html": "1b5033bde9060a38c6f90125789a72d1994b8f509b1a5bd0cdf379cffb058306"
+          }
+        },
+        "images": {
+          "qa/slides/slide09.jpg": "5fe6b6d5fdd576b4476f5ae405d2554147766be1609bd088fb60f1563855c7fd"
+        }
+      }
+    },
+    "deck": {
+      "inputs": {
+        "artifact_sha256": "279df2144740168f2e0f4e306dee474c86309f4d859af3fc41ecf1834c2de56c"
+      },
+      "images": {
+        "qa/deck/contact-01.jpg": "314fb3b6176fb9bc3dc45ac4f557caaff45fa4cf3b281cbbbc62b5131be250db",
+        "qa/deck/contact-02.jpg": "323f05bd96721c7a7f0e381ecb4dd213d62cb6f5b4830ba75b707d1d82634f8d",
+        "qa/deck/contact-03.jpg": "5dec147920508ee61846be89befca29f7e1bf7c473ca3b308601e47f121bac8d"
+      }
+    }
+  },
+  "reviews": {
+    "slides": {
+      "slides/slide01.html": {
+        "verdict": "pass",
+        "summary": "Reviewed current 1280x720 render. Content remains within slide bounds, text is readable, and no clipping, unintended overlap, or broken images were found.",
+        "issues": [],
+        "ok": true,
+        "review_mode": "host",
+        "render": {
+          "inputs": {
+            "task": {
+              "slides": 9,
+              "aspect_ratio": "16:9",
+              "language": "English"
+            },
+            "files": {
+              "slides/slide01.html": "ee19838123ca1e4a86a79fb15374c86d7862a3cbb72feb9de3575fed6a5ca507"
+            }
+          },
+          "images": {
+            "qa/slides/slide01.jpg": "b38fc014044c5cc5058da07c394e4a8b79bc74bfa0933eec5cea3ef3c1f13225"
+          }
+        }
+      },
+      "slides/slide02.html": {
+        "verdict": "pass",
+        "summary": "Reviewed current 1280x720 render. Content remains within slide bounds, text is readable, and no clipping, unintended overlap, or broken images were found.",
+        "issues": [],
+        "ok": true,
+        "review_mode": "host",
+        "render": {
+          "inputs": {
+            "task": {
+              "slides": 9,
+              "aspect_ratio": "16:9",
+              "language": "English"
+            },
+            "files": {
+              "slides/slide02.html": "323ad4a3e3c278f667aa71e24b498e6abb27c7c271a093e9e9404f3783849fe6"
+            }
+          },
+          "images": {
+            "qa/slides/slide02.jpg": "0d5bcd675721d6d135b9f738b5c2f6d80da9f2257a1c8b050b8a8ef684d2e2ec"
+          }
+        }
+      },
+      "slides/slide03.html": {
+        "verdict": "pass",
+        "summary": "Reviewed current 1280x720 render. Content remains within slide bounds, text is readable, and no clipping, unintended overlap, or broken images were found.",
+        "issues": [],
+        "ok": true,
+        "review_mode": "host",
+        "render": {
+          "inputs": {
+            "task": {
+              "slides": 9,
+              "aspect_ratio": "16:9",
+              "language": "English"
+            },
+            "files": {
+              "slides/slide03.html": "823d02197835012a2937aa018e1daa7f5ebb6c7c574236815ab667ab944cd7ff"
+            }
+          },
+          "images": {
+            "qa/slides/slide03.jpg": "6b09a67dc0473db85f7b94644ef41c531c5bc35d684b61d54feddbb4acb7edbb"
+          }
+        }
+      },
+      "slides/slide04.html": {
+        "verdict": "pass",
+        "summary": "Reviewed current 1280x720 render. Content remains within slide bounds, text is readable, and no clipping, unintended overlap, or broken images were found.",
+        "issues": [],
+        "ok": true,
+        "review_mode": "host",
+        "render": {
+          "inputs": {
+            "task": {
+              "slides": 9,
+              "aspect_ratio": "16:9",
+              "language": "English"
+            },
+            "files": {
+              "slides/slide04.html": "c8fdb9286215d8d01418e3ac43721328cfa97b6a847746d48772d6b1c5237f45"
+            }
+          },
+          "images": {
+            "qa/slides/slide04.jpg": "a31eb0da55caee9d875d10bbef1312fc0aa5c3851d57e1888915c94f7486695c"
+          }
+        }
+      },
+      "slides/slide05.html": {
+        "verdict": "pass",
+        "summary": "Reviewed current 1280x720 render. Content remains within slide bounds, text is readable, and no clipping, unintended overlap, or broken images were found.",
+        "issues": [],
+        "ok": true,
+        "review_mode": "host",
+        "render": {
+          "inputs": {
+            "task": {
+              "slides": 9,
+              "aspect_ratio": "16:9",
+              "language": "English"
+            },
+            "files": {
+              "slides/slide05.html": "aeadb1933232a19d05eaafa1b825f639f225f6e84b871e76f5d1aa275021f713"
+            }
+          },
+          "images": {
+            "qa/slides/slide05.jpg": "43cde0c2714dc4ae38eb5a6d35fc22b39a0c7d03b10755d393d46702c1a6de27"
+          }
+        }
+      },
+      "slides/slide06.html": {
+        "verdict": "pass",
+        "summary": "Reviewed current 1280x720 render. Content remains within slide bounds, text is readable, and no clipping, unintended overlap, or broken images were found.",
+        "issues": [],
+        "ok": true,
+        "review_mode": "host",
+        "render": {
+          "inputs": {
+            "task": {
+              "slides": 9,
+              "aspect_ratio": "16:9",
+              "language": "English"
+            },
+            "files": {
+              "slides/slide06.html": "5bb980a4f7bb0281ad0088dc0695364f0546937be159c0193851dd8717a1d1a3"
+            }
+          },
+          "images": {
+            "qa/slides/slide06.jpg": "80e2363889f0ce905393446e38328902af0a6851c517d50b824d061fd4b430f4"
+          }
+        }
+      },
+      "slides/slide07.html": {
+        "verdict": "pass",
+        "summary": "Reviewed current 1280x720 render. Content remains within slide bounds, text is readable, and no clipping, unintended overlap, or broken images were found.",
+        "issues": [],
+        "ok": true,
+        "review_mode": "host",
+        "render": {
+          "inputs": {
+            "task": {
+              "slides": 9,
+              "aspect_ratio": "16:9",
+              "language": "English"
+            },
+            "files": {
+              "slides/slide07.html": "169aff4930e628c4e580ff7caddacca56549b1eb09107826a0b64721b58afa7d"
+            }
+          },
+          "images": {
+            "qa/slides/slide07.jpg": "72d3794ddcd26ca53913bc451b3274ba34735be284dbffc004051f935f0b0998"
+          }
+        }
+      },
+      "slides/slide08.html": {
+        "verdict": "pass",
+        "summary": "Reviewed current 1280x720 render. Content remains within slide bounds, text is readable, and no clipping, unintended overlap, or broken images were found.",
+        "issues": [],
+        "ok": true,
+        "review_mode": "host",
+        "render": {
+          "inputs": {
+            "task": {
+              "slides": 9,
+              "aspect_ratio": "16:9",
+              "language": "English"
+            },
+            "files": {
+              "slides/slide08.html": "4ad2ea920f644ba9443057ca76f1a00dc9daa07b3f66213336428ae8ae8ac59b"
+            }
+          },
+          "images": {
+            "qa/slides/slide08.jpg": "ed7b714eed028e4b1369c9129931201087f922d00a49047d772d0cbd35cb7842"
+          }
+        }
+      },
+      "slides/slide09.html": {
+        "verdict": "pass",
+        "summary": "Reviewed current 1280x720 render. Content remains within slide bounds, text is readable, and no clipping, unintended overlap, or broken images were found.",
+        "issues": [],
+        "ok": true,
+        "review_mode": "host",
+        "render": {
+          "inputs": {
+            "task": {
+              "slides": 9,
+              "aspect_ratio": "16:9",
+              "language": "English"
+            },
+            "files": {
+              "slides/slide09.html": "1b5033bde9060a38c6f90125789a72d1994b8f509b1a5bd0cdf379cffb058306"
+            }
+          },
+          "images": {
+            "qa/slides/slide09.jpg": "5fe6b6d5fdd576b4476f5ae405d2554147766be1609bd088fb60f1563855c7fd"
+          }
+        }
+      }
+    },
+    "deck": {
+      "verdict": "pass",
+      "summary": "Manually inspected all 9 final PPTX pages rendered by LibreOffice; no clipping, overlap, or unreadable text observed. Synthetic labels and hypothetical numeric values remain visible. No external visual model used.",
+      "issues": [],
+      "ok": true,
+      "review_mode": "host",
+      "render": {
+        "inputs": {
+          "artifact_sha256": "279df2144740168f2e0f4e306dee474c86309f4d859af3fc41ecf1834c2de56c"
+        },
+        "images": {
+          "qa/deck/contact-01.jpg": "314fb3b6176fb9bc3dc45ac4f557caaff45fa4cf3b281cbbbc62b5131be250db",
+          "qa/deck/contact-02.jpg": "323f05bd96721c7a7f0e381ecb4dd213d62cb6f5b4830ba75b707d1d82634f8d",
+          "qa/deck/contact-03.jpg": "5dec147920508ee61846be89befca29f7e1bf7c473ca3b308601e47f121bac8d"
+        }
+      }
+    }
+  },
+  "build": {
+    "ok": true,
+    "artifact": "answer.pptx",
+    "artifact_sha256": "279df2144740168f2e0f4e306dee474c86309f4d859af3fc41ecf1834c2de56c",
+    "inputs": {
+      "task": {
+        "slides": 9,
+        "aspect_ratio": "16:9",
+        "language": "English"
+      },
+      "files": {
+        "slides/slide01.html": "ee19838123ca1e4a86a79fb15374c86d7862a3cbb72feb9de3575fed6a5ca507",
+        "slides/slide02.html": "323ad4a3e3c278f667aa71e24b498e6abb27c7c271a093e9e9404f3783849fe6",
+        "slides/slide03.html": "823d02197835012a2937aa018e1daa7f5ebb6c7c574236815ab667ab944cd7ff",
+        "slides/slide04.html": "c8fdb9286215d8d01418e3ac43721328cfa97b6a847746d48772d6b1c5237f45",
+        "slides/slide05.html": "aeadb1933232a19d05eaafa1b825f639f225f6e84b871e76f5d1aa275021f713",
+        "slides/slide06.html": "5bb980a4f7bb0281ad0088dc0695364f0546937be159c0193851dd8717a1d1a3",
+        "slides/slide07.html": "169aff4930e628c4e580ff7caddacca56549b1eb09107826a0b64721b58afa7d",
+        "slides/slide08.html": "4ad2ea920f644ba9443057ca76f1a00dc9daa07b3f66213336428ae8ae8ac59b",
+        "slides/slide09.html": "1b5033bde9060a38c6f90125789a72d1994b8f509b1a5bd0cdf379cffb058306"
+      }
+    },
+    "slides": 9,
+    "aspect_ratio": "16:9",
+    "quality_warnings": []
+  }
+}

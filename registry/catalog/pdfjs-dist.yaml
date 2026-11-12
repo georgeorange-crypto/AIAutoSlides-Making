@@ -37,6 +37,6 @@
   "verification_status": "e2e-tested",
   "adapter": "packages/adapters/pdfjs.mjs",
   "probe": null,
-  "limitations": "Selectable text only; scanned pages are not OCRed, and extraction does not verify claims.",
+  "limitations": "Selectable text only; image-only scans require the separate optional local Tesseract.js OCR path, and extraction does not verify claims.",
   "status": "e2e-tested"
 }

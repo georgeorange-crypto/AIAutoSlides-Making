@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "meta": {
+    "title": "Synthetic Slidev Chart Parity Check",
+    "audience": "Engineering QA",
+    "goal": "Verify chart values and evidence IDs survive the Slidev mapping",
+    "status": "SYNTHETIC QA FIXTURE"
+  },
+  "source_ir": {
+    "schema_version": "1.0.0",
+    "sources": [{
+      "source_id": "E_SYN_CHART",
+      "type": "synthetic_fixture",
+      "uri": "fixture://slidev-chart-parity",
+      "locator": "examples/m4/slidev-chart-parity-ir.json, chart row values",
+      "verification_status": "unverified",
+      "claims": [],
+      "assets": []
+    }]
+  },
+  "slides": [{
+    "slide_id": "S01",
+    "type": "chart",
+    "title": "Synthetic line values must map exactly",
+    "assertion_title": "The alternate visual preserves the supplied synthetic series values",
+    "evidence_ids": ["E_SYN_CHART"],
+    "speaker_notes": "Synthetic QA fixture only. These values are not research measurements.",
+    "elements": [
+      {"element_id":"S01-TEXT","kind":"text","text":"SYNTHETIC QA FIXTURE · NOT RESEARCH DATA"},
+      {"element_id":"S01-CHART","kind":"chart","chart_kind":"line","title":"Synthetic latency by load","x_values":[1,2,3,4],"x_axis_label":"Load (synthetic units)","y_axis_label":"Latency (synthetic ms)","series":[{"name":"Synthetic baseline","values":[12,18,15,21]},{"name":"Synthetic candidate","values":[10,14,13,17]}],"source_ids":["E_SYN_CHART"]}
+    ]
+  }]
+}

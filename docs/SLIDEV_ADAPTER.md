@@ -4,9 +4,9 @@ This is the first runnable backend adapter behind the existing tool-adapter prot
 
 ## Contract
 
-`packages/adapters/slidev.mjs` exports `slidevAdapter` and `createSlidevAdapter`. It reports formats and limitations, checks the local CLI version, exports selected PPTX/PDF/PNG formats, hashes artifacts, and optionally copies an explicitly supplied source-lineage JSON sidecar. The sidecar is provenance metadata; the adapter does not claim semantic equivalence between the Markdown and lineage map. No API key or provider is needed for local rendering.
+`packages/adapters/slidev.mjs` exports `slidevAdapter` and `createSlidevAdapter`. It reports formats and limitations, checks the local CLI version, exports selected PPTX/PDF/PNG formats, hashes artifacts, copies an explicitly supplied source-lineage JSON sidecar, and verifies that notes in the PPTX preserve slide and evidence IDs. No API key or provider is needed for local rendering.
 
-PPTX output uses Slidev's `pptx-editable` format and disables click-step duplication. Basic text and shapes are editable, while complex DOM/SVG may rasterize; native chart parts and existing-PPTX import are not supported by this adapter. These limitations are returned as warnings and capability fields.
+The Presentation IR mapper supports structured `bar`, `line`, `scatter`, and `cdf` charts. Slidev renders them as SVG visuals, while exact x/series values and evidence IDs remain in the lineage sidecar and source comment. These are not native PowerPoint chart objects and are not data-editable after export. PPTX output uses Slidev's `pptx-editable` format and disables click-step duplication. Basic text/shapes are editable; complex DOM/SVG may rasterize; existing-PPTX import is not supported. These limitations are returned as warnings and capability fields.
 
 ## Windows reproduction
 

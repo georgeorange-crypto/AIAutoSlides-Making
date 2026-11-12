@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "deck_id": null,
+  "source_ir_sha256": "b712abeafa955eded6c057b7b22a12b410729e5d77c078e1e6938a938644b43f",
+  "sources": [
+    {
+      "source_id": "E_PHASE1_SYN",
+      "type": "synthetic_fixture",
+      "uri": "fixture://phase1/native-chart",
+      "sha256": null,
+      "locator": "examples/phase1/pptxgenjs-ir.json",
+      "verification_status": "unverified"
+    }
+  ],
+  "evidence": [],
+  "claims": [],
+  "assets": [],
+  "slides": [
+    {
+      "slide_id": "S01",
+      "slide_number": 1,
+      "evidence_ids": [],
+      "elements": [
+        {
+          "element_id": "S01-T01",
+          "kind": "text",
+          "source_ids": []
+        }
+      ]
+    },
+    {
+      "slide_id": "S02",
+      "slide_number": 2,
+      "evidence_ids": [
+        "E_PHASE1_SYN"
+      ],
+      "elements": [
+        {
+          "element_id": "S02-T01",
+          "kind": "text",
+          "source_ids": [
+            "E_PHASE1_SYN"
+          ]
+        },
+        {
+          "element_id": "S02-C01",
+          "kind": "chart",
+          "source_ids": [
+            "E_PHASE1_SYN"
+          ]
+        }
+      ]
+    },
+    {
+      "slide_id": "S03",
+      "slide_number": 3,
+      "evidence_ids": [
+        "E_PHASE1_SYN"
+      ],
+      "elements": [
+        {
+          "element_id": "S03-T01",
+          "kind": "callout",
+          "source_ids": [
+            "E_PHASE1_SYN"
+          ]
+        }
+      ]
+    }
+  ]
+}

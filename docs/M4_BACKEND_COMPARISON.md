@@ -1,6 +1,6 @@
 # M4 open-source backend comparison
 
-**Decision:** Keep the project's native PptxGenJS exporter as the default. Record Slidev `pptx-editable` as a viable, optional interoperability path, but do not integrate it into the generation pipeline yet.
+**Decision:** Keep the project's native PptxGenJS exporter as the default. Slidev `pptx-editable` is an optional interoperability backend; its Presentation IR mapper now includes deterministic SVG charts and a source-lineage data sidecar. It does not provide native chart objects or a complete round-trip chart edit path.
 
 ## What was tested
 
@@ -26,9 +26,16 @@ Both exports preserve selectable text in this text-only fixture. The native proj
 
 ## Why Slidev is not integrated as a default adapter
 
-Slidev's official documentation describes `pptx-editable` as rebuilding browser elements into PowerPoint shapes, while some SVG/canvas/iframe/video/KaTeX/gradient/filter content may remain images or trigger per-slide image fallback; text wrapping may differ between browser and PowerPoint. The test confirmed editable text and zero raster pictures for this narrow fixture, but does not test those complex cases. Its exporter currently bypasses this project's validated storyboard/evidence lineage, native-chart mapping, and QA report contract. Integrating it as a supported backend needs explicit evidence-manifest and chart-parity tests before it can meet the product contract.
+Slidev's official documentation describes `pptx-editable` as rebuilding browser elements into PowerPoint shapes, while some SVG/canvas/iframe/video/KaTeX/gradient/filter content may remain images or trigger per-slide image fallback; text wrapping may differ between browser and PowerPoint. The IR mapper retains exact chart values and evidence IDs in a sidecar and emits an SVG visualization, but the export is still not a native PowerPoint chart. Tests reject malformed/misaligned series and verify value/lineage parity at the mapper boundary. This does not establish round-trip data editability or parity for arbitrary custom Markdown.
 
 Slidev's standard `pptx` export is image-based, so the comparison intentionally used `pptx-editable`. Marp also documents editable PPTX as experimental and dependent on browser/LibreOffice; Quarto documents a Pandoc-based PowerPoint route with editable text and slide themes. These remain candidates for future, separate capability checks rather than assumed equivalents.
+
+## Structured chart and source-lineage follow-up
+
+- Added [`slidev-chart-parity-ir.json`](../examples/m4/slidev-chart-parity-ir.json), a one-slide synthetic fixture with two four-value line series and source `E_SYN_CHART` (`unverified`). The Presentation IR mapper emits SVG and records exact x/y values plus source IDs in `slide-lineage.json`.
+- A real local Slidev 53.1.0 `pptx-editable` export produced [`presentation.pptx`](../outputs/m4/slidev-chart-parity/accepted/presentation.pptx) and [`lineage-validation.json`](../outputs/m4/slidev-chart-parity/accepted/lineage-validation.json). Note validation passed for S01/E_SYN_CHART. Structural QA reported 1/1 editable-text slide and 0 native chart objects, as expected; the plotted SVG is a visual object, not a PowerPoint data chart.
+- A local PDF export and page raster were visually inspected at [`page-1.png`](../outputs/m4/slidev-chart-parity/retry/page-1.png). The synthetic two-series line plot, numeric ticks, titles and source note are visible; the y-axis label was moved to the upper-right chart edge after the first render exposed tick-label overlap. This is a single synthetic renderer check, not a general guarantee for long axis labels or other chart types.
+- Exporting the PPTX and PDF in one invocation once timed out waiting for the browser body. Separate PPTX and PDF exports succeeded. PNG export produced an empty folder in this environment; the PDF was rasterized with local Poppler instead. This is recorded as an adapter/Slidev rendering caveat.
 
 Sources: [Slidev exporting guide](https://sli.dev/guide/exporting.html), [Slidev CLI](https://sli.dev/builtin/cli), [Marp CLI](https://github.com/marp-team/marp-cli/blob/main/README.md), and [Quarto PowerPoint guide](https://quarto.org/docs/presentations/powerpoint.html). These descriptions informed candidate selection; measured results above come only from the local synthetic fixture.
 

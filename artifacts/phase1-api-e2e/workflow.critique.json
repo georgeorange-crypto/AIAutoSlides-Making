@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "job_id": "f9b72ea9-d0bf-4988-8aea-16bd953e6ce2",
+  "deck_sha256": "3610b1a7bbecd27393da6b0168a413e5beed7afaf8708f01a38bc30e7a848029",
+  "structural": {
+    "status": "warning",
+    "errors": [],
+    "warnings": [
+      "Evidence E_PHASE1_SYN is unverified: IR source is not marked verified; rendering does not verify it."
+    ],
+    "chart_values_exact": true
+  },
+  "scientific_accuracy": "not_assessed",
+  "visual_review": "pending_human",
+  "source_review": [
+    {
+      "source_id": "E_PHASE1_SYN",
+      "verification_status": "unverified"
+    }
+  ]
+}

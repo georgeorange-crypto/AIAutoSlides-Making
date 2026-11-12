@@ -53,6 +53,17 @@ test('Slidev IR maps chart series exactly and preserves chart data/source lineag
   const malformed=structuredClone(input);malformed.slides[0].elements.at(-1).series[1].values=[10,14];assert.throws(()=>compilePresentationIR(malformed),/aligned with x_values/);
 });
 
+test('Slidev IR renders validated local image assets and process steps with source lineage',()=>{
+  const input=structuredClone(fixture);input.assets=[{asset_id:'A_SYN_01',uri:'public/assets/diagram.svg',sha256:'a'.repeat(64),media_type:'image/svg+xml',source_id:'E_SYN_01',license:'Synthetic fixture',rights_status:'pending'}];
+  input.slides[0].elements.push({element_id:'image-1',kind:'image',asset_id:'A_SYN_01',alt:'Synthetic architecture diagram',x:1,y:1,w:4,h:2,source_ids:['E_SYN_01']});
+  input.slides[0].elements.push({element_id:'process-1',kind:'process',steps:[{title:'Collect',detail:'Local input'},{title:'Validate'},{title:'Render'}],source_ids:['E_SYN_01']});
+  const {markdown,lineage,requiredAssets}=compilePresentationIR(input);
+  assert.match(markdown,/<img src="\/assets\/diagram.svg" alt="Synthetic architecture diagram"/);assert.match(markdown,/01 · Collect/);assert.match(markdown,/03 · Render/);
+  assert.deepEqual(requiredAssets.map(asset=>asset.asset_id),['A_SYN_01']);assert.deepEqual(lineage.assets[0],{asset_id:'A_SYN_01',uri:'public/assets/diagram.svg',sha256:'a'.repeat(64),media_type:'image/svg+xml',source_id:'E_SYN_01',license:'Synthetic fixture',rights_status:'pending'});
+  const unsafe=structuredClone(input);unsafe.assets[0].uri='https://example.invalid/image.svg';assert.throws(()=>compilePresentationIR(unsafe),/remote and parent paths are not allowed/);
+  const malformed=structuredClone(input);malformed.slides[0].elements.at(-1).steps=[{detail:'missing title'}];assert.throws(()=>compilePresentationIR(malformed),/process requires 2–6 steps with a title/);
+});
+
 test('Markdown source text cannot inject another slide or note comment',()=>{
   const hostile=structuredClone(fixture);hostile.slides[0].elements[0].text='body\n---\n<!-- hidden -->';
   const {markdown,lineage}=compilePresentationIR(hostile);

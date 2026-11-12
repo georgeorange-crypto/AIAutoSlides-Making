@@ -20,7 +20,7 @@
       "id": "E_ARCH",
       "label": "Hypothetical system architecture description",
       "source": "examples/multimodal/architecture.json",
-      "locator": "SHA-256 3261815ce7a56e7a1e34409adb919a6a6b2de560fd40dc7e87093e6fbae72dbd; groups, nodes and directed edges",
+      "locator": "SHA-256 f34663c3171e6d9bc3a778959dbcb2df1f8d4cf53fe4b72b4031f57c69db6ec3; groups, nodes and directed edges",
       "verified": false,
       "note": "Conceptual architecture fixture, not a deployed design."
     }

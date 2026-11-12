@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai4slides.local/schemas/job-1.0.0.json",
+  "title": "Local Job State",
+  "type": "object",
+  "required": ["schema_version", "job_id", "project_id", "workflow", "status", "created_at", "updated_at", "events"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"}, "job_id": {"type": "string", "minLength": 1}, "project_id": {"type": "string", "minLength": 1},
+    "workflow": {"type": "string", "minLength": 1}, "status": {"enum": ["queued", "running", "completed", "failed", "cancelled"]},
+    "created_at": {"type": "string", "format": "date-time"}, "updated_at": {"type": "string", "format": "date-time"},
+    "events": {"type": "array", "items": {"oneOf": [
+      {"type": "object", "required": ["from", "to", "at", "detail"], "properties": {"from": {"type": ["string", "null"]}, "to": {"type": "string"}, "at": {"type": "string", "format": "date-time"}, "detail": {"type": "string"}}, "additionalProperties": false},
+      {"type": "object", "required": ["stage", "status", "at", "detail"], "properties": {"stage": {"type": "string", "minLength": 1}, "status": {"enum": ["queued", "running", "completed", "failed", "cancelled"]}, "at": {"type": "string", "format": "date-time"}, "detail": {"type": "object"}}, "additionalProperties": false}
+    ]}}
+  },
+  "additionalProperties": false
+}

@@ -3,9 +3,9 @@ import path from 'node:path';
 import {promisify} from 'node:util';
 import {execFile} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {mkdir,readFile,stat,writeFile,copyFile,readdir,rm} from 'node:fs/promises';
+import {mkdir,readFile,stat,writeFile,copyFile,readdir,rm,realpath} from 'node:fs/promises';
 import {defineToolAdapter} from './protocol.mjs';
-import {verifyPptxLineage} from './slidev-ir.mjs';
+import {compilePresentationIR,verifyPptxLineage} from './slidev-ir.mjs';
 
 const execFileAsync=promisify(execFile);
 const DEFAULT_BIN=process.env.SLIDEV_CLI?process.execPath:(process.platform==='win32'?'slidev.cmd':'slidev');
@@ -52,6 +52,33 @@ export function createSlidevAdapter({runCommand=invoke}={}) {
     async smokeTest({binary=process.env.SLIDEV_BIN||DEFAULT_BIN}={}) {
       const result=await checkCli(binary);
       return {ok:result.ok,version:result.version||null,reason:result.reason||null};
+    },
+    async runIR({presentationIR,inputDir,outputDir,formats=['pptx-editable'],binary=process.env.SLIDEV_BIN||DEFAULT_BIN,chromePath=process.env.SLIDEV_CHROME_PATH,renderTimeoutMs=60000,waitUntil='networkidle'}={}) {
+      if(!presentationIR||!inputDir||!outputDir)throw new TypeError('Slidev IR export requires presentationIR, inputDir, and outputDir');
+      const inputRoot=path.resolve(inputDir),out=path.resolve(outputDir);await mkdir(out,{recursive:true});
+      const realInput=await realpath(inputRoot),realOutput=await realpath(out),compiled=compilePresentationIR(presentationIR),copiedAssets=[];
+      for(const asset of compiled.requiredAssets){
+        if(!asset.uri||!asset.sha256||asset.rights_status==='restricted')throw new Error(`Asset '${asset.asset_id}' needs a local path/hash and non-restricted rights state`);
+        if(path.isAbsolute(asset.uri)||asset.uri.replaceAll('\\','/').split('/').includes('..')||/^(?:https?:|data:|file:)/i.test(asset.uri))throw new Error(`Asset '${asset.asset_id}' must use a relative local project path`);
+        const source=path.resolve(inputRoot,asset.uri),sourceRelative=path.relative(inputRoot,source);
+        if(sourceRelative==='..'||sourceRelative.startsWith(`..${path.sep}`)||path.isAbsolute(sourceRelative))throw new Error(`Asset '${asset.asset_id}' source escapes inputDir`);
+        const realSource=await realpath(source),realSourceRelative=path.relative(realInput,realSource);
+        if(realSourceRelative==='..'||realSourceRelative.startsWith(`..${path.sep}`)||path.isAbsolute(realSourceRelative))throw new Error(`Asset '${asset.asset_id}' source resolves outside inputDir through a symlink`);
+        const bytes=await readFile(realSource);if(bytes.length>25*1024*1024)throw new Error(`Asset '${asset.asset_id}' exceeds the 25 MB image limit`);
+        if(sha256(bytes).toLowerCase()!==asset.sha256.toLowerCase())throw new Error(`Asset '${asset.asset_id}' SHA-256 does not match its local file`);
+        const mediaType=({'.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml'})[path.extname(realSource).toLowerCase()];
+        if(mediaType!==asset.media_type)throw new Error(`Asset '${asset.asset_id}' media_type does not match its local file`);
+        const target=path.resolve(out,asset.uri),targetRelative=path.relative(out,target);
+        if(targetRelative==='..'||targetRelative.startsWith(`..${path.sep}`)||path.isAbsolute(targetRelative))throw new Error(`Asset '${asset.asset_id}' target escapes outputDir`);
+        await mkdir(path.dirname(target),{recursive:true});const realParent=await realpath(path.dirname(target)),realParentRelative=path.relative(realOutput,realParent);
+        if(realParentRelative==='..'||realParentRelative.startsWith(`..${path.sep}`)||path.isAbsolute(realParentRelative))throw new Error(`Asset '${asset.asset_id}' target resolves outside outputDir through a symlink`);
+        try{if(fs.lstatSync(target).isSymbolicLink())throw new Error(`Asset '${asset.asset_id}' target is a symbolic link`);}catch(error){if(error.code!=='ENOENT')throw error;}
+        await copyFile(realSource,target);copiedAssets.push({asset_id:asset.asset_id,path:target,sha256:sha256(bytes),media_type:mediaType});
+      }
+      const markdownPath=path.join(out,'presentation.md'),lineagePath=path.join(out,'presentation.lineage.json');
+      await Promise.all([writeFile(markdownPath,compiled.markdown),writeFile(lineagePath,JSON.stringify(compiled.lineage,null,2)+'\n')]);
+      const exported=await this.run({inputFile:markdownPath,outputDir:out,formats,lineageFile:lineagePath,binary,chromePath,projectDir:out,renderTimeoutMs,waitUntil});
+      return{...exported,artifacts:[{kind:'source',path:markdownPath,sha256:sha256(await readFile(markdownPath))},{kind:'source-manifest',path:lineagePath,sha256:sha256(await readFile(lineagePath))},...copiedAssets.map(asset=>({kind:'asset',...asset})),...exported.artifacts],warnings:[...compiled.warnings,...exported.warnings]};
     },
     async run({inputFile,outputDir,formats=['pptx-editable'],lineageFile=null,binary=process.env.SLIDEV_BIN||DEFAULT_BIN,chromePath=process.env.SLIDEV_CHROME_PATH,projectDir=process.env.SLIDEV_PROJECT_DIR||null,renderTimeoutMs=60000,waitUntil='networkidle'}={}) {
       if(!inputFile||!outputDir) throw new TypeError('Slidev adapter needs inputFile and outputDir');
