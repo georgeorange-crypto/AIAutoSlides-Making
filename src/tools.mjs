@@ -8,7 +8,6 @@ import {pptxgenjsIRAdapter} from '../packages/adapters/pptxgenjs-ir.mjs';
 import {pdfjsAdapter} from '../packages/adapters/pdfjs.mjs';
 import {ooxmlTextAdapter} from '../packages/adapters/ooxml-text.mjs';
 import {mermaidAdapter} from '../packages/adapters/mermaid.mjs';
-import {crossrefAdapter} from '../packages/adapters/crossref.mjs';
 import {slidevAdapter} from '../packages/adapters/slidev.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
 import {createCanvaOAuthServer} from './canva-oauth.mjs';
@@ -16,7 +15,7 @@ import {createCanvaOAuthServer} from './canva-oauth.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[crossrefAdapter.manifest.id,crossrefAdapter],[slidevAdapter.manifest.id,slidevAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
@@ -26,7 +25,7 @@ async function main(){
  if(command==='auth-status'){let state='not configured; set GOOGLE_OAUTH_CLIENT_FILE';if(process.env.GOOGLE_OAUTH_CLIENT_FILE){try{loadOAuthClient(process.env.GOOGLE_OAUTH_CLIENT_FILE);state='configured (local consent test available)';}catch(e){state=`configuration error: ${e.message}`;process.exitCode=1;}}console.log(`google-slides: ${state}`);return;}
  if(command==='recommend'){
   const workflow=id, specs={
-   research:[['academic metadata',['crossref']],['document extraction',['pdfjs-dist','tesseract-js','pymupdf','docling','markitdown']],['evidence review',['fact-review','deterministic-planner']],['editable deck',['pptxgenjs','python-pptx','slidev']],['diagrams',['mermaid','d2','graphviz']]],
+   research:[['document extraction',['pdfjs-dist','tesseract-js','pymupdf','docling','markitdown']],['evidence review',['fact-review','deterministic-planner']],['editable deck',['pptxgenjs','python-pptx','slidev']],['diagrams',['mermaid','d2','graphviz']]],
    pitch:[['editable deck',['pptxgenjs','presenton','gamma','canva','slidev']],['visual assets',['lucide','wikimedia-commons','pexels']]],
    modify:[['PPTX inspection and modification',['pptx-automizer','ooxml-inspector','powerpoint-com']]],
    update:[['data-bound deck',['pptxgenjs','python-pptx']],['charts',['vega-lite','matplotlib','echarts']]],
@@ -36,7 +35,6 @@ async function main(){
   if(!workflow||!specs[workflow]){console.error(`Choose workflow: ${Object.keys(specs).join(', ')}`);process.exitCode=2;return;}
   const byId=new Map(all.map(t=>[t.id,t]));const notes={
    'pdfjs-dist':['Integrated: local selectable-text extraction with page locators is used by document import.','Image-only scans need the separate local OCR route; PDF.js extraction itself does not verify claim truth.'],
-   crossref:['Optional DOI lookup for bibliographic metadata; requests are read-only and require no account.','Returned records are unverified metadata only. The adapter does not retrieve abstracts or full text, create evidence excerpts, or confirm scientific claims.'],
    'tesseract-js':['Integrated: bundled Tesseract.js 7 engine plus local eng and chi_sim traineddata performs offline OCR after Poppler rasterizes each scanned PDF page.','OCR confidence is not scientific verification; page images and extracted text still require human comparison.'],
    pymupdf:['Python library with broad PDF extraction and rendering; useful as an alternate parser after a local adapter exists.','Not installed or wired into this Node project; Python environment and license/dependency review required.'],
    docling:['Local Python pipeline can preserve richer layout/table structure; consider for complex papers.','Heavier model/runtime and not installed here; extracted claims still require evidence review.'],
