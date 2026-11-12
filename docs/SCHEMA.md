@@ -39,6 +39,7 @@ The local build is **fully offline** after dependencies are installed; AI planni
 - `metrics`: 1–4 metric cards; requires at least one evidence ID.
 - `chart`: Native PowerPoint bar, line, scatter or empirical CDF chart; each requires finite data, explicit axis units/labels, and at least one evidence ID. Bar values are nonnegative and use a zero baseline; line and scatter values may be signed. Bar/line support 1–6 named series over 2–9 shared categories. Scatter uses numeric `x_values` plus one or more y series. CDF stores `raw_values` and must match the deterministic right-continuous step transform (ties grouped; cumulative count / raw n); `sample_size` equals the raw observation count.
 - `process`: 2–6 steps in horizontal sequence; lengths must fit.
+- `architecture` (M3A): 1+ labeled groups, 2–12 uniquely identified nodes, and directed edges with known distinct endpoints. Group/node geometry uses inches and must remain inside the slide content canvas. The renderer emits editable PowerPoint shapes, text, and connectors; the input diagram JSON remains the deterministic source.
 - `bullets`: 1–5 ordered next steps.
 - `closing`: Decision required and concrete next step.
 

@@ -10,7 +10,16 @@
       "source": "Original hypothetical demo illustration generated for this repository",
       "license": "CC0-1.0",
       "verified": false
+    },
+    {
+      "asset_id": "A_EXPERIMENT_FLOW",
+      "path": "assets/experiment-flow.svg",
+      "type": "image/svg+xml",
+      "mime_type": "image/svg+xml",
+      "sha256": "0d61af788113079208e7709d6f2f99659b3518d38047e8784b465146422907ce",
+      "source": "Original hypothetical demo illustration generated for this repository",
+      "license": "CC0-1.0",
+      "verified": false
     }
   ]
 }
-

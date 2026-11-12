@@ -32,11 +32,11 @@
 
 ## Q3. 项目现在会根据数据或系统架构绘制 figure 吗？有专业绘图工具吗？
 
-**答：数据 figure 已有多种原生图表；复杂架构图自动绘制尚未完成。**
+**答：除原生数据图表与流程页外，现已支持受限 schema 的原生可编辑架构图；任意架构的自动布局仍未实现。**
 
 当前支持的图表包括柱状图、折线图、散点图和经验累积分布图（CDF），并有多系列数据路径。图表由 PptxGenJS 生成 PowerPoint 原生图表对象，图表数据和转换信息可以写入来源清单。CSV 数据转换强调确定性：图表数值来自输入数据，而不是由 AI 补写。
 
-项目还支持基础 process 流程页和 PowerPoint 形状绘制，但没有一套通用架构描述语言，可以自动把任意系统架构整理为精致的、结构清晰的可编辑图。当前没有集成专门的科学绘图、矢量绘图或架构制图应用；SVG 架构图是设计文档中允许考虑的路线，而不是已经完成的端到端功能。
+`architecture` slide 从分组、节点、标签和方向边 JSON 生成原生 PowerPoint 形状、文本与连接线，并校验 ID、端点和页面范围。它不是任意架构导入器，也不会自动优化复杂布局。SVG 可作为可追溯图片嵌入，但 SVG 内容仍是单一图片对象。十页 synthetic AI Systems 示例在 `examples/multimodal/`；源和指标明确标为 hypothetical/verified:false，且需要后续获得可用的渲染环境后逐页视觉审核。
 
 参考：`src/import-csv.mjs`、`src/render.mjs`、`src/statistics.mjs`、`docs/M2_FIGURE_CORE_REPORT.md`、`docs/CODEX_MASTER_PROMPT.md` 的 `plots/`、`layouts/` 和 Visual Assets 设计。
 

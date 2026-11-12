@@ -1,0 +1,4 @@
+status,condition,latency_ms
+SYNTHETIC,Hypothetical baseline,420
+SYNTHETIC,Hypothetical cached path,315
+SYNTHETIC,Hypothetical routed path,360

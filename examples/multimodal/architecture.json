@@ -1,0 +1,21 @@
+{
+  "status": "SYNTHETIC / HYPOTHETICAL",
+  "groups": [
+    {"label":"REQUEST PLANE","x":0.85,"y":2.55,"w":3.1,"h":3.7},
+    {"label":"CONTROL PLANE","x":4.18,"y":2.55,"w":3.4,"h":3.7},
+    {"label":"EXECUTION PLANE","x":7.82,"y":2.55,"w":4.65,"h":3.7}
+  ],
+  "nodes": [
+    {"id":"client","label":"Client request","x":1.25,"y":4.0,"w":2.3,"h":0.8},
+    {"id":"gateway","label":"API gateway","x":4.62,"y":4.0,"w":2.3,"h":0.8},
+    {"id":"scheduler","label":"Hypothetical scheduler","x":8.05,"y":4.0,"w":2.3,"h":0.8},
+    {"id":"worker","label":"Inference workers","x":10.5,"y":3.0,"w":1.7,"h":0.8},
+    {"id":"cache","label":"Context cache","x":10.5,"y":5.0,"w":1.7,"h":0.8}
+  ],
+  "edges": [
+    {"from":"client","to":"gateway","label":"request"},
+    {"from":"gateway","to":"scheduler"},
+    {"from":"scheduler","to":"worker","label":"dispatch"},
+    {"from":"scheduler","to":"cache","label":"lookup"}
+  ]
+}

@@ -111,6 +111,24 @@ function process(s,d,t) {
   });
   txt(s,(d.body||[])[0]||'',{x:0.82,y:5.55,w:11.55,h:0.68,fontFace:t.bodyFontFace,fontSize:17,color:t.muted,valign:'top',fit:'shrink'});
 }
+function architecture(s,d,t) {
+  addTop(s,d,t);addTitle(s,d,t);
+  const g=d.diagram;
+  for(const group of g.groups){
+    rect(s,{x:group.x,y:group.y,w:group.w,h:group.h,rectRadius:0.14,fill:{color:t.surfaceAlt,transparency:24},line:{color:t.line,width:0.8,dash:'dash'}});
+    txt(s,group.label,{x:group.x+0.16,y:group.y+0.10,w:group.w-0.32,h:0.26,fontFace:t.bodyFontFace,fontSize:11,bold:true,color:t.muted,fit:'shrink'});
+  }
+  const byId=new Map(g.nodes.map(n=>[n.id,n]));
+  for(const edge of g.edges){
+    const a=byId.get(edge.from),b=byId.get(edge.to),x1=a.x+a.w/2,y1=a.y+a.h/2,x2=b.x+b.w/2,y2=b.y+b.h/2;
+    s.addShape(Shape.line,{x:x1,y:y1,w:x2-x1,h:y2-y1,line:{color:t.accent,width:1.8,endArrowType:'triangle'}});
+    if(edge.label)txt(s,edge.label,{x:(x1+x2)/2-0.55,y:(y1+y2)/2-0.25,w:1.1,h:0.22,fontFace:t.bodyFontFace,fontSize:9.5,color:t.muted,align:'center',fit:'shrink'});
+  }
+  g.nodes.forEach((node,i)=>{
+    rect(s,{x:node.x,y:node.y,w:node.w,h:node.h,rectRadius:0.12,fill:{color:i%2?t.surface:t.background},line:{color:t.accent,width:1.4}});
+    txt(s,node.label,{x:node.x+0.12,y:node.y+0.14,w:node.w-0.24,h:node.h-0.28,fontFace:t.bodyFontFace,fontSize:Math.min(16,node.label.length>28?12:16),bold:true,color:t.title,align:'center',fit:'shrink'});
+  });
+}
 function bullets(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
   const list=d.body||[];
@@ -146,6 +164,7 @@ export async function generatePresentation(deck,evidence,theme,outputPath,assets
     else if(d.type==='metrics') metrics(s,d,theme);
     else if(d.type==='chart') chart(s,d,theme,pptx);
     else if(d.type==='process') process(s,d,theme);
+    else if(d.type==='architecture') architecture(s,d,theme);
     else if(d.type==='bullets') bullets(s,d,theme);
     else if(d.type==='closing') closing(s,d,theme);
     for(const visual of d.visuals||[]){
