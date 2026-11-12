@@ -7,7 +7,7 @@
 | Scope | Command/action | Result |
 |---|---|---|
 | Project dependency check | `npm run deps` | Pass: `pptxgenjs@4.0.1` MIT; `fflate@0.8.3` MIT; `pdfjs-dist@5.4.624` Apache-2.0. |
-| Project automated suite | `npm run test`; `npm run check` | Latest run: 60/60 tests passed; full `npm run check` exited 0. It exercised deterministic import/build/QA flows and negative cases for evidence IDs, malformed charts/values, unsupported slide types and excessive text. It also exercised local tool-registry commands in the untracked working tree; those are not public-dev integration claims. |
+| Project automated suite | `npm run test`; `npm run check` | Latest run: 74/74 tests passed; full `npm run check` exited 0. It exercised deterministic import/build/QA flows and negative cases for evidence IDs, malformed charts/values, unsupported slide types and excessive text. It also exercised local tool-registry commands in the working tree; those are not public-dev integration claims. |
 | Project validation/build | `npm run validate`, `npm run build` (also included in successful `npm run check`) | Seven-slide project PPTX built. Warnings remain for missing chart sample size and E1/E2 `verified:false`; correctly not suppressed. |
 | Slidev POC structure | `node src/qa.mjs outputs/open-source-bakeoff/slidev-systems-talk.pptx` | QA warning, not failure: 9 slides, 9 editable-text slides, 0 native charts. Open XML report: 59 text shapes, 13 additional shapes, 1 picture, 9 notes parts. |
 | Slidev POC lineage | Local Open XML notes inspection | 9 notes parts; every note includes `S01`–`S09` and `E_SYN_01`. Sidecar `examples/open-source-bakeoff/slide-lineage.json` maps all nine slides. |
