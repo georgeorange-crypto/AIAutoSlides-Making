@@ -42,11 +42,11 @@ function cover(s,d,t,meta) {
   rect(s,{x:9.18,y:0,w:4.15,h:7.5,rectRadius:0,fill:{color:t.surfaceAlt},line:{color:t.surfaceAlt,transparency:100}});
   s.addShape(Shape.ellipse,{x:10.40,y:1.14,w:2.0,h:2.0,line:{color:t.accent,width:3},fill:{color:t.background,transparency:100}});
   s.addShape(Shape.ellipse,{x:10.96,y:3.57,w:1.03,h:1.03,line:{color:t.accent2,width:3},fill:{color:t.background,transparency:100}});
-  txt(s,(d.kicker||'RESEARCH PRESENTATION').toUpperCase(),{x:0.85,y:0.71,w:9.5,h:0.34,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,charSpacing:1.5});
-  txt(s,d.title,{x:0.85,y:1.66,w:9.1,h:2.43,fontFace:t.headFontFace,fontSize:52,bold:true,color:t.title,valign:'top',fit:'shrink'});
-  (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.89,y:4.54+i*0.55,w:8.5,h:0.49,fontFace:t.bodyFontFace,fontSize:20-i*3,color:i===0?t.text:t.muted,fit:'shrink'}));
+  txt(s,(d.kicker||'RESEARCH PRESENTATION').toUpperCase(),{x:0.85,y:0.71,w:8.0,h:0.34,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,charSpacing:1.5,fit:'shrink'});
+  txt(s,d.title,{x:0.85,y:1.66,w:8.0,h:2.43,fontFace:t.headFontFace,fontSize:52,bold:true,color:t.title,valign:'top',fit:'shrink'});
+  (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.89,y:4.54+i*0.55,w:7.95,h:0.49,fontFace:t.bodyFontFace,fontSize:20-i*3,color:i===0?t.text:t.muted,fit:'shrink'}));
   line(s,0.89,6.26,8.8,6.26,t.line);
-  txt(s,meta.subtitle||'',{x:0.89,y:6.42,w:10.6,h:0.31,fontSize:13,color:t.muted,fontFace:t.bodyFontFace,fit:'shrink'});
+  txt(s,meta.subtitle||'',{x:0.89,y:6.42,w:7.95,h:0.31,fontSize:13,color:t.muted,fontFace:t.bodyFontFace,fit:'shrink'});
 }
 function statement(s,d,t) {
   addTop(s,d,t);
