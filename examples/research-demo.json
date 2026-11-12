@@ -24,7 +24,8 @@
       "kicker": "THE CENTRAL FINDING",
       "title": "Reported compression does not imply a faster first token.",
       "body": ["Raw Hit TTFT P50 is 0.353s; BitPack4 compressed Hit is 67.792s.", "The performance gap motivates critical-path measurement, not claims about the final codec."],
-      "evidence_ids": ["E1"]
+      "evidence_ids": ["E1"],
+      "claim_support": [{"evidence_id":"E1","claim_text":"Reported compression does not imply a faster first token.","source_excerpt":"Raw cache hit TTFT P50: 0.353 seconds. BitPack4 compressed cache hit TTFT P50: 67.792 seconds.","locator":"sources/brief.md, Observations from an example experiment report, rows 4–5","review_status":"pending"}]
     },
     {
       "slide_id": "S03",
@@ -37,7 +38,8 @@
         {"label": "Raw hit TTFT · P50", "value": "0.353s", "detail": "Baseline"},
         {"label": "Compressed hit TTFT · P50", "value": "67.792s", "detail": "BitPack4"}
       ],
-      "evidence_ids": ["E1"]
+      "evidence_ids": ["E1"],
+      "claim_support": [{"evidence_id":"E1","claim_text":"Reported storage savings need verification; latency needs explanation.","source_excerpt":"Byte savings for the compression setup: 72.7%. Raw cache hit TTFT P50: 0.353 seconds. BitPack4 compressed cache hit TTFT P50: 67.792 seconds.","locator":"sources/brief.md, Observations from an example experiment report, rows 3–6","review_status":"pending"}]
     },
     {
       "slide_id": "S04",
@@ -54,7 +56,8 @@
         "series_name": "TTFT P50"
       },
       "body": ["These are one setup's reported P50 values, not a distribution or uncertainty estimate."],
-      "evidence_ids": ["E1"]
+      "evidence_ids": ["E1"],
+      "claim_support": [{"evidence_id":"E1","claim_text":"Reported BitPack4 hit TTFT is higher in this single setup.","source_excerpt":"Raw cache miss TTFT P50: 0.369 seconds. Raw cache hit TTFT P50: 0.353 seconds. BitPack4 compressed cache hit TTFT P50: 67.792 seconds.","locator":"sources/brief.md, Observations from an example experiment report, rows 3–5","review_status":"pending"}]
     },
     {
       "slide_id": "S05",

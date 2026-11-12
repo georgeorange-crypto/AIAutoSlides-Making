@@ -7,6 +7,9 @@ const REF={
   'SCI-001':['Harvard T.H. Chan slide checklist','https://hsph.harvard.edu/research/health-communication/resources/slide-checklist/'],
   'SCI-002':['Storytelling with Data','https://www.storytellingwithdata.com/book/downloads'],
   'SRC-001':['AIAutoSlides evidence ledger contract','docs/SCHEMA.md'],
+  'CLAIM-001':['AIAutoSlides claim-to-source review record','docs/SCHEMA.md'],
+  'CLAIM-002':['AIAutoSlides claim-to-source review record','docs/SCHEMA.md'],
+  'CLAIM-003':['AIAutoSlides claim-to-source review record','docs/SCHEMA.md'],
   'READ-001':['Y Combinator: simple, legible, obvious','https://www.ycombinator.com/blog/how-to-design-a-better-pitch-deck'],
   'READ-002':['Harvard T.H. Chan slide checklist','https://hsph.harvard.edu/research/health-communication/resources/slide-checklist/'],
   'TIME-001':['IEEE Author Center: Present Your Paper','https://conferences.ieeeauthorcenter.ieee.org/become-an-ieee-conference-author/present-your-paper/'],
@@ -55,6 +58,15 @@ export function critiqueDeck(storyboard,evidence){
     if(slide.type==='chart'&&slide.chart?.kind==='bar'&&slide.chart.min_value>0)issues.push(issue('SCI-002','error',slide,'chart.min_value','Bar chart has a truncated positive baseline.','Set the axis minimum to zero or choose a chart form that represents the comparison fairly.',index));
     const unverified=(slide.evidence_ids||[]).filter(sourceId=>evidenceById.has(sourceId)&&!evidenceById.get(sourceId).verified);
     if(unverified.length)issues.push(issue('SRC-001','warning',slide,'evidence_ids',`Evidence ${unverified.join(', ')} is marked verified:false.`, 'Keep the verification warning visible and compare each cited source with the underlying records before treating claims as findings.',index));
+    if(['statement','metrics','chart'].includes(slide.type)){
+      const supportById=new Map((slide.claim_support||[]).map(record=>[record.evidence_id,record]));
+      for(const evidenceId of slide.evidence_ids||[]){
+        const support=supportById.get(evidenceId);
+        if(!support)issues.push(issue('CLAIM-001','warning',slide,`claim_support.${evidenceId}`,`No claim-specific source excerpt and review status is recorded for ${evidenceId}.`,'Attach the exact source excerpt and locator, then have a reviewer record verified, pending, or contradicted. The tool does not infer semantic support.',index));
+        else if(support.review_status==='pending')issues.push(issue('CLAIM-002','warning',slide,`claim_support.${evidenceId}`,`Claim-to-source review for ${evidenceId} is pending.`,'Compare the claim with the cited source and underlying data; record the reviewer and date only after checking.',index));
+        else if(support.review_status==='contradicted')issues.push(issue('CLAIM-003','error',slide,`claim_support.${evidenceId}`,`The recorded source review contradicts this slide claim (${evidenceId}).`,'Correct or remove the claim, or attach evidence that supports it and repeat human review.',index));
+      }
+    }
     if((slide.title||'').length>72)issues.push(issue('READ-001','suggestion',slide,'title',`Title contains ${(slide.title||'').length} characters and may be hard to scan at presentation distance.`,'Shorten it or split the claim while preserving its meaning and source support.',index));
     (slide.body||[]).forEach((text,i)=>{if(text.length>155)issues.push(issue('READ-002','suggestion',slide,`body[${i}]`,`Body item contains ${text.length} characters.`,'Reduce the line to one point; move context to speaker notes or the reading edition.',index));});
     if(slide.type==='chart'&&wordCount(slide.speaker_notes||slide.notes)<8)issues.push(issue('CHART-001','suggestion',slide,'speaker_notes','Chart notes do not yet explain the figure’s comparison, units, and main limitation.','Add speaker notes that explain how to read the figure and what it does not establish.',index));

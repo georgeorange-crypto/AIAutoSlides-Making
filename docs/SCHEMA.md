@@ -44,6 +44,18 @@ The local build is **fully offline** after dependencies are installed; AI planni
 
 Each `evidence_ids` item must match an entry from `sources/evidence.json`. No source ID may be silently invented or ignored.
 
+### Claim-to-source review records (M3)
+
+Factual `statement`, `metrics`, and `chart` slides can record one `claim_support` entry per cited source ID:
+
+```json
+{"evidence_id":"E1","claim_text":"The assertion shown on this slide","source_excerpt":"Exact excerpt or table cell checked by the reviewer","locator":"report.pdf, page 4, Table 2, row 3","review_status":"pending"}
+```
+
+`claim_text` must match `assertion_title` (or the slide title when absent). `review_status` is `pending`, `verified`, or `contradicted`. A verified record also requires `reviewer` and ISO-parsable `reviewed_at`. The Critic flags a missing mapping (`CLAIM-001`), a pending comparison (`CLAIM-002`), or a recorded contradiction (`CLAIM-003`). These checks enforce provenance and review state; they do not determine whether the excerpt semantically entails the claim. Source-level `verified:false` warnings remain independent and visible.
+
+`npm run evaluate:critic` evaluates the three claim-review state rules against 24 hand-labeled synthetic fixtures and writes `docs/CRITIC_EVALUATION.md` plus JSON. These are contract tests, not estimates of real-deck accuracy.
+
 ### Local run-audit CSV (separate from slide import)
 
 `src/run-audit.mjs` accepts local CSV with required columns `run_id`, `run_timestamp`, and `observation_id`. Timestamps must be ISO date-times and identical for every row sharing a run ID; observation IDs must be unique within each run. Other columns are preserved as values and contribute to per-row SHA-256 hashes. The audit manifest also hashes the exact source bytes. A later manifest can be compared with an earlier JSON report to identify added, changed, and removed `(run_id, observation_id)` pairs. This is an integrity/change report, not a statistical analysis or validation of scientific meaning. Source row numbers are informational and may change after row reordering.

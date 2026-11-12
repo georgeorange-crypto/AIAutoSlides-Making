@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "annotation_method": "Hand-labeled synthetic cases; labels represent required review states, not semantic truth judgments.",
+  "cases": [
+    {"id":"missing-en-01","claim":"Storage fell substantially.","state":"missing","expected":["CLAIM-001"]},
+    {"id":"missing-en-02","claim":"The treatment improves recovery.","state":"missing","expected":["CLAIM-001"]},
+    {"id":"missing-en-03","claim":"This intervention reduces latency.","state":"missing","expected":["CLAIM-001"]},
+    {"id":"missing-en-04","claim":"The method is more reliable.","state":"missing","expected":["CLAIM-001"]},
+    {"id":"missing-zh-01","claim":"该方案降低了存储开销。","state":"missing","expected":["CLAIM-001"]},
+    {"id":"missing-zh-02","claim":"恢复速度得到改善。","state":"missing","expected":["CLAIM-001"]},
+    {"id":"pending-en-01","claim":"Storage fell substantially.","state":"pending","expected":["CLAIM-002"]},
+    {"id":"pending-en-02","claim":"The treatment improves recovery.","state":"pending","expected":["CLAIM-002"]},
+    {"id":"pending-en-03","claim":"This intervention reduces latency.","state":"pending","expected":["CLAIM-002"]},
+    {"id":"pending-en-04","claim":"The method is more reliable.","state":"pending","expected":["CLAIM-002"]},
+    {"id":"pending-zh-01","claim":"该方案降低了存储开销。","state":"pending","expected":["CLAIM-002"]},
+    {"id":"pending-zh-02","claim":"恢复速度得到改善。","state":"pending","expected":["CLAIM-002"]},
+    {"id":"conflict-en-01","claim":"Storage fell substantially.","state":"contradicted","expected":["CLAIM-003"]},
+    {"id":"conflict-en-02","claim":"The treatment improves recovery.","state":"contradicted","expected":["CLAIM-003"]},
+    {"id":"conflict-en-03","claim":"This intervention reduces latency.","state":"contradicted","expected":["CLAIM-003"]},
+    {"id":"conflict-en-04","claim":"The method is more reliable.","state":"contradicted","expected":["CLAIM-003"]},
+    {"id":"conflict-zh-01","claim":"该方案降低了存储开销。","state":"contradicted","expected":["CLAIM-003"]},
+    {"id":"conflict-zh-02","claim":"恢复速度得到改善。","state":"contradicted","expected":["CLAIM-003"]},
+    {"id":"reviewed-en-01","claim":"Storage fell substantially.","state":"verified","expected":[]},
+    {"id":"reviewed-en-02","claim":"The treatment improves recovery.","state":"verified","expected":[]},
+    {"id":"reviewed-en-03","claim":"This intervention reduces latency.","state":"verified","expected":[]},
+    {"id":"reviewed-en-04","claim":"The method is more reliable.","state":"verified","expected":[]},
+    {"id":"reviewed-zh-01","claim":"该方案降低了存储开销。","state":"verified","expected":[]},
+    {"id":"reviewed-zh-02","claim":"恢复速度得到改善。","state":"verified","expected":[]}
+  ]
+}

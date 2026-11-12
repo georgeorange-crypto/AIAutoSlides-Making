@@ -153,6 +153,8 @@ Run the deterministic, offline critic on any editable storyboard. Reports list r
 npm run critique -- --input examples/research-demo.json --evidence sources/evidence.json --out outputs/research-demo-critique
 ```
 
+For factual statement, metric, and chart slides, add `claim_support` records that link each cited evidence ID to the exact claim, source excerpt, locator, and human review status. The Critic reports missing, pending, or contradicted records; it does not infer semantic entailment. Run `npm run evaluate:critic` to reproduce rule-level precision/recall on the 24-case hand-labeled synthetic fixture set. Those results check the review-state contract only, not expected accuracy on real presentations.
+
 The optional AI planner accepts a target audience, goal and duration; its JSON output remains editable. It uses constrained JSON Schema, restricts citations to ledger IDs, reports numeric literals absent from the supplied brief for human checking, and writes a review checklist. The numeric check is lexical only and cannot establish semantic support or truth.
 
 ```powershell

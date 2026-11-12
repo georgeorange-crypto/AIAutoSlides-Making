@@ -9,6 +9,7 @@ import {critiqueDeck,auditDraftNumbers} from '../src/critic.mjs';
 import {loadEvidence} from '../src/validate.mjs';
 import {approvalContentHash,buildGateError} from '../src/review-state.mjs';
 import {createDesignProfile} from '../src/design-profile.mjs';
+import {evaluateClaimCritic} from '../src/critic-evaluation.mjs';
 
 const ledger=loadEvidence('sources/evidence.json'),sample=JSON.parse(fs.readFileSync('examples/research-demo.json','utf8')),copy=x=>JSON.parse(JSON.stringify(x));
 
@@ -37,6 +38,22 @@ test('timing estimate only runs for explicitly identified full-script notes and 
  delete d.meta.speaker_notes_are_script;assert.equal(critiqueDeck(d,ledger).delivery_review,null);
 });
 
+test('claim-source review distinguishes missing, pending, verified, and contradicted mappings',()=>{
+ const slide={slide_id:'S01',type:'statement',title:'The measured result improves recovery',assertion_title:'The measured result improves recovery',body:['An explicitly attributed example claim.'],evidence_ids:['E1']},d={meta:{title:'Claim review fixture'},slides:[slide]};
+ let issues=critiqueDeck(d,ledger).issues;assert.ok(issues.some(x=>x.rule_id==='CLAIM-001'&&x.slide_id===slide.slide_id));
+ slide.claim_support=[{evidence_id:'E1',claim_text:slide.title,source_excerpt:'Source excerpt retained for reviewer comparison.',locator:'report § 2, Table 1',review_status:'pending'}];
+ issues=critiqueDeck(d,ledger).issues;assert.ok(issues.some(x=>x.rule_id==='CLAIM-002'));assert.ok(!issues.some(x=>x.rule_id==='CLAIM-001'));
+ slide.claim_support[0]={...slide.claim_support[0],review_status:'verified',reviewer:'Reviewer',reviewed_at:'2026-11-12T12:00:00Z'};issues=critiqueDeck(d,ledger).issues;assert.ok(!issues.some(x=>x.rule_id.startsWith('CLAIM-')));
+ slide.claim_support[0].review_status='contradicted';issues=critiqueDeck(d,ledger).issues;assert.ok(issues.some(x=>x.rule_id==='CLAIM-003'&&x.severity==='error'));
+ slide.claim_support[0].claim_text='Different claim';assert.ok(critiqueDeck(d,ledger).issues.some(x=>x.rule_id==='SCHEMA-001'));
+});
+
+test('hand-labeled claim review evaluation reports deterministic per-rule precision and recall',()=>{
+ const annotations=JSON.parse(fs.readFileSync('tests/fixtures/critic-claim-eval.json','utf8')),evaluationLedger={entries:[...ledger.entries,{id:'EVAL1',label:'Synthetic fixture',source:'Synthetic fixture',verified:true}]};
+ const report=evaluateClaimCritic(annotations,evaluationLedger);assert.equal(report.case_count,24);
+ for(const metrics of Object.values(report.rules)){assert.equal(metrics.precision,1);assert.equal(metrics.recall,1);assert.equal(metrics.fp,0);assert.equal(metrics.fn,0);}
+});
+
 test('content-bound review gate blocks pending, approved, and edited-after-approval states correctly',()=>{
  const d=copy(sample);d.meta.requires_human_review=true;assert.match(buildGateError(d),/human approval/);
  d.meta.human_review={decision:'approve',reviewer:'Reviewer',note:'Checked claims',content_sha256:approvalContentHash(d)};assert.match(buildGateError(d),/inspect the critic findings/);
@@ -51,7 +68,7 @@ test('explicit human review creates an approved editable copy that builds and be
   const blocked=spawnSync(process.execPath,['src/cli.mjs','build','--input',input,'--evidence','sources/evidence.json','--out',pptx],{encoding:'utf8'});assert.equal(blocked.status,1);assert.match(blocked.stderr,/human approval/);assert.equal(fs.existsSync(pptx),false);
   const approval=spawnSync(process.execPath,['src/review-draft.mjs','--input',input,'--evidence','sources/evidence.json','--out',reviewed,'--decision','approve','--reviewer','Test Reviewer','--note','Checked source IDs and all values.','--ack-findings','all'],{encoding:'utf8'});assert.equal(approval.status,0,approval.stderr);
   const built=spawnSync(process.execPath,['src/cli.mjs','build','--input',reviewed,'--evidence','sources/evidence.json','--out',pptx],{encoding:'utf8'});assert.equal(built.status,0,built.stderr);assert.ok(fs.statSync(pptx).size>10000);const files=unzipSync(new Uint8Array(fs.readFileSync(pptx))),notes=Object.keys(files).filter(x=>/^ppt\/notesSlides\/notesSlide\d+\.xml$/.test(x)).map(x=>strFromU8(files[x])).join('\n');assert.match(notes,/Figure description: Three bars compare reported P50 TTFT/);
-  const approved=JSON.parse(fs.readFileSync(reviewed,'utf8'));approved.slides[1].title+=' changed';fs.writeFileSync(reviewed,JSON.stringify(approved));const stale=spawnSync(process.execPath,['src/cli.mjs','build','--input',reviewed,'--evidence','sources/evidence.json','--out',pptx],{encoding:'utf8'});assert.equal(stale.status,1);assert.match(stale.stderr,/stale/);
+  const approved=JSON.parse(fs.readFileSync(reviewed,'utf8'));approved.slides[1].title+=' changed';approved.slides[1].claim_support[0].claim_text=approved.slides[1].title;fs.writeFileSync(reviewed,JSON.stringify(approved));const stale=spawnSync(process.execPath,['src/cli.mjs','build','--input',reviewed,'--evidence','sources/evidence.json','--out',pptx],{encoding:'utf8'});assert.equal(stale.status,1);assert.match(stale.stderr,/stale/);
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
 

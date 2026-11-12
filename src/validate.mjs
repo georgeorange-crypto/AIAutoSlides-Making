@@ -54,6 +54,16 @@ export function validateDeck(input, ledger) {
     if(s.speaker_notes!==undefined && !boundedText(s.speaker_notes,2000)) errors.push(`${where}: speaker_notes must contain 1–2000 characters`);
     if(s.figure_description!==undefined&&(!isString(s.figure_description)||s.figure_description.length>550))errors.push(`${where}: figure_description must contain 1–550 characters`);
     if(s.figure_description!==undefined&&s.type!=='chart')errors.push(`${where}: figure_description is only supported on chart slides`);
+    if(s.claim_support!==undefined){
+      if(!Array.isArray(s.claim_support))errors.push(`${where}: claim_support must be an array`);
+      else for(const [j,record] of s.claim_support.entries()){
+        if(!record||typeof record!=='object'||!s.evidence_ids?.includes(record.evidence_id))errors.push(`${where}: claim_support[${j}] must reference an evidence ID cited by the slide`);
+        if(!isString(record?.claim_text)||record.claim_text!==(s.assertion_title||s.title))errors.push(`${where}: claim_support[${j}].claim_text must exactly match the slide assertion/title`);
+        if(!isString(record?.source_excerpt)||!isString(record?.locator))errors.push(`${where}: claim_support[${j}] requires a source_excerpt and precise locator`);
+        if(!['pending','verified','contradicted'].includes(record?.review_status))errors.push(`${where}: claim_support[${j}].review_status must be pending, verified, or contradicted`);
+        if(record?.review_status==='verified'&&(!isString(record?.reviewer)||!isString(record?.reviewed_at)||Number.isNaN(Date.parse(record.reviewed_at))))errors.push(`${where}: verified claim_support[${j}] requires reviewer and ISO-parsable reviewed_at`);
+      }
+    }
     if(s.body!==undefined && (!Array.isArray(s.body)||s.body.some(x=>!boundedText(x,550)))) errors.push(`${where}: body must be an array of nonempty strings (<=550 chars)`);
     if(s.body?.some(x=>x.length>190)) warnings.push(`${where}: long body item may reduce readability`);
     if(!Array.isArray(s.evidence_ids)) errors.push(`${where}: evidence_ids[] is required, even when empty`);
