@@ -137,7 +137,7 @@ node src/qa.mjs outputs/my-runs.pptx
 
 ## Themes and local rendering
 
-Theme tokens live in `themes/*.json`; current options are `academic-light`, `tech-dark`, and `keynote-minimal`. Themes use installed fonts only; check font substitution on the actual presentation machine.
+Theme tokens live in `themes/*.json`; current options are `academic-light`, `tech-dark`, and `keynote-minimal`. The project owner's current confirmed design is `keynote-minimal`; see [`docs/design.md`](docs/design.md) and [`docs/design-tokens.json`](docs/design-tokens.json). Themes use installed fonts only; check font substitution on the actual presentation machine.
 
 Windows rendering uses Microsoft PowerPoint if installed. If COM export is unavailable, open the PPTX in PowerPoint and use **File → Export → Create PDF/XPS**. Linux rendering requires LibreOffice Impress. Both paths require Poppler for PNG rendering. The preview command reports the number and paths of every page image; it does not claim to detect layout defects automatically.
 

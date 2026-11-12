@@ -49,7 +49,7 @@ async function main(){
  const text=json.output_text||json.output?.flatMap(o=>o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text).join('');
  if(!text)throw new Error('Response did not contain output_text; inspect API response manually');
  const response=JSON.parse(text);
- const planned={meta:{title:response.title,subtitle:response.subtitle,audience:audienceProfile,audience_profile:audienceProfile,goal,duration_minutes:duration,theme:arg('theme','academic-light'),status:'AI-GENERATED DRAFT — HUMAN REVIEW REQUIRED',draft_origin:'OpenAI Responses API',requires_human_review:true},slides:response.slides};
+const planned={meta:{title:response.title,subtitle:response.subtitle,audience:audienceProfile,audience_profile:audienceProfile,goal,duration_minutes:duration,theme:arg('theme','keynote-minimal'),status:'AI-GENERATED DRAFT — HUMAN REVIEW REQUIRED',draft_origin:'OpenAI Responses API',requires_human_review:true},slides:response.slides};
  const {deck,errors,warnings}=validateDeck(planned,ledger);
  if(errors.length)throw new Error(`Model output failed validation: ${errors.join('; ')}`);
  if(deck.slides.length<6||deck.slides.length>9)throw new Error('AI must create 6–9 slides; regenerate or edit manually');

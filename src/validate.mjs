@@ -39,6 +39,9 @@ export function validateDeck(input, ledger) {
   if (deck.meta.audience_profile && !['research_group','academic_conference','investment_committee'].includes(deck.meta.audience_profile)) errors.push('Unsupported audience_profile');
   if(deck.meta.requires_human_review!==undefined&&typeof deck.meta.requires_human_review!=='boolean')errors.push('meta.requires_human_review must be boolean');
   if(deck.meta.requires_human_review===true&&(!deck.meta.human_review||deck.meta.human_review.decision!=='approve'))warnings.push('AI-generated draft requires a human review before PPTX build');
+  if(deck.meta.speaker_notes_are_script!==undefined&&typeof deck.meta.speaker_notes_are_script!=='boolean')errors.push('meta.speaker_notes_are_script must be boolean');
+  if(deck.meta.speech_rate_words_per_minute!==undefined&&(!Number.isFinite(deck.meta.speech_rate_words_per_minute)||deck.meta.speech_rate_words_per_minute<=0))errors.push('meta.speech_rate_words_per_minute must be a positive number');
+  if(deck.meta.timing_window_minutes!==undefined&&(!Array.isArray(deck.meta.timing_window_minutes)||deck.meta.timing_window_minutes.length!==2||deck.meta.timing_window_minutes.some(x=>!Number.isFinite(x)||x<0)||deck.meta.timing_window_minutes[0]>deck.meta.timing_window_minutes[1]))errors.push('meta.timing_window_minutes must be an ordered [minimum, maximum] pair');
   if (!deck.slides.length || deck.slides.length>40) errors.push('slides must have 1–40 entries');
   for (const [i,s] of deck.slides.entries()) {
     const where=`Slide ${i+1}`;

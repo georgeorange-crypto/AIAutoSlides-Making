@@ -25,6 +25,18 @@ test('numeric grounding audit identifies literal numeric tokens missing from the
  assert.deepEqual(result.findings.map(x=>x.number),['99%','5']);assert.equal(result.findings[0].rule_id,'GROUND-NUMERIC-001');assert.match(result.limitations[0],/cannot establish meaning/);
 });
 
+test('audience profiles produce specific research-method and investment-risk checks',()=>{
+ const minimal={meta:{title:'Talk',audience_profile:'research_group',goal:'Discuss the project',duration_minutes:10},slides:[{slide_id:'S01',type:'cover',title:'Overview',body:[],evidence_ids:[]},{slide_id:'S02',type:'closing',title:'Summary',body:['Thank you'],evidence_ids:[]}]};
+ const research=new Set(critiqueDeck(minimal,ledger).issues.map(x=>x.rule_id));assert.ok(research.has('NARR-110'));assert.ok(research.has('SCI-310'));assert.ok(research.has('NARR-120'));
+ minimal.meta.audience_profile='investment_committee';minimal.slides[1].title='Approve or reject the proposal';const investment=new Set(critiqueDeck(minimal,ledger).issues.map(x=>x.rule_id));assert.ok(investment.has('INV-101'));assert.ok(!investment.has('INV-102'));
+});
+
+test('timing estimate only runs for explicitly identified full-script notes and a supplied venue window',()=>{
+ const d=copy(sample);d.meta.speaker_notes_are_script=true;d.meta.speech_rate_words_per_minute=100;d.meta.duration_minutes=5;d.meta.timing_window_minutes=[4,5];d.slides.forEach(s=>{s.speaker_notes='';delete s.notes;});d.slides[0].speaker_notes='word '.repeat(300);
+ const result=critiqueDeck(d,ledger);assert.equal(result.delivery_review.script_words,300);assert.equal(result.delivery_review.estimated_minutes,3);assert.ok(result.issues.some(i=>i.rule_id==='TIME-002'));
+ delete d.meta.speaker_notes_are_script;assert.equal(critiqueDeck(d,ledger).delivery_review,null);
+});
+
 test('content-bound review gate blocks pending, approved, and edited-after-approval states correctly',()=>{
  const d=copy(sample);d.meta.requires_human_review=true;assert.match(buildGateError(d),/human approval/);
  d.meta.human_review={decision:'approve',reviewer:'Reviewer',note:'Checked claims',content_sha256:approvalContentHash(d)};assert.match(buildGateError(d),/inspect the critic findings/);
@@ -47,6 +59,14 @@ test('design profile requires an explicit recorded reviewer and captures selecte
  const gallery={source_storyboard_sha256:'abc',themes:[{id:'tech-dark',preview:'tech-dark-page-1.png',chart_preview:'tech-dark-page-2.png',rendered:true,tokens:{accent:'64C9F8'}}]};
  assert.throws(()=>createDesignProfile(gallery,'tech-dark',''),/reviewer name/);
  const profile=createDesignProfile(gallery,'tech-dark','Reviewer','2026-11-12T12:00:00Z');assert.equal(profile.selected_theme,'tech-dark');assert.deepEqual(profile.tokens,{accent:'64C9F8'});assert.equal(profile.confirmed_by,'Reviewer');assert.equal(profile.preview.chart,'tech-dark-page-2.png');
+});
+
+test('design selection CLI writes reviewer-confirmed Markdown and token files',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-design-selection-')),gallery=path.join(dir,'gallery.json'),out=path.join(dir,'design.md');
+ try{
+  fs.writeFileSync(gallery,JSON.stringify({source_storyboard_sha256:'abc',themes:[{id:'keynote-minimal',preview:'cover.png',chart_preview:'chart.png',rendered:true,tokens:{background:'FFFFFF'}}]}));
+  const result=spawnSync(process.execPath,['src/select-design.mjs','--gallery',gallery,'--theme','keynote-minimal','--reviewer','User confirmed in Codex','--confirm','yes','--out',out],{encoding:'utf8'});assert.equal(result.status,0,result.stderr);const profile=JSON.parse(fs.readFileSync(path.join(dir,'design-tokens.json'),'utf8'));assert.equal(profile.confirmed_by,'User confirmed in Codex');assert.equal(profile.selected_theme,'keynote-minimal');assert.match(fs.readFileSync(out,'utf8'),/Confirmed design tokens/);
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
 
 test('AI planner help is local and does not require an API key',()=>{
