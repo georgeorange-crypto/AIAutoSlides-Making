@@ -1,6 +1,6 @@
 # 多用户并发 Slides 任务与数据隔离设计
 
-**状态：** 设计提案，尚未实现多人认证和租户隔离。
+**状态：** 已实现低扰动 API 基础切片；生产级多人认证与租户部署仍未完成。
 
 **日期：** 2026-11-12
 **目标：** 允许多个用户同时提交多个 Slides 项目/任务，任务并发运行时彼此不串数据、不覆盖产物，并能可靠查看进度、取消任务、下载结果和恢复失败任务。
@@ -43,16 +43,23 @@ API: authentication → authorization → validation → job enqueue
 - 工作流使用 `runs/<job_id>/` 作为运行目录；IR 渲染器校验输出路径不能通过路径遍历或 symlink 逃出项目工作区。
 - `packages/core/models.mjs` 和 Project/Profile/Job Schema 已定义 Project、UserProfile、JobState 等基础结构。
 
-**目前并非多人隔离服务：**
+**当前仍然存在的多人隔离边界：**
 
-- Projects 表还没有 `owner_user_id`/tenant 字段；接口没有登录、认证和角色授权。项目/Job/Artifact 端点只凭可猜/可获知的 ID 访问。
-- 所有 Job 共享同一 SQLite 文件和 workspace 根目录；源文件哈希 blob 也在共享根目录中。
-- 当前调度器收到 POST 就启动 `runJob`，没有全局/用户/项目并发上限、排队公平性或持久 worker lease。
-- 进程内 `running` map 不能作为多进程/多实例的锁。取消只在工作流阶段边界生效。
-- PptxGenJS 运行在 API 进程内，尚无每 Job OS 级沙箱、CPU/内存/磁盘限额。
-- API 只绑定 loopback；安全文档明确指出不得直接代理到网络。
+- API 支持注入可信 `authenticate(request)`；Projects 有 owner 字段，项目读写、Job 状态/取消、Artifact 下载会按 owner 过滤。默认 CLI/API principal 仍是 `local`，保留原有单用户行为。
+- Project IR 与来源原件按 owner 分开存储；相同源文件即使跨用户也不会复用同一个物理 blob 路径。旧数据库迁移为 owner=`local`。
+- Job 创建时记录不可变 IR blob 路径/hash；运行结果仍在唯一 `runs/<job_id>/` 目录。
+- 调度器已限制全局并发与每用户并发，并在可运行用户之间轮转；当前仅对一个 API 进程有效。
+- API 已提供身份模式下的有界二进制 source upload；身份模式拒绝客户端提供服务器 `file_path` 的旧导入方式。
+- **仍没有内置登录/OIDC、项目成员/角色、网络监听、跨进程 worker lease、分布式队列、OS 级 Job 沙箱、资源配额和完整攻击面测试。** API 仍只绑定 loopback。
+- 因此这次实现提供了**单机应用层 owner 隔离与有限并发**，并不等于可以把服务开放到公网或抵御恶意租户。实际身份验证需由可信宿主注入；服务部署前还要补远程 TLS、隔离 worker、权限审查和安全测试。
 
-因此，**可以继续使用现有 API/Job/IR 作为单用户原型和模型基础，但不能仅创建不同目录后就对外服务多人。**
+### 本次低扰动实现与兼容影响
+
+- 没有改 legacy CLI、旧分镜 JSON/Markdown 契约、渲染 Adapter 接口或输出格式。
+- SQLite 变更为加列迁移：旧 Project 自动归属 `local`，旧 Job 自动绑定项目当前 IR hash；对应旧数据库迁移有回归测试。
+- 默认本地 API 仍使用 `local` 用户；原有项目、来源路径导入、构建与下载流程继续工作。API 新增默认最大并发 2 的有界队列，超出任务继续排队；嵌入式调用可配置全局和每用户上限。
+- 多用户通过嵌入式身份解析器 opt-in；认证模式的所有资源路由 owner-scoped。身份模式下 source 文件须通过二进制上传端点，不接受服务器绝对路径。
+- 验收测试覆盖两个身份项目/Job/Artifact 互不可见、每用户存储命名空间、全局并发上限、提交快照和旧库迁移。此处不声称已完成远程认证、OS 沙箱或渗透测试。
 
 ## 3. 部署与信任边界
 
@@ -286,6 +293,6 @@ queued → claimed → running → (succeeded | failed | cancel_requested → ca
 5. **并发数与配额：** 通过目标硬件上的合成负载测量；不在设计阶段预设未经验证的“支持 N 人”承诺。
 6. **Agent 接入：** MCP 复用同一身份与授权服务；不能给 MCP 一个绕过 API owner checks 的直连数据库或任意 shell 工具。
 
-## 13. 近期可交付的最小切片
+## 13. 下一步可交付切片
 
-建议下一次实现只做 **Phase A 的第一段**：Job 输入快照 + 每 Job/attempt 独立目录 + 有界 worker pool + SQLite 原子 claim/lease，并增加并发、重启和覆盖回归测试。随后单独实现用户认证和 owner authorization。这样每次改动有明确可测边界，不把“多用户安全”误报为“目录分开了”。
+本轮已实现单进程内的 Job 输入快照、`runs/<job_id>/` 独立目录、有界 worker pool、单机 owner authorization 接缝及 per-user blob namespace，并覆盖并发上限、快照稳定性和旧库迁移测试。仍未实现 SQLite 原子 worker claim/lease 和跨进程协调。下一步应先补这组队列可靠性能力与重启/多实例测试，再单独接入正式身份提供方、OS 级 worker 隔离和资源配额；这些完成前，服务继续保持 loopback-only。
