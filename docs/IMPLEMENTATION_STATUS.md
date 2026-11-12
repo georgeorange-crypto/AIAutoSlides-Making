@@ -83,3 +83,11 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - `node src/import-document.mjs --extract-images` writes copied assets and an `--assets`-compatible JSON manifest with document SHA-256, source part, relationship IDs, alt text when available, MIME type, and `verified:false` inherited rights state.
 - Unit/integration coverage checks DOCX body/header/footer PNG/JPEG/SVG and PDF XObject extraction, duplicate handling, exact hashes, manifest loading/slide association, embedded PPTX objects, and external/path-traversal rejection. PDF inline-image extraction and DOCX header/footer text extraction remain unimplemented.
 - Detailed stage results: `docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md`, `docs/M10_PDF_ASSET_EXTRACTION_REPORT.md`, `docs/M11_DOCX_HEADER_FOOTER_ASSETS_REPORT.md`, and `docs/M12_COVER_LAYOUT_CORRECTION_REPORT.md`.
+
+## Local progress consolidation — 2026-11-12
+
+- Added an optional Crossref DOI metadata adapter. It makes bounded GET requests, excludes abstracts, records source hashes, and leaves records unverified. The workflow recommender includes metadata lookup as a separate stage.
+- Added opt-in owner-scoped API access for embedding hosts, per-user source/asset namespaces, job input snapshots and a bounded single-process scheduler. The API remains loopback-only and does not include an identity provider or OS-level tenant sandbox.
+- Added strict repository and machine-local agent Git instructions, a contributor workflow/PR checklist, Windows/Linux setup scripts, and a Docker Compose CLI/rendering environment. No credentials, private source files, or generated previews are included in the commits.
+- Verification on this revision: `npm ci --no-audit --no-fund`, `npm run test` (**165/165**), `npm run validate`, `npm run build`, and Docker Compose preview completed successfully. The seven-page PDF preview was visually inspected page by page. The demo continues to show its sample-size warning and unverified evidence; neither is promoted to a verified result.
+- Changes are committed on `codex/local-progress-20261112` in five focused commits. This is local branch state; it has not been pushed.
