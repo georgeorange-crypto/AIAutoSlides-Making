@@ -9,6 +9,7 @@ import {pdfjsAdapter} from '../packages/adapters/pdfjs.mjs';
 import {ooxmlTextAdapter} from '../packages/adapters/ooxml-text.mjs';
 import {mermaidAdapter} from '../packages/adapters/mermaid.mjs';
 import {slidevAdapter} from '../packages/adapters/slidev.mjs';
+import {crossrefAdapter} from '../packages/adapters/crossref.mjs';
 import {markitdownAdapter} from '../packages/adapters/markitdown.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
 import {createCanvaOAuthServer} from './canva-oauth.mjs';
@@ -16,7 +17,7 @@ import {createCanvaOAuthServer} from './canva-oauth.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[crossrefAdapter.manifest.id,crossrefAdapter],[markitdownAdapter.manifest.id,markitdownAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
@@ -26,7 +27,7 @@ async function main(){
  if(command==='auth-status'){let state='not configured; set GOOGLE_OAUTH_CLIENT_FILE';if(process.env.GOOGLE_OAUTH_CLIENT_FILE){try{loadOAuthClient(process.env.GOOGLE_OAUTH_CLIENT_FILE);state='configured (local consent test available)';}catch(e){state=`configuration error: ${e.message}`;process.exitCode=1;}}console.log(`google-slides: ${state}`);return;}
  if(command==='recommend'){
   const workflow=id, specs={
-   research:[['document extraction',['pdfjs-dist','tesseract-js','pymupdf','docling','markitdown']],['evidence review',['fact-review','deterministic-planner']],['editable deck',['pptxgenjs','python-pptx','slidev']],['diagrams',['mermaid','d2','graphviz']]],
+   research:[['academic metadata',['crossref']],['document extraction',['pdfjs-dist','tesseract-js','pymupdf','docling','markitdown']],['evidence review',['fact-review','deterministic-planner']],['editable deck',['pptxgenjs','python-pptx','slidev']],['diagrams',['mermaid','d2','graphviz']]],
    pitch:[['editable deck',['pptxgenjs','presenton','gamma','canva','slidev']],['visual assets',['lucide','wikimedia-commons','pexels']]],
    modify:[['PPTX inspection and modification',['pptx-automizer','ooxml-inspector','powerpoint-com']]],
    update:[['data-bound deck',['pptxgenjs','python-pptx']],['charts',['vega-lite','matplotlib','echarts']]],
@@ -40,6 +41,7 @@ async function main(){
    pymupdf:['Python library with broad PDF extraction and rendering; useful as an alternate parser after a local adapter exists.','Not installed or wired into this Node project; Python environment and license/dependency review required.'],
    docling:['Local Python pipeline can preserve richer layout/table structure; consider for complex papers.','Heavier model/runtime and not installed here; extracted claims still require evidence review.'],
    markitdown:['Optional local-only text and table to Markdown conversion with plugins disabled and a source hash.','MarkItDown is text-oriented and supplies no page locators; output remains unverified and must be checked against the original document.'],
+   crossref:['Optional DOI lookup for bibliographic metadata; requests are read-only and require no account.','Returned records are unverified metadata only. The adapter does not retrieve abstracts or full text, create evidence excerpts, or confirm scientific claims.'],
    'fact-review':['Use the project review gate and deterministic critic for source links, flags, and human approval.','Automated checks do not verify scientific truth or replace human fact checking.'],
    'deterministic-planner':['Local rule-based planner provides reproducible fallback.','Less flexible narrative than an optional AI draft; all generated claims still need evidence IDs.'],
    pptxgenjs:['Current MVP backend; emits native editable text, shapes, tables and chart objects through the validated Presentation IR adapter.','Supports the declared IR mapping; incremental editing is not available and Mermaid source is retained as text.'],
