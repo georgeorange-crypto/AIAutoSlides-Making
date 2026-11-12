@@ -5,7 +5,7 @@ import fs from 'node:fs';
 const copies=['skills/aiautoslides/SKILL.md','.agents/skills/aiautoslides/SKILL.md','.claude/skills/aiautoslides/SKILL.md'];
 
 test('Codex and Claude project skills stay identical to the documented source skill',()=>{
-  const content=copies.map(file=>fs.readFileSync(file,'utf8'));
+  const content=copies.map(file=>fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n'));
   assert.equal(new Set(content).size,1,'all host-specific paths must match the canonical skill');
   const skill=content[0];
   assert.match(skill,/^---\nname: aiautoslides\ndescription: .+\n---\n/m);

@@ -16,6 +16,9 @@ This is an integration gate, not legal advice. Repository license files cover on
 | MinerU | Blueprint flags custom/additional conditions | **Do not integrate or redistribute** until full license and model terms are reviewed for this use. | Legal/commercial use, model weights and service terms. |
 | Firecrawl | AGPL-3.0 (per blueprint) | Keep as optional independent service/API; no copied code in MIT core. | Network-use obligations, hosted service terms, modifications and deployment model. |
 | Fonts, templates, icons, media and image models | Not covered by the engine's top-level license | Do not infer reuse rights from public availability or project license. | Record each asset's author/source/license/attribution and model/provider terms; honor API hotlink/download and usage conditions. |
+| Docling 2.150.0 | MIT per package metadata; [upstream](https://github.com/docling-project/docling) | Optional isolated local extraction sidecar; no source code copied. | Audit pinned transitive package notices and separately downloaded model licenses/terms before redistribution. |
+| Crawl4AI 0.9.5 | Apache-2.0 per package metadata; [upstream](https://github.com/unclecode/crawl4ai) | Optional local single-page crawler; no source code copied. | Audit pinned transitive dependencies; obey robots policy, site terms, and access restrictions. |
+| Wikimedia Commons search results and downloaded files | Each file has its own declared license and attribution metadata; [machine-readable metadata](https://commons.wikimedia.org/wiki/Commons:Machine-readable_data/en) | A selected file is saved with source, author, license, attribution and hash metadata. Rights remain `needs_human_review`. | Verify the file page, exact license conditions, attribution wording, and suitability for intended distribution before using any asset. |
 
 ## Release gate
 

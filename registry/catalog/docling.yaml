@@ -3,8 +3,8 @@
   "name": "Docling",
   "kind": "parser",
   "official_url": "https://github.com/docling-project/docling",
-  "version": "not-pinned",
-  "interface": "Python API/CLI or Node library",
+  "version": "2.150.0",
+  "interface": "isolated Python sidecar via research-ingest CLI",
   "platforms": [
     "windows",
     "linux",
@@ -21,27 +21,26 @@
     "web"
   ],
   "outputs": [
-    "source-document-ir",
+    "markdown-source-record-1.0.0",
     "page-locators",
     "assets"
   ],
   "dependencies": [
-    "isolated runtime required"
+    "workers/research/requirements-lock.txt",
+    "isolated .venv/research runtime"
   ],
   "needs_network": false,
   "needs_auth": false,
   "expected_cost": "unknown",
   "editable": "not-applicable",
   "license": {
-    "identifier": "unreviewed",
-    "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "identifier": "MIT",
+    "review_status": "verified-from-package-metadata",
+    "note": "Docling 2.150.0 declares MIT; review transitive dependencies and downloaded model terms separately."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
-  "probe": {
-    "command": "docling"
-  },
-  "limitations": "Playwright web access requires explicit URL authorization; no page restrictions may be bypassed.",
-  "status": "catalogued"
+  "verification_status": "local-extraction-tested",
+  "adapter": "src/research-ingest.mjs extract --engine docling",
+  "probe": {"command": "docling"},
+  "limitations": "Python runtime and model artifacts are separate; model download is opt-in. Extraction and excerpts remain unverified and may omit layout or OCR details.",
+  "status": "local-extraction-tested"
 }

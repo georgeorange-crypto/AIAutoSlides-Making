@@ -43,11 +43,21 @@
 ## Remaining beyond Phase 1
 
 - Phase 0 bakeoff is incomplete for some requested engines/task groups; blocked and unrun candidates remain identified in `docs/POC_RESULTS.md`.
-- Phase 2 has bounded, opt-in OpenAlex/Crossref/arXiv metadata search; local PDF/DOCX text extraction with offline PDF OCR; and optional DOCX body/header/footer PNG/JPEG/SVG or PDF image-XObject extraction with hashes and source locators. Search candidates and extracted content stay unverified. Paper downloads, crawlers, PDF inline images, DOCX header/footer text extraction and licensed-media integrations remain incomplete and are not called by the local workflow API.
+- Phase 2 research integrations are implemented for opt-in OpenAlex/Crossref/arXiv metadata search, local Docling and MarkItDown extraction, single-page Crawl4AI, selected arXiv PDF download, and a one-item Wikimedia Commons asset workflow. These are CLI/local-worker routes, not API workflow actions; extracted claims and asset reuse remain pending human review.
 - Phase 3 audience/narrative/media intelligence and rendered-image critic remain planned.
 - Phase 4 local stdio MCP server over the loopback API is implemented; full UI, remote auth/scopes and Android remain planned.
 - Full Presentation IR element coverage, native Mermaid shape rendering and unchanged-slide hash preservation remain incomplete.
 - Transitive dependency, model and media-license audit remains incomplete.
+
+## Phase 2 research, document and asset workflows — 2026-11-12
+
+- Implemented: opt-in OpenAlex/Crossref/arXiv metadata search; local Docling and MarkItDown extraction; single-page Crawl4AI with robots check, same-host requests and URL/IP safeguards; selected single-paper arXiv PDF download; and separately selected one-item Wikimedia Commons media retrieval. Commands and safety boundaries are documented in `docs/PHASE2_RESEARCH_SEARCH.md`.
+- Retrieval and extraction artifacts include source identifiers, URLs or local locators, retrieval time, source/response/content hashes where applicable, and short excerpt candidates. Candidates remain unverified and asset rights remain pending human review.
+- The existing local document importer also provides offline PDF OCR, DOCX body/header/footer image extraction, and PDF image-XObject extraction with hashes and source locators. PDF inline-image extraction and DOCX header/footer text extraction remain unsupported.
+- Search/download boundaries are explicit: network calls require opt-in; image search does not download files; only one selected arXiv paper or Commons image can be downloaded per command; web crawl does not traverse links or fetch media.
+- Docling 2.150.0 and Crawl4AI 0.9.5 are pinned in the isolated Python runtime. Docling model downloads are opt-in. Crawl4AI requires its locally installed Playwright Chromium. MarkItDown 0.1.9 uses its separate isolated worker.
+- Phase 2 is complete for this bounded integration slice. API workflow research actions, DOI full-text resolution beyond arXiv, bulk media acquisition, MinerU integration/licensing, automated scientific verification and parser-accuracy evaluation remain planned or out of scope.
+- Final validation on this revision: `npm run test` passed **156/156**; `npm run validate` and `npm run build` exited 0; `node src/qa.mjs outputs/research-demo.pptx` confirmed 7 editable slides and 1 native chart; `npm run preview` rendered seven pages using PowerPoint 16.0 and Poppler 26.07.0, and each page was visually inspected. Existing warnings remain: one missing chart sample size and two unverified evidence entries. The demo cover title crosses slightly into the right decorative panel.
 
 ## Verification record
 

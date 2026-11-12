@@ -1,36 +1,66 @@
-# Phase 2 research search slice
+# Phase 2 — research, documents, web pages and licensed assets
 
-Status: **metadata search slice implemented and exercised against mocks and one small real query per provider; full Phase 2 remains in progress**.
+Status: **implemented and locally exercised** for the bounded workflows described here. This is an engineering integration status; it does not mean the collected material is scientifically verified or cleared for reuse.
 
-## What is available
+## Workflows
 
-`node src/research-search.mjs` queries OpenAlex, Crossref, or arXiv for a small number of bibliographic candidates. Network access is disabled unless `--allow-network` is present. Each result records the submitted query, provider, retrieval time, request URL, response SHA-256, record SHA-256, provider identifier, and `verification_status: unverified`. Abstract text is not copied into records. Results are written as a new file; existing output files are never overwritten.
+| Workflow | Entry point | Default boundary | Provenance output |
+|---|---|---|---|
+| Scholarly metadata search | `src/research-search.mjs` | Network off; `--allow-network`; max 10 results | Provider, query, URL, retrieval time, response and record SHA-256; unverified records |
+| Local Docling extraction | `src/research-ingest.mjs extract --engine docling` | Local files only; model downloads disabled unless `--allow-model-download` | Source/text SHA-256, engine/version, page/element locator, short excerpt candidates |
+| Local MarkItDown extraction | `src/research-ingest.mjs extract --engine markitdown` | Existing isolated adapter; local files only | Source/text SHA-256, engine/version, paragraph locator (no page coordinates), short excerpt candidates |
+| One-page Crawl4AI | `src/research-ingest.mjs crawl` | Requires `--allow-network --site-authorized`; HTTPS, public DNS by default, same-host requests, robots check, no link traversal or media | Requested/final URL, retrieval time, robots result, extracted Markdown hash, short unverified excerpts |
+| One selected arXiv PDF | `src/research-ingest.mjs download-arxiv` | Search result ID plus `--allow-download`; one PDF, 50 MiB cap, HTTPS host allowlist and PDF signature check | PDF SHA-256, download/landing URLs, page locators and unverified excerpts |
+| Wikimedia Commons image | `src/asset-research.mjs` | Search requires `--allow-network`; separately select one result and pass `--allow-download` | Source page, image URL/hash, author, license/terms metadata and `needs_human_review` rights state |
+
+All output writers refuse to overwrite an existing output. Extracted source text and webpages are untrusted data. Generated excerpts are candidates only; `verified` remains false until a human checks them against the source. A license string in an API response is metadata to review, not approval to use an image.
+
+## Installation
+
+Use Python 3.12. The installer creates an isolated `.venv/research`, installs the pinned `workers/research/requirements-lock.txt`, and installs the matching local Playwright Chromium required by Crawl4AI. It does not configure a hosted AI service. On Windows:
 
 ```powershell
-node src/research-search.mjs --provider openalex --query "retrieval augmented generation evaluation" --limit 5 --out outputs/research/rag-search.json --allow-network
-node src/research-search.mjs --provider crossref --query "retrieval augmented generation evaluation" --limit 5 --out outputs/research/rag-crossref.json --allow-network
-node src/research-search.mjs --provider arxiv --query "retrieval augmented generation evaluation" --limit 5 --out outputs/research/rag-arxiv.json --allow-network
+./workers/research/install.ps1
 ```
 
-The query is sent to the selected provider only when the explicit flag is supplied. `OPENALEX_API_KEY` is optional and sent in an authorization header; it is not persisted in the request URL or result. Crossref and arXiv need no credentials in this implementation. Each call is bounded to 10 results, a 2 MiB response and a 30-second timeout.
+For a non-default runtime, set `AIAUTOSLIDES_PYTHON` to its Python executable. `node src/research-ingest.mjs doctor` reports installed Docling and Crawl4AI versions. Docling model files are an additional download: extraction is offline by default and requires the explicit `--allow-model-download` flag when they are not already cached. MarkItDown retains its separate user-owned environment and installer (`npm run deps:markitdown`).
 
-## Separation and evidence boundary
+## Commands
 
-This command only retrieves metadata. It does not download PDFs, scrape pages, use result summaries as quotations, create page-level evidence, verify claims, or grant reuse rights. Full-text retrieval remains a separate future command requiring explicit source and download policy. For local PDF/DOCX extraction, use `npm run import:document -- --help`; the local importer records SHA-256, page/paragraph locators, and extraction status, but the human must verify excerpts against the source.
+```powershell
+node src/research-search.mjs --provider openalex --query "large language models" --limit 2 --out outputs/research/openalex.json --allow-network
+node src/research-search.mjs --provider crossref --query "large language models" --limit 2 --out outputs/research/crossref.json --allow-network
+node src/research-search.mjs --provider arxiv --query "large language models" --limit 2 --out outputs/research/arxiv.json --allow-network
 
-OpenAlex search follows its works search endpoint and supports optional API-key authentication. arXiv uses the Atom query API, bounded result count, and rejects DTD/entity declarations in responses. Crossref's REST API is queried for bibliographic fields only. Provider policies and rate limits can change; keep calls small and use provider guidance. This implementation does not run bulk harvesting.
+node src/research-ingest.mjs doctor
+node src/research-ingest.mjs extract --engine docling --input paper.pdf --id E_PAPER --out-prefix outputs/research/paper
+node src/research-ingest.mjs extract --engine markitdown --input report.docx --id E_REPORT --out-prefix outputs/research/report
+node src/research-ingest.mjs crawl --url https://example.org/page --site-authorized --allow-network --out-dir outputs/research/site-page
+node src/research-ingest.mjs download-arxiv --results outputs/research/arxiv.json --source-id SRC_ARXIV_SELECTED --allow-download --out-dir outputs/research/paper-pdf
 
-## Not complete in Phase 2
+node src/asset-research.mjs search --query "scientific instrument" --limit 3 --out outputs/research/commons.json --allow-network
+node src/asset-research.mjs download --results outputs/research/commons.json --candidate-id WMC_SELECTED --asset-id A_INSTRUMENT --out-dir outputs/research/instrument --allow-download
+```
 
-- Real network smoke requests and provider-specific failure-rate evidence.
-- DOI/paper downloading, source-byte storage for remote records, landing-page crawling, and page-located excerpts.
-- PDF inline-image extraction and DOCX header/footer image extraction; optional Docling and MarkItDown adapters and comparative extraction QA.
-- Crawl4AI integration and website terms/robots enforcement.
-- Licensed image search/download providers and asset rights workflow.
-- Crossref bibliographic search is supported by this module and returns DOI/landing-page metadata when the provider has it. This operation does not resolve a DOI into full text or create evidence.
+The `--site-authorized` flag is an operator assertion, not an automated terms check. Crawl4AI checks robots policy, limits the run to one page, and blocks cross-origin and image/media/font requests. Public IP validation rejects private and reserved addresses. Environments with an explicitly documented outbound gateway that maps DNS to a special range may set `AIAUTOSLIDES_EGRESS_CIDRS` for that exact range; the mapping is recorded in the crawl manifest. Do not add a range just to bypass a failed safety check.
 
-## Verification commands
+## Implementation and verification evidence
 
-The adapter uses injected Fetch implementations in unit tests, so automated tests do not access the network. CLI tests verify network-off by default and refuse-to-overwrite behavior. `npm run test` passed **139/139**. `npm run validate` passed with the three existing warnings (chart sample size and E1/E2 unverified); isolated PPTX build/OOXML QA passed; PowerPoint 16.0 and Poppler rendered seven pages, all seven inspected. Cover title extends slightly into the decorative right panel; this existing demo layout issue is recorded and was not edited in this research slice.
+- Pinned local runtime: Docling 2.150.0 and Crawl4AI 0.9.5. MarkItDown 0.1.9 remains in its separate pre-existing adapter.
+- `node src/research-ingest.mjs doctor` returned both research packages available in the isolated Python 3.12 environment.
+- Synthetic local PDF extraction ran through Docling and MarkItDown; each produced Markdown, a source manifest and short excerpt candidates, with review pending.
+- OpenAlex, Crossref and arXiv each completed one bounded limit-2 public metadata query. Those connectivity checks are not relevance or scientific-quality evaluations.
+- One selected arXiv PDF was downloaded and parsed into 17 page-located unverified excerpt candidates. Paper-specific reuse rights remain pending.
+- One Wikimedia Commons result was downloaded as a JPEG after an explicit separate selection. The manifest records its declared CC0 metadata, creator and source/license links, SHA-256 `a66390173bfec5c0ffcbe2e567597ba97518205305050e221ff1709f96bdba36`, and still requires human rights review.
+- One explicitly authorized `https://example.com` page was crawled through Crawl4AI after provisioning Playwright Chromium. It was a single-page connectivity check, not a content-quality or policy compliance audit.
+- Reproducible local artifacts are under `outputs/phase2-verification/` (gitignored): provider query JSON, extraction bundles, the selected arXiv PDF bundle, Commons search/download records, and the crawl manifest.
 
-One bounded real query per provider used only the generic public phrase `large language models`, at limit 2; no local research files were sent and no full text was downloaded. Artifacts are in `outputs/phase2-verification/` (`openalex.json`, `crossref.json`, `arxiv.json`). Each produced 2 records, all unverified. Response SHA-256 values: OpenAlex `3b9bdb72dd7d14a5c34e8b02e759b1152a9bccf36ceb3003cf6b5835ee1fe244`; Crossref `a1ee77411b1d8fe13aa36b73454437d912406ef48100922cbaa360fcc2722bff`; arXiv `9609443ae9be515421da7e2ce0016e1a745ee9dbaaf96c460feb8be29cd6a673`. These are connectivity/shape checks, not relevance or scientific-quality evaluations. Do not mark a result verified solely because it is indexed by a scholarly provider.
+Final checks on this revision: `npm run test` passed **156/156**; `npm run validate`, `npm run build`, and `npm run preview` exited 0; OOXML QA reported 7 editable slides and 1 native chart. PowerPoint 16.0 and Poppler 26.07.0 rendered the seven-page deck, and all seven images were inspected. The existing sample-size warning, two unverified evidence entries, and slight cover-title intrusion into the decorative right panel remain documented. Every factual slide must still use known evidence IDs from `sources/evidence.json`; this integration creates candidate evidence records and does not auto-merge them or mark them verified.
+
+## Deliberate limits
+
+- Crossref, OpenAlex and arXiv in this slice provide bibliographic search, not general DOI full-text resolution. Only the selected arXiv result has a bounded PDF downloader.
+- Crawl4AI does not follow links, bypass access controls, or fetch page media. Bulk media retrieval is not implemented.
+- Wikimedia Commons is the only integrated asset source. The license/creator/attribution metadata is retained, but every downloaded asset remains blocked for slide reuse until a human checks the file page and intended use.
+- MinerU is not integrated because the blueprint requires a separate review of its additional license conditions and model terms.
+- Parser accuracy, scientific claims, excerpt correctness, media rights and website terms require human review. No measured accuracy or benchmark claim is made.
