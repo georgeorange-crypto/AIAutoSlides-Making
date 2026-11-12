@@ -196,7 +196,7 @@ The command writes `.md`, `.manifest.json`, and `.evidence.json` files under the
 
 For PDF or DOCX files, add `--extract-images` to create `<out-prefix>.assets/` and `<out-prefix>.assets.json`. DOCX imports copy referenced body, header, and footer PNG/JPEG/SVG parts with package-part and relationship locators. PDF imports decode supported image XObjects to PNG with page and operator locators; these are decoded images, not page screenshots or original compressed PDF streams. Both manifest types retain the source-document SHA-256, image SHA-256, and `verified:false`; duplicate bytes are deduplicated. Rights inherit from the source document and remain unreviewed. Pass the generated JSON to `--assets` after adding its asset IDs to the storyboard. PDF inline images, text extraction from DOCX headers/footers, OCR-driven figure association, and semantic placement are not supported.
 
-See [`docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md`](docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md) and [`docs/M10_PDF_ASSET_EXTRACTION_REPORT.md`](docs/M10_PDF_ASSET_EXTRACTION_REPORT.md) for test results and current limits.
+See [`docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md`](docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md), [`docs/M10_PDF_ASSET_EXTRACTION_REPORT.md`](docs/M10_PDF_ASSET_EXTRACTION_REPORT.md), [`docs/M11_DOCX_HEADER_FOOTER_ASSETS_REPORT.md`](docs/M11_DOCX_HEADER_FOOTER_ASSETS_REPORT.md), and [`docs/M12_COVER_LAYOUT_CORRECTION_REPORT.md`](docs/M12_COVER_LAYOUT_CORRECTION_REPORT.md) for test results and current limits.
 
 For a scanned PDF, install Poppler locally and explicitly opt into OCR. Tesseract.js and its `eng`/`chi_sim` models are installed with the project dependencies; a separate Tesseract binary or language-pack installation is not needed:
 
