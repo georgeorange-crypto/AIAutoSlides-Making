@@ -6,7 +6,7 @@ Evidence-first, offline-by-default generation of editable PowerPoint research ta
 
 ## Quick start — Windows PowerShell
 
-Requirements: Node.js 20+, npm, and PowerPoint or LibreOffice for PDF export. Poppler (`pdftoppm`) is needed for page PNGs.
+Requirements: Node.js 20.16+, npm, and PowerPoint or LibreOffice for PDF export. Poppler (`pdftoppm`) is needed for page PNGs. Local PDF text import uses Mozilla PDF.js; Poppler `pdftotext` is optional and preferred when installed for its layout-preserving extraction.
 
 ```powershell
 cd D:\OPPitems\HOMEWORK\Liberty\AIAutoSlides
@@ -171,7 +171,7 @@ node src/cli.mjs build --input outputs/research-reviewed.json --evidence sources
 
 ### Offline PDF/DOCX source import (M4 first tranche)
 
-Import a local research source to quoted text with page/paragraph locators, source and extracted-text hashes, a manifest, and an evidence ledger entry. Source status stays `verified:false`; extraction never verifies scientific claims or uploads the file. DOCX uses the built-in `fflate` dependency. Selectable-text PDF import requires local Poppler `pdftotext`; scanned PDFs are rejected without OCR.
+Import a local research source to quoted text with page/paragraph locators, source and extracted-text hashes, a manifest, and an evidence ledger entry. Source status stays `verified:false`; extraction never verifies scientific claims or uploads the file. DOCX uses the built-in `fflate` dependency. PDF import uses Poppler `pdftotext -layout` when installed and falls back to Mozilla PDF.js (`pdfjs-dist`) without network access; use `--pdf-engine pdfjs` to select PDF.js explicitly. Image-only/scanned PDFs are rejected without OCR, and PDF.js reading order may differ from the source's visual columns, so check extracted text against the rendered PDF.
 
 ```powershell
 npm run import:document -- --input "D:\research\paper.docx" --id E_LOCAL_PAPER --label "Paper methods section" --evidence sources/evidence.json --out-prefix outputs/imports/paper

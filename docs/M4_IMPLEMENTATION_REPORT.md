@@ -1,14 +1,14 @@
 # Milestone 4 — Local source import, first tranche
 
-**Status:** Offline `.docx` extraction and selectable-text `.pdf` extraction are implemented behind `src/import-document.mjs`. Import artifacts preserve local-source hashes, extracted-text hashes, paragraph/page locators, and an explicitly unverified evidence entry. No cloud upload, OCR, paid service, or external API is used.
+**Status:** Offline `.docx` extraction and selectable-text `.pdf` extraction are implemented behind `src/import-document.mjs`. PDF.js (`pdfjs-dist`, Apache-2.0) is integrated as a bundled local fallback when Poppler is absent; Poppler remains the preferred backend when installed for layout-preserving text extraction. Import artifacts preserve local-source hashes, extracted-text hashes, paragraph/page locators, and an explicitly unverified evidence entry. No cloud upload, OCR, paid service, or external API is used.
 
 ## Delivered
 
 - `npm run import:document -- --input <file.pdf|file.docx> --id E_LOCAL_SOURCE [--evidence ledger.json] [--out-prefix outputs/imports/source]` writes quoted extracted text (`.md`), an evidence ledger (`.evidence.json`), and extraction manifest (`.manifest.json`). Existing ledgers are copied and appended in the output; inputs are not modified.
 - DOCX paragraphs and table-cell paragraphs are extracted in document order using the existing `fflate` dependency. Paragraph numbering is retained as a locator. Headers/footers, comments, tracked-deletion semantics, and OCR of embedded images are not extracted; complex table layout is linearized.
-- PDF selectable text is extracted with locally installed Poppler `pdftotext -layout`; form-feed page boundaries and blank-page numbering are retained. Image-only/scanned PDFs fail with a clear OCR-not-performed message.
+- PDF selectable text uses Poppler `pdftotext -layout` when available or bundled Mozilla PDF.js offline; both paths retain page locators and reject documents with no selectable text. PDF.js line assembly follows text-item geometry and reading order, which can differ from visual columns; compare extracted text with the original rendered pages. Image-only/scanned PDFs fail with a clear OCR-not-performed message.
 - Source and normalized-extraction SHA-256 values are recorded. Imported evidence is always `verified:false`; generated Markdown quotes source text and marks it as untrusted data, not instructions.
-- Tests create a synthetic DOCX and exercise CLI import → evidence ledger → storyboard validation/build. PDF page parsing, blank-page locators and no-text rejection are covered; a real local Poppler integration test runs when Poppler exists and skips otherwise.
+- Tests create a synthetic DOCX and exercise CLI import → evidence ledger → storyboard validation/build. PDF.js CLI integration is forced in tests (so it does not depend on Poppler), and Poppler page parsing, blank-page locators and no-text rejection are covered.
 
 ## Verification
 
@@ -17,7 +17,7 @@
 - `npm run import:document -- --help`: passed. Negative unsupported-format invocation returned nonzero with `Supported local formats are .pdf and .docx`.
 - `npm run preview`: rendered the existing 7-slide keynote demo to PDF and seven PNG files; each page was manually inspected. No visual changes were introduced by the local source adapter.
 - DOCX integration test confirms the evidence record is `verified:false`, source hash matches the exact source bytes, paragraphs/table-cell text retain order/locators, and the linked storyboard builds to PPTX.
-- PDF integration test confirms Poppler extracted selectable text from a generated synthetic one-page PDF. The parser unit tests retain blank page locators and reject image-only/no-text input with the OCR limitation.
+- PDF.js integration test confirms local selectable-text extraction, page locators, source hash and `verified:false` status from a generated synthetic one-page PDF without invoking Poppler. The parser tests retain blank-page locators and reject image-only/no-text input with the OCR limitation.
 - `git diff --check`: passed; Git emitted only line-ending normalization notices.
 
 ## Update-pipeline benchmark tranche
@@ -39,4 +39,14 @@
 
 - Delivered locally: offline PDF/DOCX source extraction, source hashes and locators, the synthetic first-build/one-row-update benchmark, and an evidence-backed comparison of the native PPTX route with one open-source editable-PPTX exporter.
 - Ecosystem review: official capability and developer docs for Google Slides, Canva, Gamma, Beautiful.ai, Figma Slides, Microsoft PowerPoint/Copilot, Napkin, Quarto, Slidev and Marp were checked and mapped to adapter decisions in [`M4_ECOSYSTEM_REVIEW.md`](M4_ECOSYSTEM_REVIEW.md).
+- Reused an Apache-2.0 licensed Mozilla library in the local PDF source pipeline to remove Poppler as a hard dependency for text import. Its offline import path is covered by a synthetic CLI integration test; it does not perform OCR or scientific verification.
 - Not delivered: cloud sync/authenticated account adapters, OCR, scientific source verification, chart parity for alternate backends, repeated timing distributions, or manual repair-time measurement. These are not represented as completed.
+
+## Offline PDF.js integration continuation
+
+- Added the Apache-2.0 `pdfjs-dist@5.4.624` library as an installed, lockfile-pinned runtime dependency. Project minimum Node version is now 20.16, matching the library's published engine constraint.
+- PDF import still prefers Poppler `pdftotext -layout` if present, and now automatically falls back to local PDF.js if Poppler is not present. `--pdf-engine pdfjs` forces the bundled path. PDF bytes remain local; no OCR or network access is used.
+- PDF.js extracts page text from its positioned text items and preserves page locators, blank pages, byte/text hashes, and the `verified:false` status. Its reading order can differ from visual columns; users should compare the extraction against rendered source pages.
+- Targeted document-import suite: **4/4 passed**. The integration test removes Poppler from the child process `PATH`, covering automatic fallback, extracted text/page locator, source hash, `verified:false`, and scanned/image-only rejection.
+- `npm run check`: **passed** on the current checkout: **45/45 tests**, critic evaluation, update benchmark, validation, editable PPTX builds, structural QA, dual-deck generation, and critique. The 45-test total includes the independent, uncommitted M3A asset work present in the shared working tree during this run; this M4 change adds one test to the prior baseline.
+- `npm run deps`: passed; resolved runtime licenses include `pdfjs-dist@5.4.624 (Apache-2.0)`. The PDF.js fallback is run without network access; the research demo's existing unverified-source and chart-sample-size warnings remain visible.

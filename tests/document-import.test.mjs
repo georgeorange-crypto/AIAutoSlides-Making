@@ -6,11 +6,17 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 import {zipSync,strToU8} from 'fflate';
-import {extractDocxParagraphs,parsePdfPages} from '../src/document-extractors.mjs';
+import {extractDocxParagraphs,extractPdfPages,parsePdfPages} from '../src/document-extractors.mjs';
 
 function syntheticDocx(){
  const xml='<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>SYNTHETIC source statement &amp; evidence.</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Methods section</w:t></w:r></w:p><w:tbl><w:tr><w:tc><w:p><w:r><w:t>Table cell text</w:t></w:r></w:p></w:tc></w:tr></w:tbl><w:sectPr/></w:body></w:document>';
  return zipSync({'[Content_Types].xml':strToU8('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>'),'word/document.xml':strToU8(xml)});
+}
+
+function syntheticPdf(text='SYNTHETIC PDF source text'){
+ const stream=text?`BT /F1 16 Tf 72 720 Td (${text}) Tj ET\n`:'';
+ const objects=[null,'<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>','<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',`<< /Length ${Buffer.byteLength(stream,'binary')} >>\nstream\n${stream}endstream`];let pdf='%PDF-1.4\n';const offsets=[0];for(let id=1;id<=5;id++){offsets[id]=Buffer.byteLength(pdf,'binary');pdf+=`${id} 0 obj\n${objects[id]}\nendobj\n`;}
+ const xrefOffset=Buffer.byteLength(pdf,'binary'),xref=['xref','0 6','0000000000 65535 f ',...offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n `)].join('\n');return Buffer.from(`${pdf}${xref}\ntrailer << /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`,'binary');
 }
 
 test('DOCX import preserves ordered paragraphs, decoded text, locators, hashes, and pending verification through deck build',()=>{
@@ -32,10 +38,12 @@ test('DOCX parser rejects invalid packages and PDF page parser preserves blank-p
  assert.throws(()=>parsePdfPages('\f\n\f'),/image-only PDFs require OCR/);
 });
 
-test('PDF importer extracts selectable local text when Poppler is installed',t=>{
- const probe=spawnSync(process.platform==='win32'?'where.exe':'which',['pdftotext'],{encoding:'utf8',windowsHide:true});if(probe.status!==0){t.skip('Optional Poppler pdftotext is not installed');return;}
- const stream='BT /F1 16 Tf 72 720 Td (SYNTHETIC PDF source text) Tj ET\n',objects=[null,'<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>','<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',`<< /Length ${Buffer.byteLength(stream,'binary')} >>\nstream\n${stream}endstream`];let pdf='%PDF-1.4\n';const offsets=[0];for(let id=1;id<=5;id++){offsets[id]=Buffer.byteLength(pdf,'binary');pdf+=`${id} 0 obj\n${objects[id]}\nendobj\n`;}
- const xrefOffset=Buffer.byteLength(pdf,'binary'),xref=['xref','0 6','0000000000 65535 f ',...offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n `)].join('\n');const finalPdf=`${pdf}${xref}\ntrailer << /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+test('PDF.js extracts selectable local text and importer preserves local provenance without Poppler',async()=>{
+ const bytes=syntheticPdf();
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-pdf-import-')),source=path.join(dir,'synthetic.pdf'),prefix=path.join(dir,'imported');
- try{fs.writeFileSync(source,Buffer.from(finalPdf,'binary'));const imported=spawnSync(process.execPath,['src/import-document.mjs','--input',source,'--id','E_LOCAL_PDF','--out-prefix',prefix],{encoding:'utf8'});assert.equal(imported.status,0,imported.stderr);assert.match(fs.readFileSync(`${prefix}.md`,'utf8'),/SYNTHETIC PDF source text/);assert.equal(JSON.parse(fs.readFileSync(`${prefix}.manifest.json`,'utf8')).block_count,1);}finally{fs.rmSync(dir,{recursive:true,force:true});}
+ try{fs.writeFileSync(source,bytes);const pages=await extractPdfPages(bytes);assert.equal(pages.length,1);assert.match(pages[0].content,/SYNTHETIC PDF source text/);const imported=spawnSync(process.execPath,['src/import-document.mjs','--input',source,'--id','E_LOCAL_PDF','--pdf-engine','auto','--out-prefix',prefix],{encoding:'utf8',env:{...process.env,PATH:path.dirname(process.execPath)}});assert.equal(imported.status,0,imported.stderr);assert.match(fs.readFileSync(`${prefix}.md`,'utf8'),/SYNTHETIC PDF source text/);assert.equal(JSON.parse(fs.readFileSync(`${prefix}.manifest.json`,'utf8')).block_count,1);assert.equal(JSON.parse(fs.readFileSync(`${prefix}.manifest.json`,'utf8')).extraction_method,'PDF.js (pdfjs-dist), selectable text only');assert.equal(JSON.parse(fs.readFileSync(`${prefix}.evidence.json`,'utf8')).entries[0].verified,false);}finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('PDF.js rejects a PDF with no selectable text without claiming OCR',async()=>{
+ await assert.rejects(()=>extractPdfPages(syntheticPdf('')),/image-only PDFs require OCR/);
 });
