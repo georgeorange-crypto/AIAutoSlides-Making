@@ -3,45 +3,42 @@
   "name": "Microsoft MarkItDown",
   "kind": "parser",
   "official_url": "https://github.com/microsoft/markitdown",
-  "version": "not-pinned",
-  "interface": "Python API/CLI or Node library",
+  "version": "0.1.9",
+  "interface": "isolated Python API worker",
   "platforms": [
     "windows",
     "linux",
     "macos"
   ],
   "capabilities": [
-    "parser"
+    "local-markdown-conversion",
+    "source-sha256",
+    "plugins-disabled",
+    "unverified-source-record"
   ],
   "inputs": [
-    "pdf",
-    "pptx",
-    "docx",
-    "html",
-    "web"
+    "authorized-local-file"
   ],
   "outputs": [
-    "source-document-ir",
-    "page-locators",
-    "assets"
+    "markdown-source-record-1.0.0"
   ],
   "dependencies": [
-    "isolated runtime required"
+    "workers/markitdown/requirements.in",
+    "workers/markitdown/requirements.lock.txt",
+    "isolated workers/markitdown/.venv"
   ],
   "needs_network": false,
   "needs_auth": false,
-  "expected_cost": "unknown",
+  "expected_cost": "free-local",
   "editable": "not-applicable",
   "license": {
-    "identifier": "unreviewed",
-    "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "identifier": "MIT",
+    "review_status": "verified-from-package-metadata",
+    "note": "MarkItDown 0.1.9 declares MIT; transitive dependency licenses still require a complete audit."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
-  "probe": {
-    "command": "markitdown"
-  },
-  "limitations": "Playwright web access requires explicit URL authorization; no page restrictions may be bypassed.",
-  "status": "catalogued"
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/markitdown.mjs",
+  "probe": null,
+  "limitations": "Local text-oriented conversion only; no exact layout or page coordinates. Plugins and remote URI conversion are disabled. Extracted content remains unverified.",
+  "status": "e2e-tested"
 }

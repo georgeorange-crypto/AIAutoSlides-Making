@@ -11,3 +11,4 @@ docs/template/local-assets/**
 !docs/template/local-assets/README.md
 content/ai-storyboard.json
 __pycache__/
+workers/markitdown/.venv/

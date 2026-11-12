@@ -9,13 +9,14 @@ import {pdfjsAdapter} from '../packages/adapters/pdfjs.mjs';
 import {ooxmlTextAdapter} from '../packages/adapters/ooxml-text.mjs';
 import {mermaidAdapter} from '../packages/adapters/mermaid.mjs';
 import {slidevAdapter} from '../packages/adapters/slidev.mjs';
+import {markitdownAdapter} from '../packages/adapters/markitdown.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
 import {createCanvaOAuthServer} from './canva-oauth.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
@@ -38,7 +39,7 @@ async function main(){
    'tesseract-js':['Integrated: bundled Tesseract.js 7 engine plus local eng and chi_sim traineddata performs offline OCR after Poppler rasterizes each scanned PDF page.','OCR confidence is not scientific verification; page images and extracted text still require human comparison.'],
    pymupdf:['Python library with broad PDF extraction and rendering; useful as an alternate parser after a local adapter exists.','Not installed or wired into this Node project; Python environment and license/dependency review required.'],
    docling:['Local Python pipeline can preserve richer layout/table structure; consider for complex papers.','Heavier model/runtime and not installed here; extracted claims still require evidence review.'],
-   markitdown:['Text-first Office/PDF-to-Markdown fallback with a broad format set.','Not installed/wired here; layout/table fidelity differs from Docling and must be fixture-tested.'],
+   markitdown:['Optional local-only text and table to Markdown conversion with plugins disabled and a source hash.','MarkItDown is text-oriented and supplies no page locators; output remains unverified and must be checked against the original document.'],
    'fact-review':['Use the project review gate and deterministic critic for source links, flags, and human approval.','Automated checks do not verify scientific truth or replace human fact checking.'],
    'deterministic-planner':['Local rule-based planner provides reproducible fallback.','Less flexible narrative than an optional AI draft; all generated claims still need evidence IDs.'],
    pptxgenjs:['Current MVP backend; emits native editable text, shapes, tables and chart objects through the validated Presentation IR adapter.','Supports the declared IR mapping; incremental editing is not available and Mermaid source is retained as text.'],
