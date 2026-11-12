@@ -3,43 +3,49 @@
   "name": "Slidev",
   "kind": "deck-backend",
   "official_url": "https://github.com/slidevjs/slidev",
-  "version": "not-pinned",
-  "interface": "CLI",
+  "version": "53.1.0",
+  "interface": "isolated CLI + Presentation IR adapter",
   "platforms": [
     "windows",
     "linux",
     "macos"
   ],
   "capabilities": [
-    "deck-backend"
+    "presentation-ir-1.0.0",
+    "editable-text-when-supported",
+    "pdf-preview",
+    "png-preview",
+    "source-lineage",
+    "local-image-assets"
   ],
   "inputs": [
-    "markdown",
-    "qmd",
-    "html"
+    "slidev-markdown",
+    "presentation-ir-1.0.0"
   ],
   "outputs": [
-    "html",
     "pdf",
-    "pptx"
+    "png",
+    "pptx-editable",
+    "lineage-manifest"
   ],
   "dependencies": [
-    "independent executable/runtime"
+    "optional isolated @slidev/cli",
+    "local Chrome/Chromium"
   ],
   "needs_network": false,
   "needs_auth": false,
-  "expected_cost": "unknown",
+  "expected_cost": "free-local",
   "editable": "partial",
   "license": {
-    "identifier": "unreviewed",
+    "identifier": "MIT",
     "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "note": "Slidev CLI/default theme declare MIT; the isolated transitive dependency and browser distribution inventory has not been fully audited."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/slidev.mjs",
   "probe": {
     "command": "slidev"
   },
-  "limitations": "PPTX export may rasterize or simplify elements; object-level QA required.",
-  "status": "catalogued"
+  "limitations": "Local IR export is tested for PDF/PNG; pptx-editable is rejected when lineage checks find slide raster fallback or missing editable text. Native chart objects are not produced; complex HTML/SVG can rasterize.",
+  "status": "e2e-tested"
 }

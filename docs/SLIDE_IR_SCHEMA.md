@@ -23,6 +23,8 @@ Machine-readable structural schema: [`../packages/contracts/presentation.schema.
 - Numerical figure values come only from structured input data. Prose generation cannot populate chart series.
 - `verification_status: verified` is a recorded review state, not an automatic conclusion from extraction or hashing.
 - Unsupported element kinds are errors for a selected adapter; they must not be silently omitted.
+- `image` elements require a declared local asset, descriptive `alt`, and positive `x/y/w/h` geometry within the 16:9 canvas. PptxGenJS verifies workspace containment, symlinks, size, MIME and SHA-256 before embedding. Restricted rights fail; pending/unknown rights remain warnings.
+- `process` elements require 2–6 titled steps. PptxGenJS maps supported process groups to editable objects; Slidev maps them to HTML layout elements and may rasterize them in PPTX export.
 - Backends may declare lower editability than requested only by returning a warning/failure that identifies the affected elements.
 
 ## Migration

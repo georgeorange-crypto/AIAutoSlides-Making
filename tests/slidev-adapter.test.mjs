@@ -8,6 +8,7 @@ import {createSlidevAdapter} from '../packages/adapters/slidev.mjs';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
+import {spawnSync} from 'node:child_process';
 
 const repository=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
@@ -75,5 +76,13 @@ test('Slidev runIR stages local image assets, compiles process elements and pres
     assert.ok(result.warnings.some(warning=>warning.includes('A_SLIDEV rights status is pending')));
     const modified=structuredClone(ir);modified.assets[0].sha256='0'.repeat(64);
     await assert.rejects(adapter.runIR({presentationIR:modified,inputDir:root,outputDir:path.join(root,'bad'),formats:['pdf'],binary:'fake-slidev'}),/SHA-256 does not match/);
+    const svgBytes=Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');await writeFile(path.join(root,'public/assets/unsafe.svg'),svgBytes);
+    const unsafe=structuredClone(ir);unsafe.assets[0]={...ir.assets[0],uri:'public/assets/unsafe.svg',sha256:crypto.createHash('sha256').update(svgBytes).digest('hex'),media_type:'image/svg+xml'};
+    await assert.rejects(adapter.runIR({presentationIR:unsafe,inputDir:root,outputDir:path.join(root,'unsafe'),formats:['pdf'],binary:'fake-slidev'}),/SVG contains executable or external references/);
   }finally{await rm(root,{recursive:true,force:true});}
+});
+
+test('Slidev IR CLI rejects output outside the repository before invoking a renderer',()=>{
+  const result=spawnSync(process.execPath,[path.join(repository,'src/render-slidev-ir.mjs'),'--input',path.join(repository,'examples/phase1/pptxgenjs-ir.json'),'--out',path.resolve(repository,'..','outside-slidev-output')],{cwd:repository,encoding:'utf8'});
+  assert.equal(result.status,1);assert.match(result.stderr,/must resolve inside the repository workspace/);
 });

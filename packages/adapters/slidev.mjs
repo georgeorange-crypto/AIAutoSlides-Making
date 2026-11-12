@@ -68,6 +68,7 @@ export function createSlidevAdapter({runCommand=invoke}={}) {
         if(sha256(bytes).toLowerCase()!==asset.sha256.toLowerCase())throw new Error(`Asset '${asset.asset_id}' SHA-256 does not match its local file`);
         const mediaType=({'.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml'})[path.extname(realSource).toLowerCase()];
         if(mediaType!==asset.media_type)throw new Error(`Asset '${asset.asset_id}' media_type does not match its local file`);
+        if(mediaType==='image/svg+xml'&&/<\s*(?:script|foreignObject)\b|\bon[a-z]+\s*=|(?:href|src)\s*=\s*["']\s*(?:https?:|data:|file:|\/\/)|url\(\s*["']?(?!#)|<!DOCTYPE|<!ENTITY/i.test(bytes.toString('utf8')))throw new Error(`Asset '${asset.asset_id}' SVG contains executable or external references`);
         const target=path.resolve(out,asset.uri),targetRelative=path.relative(out,target);
         if(targetRelative==='..'||targetRelative.startsWith(`..${path.sep}`)||path.isAbsolute(targetRelative))throw new Error(`Asset '${asset.asset_id}' target escapes outputDir`);
         await mkdir(path.dirname(target),{recursive:true});const realParent=await realpath(path.dirname(target)),realParentRelative=path.relative(realOutput,realParent);

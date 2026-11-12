@@ -6,6 +6,8 @@ This is the first runnable backend adapter behind the existing tool-adapter prot
 
 `packages/adapters/slidev.mjs` exports `slidevAdapter` and `createSlidevAdapter`. It reports formats and limitations, checks the local CLI version, exports selected PPTX/PDF/PNG formats, hashes artifacts, copies an explicitly supplied source-lineage JSON sidecar, and verifies that notes in the PPTX preserve slide and evidence IDs. No API key or provider is needed for local rendering.
 
+`slidevAdapter.runIR()` and `npm run render:slidev-ir` add a local Presentation IR route. It compiles text, tables, cards, callouts, process steps, charts and Mermaid source to Slidev Markdown; local image assets are copied into the generated project after type/hash/path checks. Asset rights and source IDs stay in lineage. No network image fetch occurs. The default CLI formats are PDF and PNG. `pptx-editable` is rejected if Slidev falls back to full-slide raster or lineage checks cannot find editable slide text.
+
 The Presentation IR mapper supports structured `bar`, `line`, `scatter`, and `cdf` charts. Slidev renders them as SVG visuals, while exact x/series values and evidence IDs remain in the lineage sidecar and source comment. These are not native PowerPoint chart objects and are not data-editable after export. PPTX output uses Slidev's `pptx-editable` format and disables click-step duplication. Basic text/shapes are editable; complex DOM/SVG may rasterize; existing-PPTX import is not supported. These limitations are returned as warnings and capability fields.
 
 ## Windows reproduction
@@ -27,4 +29,4 @@ The phase-2 run is retained under [`artifacts/open-source-bakeoff/slidev-adapter
 
 ## Acceptance evidence
 
-The adapter tests use an injected runner to verify format mapping, lineage preservation, output manifest creation, and invalid-input handling. Real export acceptance is separate: execute the command above, inspect PPTX object counts with `node src/qa.mjs <pptx>`, then visually inspect every exported PNG. A successful CLI exit alone is not a visual or scientific QA pass.
+The adapter tests use an injected runner to verify format mapping, lineage preservation, output manifest creation, local asset staging and invalid-input handling. A real Slidev 53.1.0 run from synthetic IR produced a 9-page PDF and nine PNGs in `outputs/m4/slidev-ir-completion/`. For that image/process-heavy fixture, the editable-PPTX export was rejected after structural QA found 0 editable-text slides. This records a backend limitation, not a failure of the primary PptxGenJS exporter. Visual sign-off remains pending as requested.
