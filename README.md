@@ -9,7 +9,7 @@ Evidence-first, offline-by-default generation of editable PowerPoint research ta
 Requirements: Node.js 20.16+, npm, and PowerPoint or LibreOffice for PDF export. Poppler (`pdftoppm`) is needed for page PNGs. Local PDF text import uses Mozilla PDF.js; Poppler `pdftotext` is optional and preferred when installed for its layout-preserving extraction.
 
 ```powershell
-cd D:\OPPitems\HOMEWORK\Liberty\AIAutoSlides
+# Run these commands from the repository root.
 npm ci
 npm run check
 npm run preview
@@ -199,6 +199,19 @@ npm run select:design -- --gallery outputs/theme-gallery/gallery.json --theme ac
 ```
 
 The selection command writes the confirmed theme profile to `docs/design.md` and `docs/design-tokens.json`; change the theme argument to the option you actually select. A gallery alone does not mark any option as confirmed.
+
+### Local image assets (Milestone 3A first vertical slice)
+
+Reference local PNG, JPEG, or SVG images in an asset manifest. Paths are relative to the manifest. Every asset records its MIME/type, SHA-256, source, license, and human verification state; duplicate bytes, missing files, mismatched hashes, missing provenance, and unknown slide references fail the build. Slides use `visuals` placements with slide-relative inch coordinates. Embedded SVGs are PowerPoint image objects; their internal paths are not individually editable shapes. No asset is uploaded.
+
+```powershell
+node src/assets-cli.mjs examples/multimodal/assets.json
+node src/cli.mjs validate --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json
+node src/cli.mjs build --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json --out outputs/m3a-assets-demo.pptx
+node src/qa.mjs outputs/m3a-assets-demo.pptx
+```
+
+The three-slide `examples/multimodal/` fixture is explicitly synthetic/hypothetical. It verifies local SVG embedding and lineage only; the planned 10-slide AI Systems acceptance project, raster/JPEG examples, editable architecture primitives, complete visual review, and PDF/PNG deliverables remain future work.
 
 ## Research and design rules
 
