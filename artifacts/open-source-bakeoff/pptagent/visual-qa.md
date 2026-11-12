@@ -1,6 +1,6 @@
 # PPTAgent POC — page-by-page visual review
 
-**Deck:** `answer.pptx` · **Rendered by:** upstream PPTAgent `review-deck` using LibreOffice · **Review:** manual inspection of every final rendered page at full resolution · **Overall:** PASS · **Reviewer mode:** host/manual; no vision-model call.
+**Deck:** `answer.pptx` · **SHA-256:** `9ea231a90b8e39b9335c49127547296f4d09b512bfb58fff152d14f6034fee00` · **Rendered by:** upstream PPTAgent `review-deck` using LibreOffice · **Review:** manual inspection of every final rendered page at full resolution · **Overall:** PASS · **Reviewer mode:** host/manual; no vision-model call.
 
 | Page | Main content inspected | Text fit / clipping | Overlap / bounds | Readability / hierarchy | Disposition |
 |---:|---|---|---|---|---|
@@ -14,4 +14,4 @@
 | 8 | Three backend boundary cards | Pass | Pass | Pass; card labels and explanatory text fit | Pass |
 | 9 | Recommendation and closing explanation | Pass | Pass | Pass; primary recommendation is emphasized and readable | Pass |
 
-No visually evident clipping, collision, overflow, missing content, or unreadable element was found. The machine object audit reports 9/9 editable-text slides, 111 shapes, 16 line objects, two native tables, zero images, and zero native charts. This pass is limited to visual rendering and object inventory; it does not validate scientific claims because all content is explicitly synthetic.
+No visually evident clipping, collision, overflow, missing content, or unreadable element was found. The machine object audit reports 9/9 editable-text slides, 116 shapes, 17 line objects, two native tables, zero images, and zero native charts. This pass is limited to visual rendering and object inventory; it does not validate scientific claims because all content is explicitly synthetic.

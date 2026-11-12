@@ -4,15 +4,15 @@ import path from 'node:path';
 const target=path.resolve(process.argv[2]||'outputs/open-source-bakeoff/pptagent-run/slides');
 const esc=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const slides=[
-  {title:'Synthetic local-first presentation pipeline',eyebrow:'SYSTEMS DESIGN · BACKEND BAKE-OFF',body:'A hypothetical design for evidence-preserving technical talks',kind:'cover'},
-  {title:'Design the pipeline around evidence',claim:'Scientific review needs exact data mapping, source lineage, and explicit uncertainty.',body:'Presentation tools can draft and arrange slides while review checks the source trail.',kind:'statement'},
-  {title:'Separate evidence from presentation layout',steps:['Source files','Evidence ledger','Storyboard + figures','Backend adapter','PPTX / PDF / HTML'],body:'Source identifiers and verification state travel with the rendered deck.',kind:'pipeline'},
-  {title:'Keep figures deterministic',rows:[['Load tier A','120 req/s'],['Load tier B','240 req/s'],['Load tier C','360 req/s']],body:'Synthetic fixture values, not benchmark results.',kind:'table'},
-  {title:'Layout intent should survive backend changes',cards:[['Assertion','One claim per slide'],['Evidence','Show source and data'],['Review','Keep caveats visible']],body:'Synthetic design example · no measured results',kind:'cards'},
+  {title:'Synthetic local-first presentation pipeline',eyebrow:'SYSTEMS DESIGN · BACKEND BAKE-OFF',body:'A hypothetical systems design for evidence-preserving technical talks',kind:'cover'},
+  {title:'Design the pipeline around evidence',claim:'Presentation tools can draft and arrange slides, while scientific review needs exact data mapping, source lineage, and explicit uncertainty.',body:'Test question: Can independent render backends produce the same editable talk without changing the evidence meaning?',kind:'statement'},
+  {title:'Separate evidence from presentation layout',steps:['Source files','Evidence ledger','Storyboard + figures','Backend adapter','PPTX / PDF / HTML'],body:'Evidence status and source IDs travel beside the rendered deck.',body2:'Source manifest + QA check the inputs and rendered output.',kind:'pipeline'},
+  {title:'Keep figures deterministic',rows:[['Load tier A','120 req/s'],['Load tier B','240 req/s'],['Load tier C','360 req/s']],body:'These values are synthetic fixture values, not benchmark results.',body2:'A renderer must preserve the values exactly and label the units.',kind:'table'},
+  {title:'Layout intent should survive backend changes',cards:[['Assertion','One claim per slide'],['Evidence','Show source and data'],['Review','Keep caveats visible']],body:'SYNTHETIC DESIGN EXAMPLE · no measured results',kind:'cards'},
   {title:'Track limitations as structured output',items:['Unsupported chart type → explicit warning','Raster-only element → object-level editability report','Missing source ID → build error','Unverified evidence → visible pending state','Provider call → explicit opt-in and cost boundary'],kind:'list'},
-  {title:'Compare capabilities, not marketing labels',rows:[['Export','PPTX produced by local command'],['Editability','Text, shapes, charts inspected in package'],['Fidelity','Every rendered page reviewed'],['Lineage','Source IDs preserved in sidecar'],['Operations','Version, dependencies, services logged']],kind:'table'},
-  {title:'A backend is useful only when its boundary is clear',cards:[['Local renderer','Repeatable exports without model calls'],['AI service','Optional drafting; provider and cost disclosed'],['Scientific QA','Checks every output outside the renderer']],kind:'cards'},
-  {title:'Recommendation for this test',claim:'Keep evidence and chart data in a backend-neutral contract.',body:'Use isolated adapters; promote a renderer only after same-input, editable-object, and visual checks pass.',kind:'closing'}
+  {title:'Compare capabilities, not marketing labels',rows:[['Export','PPTX produced by local command'],['Editability','Text, shapes, charts inspected in package'],['Fidelity','Every rendered page reviewed'],['Lineage','Source IDs preserved in sidecar'],['Operations','Version, dependencies, external services logged']],kind:'table'},
+  {title:'A backend is useful only when its boundary is clear',cards:[['Local renderer','Repeatable exports without model calls'],['AI service','Optional drafting, model/provider and cost disclosed'],['Scientific QA','Stays outside the renderer and checks every output']],body:'SYNTHETIC / HYPOTHETICAL ARCHITECTURE',kind:'cards'},
+  {title:'Recommendation for this test',claim:'Keep the evidence ledger and chart data in a backend-neutral contract.',body:'Use mature renderers through isolated adapters; promote one only after same-input, editable-object, and visual checks pass.',body2:'No backend comparison in this fixture establishes research performance.',kind:'closing'}
 ];
 
 const css=`<style>
@@ -20,17 +20,17 @@ const css=`<style>
 </style>`;
 
 function content(s){
-  if(s.kind==='pipeline')return `<div class="pipeline">${s.steps.map((v,i)=>`<div class="step"><p>${esc(v)}</p></div>`).join('')}</div><p class="body">${esc(s.body)}</p>`;
-  if(s.kind==='table')return `<table class="table"><thead><tr><th>${esc(s.rows[0][0].startsWith('Load')?'Figure field':'Check')}</th><th>${esc(s.rows[0][0].startsWith('Load')?'Hypothetical input':'Required evidence')}</th></tr></thead><tbody>${s.rows.map(row=>`<tr><td>${esc(row[0])}</td><td>${esc(row[1])}</td></tr>`).join('')}</tbody></table>${s.body?`<div class="callout"><p>${esc(s.body)}</p></div>`:''}`;
+  if(s.kind==='pipeline')return `<div class="pipeline">${s.steps.map((v,i)=>`<div class="step"><p>${esc(v)}</p></div>`).join('')}</div><p class="body">${esc(s.body)}</p><div class="callout"><p>${esc(s.body2)}</p></div>`;
+  if(s.kind==='table')return `<table class="table"><thead><tr><th>${esc(s.rows[0][0].startsWith('Load')?'Figure field':'Check')}</th><th>${esc(s.rows[0][0].startsWith('Load')?'Hypothetical input':'Required evidence')}</th></tr></thead><tbody>${s.rows.map(row=>`<tr><td>${esc(row[0])}</td><td>${esc(row[1])}</td></tr>`).join('')}</tbody></table>${s.body?`<div class="callout"><p>${esc(s.body)} ${esc(s.body2||'')}</p></div>`:''}`;
   if(s.kind==='cards')return `<div class="cards">${s.cards.map(([title,body])=>`<div class="card"><h3>${esc(title)}</h3><p>${esc(body)}</p></div>`).join('')}</div>${s.body?`<p class="body">${esc(s.body)}</p>`:''}`;
   if(s.kind==='list')return `<ul class="list">${s.items.map(item=>`<li><div class="list-item"><p>${esc(item)}</p></div></li>`).join('')}</ul>`;
-  return `${s.claim?`<p class="claim">${esc(s.claim)}</p>`:''}${s.body?`<p class="body">${esc(s.body)}</p>`:''}${s.kind==='statement'?'<div class="callout"><p>No empirical performance data</p></div>':''}`;
+  return `${s.claim?`<p class="claim">${esc(s.claim)}</p>`:''}${s.body?`<p class="body">${esc(s.body)}</p>`:''}${s.body2?`<div class="callout"><p>${esc(s.body2)}</p></div>`:''}${s.kind==='statement'?'<p class="tag">SYNTHETIC / HYPOTHETICAL · no empirical performance data</p>':''}`;
 }
 
 await mkdir(target,{recursive:true});
 for(let i=0;i<slides.length;i++){
   const s=slides[i],classes=['slide',`${s.kind}-slide`].join(' '),title=`<h1 class="title">${esc(s.title)}</h1>`;
-  const page=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=1280,initial-scale=1">${css}<style>ul.list li{background:none;border:0;padding:0;margin:0 0 11px}.list-item{padding:14px 18px;background:#fff;border-left:4px solid #12a4a6;border-radius:5px}.list-item p{margin:0;font-size:24px;line-height:1.35}</style></head><body><main class="${classes}"><p class="topline">${i===0?'SYNTHETIC / HYPOTHETICAL TEST MATERIAL':'EVIDENCE-FIRST PRESENTATION SYSTEMS'}</p>${title}${content(s)}<p class="tag">SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED</p><footer class="footer"><p>Local-only backend test · no measured results</p><p>${String(i+1).padStart(2,'0')} / 09</p></footer></main></body></html>`;
+  const page=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=1280,initial-scale=1">${css}<style>ul.list li{background:none;border:0;padding:0;margin:0 0 11px}.list-item{padding:14px 18px;background:#fff;border-left:4px solid #12a4a6;border-radius:5px}.list-item p{margin:0;font-size:24px;line-height:1.35}</style></head><body><main class="${classes}"><p class="topline">${i===0?'SYNTHETIC / HYPOTHETICAL TEST MATERIAL':'EVIDENCE-FIRST PRESENTATION SYSTEMS'}</p>${title}${content(s)}<p class="tag">S${String(i+1).padStart(2,'0')} · SYNTHETIC / HYPOTHETICAL · E_SYN_01 UNVERIFIED</p><footer class="footer"><p>Local-only backend test · no measured results</p><p>${String(i+1).padStart(2,'0')} / 09</p></footer></main></body></html>`;
   await writeFile(path.join(target,`slide${String(i+1).padStart(2,'0')}.html`),page,'utf8');
 }
 process.stdout.write(JSON.stringify({target,slides:slides.length,source:'synthetic/hypothetical; no external model calls'},null,2)+'\n');

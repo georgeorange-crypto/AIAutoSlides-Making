@@ -12,7 +12,7 @@
     "deck_review_current": true
   },
   "artifact": "answer.pptx",
-  "artifact_sha256": "279df2144740168f2e0f4e306dee474c86309f4d859af3fc41ecf1834c2de56c",
+  "artifact_sha256": "9ea231a90b8e39b9335c49127547296f4d09b512bfb58fff152d14f6034fee00",
   "slides": 9,
   "aspect_ratio": "16:9"
 }

@@ -1,0 +1,2035 @@
+{
+  "status": "fail",
+  "scope": "PPTX structure, text-shape bounds and overlaps, minimum text size, theme contrast, chart/table/code/timeline object structure, chart-value and native error-bar integrity, and source checks; rendered pixels require human review",
+  "pptx": "D:\\OPPitems\\HOMEWORK\\Liberty\\AIAutoSlides\\artifacts\\open-source-bakeoff\\pptagent\\answer.pptx",
+  "pptx_sha256": "9ea231a90b8e39b9335c49127547296f4d09b512bfb58fff152d14f6034fee00",
+  "aspectRatio": 1.7778,
+  "slideCount": 9,
+  "editableTextSlideCount": 9,
+  "nativeShapeCount": 116,
+  "nativeConnectorCount": 17,
+  "nativeChartCount": 0,
+  "nativeTableCount": 2,
+  "tableDataExactMatch": false,
+  "nativeCodeLineCount": 0,
+  "codeSnippetDataExactMatch": true,
+  "nativeTimelineEventCount": 0,
+  "timelineDataExactMatch": true,
+  "nativeErrorBarSeriesCount": 0,
+  "errorBarsMatch": true,
+  "embeddedChartWorkbookCount": 0,
+  "chartData": {
+    "storyboardValues": [],
+    "expectedChartCacheValues": [],
+    "chartCacheValues": [],
+    "embeddedWorkbookValues": [],
+    "exactMatch": true
+  },
+  "theme": null,
+  "slides": [
+    {
+      "slide": 1,
+      "editableText": 6,
+      "nativeShapes": 8,
+      "nativeConnectors": 1,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 971550,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 1743075,
+          "w": 9521190,
+          "h": 1172468
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 3258443,
+          "w": 8063865,
+          "h": 358973
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 3769816,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 0,
+          "y": 0,
+          "w": 12192000,
+          "h": 6858000
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 685800,
+          "y": 971550,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 685800,
+          "y": 1743075,
+          "w": 9521190,
+          "h": 1172468
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 685800,
+          "y": 3258443,
+          "w": 8063865,
+          "h": 358973
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 685800,
+          "y": 3769816,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 685800,
+          "y": 6081712,
+          "w": 10820400,
+          "h": 0
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 6,
+      "textOverlaps": [],
+      "textBoundsCount": 6,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 2,
+      "editableText": 8,
+      "nativeShapes": 9,
+      "nativeConnectors": 1,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 1774478,
+          "w": 10298430,
+          "h": 706934
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 2767161,
+          "w": 10201275,
+          "h": 635198
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 3554760,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 3859560,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 685800,
+          "y": 1774478,
+          "w": 10298430,
+          "h": 706934
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 685800,
+          "y": 2767161,
+          "w": 10201275,
+          "h": 635198
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 685800,
+          "y": 3554760,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 685800,
+          "y": 3859560,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 685800,
+          "y": 6081712,
+          "w": 10820400,
+          "h": 0
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 8,
+      "textOverlaps": [],
+      "textBoundsCount": 8,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 3,
+      "editableText": 12,
+      "nativeShapes": 20,
+      "nativeConnectors": 2,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "x": 1124664,
+          "y": 2460278,
+          "w": 1156752,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 3116894,
+          "y": 2460278,
+          "w": 1564955,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 5233144,
+          "y": 2345978,
+          "w": 1725564,
+          "h": 457200
+        },
+        {
+          "ok": true,
+          "x": 7470233,
+          "y": 2460278,
+          "w": 1644197,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "x": 9626103,
+          "y": 2345978,
+          "w": 1725564,
+          "h": 457200
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 3546128,
+          "w": 10201275,
+          "h": 317599
+        },
+        {
+          "ok": true,
+          "x": 942975,
+          "y": 4454277,
+          "w": 10560749,
+          "h": 219075
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 5187702,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 685800,
+          "y": 1926878,
+          "w": 2034480,
+          "h": 1295400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 1124664,
+          "y": 2460278,
+          "w": 1156752,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 2882205,
+          "y": 1926878,
+          "w": 2034480,
+          "h": 1295400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 3116894,
+          "y": 2460278,
+          "w": 1564955,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 5078611,
+          "y": 1926878,
+          "w": 2034629,
+          "h": 1295400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 5233144,
+          "y": 2345978,
+          "w": 1725564,
+          "h": 457200
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 7275165,
+          "y": 1926878,
+          "w": 2034480,
+          "h": 1295400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 10,
+          "x": 7470233,
+          "y": 2460278,
+          "w": 1644197,
+          "h": 228600
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 11,
+          "x": 9471571,
+          "y": 1926878,
+          "w": 2034629,
+          "h": 1295400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 12,
+          "x": 9626103,
+          "y": 2345978,
+          "w": 1725564,
+          "h": 457200
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 13,
+          "x": 685800,
+          "y": 3546128,
+          "w": 10201275,
+          "h": 317599
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 14,
+          "x": 685800,
+          "y": 4092327,
+          "w": 10820400,
+          "h": 942975
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 15,
+          "x": 709613,
+          "y": 4263777,
+          "w": 0,
+          "h": 600075
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 16,
+          "x": 942975,
+          "y": 4454277,
+          "w": 10560749,
+          "h": 219075
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 17,
+          "x": 685800,
+          "y": 5187702,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 18,
+          "x": 685800,
+          "y": 6081712,
+          "w": 10820400,
+          "h": 0
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 19,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 20,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 12,
+      "textOverlaps": [],
+      "textBoundsCount": 12,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 4,
+      "editableText": 14,
+      "nativeShapes": 9,
+      "nativeConnectors": 2,
+      "charts": 0,
+      "tables": 1,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "x": 942975,
+          "y": 4431953,
+          "w": 10560749,
+          "h": 438150
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 5384453,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "element": "graphicFrame",
+          "index": 3,
+          "x": 685800,
+          "y": 1774478,
+          "w": 9144000,
+          "h": 914400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 685800,
+          "y": 4070003,
+          "w": 10820400,
+          "h": 1162050
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 709613,
+          "y": 4241453,
+          "w": 0,
+          "h": 819150
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 942975,
+          "y": 4431953,
+          "w": 10560749,
+          "h": 438150
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 685800,
+          "y": 5384453,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 685800,
+          "y": 6081712,
+          "w": 10820400,
+          "h": 0
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 10,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 6,
+      "textOverlaps": [],
+      "textBoundsCount": 6,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 5,
+      "editableText": 12,
+      "nativeShapes": 16,
+      "nativeConnectors": 1,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "x": 942975,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "x": 942975,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 269974
+        },
+        {
+          "ok": true,
+          "x": 4619625,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "x": 4619625,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 269974
+        },
+        {
+          "ok": true,
+          "x": 8296275,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "x": 8296275,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 269974
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 4174778,
+          "w": 10201275,
+          "h": 317599
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 4644777,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 685800,
+          "y": 1888778,
+          "w": 3467100,
+          "h": 2057400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 942975,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 942975,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 269974
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 4362450,
+          "y": 1888778,
+          "w": 3467100,
+          "h": 2057400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 4619625,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 4619625,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 269974
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 8039100,
+          "y": 1888778,
+          "w": 3467100,
+          "h": 2057400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 10,
+          "x": 8296275,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 11,
+          "x": 8296275,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 269974
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 12,
+          "x": 685800,
+          "y": 4174778,
+          "w": 10201275,
+          "h": 317599
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 13,
+          "x": 685800,
+          "y": 4644777,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 14,
+          "x": 685800,
+          "y": 6081712,
+          "w": 10820400,
+          "h": 0
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 15,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 16,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 12,
+      "textOverlaps": [],
+      "textBoundsCount": 12,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 6,
+      "editableText": 10,
+      "nativeShapes": 21,
+      "nativeConnectors": 6,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "x": 895350,
+          "y": 1964978,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "x": 895350,
+          "y": 2644973,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "x": 895350,
+          "y": 3324969,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "x": 895350,
+          "y": 4004965,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "x": 895350,
+          "y": 4684961,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 5279231,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 685800,
+          "y": 1831628,
+          "w": 10820400,
+          "h": 575221
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 704850,
+          "y": 1964978,
+          "w": 0,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 895350,
+          "y": 1964978,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 685800,
+          "y": 2511623,
+          "w": 10820400,
+          "h": 575221
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 704850,
+          "y": 2644973,
+          "w": 0,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 895350,
+          "y": 2644973,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 685800,
+          "y": 3191619,
+          "w": 10820400,
+          "h": 575221
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 10,
+          "x": 704850,
+          "y": 3324969,
+          "w": 0,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 11,
+          "x": 895350,
+          "y": 3324969,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 12,
+          "x": 685800,
+          "y": 3871615,
+          "w": 10820400,
+          "h": 575221
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 13,
+          "x": 704850,
+          "y": 4004965,
+          "w": 0,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 14,
+          "x": 895350,
+          "y": 4004965,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 15,
+          "x": 685800,
+          "y": 4551611,
+          "w": 10820400,
+          "h": 575221
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 16,
+          "x": 704850,
+          "y": 4684961,
+          "w": 0,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 17,
+          "x": 895350,
+          "y": 4684961,
+          "w": 10648188,
+          "h": 308521
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 18,
+          "x": 685800,
+          "y": 5279231,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 19,
+          "x": 685800,
+          "y": 6081712,
+          "w": 10820400,
+          "h": 0
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 20,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 21,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 10,
+      "textOverlaps": [],
+      "textBoundsCount": 10,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 7,
+      "editableText": 17,
+      "nativeShapes": 6,
+      "nativeConnectors": 1,
+      "charts": 0,
+      "tables": 1,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 5098703,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "element": "graphicFrame",
+          "index": 3,
+          "x": 685800,
+          "y": 1774478,
+          "w": 9144000,
+          "h": 914400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 685800,
+          "y": 5098703,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 685800,
+          "y": 6081712,
+          "w": 10820400,
+          "h": 0
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 5,
+      "textOverlaps": [],
+      "textBoundsCount": 5,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 8,
+      "editableText": 12,
+      "nativeShapes": 16,
+      "nativeConnectors": 1,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "x": 942975,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "x": 942975,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 539948
+        },
+        {
+          "ok": true,
+          "x": 4619625,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "x": 4619625,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 539948
+        },
+        {
+          "ok": true,
+          "x": 8296275,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "x": 8296275,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 539948
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 4174778,
+          "w": 10201275,
+          "h": 317599
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 4644777,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 685800,
+          "y": 1888778,
+          "w": 3467100,
+          "h": 2057400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 942975,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 942975,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 539948
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 4362450,
+          "y": 1888778,
+          "w": 3467100,
+          "h": 2057400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 4619625,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 4619625,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 539948
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 8039100,
+          "y": 1888778,
+          "w": 3467100,
+          "h": 2057400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 10,
+          "x": 8296275,
+          "y": 2324249,
+          "w": 3011805,
+          "h": 209550
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 11,
+          "x": 8296275,
+          "y": 2762399,
+          "w": 3011805,
+          "h": 539948
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 12,
+          "x": 685800,
+          "y": 4174778,
+          "w": 10201275,
+          "h": 317599
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 13,
+          "x": 685800,
+          "y": 4644777,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 14,
+          "x": 685800,
+          "y": 6081712,
+          "w": 10820400,
+          "h": 0
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 15,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 16,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 12,
+      "textOverlaps": [],
+      "textBoundsCount": 12,
+      "textBoundsPass": true
+    },
+    {
+      "slide": 9,
+      "editableText": 8,
+      "nativeShapes": 11,
+      "nativeConnectors": 2,
+      "charts": 0,
+      "tables": 0,
+      "images": 0,
+      "textBounds": [
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 1774478,
+          "w": 10298430,
+          "h": 353467
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 2413695,
+          "w": 10201275,
+          "h": 635198
+        },
+        {
+          "ok": true,
+          "x": 942975,
+          "y": 3639443,
+          "w": 10560749,
+          "h": 219075
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 4372868,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "elementBounds": [
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 1,
+          "x": 685800,
+          "y": 552450,
+          "w": 11036808,
+          "h": 161925
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 2,
+          "x": 685800,
+          "y": 981075,
+          "w": 10492740,
+          "h": 450503
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 3,
+          "x": 685800,
+          "y": 1774478,
+          "w": 10298430,
+          "h": 353467
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 4,
+          "x": 685800,
+          "y": 2413695,
+          "w": 10201275,
+          "h": 635198
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 5,
+          "x": 685800,
+          "y": 3277493,
+          "w": 10820400,
+          "h": 942975
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 6,
+          "x": 709613,
+          "y": 3448943,
+          "w": 0,
+          "h": 600075
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 7,
+          "x": 942975,
+          "y": 3639443,
+          "w": 10560749,
+          "h": 219075
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 8,
+          "x": 685800,
+          "y": 4372868,
+          "w": 11036808,
+          "h": 152400
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 9,
+          "x": 685800,
+          "y": 6081712,
+          "w": 10820400,
+          "h": 0
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 10,
+          "x": 685800,
+          "y": 6324600,
+          "w": 2583564,
+          "h": 142875
+        },
+        {
+          "ok": true,
+          "element": "sp",
+          "index": 11,
+          "x": 11127432,
+          "y": 6324600,
+          "w": 386343,
+          "h": 142875
+        }
+      ],
+      "overlaps": [],
+      "smallText": [],
+      "editableTextShapes": 8,
+      "textOverlaps": [],
+      "textBoundsCount": 8,
+      "textBoundsPass": true
+    }
+  ],
+  "errors": [
+    "Native PowerPoint table count, slide placement, or cell values differ from the storyboard"
+  ],
+  "warnings": [
+    "Build review report or its source inputs are missing; source completeness could not be checked"
+  ],
+  "objectiveFindings": [
+    {
+      "id": "STRUCTURE-ERROR",
+      "severity": "error",
+      "message": "Native PowerPoint table count, slide placement, or cell values differ from the storyboard"
+    },
+    {
+      "id": "STRUCTURE-WARNING",
+      "severity": "warning",
+      "message": "Build review report or its source inputs are missing; source completeness could not be checked"
+    },
+    {
+      "id": "FONT-RISK-001",
+      "severity": "review",
+      "message": "Font substitution is not encoded as a verifiable PPTX fact; compare these theme fonts with the target system.",
+      "font_families": []
+    }
+  ],
+  "humanReview": {
+    "status": "render_blocked",
+    "pages": [
+      {
+        "slide": 1,
+        "slide_id": "S01",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 2,
+        "slide_id": "S02",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 3,
+        "slide_id": "S03",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 4,
+        "slide_id": "S04",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 5,
+        "slide_id": "S05",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 6,
+        "slide_id": "S06",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 7,
+        "slide_id": "S07",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 8,
+        "slide_id": "S08",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      },
+      {
+        "slide": 9,
+        "slide_id": "S09",
+        "status": "pending",
+        "asset_ids": [],
+        "review_prompts": [
+          "Check text fit, clipping, visual hierarchy and contrast at presentation size.",
+          "Check for unintended overlaps and connector crossings.",
+          "Check that visuals support the slide assertion and their source/license are appropriate.",
+          "Check chart labels and legend against the cited data.",
+          "Confirm theme fonts are available and were not substituted in the rendered deck."
+        ],
+        "reviewer": null,
+        "notes": null
+      }
+    ]
+  },
+  "visualReview": {
+    "status": "render_blocked",
+    "renderer": null,
+    "preview_manifest": null,
+    "decision_manifest": null,
+    "pages": [
+      {
+        "slide": 1,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 2,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 3,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 4,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 5,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 6,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 7,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 8,
+        "png": null,
+        "rendered": false
+      },
+      {
+        "slide": 9,
+        "png": null,
+        "rendered": false
+      }
+    ],
+    "reason": "Render every page with scripts/preview.mjs, then inspect each image and record the reviewer decision."
+  }
+}
