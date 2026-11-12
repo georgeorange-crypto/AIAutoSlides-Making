@@ -14,7 +14,7 @@ Date: 2026-11-12 · Scope: one deterministic, source-linked code layout.
 | Check | Result |
 |---|---|
 | Targeted tests | Passed: 23 tests, including snippet validation, wrap preservation, PPTX editability, evidence lineage and QA exact-match. |
-| Full `npm run check` | The latest shared-worktree run reached 111 tests: 110 passed and one unrelated uncommitted local API test failed (`tests/api.test.mjs`: create-project returned HTTP 500 instead of 201). The earlier Slidev IR assertion wording failure is resolved. The complete downstream `npm run check` chain therefore stopped at the test stage. |
+| Full `npm run check` | The latest shared-worktree test run reached 116 tests: 115 passed and one unrelated uncommitted local API lifecycle test failed (`tests/api.test.mjs`: job state was `running` rather than `completed`). The earlier Slidev IR assertion wording failure is resolved; the full check chain still stops at the test stage. |
 | Example | Validated and built: 2 slides, 6 native code text objects (five source lines, one wrapped). |
 | QA | No structural errors; exact code match true. Evidence warning is expected because the fixture is synthetic and unverified. |
 | Preview | PowerPoint 16.0 exported PDF; Poppler rendered both PNG pages. Both were visually inspected; code and filename are legible and fit within the slide. |

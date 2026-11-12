@@ -40,7 +40,7 @@ node src/qa.mjs outputs/multimodal/ai-systems-synthetic.pptx
 | Assets and lineage | 2 local SVG picture objects with source/license/hash and slide IDs S02 and S06; 10 slide records, 1 figure record and 1 native architecture record. |
 | Render | PowerPoint 16.0 produced PDF; Poppler 26.07 produced all 10 page PNGs. The PDF and all PNGs were opened and visually inspected. No clipping or missing pages observed. |
 | QA review state | Render manifest matches the built deck. Page review remains `pending` because no named human reviewer has recorded a decision; visual inspection in this engineering pass does not impersonate that sign-off. |
-| Full project checks | The latest shared-worktree `npm run check` run reached 111 tests: 110 passed and one unrelated uncommitted local API test failed (`tests/api.test.mjs`: create-project returned HTTP 500 instead of 201). The earlier Slidev IR assertion wording failure is resolved. The complete downstream check chain stopped at the test stage. Asset/code/timeline focused tests passed separately (8/8). |
+| Full project checks | The latest shared-worktree `npm run check` run reached 116 tests: 115 passed and one unrelated uncommitted local API lifecycle test failed (`tests/api.test.mjs`: job state was `running` rather than `completed`). The earlier Slidev IR assertion wording failure is resolved. The complete downstream check chain stopped at the test stage. Asset/code/timeline focused tests passed separately (8/8). |
 
 ## Remaining limits
 

@@ -5,6 +5,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {loadEvidence,validateDeck} from './validate.mjs';
 import {auditDraftNumbers,critiqueDeck} from './critic.mjs';
+import {createPlannerContract,createPlannerDraft} from './ai-plan-contract.mjs';
 
 const argv=process.argv.slice(2);
 function arg(name,fallback){const i=argv.indexOf(`--${name}`);return i>=0?argv[i+1]:fallback;}
@@ -26,17 +27,7 @@ if(!Number.isFinite(duration)||duration<1||duration>120)throw new Error('--durat
 const ledger=loadEvidence(path.resolve(arg('evidence','sources/evidence.json')));
 const brief=fs.readFileSync(input,'utf8');
 if(brief.length>45000) throw new Error('Source text is >45k characters; curate it manually, do not silently truncate');
-const slidesSchema={
-  type:'object',additionalProperties:false,required:['title','subtitle','slides'],properties:{
-    title:{type:'string'},subtitle:{type:'string'},slides:{type:'array',items:{type:'object',additionalProperties:false,
-      required:['type','title','kicker','body','evidence_ids'],properties:{
-        type:{type:'string',enum:['cover','statement','bullets','closing']},title:{type:'string'},
-        kicker:{type:'string'},body:{type:'array',items:{type:'string'}},evidence_ids:{type:'array',items:{type:'string'}}
-      }
-    }}
-  }
-};
-const policy=`Create exactly 6 to 9 slides as JSON for an evidence-first talk for audience profile ${audienceProfile}, target duration ${duration} minutes, goal: ${goal}. Use ONLY factual claims in the brief. NEVER invent numeric results, statistical significance, citations, company endorsement, or benchmarks. The only permitted evidence IDs are ${ledger.entries.map(x=>x.id).join(', ')}. Cite a source only when its ledger entry directly supports the slide claim. When a claim is a hypothesis, identify it as such and do not present it as a finding. Use a clear narrative, preserve relevant uncertainty and limitations, and keep text concise. Do not invent metrics, chart values, or confidence intervals; chart and metric slides are curated manually after source review. Return the exact required JSON schema.`;
+const {schema:slidesSchema,policy}=createPlannerContract({audienceProfile,duration,goal,evidenceIds:ledger.entries.map(x=>x.id)});
 const payload={model:process.env.OPENAI_MODEL||'gpt-6-luna',
   input:[{role:'developer',content:policy},{role:'user',content:`SOURCE BRIEF:\n${brief}\n\nEVIDENCE LEDGER:\n${JSON.stringify(ledger.entries)}`}],
   text:{format:{type:'json_schema',name:'slide_storyboard',schema:slidesSchema,strict:true}}
@@ -49,7 +40,7 @@ async function main(){
  const text=json.output_text||json.output?.flatMap(o=>o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text).join('');
  if(!text)throw new Error('Response did not contain output_text; inspect API response manually');
  const response=JSON.parse(text);
-const planned={meta:{title:response.title,subtitle:response.subtitle,audience:audienceProfile,audience_profile:audienceProfile,goal,duration_minutes:duration,theme:arg('theme','keynote-minimal'),status:'AI-GENERATED DRAFT — HUMAN REVIEW REQUIRED',draft_origin:'OpenAI Responses API',requires_human_review:true},slides:response.slides};
+const planned=createPlannerDraft(response,{audienceProfile,duration,goal,theme:arg('theme','keynote-minimal')});
  const {deck,errors,warnings}=validateDeck(planned,ledger);
  if(errors.length)throw new Error(`Model output failed validation: ${errors.join('; ')}`);
  if(deck.slides.length<6||deck.slides.length>9)throw new Error('AI must create 6–9 slides; regenerate or edit manually');

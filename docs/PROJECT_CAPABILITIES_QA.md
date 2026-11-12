@@ -54,12 +54,12 @@ M3 已加入受众/目标/时长字段、可选 AI 分镜、按规则 ID 和页�
 
 ## Q5. 有自主撰写文案和生成逐页解说的能力吗？
 
-**答：有受限的可选 AI 分镜草稿能力；讲者备注可写入 PPTX，但 AI 规划器目前不生成逐页讲稿。**
+**答：有受限的可选 AI 分镜规划草稿；现在会为每页建议论点、布局、素材需求并生成讲者备注，但所有结果仍须人工审核。**
 
-- 可选 `npm run plan:ai` 将本地 brief 与证据台账发送到 OpenAI Responses API，并生成受 JSON Schema 约束的标题和正文草稿。
-- 规划提示约束 AI 不得编造数字、统计显著性、引用或基准结果。规划器仅允许 cover、statement、bullets、closing 等基本页面类型；图表和指标需要人工从经过审核的数据中补入。
+- 可选 `npm run plan:ai` 将本地 brief 与证据台账发送到 OpenAI Responses API，并按受约束 Schema 生成叙事结构与逐页草稿；每页包括论点、受支持的布局、素材需求、证据 ID 和讲者备注。
+- 规划提示约束 AI 不得编造数字、统计显著性、引用或实验结论。素材需求只是待制作建议，不会自动下载或生成图片；数据图表不得带模型编造的数值。规划器仅允许 cover、statement、bullets、closing 等基本页面类型，其他可编辑图形需要人工从经过审核的数据和描述中补入。
 - 该流程需要配置 API 密钥，可能产生费用。私密材料不能未经授权上传。生成文案是待人工核验的草稿，不代表事实已验证。
-- Storyboard Schema 支持 `speaker_notes`，PPTX 渲染器可以将其写入演讲者备注；Markdown 导入也能保留该字段。但当前 AI 规划器的输出 Schema 不含 `speaker_notes`，因此要人工补写，才能得到逐页解说。若完整讲稿已写入备注，Critic 可依据用户提供的 WPM 和时间窗估算时长；这是算术检查，不是彩排或语速识别。
+- 规划结果明确保持 `requires_human_review:true`，已知 ID 以外的引用会被本地验证拒绝；素材/引用语义仍须人工核验，任何来源均不会自动变为 verified。审核批准仍由现有 content-hash 绑定的人工审核门控制。若完整讲稿已写入备注，Critic 可依据用户提供的 WPM 和时间窗估算时长；这是算术检查，不是彩排或语速识别。
 
 参考：`src/ai-plan.mjs`、`src/render.mjs`、`src/import-markdown.mjs`、`docs/SCHEMA.md` 的 AI storyboard 和 `speaker_notes` 说明、`docs/CONFIGURATION.md` 的 API 说明。
 

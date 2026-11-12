@@ -117,7 +117,7 @@ The optional `src/ai-plan.mjs` path requests schema-constrained slide JSON and i
 
 ### AI storyboard format
 
-The optional planner emits a restricted root `{title, subtitle, slides}` which is normalized at build time. It emits only `cover`, `statement`, `bullets`, `closing`; manually add numeric charts/metrics after evidence review.
+The optional planner emits a schema-constrained draft with `{title, subtitle, narrative_structure, structure_rationale, slides}`. Each slide includes an assertion, one supported layout, evidence IDs, `visual_needs`, and `speaker_notes`. Visual needs are planning suggestions; this planner does not download or create assets and does not construct chart values. It emits only `cover`, `statement`, `bullets`, `closing`; manually add native charts, metrics, architecture, process, tables, code, or timelines after source review. Local validation rejects unknown evidence IDs, source `verified` state is never changed, and the draft stays behind `requires_human_review:true` until an explicit content-hash-bound reviewer decision. The API call is opt-in; local validation and the deterministic storyboard path do not require an API key.
 
 ## Styling
 
