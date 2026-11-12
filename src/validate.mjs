@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {empiricalCdfStep} from './statistics.mjs';
+import {empiricalCdfStep,studentTMeanInterval} from './statistics.mjs';
 
 const VALID_TYPES = new Set(['cover','statement','bullets','metrics','chart','process','closing']);
 const MANUAL_ONLY_TYPES = new Set(['metrics','chart','process']);
@@ -74,6 +74,21 @@ export function validateDeck(input, ledger) {
       }
       else if (c && (!Number.isInteger(c.sample_size) || c.sample_size < 1)) warnings.push(`${where}: chart sample_size is missing; state the basis in notes before interpreting values`);
       if(c?.kind==='bar'&&c?.min_value!==undefined && c?.min_value>0) errors.push(`${where}: truncated chart axis can exaggerate differences; use a zero baseline for bar charts`);
+      if(c?.uncertainty){
+        const u=c.uncertainty,statSeries=series.length===1?series[0]:null;
+        if(c.kind!=='bar'||!statSeries||u.method!=='two-sided Student-t confidence interval for the mean; assumes independent, approximately normal run-level values'||u.confidence_level!==0.95||u.independent_unit!=='run_id'||u.minimum_runs_per_condition!==10||!Array.isArray(statSeries.run_values)||statSeries.run_values.length!==labels?.length||!Array.isArray(statSeries.error_minus)||!Array.isArray(statSeries.error_plus)||statSeries.error_minus.length!==labels?.length||statSeries.error_plus.length!==labels?.length||!Array.isArray(statSeries.run_ids)||statSeries.run_ids.length!==labels?.length||!Array.isArray(statSeries.observation_ids)||statSeries.observation_ids.length!==labels?.length||!Array.isArray(statSeries.source_rows)||statSeries.source_rows.length!==labels?.length)errors.push(`${where}: repeated-run uncertainty requires one bar series with complete values, run IDs, observation IDs, source rows, Student-t intervals, and the supported method`);
+        else{
+          const allRunIds=statSeries.run_ids.flat(),allObservationIds=statSeries.observation_ids.flat();
+          if(new Set(allRunIds).size!==allRunIds.length||new Set(allObservationIds).size!==allObservationIds.length)errors.push(`${where}: run_id and observation_id values must be unique across all conditions`);
+          for(let j=0;j<labels.length;j++){
+          const vals=statSeries.run_values[j],ids=statSeries.run_ids[j],obs=statSeries.observation_ids[j],locators=statSeries.source_rows[j];
+          if(!Array.isArray(vals)||!Array.isArray(ids)||!Array.isArray(obs)||!Array.isArray(locators)||vals.length<10||ids.length!==vals.length||obs.length!==vals.length||locators.length!==vals.length||ids.some((id,i)=>!isString(id)||ids.indexOf(id)!==i)||obs.some((id,i)=>!isString(id)||obs.indexOf(id)!==i)||locators.some(n=>!Number.isInteger(n)||n<2)||statSeries.error_minus[j]<0||statSeries.error_plus[j]<0){errors.push(`${where}: each condition requires at least 10 finite uniquely identified run observations and nonnegative interval widths`);break;}
+          try{const expected=studentTMeanInterval(vals,{confidence:u.confidence_level});if(Math.abs(expected.mean-statSeries.values[j])>1e-10||Math.abs(expected.error_minus-statSeries.error_minus[j])>1e-10||Math.abs(expected.error_plus-statSeries.error_plus[j])>1e-10)errors.push(`${where}: mean or Student-t interval does not match raw run_values for ${labels[j]}`);}catch(error){errors.push(`${where}: ${error.message}`);}
+          if(vals.every(v=>v===vals[0]))warnings.push(`${where}: ${labels[j]} has zero observed run-to-run variance and a zero-width interval; confirm measurement precision and run independence`);
+        }
+        }
+        if(c.sample_size!==undefined&&statSeries?.run_values?.length&&c.sample_size!==Math.min(...statSeries.run_values.map(v=>v.length)))errors.push(`${where}: sample_size must equal the minimum independent run count across conditions`);
+      }
       if(!(s.evidence_ids?.length)) errors.push(`${where}: charts require evidence IDs`);
     }
     if(s.type==='process' && (!Array.isArray(s.steps)||s.steps.length<2||s.steps.length>6||s.steps.some(x=>!boundedText(x,45)))) errors.push(`${where}: process requires 2–6 steps under 45 characters`);

@@ -45,3 +45,7 @@ jobs:
             outputs/synthetic-cdf-demo.evidence-manifest.json
             outputs/synthetic-cdf-demo.qa.json
             outputs/synthetic-cdf-demo.qa.md
+            outputs/synthetic-repeated-demo.pptx
+            outputs/synthetic-repeated-demo.evidence-manifest.json
+            outputs/synthetic-repeated-demo.qa.json
+            outputs/synthetic-repeated-demo.qa.md

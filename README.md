@@ -55,7 +55,7 @@ node src/qa.mjs outputs/synthetic-line-demo.pptx
 node scripts/preview.mjs outputs/synthetic-line-demo.pptx
 ```
 
-Line values may be signed; bar values must be nonnegative and start at zero. This step uses synthetic values. See the supported multi-series, scatter, and CDF chart workflow below. Waterfall and repeated-run uncertainty displays remain future work.
+Line values may be signed; bar values must be nonnegative and start at zero. This step uses synthetic values. See the supported multi-series, scatter, and CDF chart workflows below. For repeated runs, see the Student-t interval workflow below.
 
 ### Local experiment run audit
 
@@ -100,6 +100,21 @@ npm run from:scatter
 npm run from:cdf
 ```
 
+### Repeated-run summary with Student-t intervals
+
+The local repeated-run importer accepts a CSV with `run_id,run_timestamp,observation_id,condition,metric,value,unit`. Each row must be one pre-aggregated measurement from one independent run; the current unpaired implementation requires globally unique run and observation IDs, one metric/unit, at least 10 runs per condition, and 2–9 conditions. It calculates a two-sided 95% Student-t interval for the mean and writes asymmetric-capable native PowerPoint error bars plus source row IDs. The interval assumes independent, approximately normal run-level values. Review the run design and distribution before interpreting it; this is not a significance test and does not adjust for protocol drift, paired runs, multiple comparisons, or within-run sampling.
+
+The committed example is synthetic and the slide warns accordingly. To use your own authorized local export, pass its path; the evidence is marked `verified:false` until you verify it against the source records. Outputs are under ignored `outputs/` and should not be pushed if they contain private research data.
+
+```powershell
+npm run from:repeated
+# use a local experiment file instead:
+node src/import-repeated.mjs D:\data\run-summary.csv outputs\my-runs\storyboard.json
+node src/cli.mjs validate --input outputs/my-runs/storyboard.json --evidence outputs/my-runs/storyboard-evidence.json
+node src/cli.mjs build --input outputs/my-runs/storyboard.json --evidence outputs/my-runs/storyboard-evidence.json --out outputs/my-runs.pptx
+node src/qa.mjs outputs/my-runs.pptx
+```
+
 ## Themes and local rendering
 
 Theme tokens live in `themes/*.json`; current options are `academic-light`, `tech-dark`, and `keynote-minimal`. Themes use installed fonts only; check font substitution on the actual presentation machine.
@@ -119,7 +134,7 @@ Windows rendering uses Microsoft PowerPoint if installed. If COM export is unava
 - Audience and context matter: investment-pitch guidance is not a rulebook for systems research talks.
 - Third-party guidance is translated into independent checks; no copyrighted templates, fonts, or artwork are bundled.
 
-See [`docs/RESEARCH_APPLICATION_MATRIX.md`](docs/RESEARCH_APPLICATION_MATRIX.md) for source-to-code traceability, [`docs/PRODUCT_BENCHMARK.md`](docs/PRODUCT_BENCHMARK.md) for a measurement protocol, [`docs/SCHEMA.md`](docs/SCHEMA.md), and [`docs/CODEX_MASTER_PROMPT.md`](docs/CODEX_MASTER_PROMPT.md) for the roadmap.
+See [`docs/PROJECT_CAPABILITIES_QA.md`](docs/PROJECT_CAPABILITIES_QA.md) for the current capability Q&A; [`docs/LOCAL_SLIDE_GUIDANCE.md`](docs/LOCAL_SLIDE_GUIDANCE.md) for an offline summary of presentation guidance by institution and use case; [`docs/REFERENCES.md`](docs/REFERENCES.md) for source links; [`docs/RESEARCH_APPLICATION_MATRIX.md`](docs/RESEARCH_APPLICATION_MATRIX.md) for source-to-code traceability; [`docs/PRODUCT_BENCHMARK.md`](docs/PRODUCT_BENCHMARK.md) for a measurement protocol; and [`docs/SCHEMA.md`](docs/SCHEMA.md) and [`docs/CODEX_MASTER_PROMPT.md`](docs/CODEX_MASTER_PROMPT.md) for data contracts and roadmap.
 
 ## CI and repository state
 
@@ -127,7 +142,7 @@ GitHub Actions runs `npm ci` and `npm run check`, then uploads both PPTX outputs
 
 ## Verified in this checkout
 
-On 2026-11-12, `npm ci`, `npm run check`, and PowerPoint-to-PDF-to-PNG preview completed on this Windows checkout (Node.js 24.14.0, PptxGenJS 4.0.1, fflate 0.8.3). Manual page review covers the 7-slide research deck, the 8-slide Markdown deck, and five 8-slide CSV chart decks: bar, line, multi-series line, scatter, and ECDF. Structural QA confirms text bounds, source IDs, native chart objects, theme contrast, exact chart-cache/workbook values, and the raw-observation-to-ECDF transform. The first review caught low-contrast dark chart axes; the current render uses theme-colored axis labels. QA cannot detect every font, overlap, or clipping problem, so presentation-machine review is still required. The research-demo report intentionally remains `warning` because E1/E2 are unverified and its chart lacks a sample count. Synthetic fixture reports warn by design and are not empirical evidence.
+On 2026-11-12, `npm ci`, `npm run check`, and PowerPoint-to-PDF-to-PNG preview completed on this Windows checkout (Node.js 24.14.0, PptxGenJS 4.0.1, fflate 0.8.3). Manual page review covers the 7-slide research deck, the 8-slide Markdown deck, and five 8-slide CSV chart decks: bar, line, multi-series line, scatter, and ECDF. The repeated-run Student-t deck has structural QA coverage (native error-bar values equal source intervals), but its fresh pixel preview has not been manually reviewed because the PowerPoint COM renderer hung on that attempt. Other visual and QA limitations remain; the research-demo report warns because E1/E2 are unverified and its chart lacks a sample count. Synthetic fixture reports warn by design and are not empirical evidence.
 
 ## License
 

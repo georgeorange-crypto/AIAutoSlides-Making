@@ -1,0 +1,22 @@
+# SYNTHETIC — made-up teaching values; not measured research data
+run_id,run_timestamp,observation_id,condition,metric,value,unit
+baseline-01,2026-01-01T00:00:00Z,obs-b01,Baseline,latency,52,ms
+baseline-02,2026-01-02T00:00:00Z,obs-b02,Baseline,latency,49,ms
+baseline-03,2026-01-03T00:00:00Z,obs-b03,Baseline,latency,55,ms
+baseline-04,2026-01-04T00:00:00Z,obs-b04,Baseline,latency,51,ms
+baseline-05,2026-01-05T00:00:00Z,obs-b05,Baseline,latency,48,ms
+baseline-06,2026-01-06T00:00:00Z,obs-b06,Baseline,latency,57,ms
+baseline-07,2026-01-07T00:00:00Z,obs-b07,Baseline,latency,53,ms
+baseline-08,2026-01-08T00:00:00Z,obs-b08,Baseline,latency,50,ms
+baseline-09,2026-01-09T00:00:00Z,obs-b09,Baseline,latency,54,ms
+baseline-10,2026-01-10T00:00:00Z,obs-b10,Baseline,latency,51,ms
+candidate-01,2026-01-01T00:00:00Z,obs-c01,Candidate,latency,46,ms
+candidate-02,2026-01-02T00:00:00Z,obs-c02,Candidate,latency,44,ms
+candidate-03,2026-01-03T00:00:00Z,obs-c03,Candidate,latency,49,ms
+candidate-04,2026-01-04T00:00:00Z,obs-c04,Candidate,latency,47,ms
+candidate-05,2026-01-05T00:00:00Z,obs-c05,Candidate,latency,42,ms
+candidate-06,2026-01-06T00:00:00Z,obs-c06,Candidate,latency,50,ms
+candidate-07,2026-01-07T00:00:00Z,obs-c07,Candidate,latency,45,ms
+candidate-08,2026-01-08T00:00:00Z,obs-c08,Candidate,latency,43,ms
+candidate-09,2026-01-09T00:00:00Z,obs-c09,Candidate,latency,48,ms
+candidate-10,2026-01-10T00:00:00Z,obs-c10,Candidate,latency,46,ms
