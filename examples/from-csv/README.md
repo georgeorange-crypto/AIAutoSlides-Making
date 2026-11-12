@@ -11,3 +11,5 @@ node src/cli.mjs build --input outputs/synthetic-csv/storyboard.json --evidence 
 ```
 
 The importer reads category, value, unit, and sample count from the CSV; preserves a SHA-256 locator; and writes an eight-slide storyboard plus its evidence ledger. All values remain explicitly synthetic.
+
+For additional chart forms, `synthetic-multiseries.csv` demonstrates repeated category/series rows, `synthetic-scatter.csv` carries explicit x/y units, and `synthetic-cdf.csv` contains raw observations. The CDF importer groups ties and emits the right-continuous step curve where each level is the cumulative observation count divided by raw `n`. These fixtures are synthetic and must not be treated as research findings.

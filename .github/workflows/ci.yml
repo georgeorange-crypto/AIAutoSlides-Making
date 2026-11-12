@@ -33,3 +33,15 @@ jobs:
             outputs/synthetic-line-demo.evidence-manifest.json
             outputs/synthetic-line-demo.qa.json
             outputs/synthetic-line-demo.qa.md
+            outputs/synthetic-multiseries-demo.pptx
+            outputs/synthetic-multiseries-demo.evidence-manifest.json
+            outputs/synthetic-multiseries-demo.qa.json
+            outputs/synthetic-multiseries-demo.qa.md
+            outputs/synthetic-scatter-demo.pptx
+            outputs/synthetic-scatter-demo.evidence-manifest.json
+            outputs/synthetic-scatter-demo.qa.json
+            outputs/synthetic-scatter-demo.qa.md
+            outputs/synthetic-cdf-demo.pptx
+            outputs/synthetic-cdf-demo.evidence-manifest.json
+            outputs/synthetic-cdf-demo.qa.json
+            outputs/synthetic-cdf-demo.qa.md

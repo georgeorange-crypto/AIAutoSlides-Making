@@ -75,22 +75,26 @@ function chart(s,d,t,pptx) {
   addTop(s,d,t);addTitle(s,d,t);
   const c=d.chart;
   panel(s,0.75,2.61,11.82,3.46,t);
-  const data=[{name:c.series_name||'Series',labels:c.categories,values:c.values}];
-  const chartType=c.kind==='line'?pptx.ChartType.line:pptx.ChartType.bar;
+  const scatter=['scatter','cdf'].includes(c.kind);
+  const series=c.series||[{name:c.series_name||'Series',values:c.values}];
+  const data=scatter?[{name:'X-Axis',values:c.x_values},...series.map(v=>({name:v.name,values:v.values}))]:series.map(v=>({name:v.name,labels:c.categories,values:v.values}));
+  const chartType=c.kind==='line'?pptx.ChartType.line:scatter?pptx.ChartType.scatter:pptx.ChartType.bar;
   s.addChart(chartType,data,{
     x:1.03,y:2.86,w:11.20,h:2.91,
     catAxisLabelFontFace:t.bodyFontFace,catAxisLabelFontSize:13.5,
     valAxisLabelFontFace:t.bodyFontFace,valAxisLabelFontSize:11.5,
     catAxisLabelColor:t.text,valAxisLabelColor:t.text,
     catAxisLineColor:t.muted,valAxisLineColor:t.muted,
-    showLegend:false,showValue:true,showTitle:false,showBorder:false,
+    showLegend:series.length>1,legendPos:'b',legendColor:t.text,showValue:!scatter,showTitle:false,showBorder:false,
     showCatName:false,showSerName:false,
     dataLabelPosition:'outEnd',dataLabelColor:t.text,dataLabelFormatCode:'0.###',
-    chartColors:[t.accent],valGridLine:{color:t.line,width:0.6},
+    chartColors:[t.accent,t.accent2,t.warning,t.text,'6A7D90','8757A5'],valGridLine:{color:t.line,width:0.6},
     grouping:c.kind==='line'?'standard':'clustered',barDir:'col',
-    lineDataSymbol:c.kind==='line'?'circle':'none',lineDataSymbolSize:6,lineSize:2.5
+    valAxisMinVal:c.kind==='cdf'?0:undefined,valAxisMaxVal:c.kind==='cdf'?1:undefined,
+    lineDataSymbol:c.kind==='line'||c.kind==='scatter'?'circle':'none',lineDataSymbolSize:6,lineSize:c.kind==='cdf'?2.5:c.kind==='scatter'?0:2.5
   });
   txt(s,c.y_axis_label||c.unit,{x:0.91,y:2.43,w:4.0,h:0.22,fontFace:t.bodyFontFace,fontSize:10.5,color:t.muted,fit:'shrink'});
+  if(scatter&&c.x_axis_label)txt(s,c.x_axis_label,{x:4.10,y:5.83,w:4.8,h:0.21,fontFace:t.bodyFontFace,fontSize:9.5,color:t.muted,align:'center',fit:'shrink'});
   if(d.assertion_title&&d.assertion_title!==d.title)txt(s,d.assertion_title,{x:0.86,y:6.18,w:11.5,h:0.30,fontFace:t.bodyFontFace,fontSize:13.4,bold:true,color:t.text,fit:'shrink'});
   if((d.body||[])[0])txt(s,d.body[0],{x:0.86,y:d.assertion_title&&d.assertion_title!==d.title?6.51:6.24,w:11.5,h:0.28,fontFace:t.bodyFontFace,fontSize:11.4,color:t.muted,fit:'shrink'});
 }

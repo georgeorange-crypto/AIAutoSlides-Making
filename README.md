@@ -80,7 +80,13 @@ node src/qa.mjs outputs/my-talk.pptx
 node scripts/preview.mjs outputs/my-talk.pptx
 ```
 
-Supported slide types: `cover`, `statement`, `metrics`, `chart` (native bar or line chart), `process`, `bullets`, `closing`. Deck ratio is fixed at 16:9. Optional slide fields include `slide_id`, `assertion_title`, `speaker_notes`, and one of four reusable layouts: `assertion-evidence`, `two-column-contrast`, `metric-focus`, `chart-and-takeaway`.
+Supported slide types: `cover`, `statement`, `metrics`, `chart` (native bar, line, scatter or empirical CDF), `process`, `bullets`, `closing`. Deck ratio is fixed at 16:9. Bar/line CSV can use a `series` column for up to six aligned series; scatter takes numeric `x`, `x_unit`, `value`, and `unit`; CDF imports raw `value` observations and computes a right-continuous empirical staircase with grouped ties. Optional slide fields include `slide_id`, `assertion_title`, `speaker_notes`, and one of four reusable layouts: `assertion-evidence`, `two-column-contrast`, `metric-focus`, `chart-and-takeaway`.
+
+```powershell
+npm run from:multiseries
+npm run from:scatter
+npm run from:cdf
+```
 
 ## Themes and local rendering
 
@@ -109,7 +115,7 @@ GitHub Actions runs `npm ci` and `npm run check`, then uploads both PPTX outputs
 
 ## Verified in this checkout
 
-On 2026-11-12, `npm ci`, `npm run check`, and PowerPoint-to-PDF-to-PNG preview completed on this Windows checkout (Node.js 24.14.0, PptxGenJS 4.0.1, fflate 0.8.3). I manually inspected all 7 research-demo pages, all 8 synthetic CSV pages, and all 8 synthetic line-chart pages at 1600×900. The first review caught low-contrast dark chart axes; the current render uses theme-colored axis labels. Structural QA confirms text bounds, source IDs, native chart objects, theme contrast, and exact agreement among storyboard values, chart caches, and embedded workbooks. It cannot detect every font, overlap, or clipping problem, so presentation-machine review is still required. The research-demo report intentionally remains `warning` because E1/E2 are unverified and its chart lacks a sample count. Synthetic CSV and line-chart reports warn because their teaching data is unverified by design.
+On 2026-11-12, `npm ci`, `npm run check`, and PowerPoint-to-PDF-to-PNG preview completed on this Windows checkout (Node.js 24.14.0, PptxGenJS 4.0.1, fflate 0.8.3). Manual page review covers the 7-slide research deck, the 8-slide Markdown deck, and five 8-slide CSV chart decks: bar, line, multi-series line, scatter, and ECDF. Structural QA confirms text bounds, source IDs, native chart objects, theme contrast, exact chart-cache/workbook values, and the raw-observation-to-ECDF transform. The first review caught low-contrast dark chart axes; the current render uses theme-colored axis labels. QA cannot detect every font, overlap, or clipping problem, so presentation-machine review is still required. The research-demo report intentionally remains `warning` because E1/E2 are unverified and its chart lacks a sample count. Synthetic fixture reports warn by design and are not empirical evidence.
 
 ## License
 

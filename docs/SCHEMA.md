@@ -37,14 +37,14 @@ The local build is **fully offline** after dependencies are installed; AI planni
 - `cover`: Hero text / optional 1–2 body lines.
 - `statement`: One compelling full-sentence assertion + 0–2 supporting points.
 - `metrics`: 1–4 metric cards; requires at least one evidence ID.
-- `chart`: Native PowerPoint bar or line chart; requires 2–9 finite values, unit, y-axis label, and at least one evidence ID. Bar values are nonnegative and use a zero baseline; line values may be signed.
+- `chart`: Native PowerPoint bar, line, scatter or empirical CDF chart; each requires finite data, explicit axis units/labels, and at least one evidence ID. Bar values are nonnegative and use a zero baseline; line and scatter values may be signed. Bar/line support 1–6 named series over 2–9 shared categories. Scatter uses numeric `x_values` plus one or more y series. CDF stores `raw_values` and must match the deterministic right-continuous step transform (ties grouped; cumulative count / raw n); `sample_size` equals the raw observation count.
 - `process`: 2–6 steps in horizontal sequence; lengths must fit.
 - `bullets`: 1–5 ordered next steps.
 - `closing`: Decision required and concrete next step.
 
 Each `evidence_ids` item must match an entry from `sources/evidence.json`. No source ID may be silently invented or ignored.
 
-`slide_id` is optional for legacy decks and should be stable (`S01`, `S02`, …) for maintained decks. Chart units and y-axis labels are required; `sample_size` must be a positive integer when supplied and otherwise triggers a warning. Bar charts must begin at zero. Only 16:9 is currently supported. `speaker_notes` is copied to PowerPoint speaker notes.
+`slide_id` is optional for legacy decks and should be stable (`S01`, `S02`, …) for maintained decks. Chart y-axis labels and units are required; scatter/CDF also require x-axis units/labels. Missing sample counts warn for bar/line charts. CDF raw observation count is mandatory. Bar charts must begin at zero. Only 16:9 is currently supported. `speaker_notes` is copied to PowerPoint speaker notes.
 
 ### Evidence ledger (`sources/evidence.json`)
 

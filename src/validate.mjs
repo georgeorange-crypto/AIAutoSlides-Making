@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {empiricalCdfStep} from './statistics.mjs';
 
 const VALID_TYPES = new Set(['cover','statement','bullets','metrics','chart','process','closing']);
 const MANUAL_ONLY_TYPES = new Set(['metrics','chart','process']);
@@ -60,8 +61,18 @@ export function validateDeck(input, ledger) {
     }
     if(s.type==='chart') {
       const c=s.chart;
-      if(!c || !['bar','line'].includes(c.kind) || !Array.isArray(c.categories) || !Array.isArray(c.values) || c.categories.length<2 || c.categories.length>9 || c.categories.length!==c.values.length || c.categories.some(x=>!isString(x)) || c.values.some(x=>typeof x!=='number'||!Number.isFinite(x)||(c.kind==='bar'&&x<0)) || !isString(c.unit) || !isString(c.y_axis_label)) errors.push(`${where}: bar/line chart requires 2–9 finite values matched to categories, unit, and y_axis_label`);
-      else if (!Number.isInteger(c.sample_size) || c.sample_size < 1) warnings.push(`${where}: chart sample_size is missing; state the basis in notes before interpreting values`);
+      const scatter=['scatter','cdf'].includes(c?.kind), series=c?.series||[{name:c?.series_name||'Series',values:c?.values}];
+      const labels=scatter?c?.x_values:c?.categories, pointLimit=c?.kind==='cdf'?400:scatter?200:9;
+      const validSeries=Array.isArray(series)&&series.length>=1&&series.length<=6&&series.every(v=>isString(v.name)&&Array.isArray(v.values)&&v.values.length===labels?.length&&v.values.every(x=>typeof x==='number'&&Number.isFinite(x)&&!(c.kind==='bar'&&x<0)));
+      const validAxes=scatter?Array.isArray(labels)&&labels.length>=2&&labels.length<=pointLimit&&labels.every(Number.isFinite)&&isString(c.x_unit):Array.isArray(labels)&&labels.length>=2&&labels.length<=pointLimit&&labels.every(isString);
+      if(!c || !['bar','line','scatter','cdf'].includes(c.kind) || !validAxes || !validSeries || !isString(c.unit) || !isString(c.y_axis_label)) errors.push(`${where}: ${c?.kind||'chart'} requires valid axes, 1–6 finite series, unit, and y_axis_label`);
+      if(c?.kind==='cdf'&&validSeries){
+        if(!Array.isArray(c.raw_values)||c.raw_values.length<2||c.raw_values.length>200||c.raw_values.some(v=>typeof v!=='number'||!Number.isFinite(v)))errors.push(`${where}: CDF raw_values must contain 2–200 finite observations`);
+        else{const expected=empiricalCdfStep(c.raw_values);if(JSON.stringify(expected.x_values)!==JSON.stringify(labels)||JSON.stringify(expected.values)!==JSON.stringify(series[0].values))errors.push(`${where}: CDF plotted staircase must be derived from raw_values using grouped ties and cumulative count / n`);}
+        if(series.length!==1||!Number.isInteger(c.sample_size)||c.sample_size!==c.raw_values?.length)errors.push(`${where}: CDF requires one series and sample_size equal to raw observation count`);
+        if(series[0].values.some((v,i)=>v<0||v>1||(i>0&&v<series[0].values[i-1]))||labels.some((v,i)=>i>0&&v<labels[i-1]))errors.push(`${where}: CDF x values must be sorted and cumulative probabilities must be nondecreasing within [0,1]`);
+      }
+      else if (c && (!Number.isInteger(c.sample_size) || c.sample_size < 1)) warnings.push(`${where}: chart sample_size is missing; state the basis in notes before interpreting values`);
       if(c?.kind==='bar'&&c?.min_value!==undefined && c?.min_value>0) errors.push(`${where}: truncated chart axis can exaggerate differences; use a zero baseline for bar charts`);
       if(!(s.evidence_ids?.length)) errors.push(`${where}: charts require evidence IDs`);
     }

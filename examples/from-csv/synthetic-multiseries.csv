@@ -1,0 +1,8 @@
+# SYNTHETIC teaching data only; not measured system performance.
+category,series,value,unit,sample_n
+Run 1,Raw,4.1,ms,6
+Run 2,Raw,4.4,ms,6
+Run 3,Raw,4.0,ms,6
+Run 1,Compressed,5.2,ms,6
+Run 2,Compressed,4.9,ms,6
+Run 3,Compressed,5.4,ms,6
