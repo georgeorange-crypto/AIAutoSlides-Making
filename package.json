@@ -8,7 +8,7 @@
   },
   "description": "Evidence-first, editable research presentation generator with an optional AI storyboard stage",
   "engines": {
-    "node": ">=20.16.0"
+    "node": ">=22.5.0"
   },
   "scripts": {
     "build": "node src/cli.mjs build --input examples/research-demo.json --out outputs/research-demo.pptx",
@@ -49,7 +49,7 @@
     "workflow:research": "node scripts/run-research-workflow.mjs",
     "fixture:existing-pptx": "node scripts/create-existing-pptx-fixture.mjs",
     "workflow:existing-pptx": "node scripts/run-existing-pptx-workflow.mjs",
-    "deps:mermaid": "npm install --prefix workers/mermaid --no-fund --no-audit",
+    "deps:mermaid": "npm ci --prefix workers/mermaid --no-fund --no-audit",
     "diagram:mermaid": "node scripts/render-mermaid.mjs",
     "render:ir": "node src/render-ir.mjs",
     "api": "node packages/api/cli.mjs",
