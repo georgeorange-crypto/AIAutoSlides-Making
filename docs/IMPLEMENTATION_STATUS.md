@@ -51,4 +51,4 @@
 
 ## Verification record
 
-The current verified workspace is branch `dev`, based on `723424f` (`origin/dev`, after fetching the remote's concurrent adapter/AI-contract updates). Remote publication is recorded here only after the final review, commit and push.
+The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6e6417228` (`Complete Phase 1 local workflow and project API`) and pushed to `origin/dev`; `git ls-remote` confirmed that exact ref. Additional working-tree edits appeared after that push and are outside this Phase 1 commit.
