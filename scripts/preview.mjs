@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import {pathToFileURL} from 'node:url';
+import {spawnSync} from 'node:child_process';
+const input=path.resolve(process.argv[2]||'outputs/research-demo.pptx');
+if(!fs.existsSync(input))throw new Error(`Cannot find PPTX ${input}`);
+const dir=path.dirname(input), stem=path.basename(input,'.pptx');
+const out=path.join(dir,`${stem}.pdf`);
+const cmd=process.platform==='win32'?'soffice':'libreoffice';
+const profile=pathToFileURL(path.join(os.tmpdir(),'aiautoslides-lo-profile')).href;
+if(fs.existsSync(out))fs.unlinkSync(out);
+const convert=spawnSync(cmd,[`-env:UserInstallation=${profile}`,'--headless','--convert-to','pdf','--outdir',dir,input],{encoding:'utf8'});
+if(convert.error||convert.status!==0)throw new Error(`LibreOffice not available or PDF conversion failed: ${convert.error?.message||convert.stderr}`);
+if(!fs.existsSync(out))throw new Error('LibreOffice command succeeded but PDF not created');
+console.log(`PDF preview: ${out}`);
+const pdftoppm=spawnSync('pdftoppm',['-f','1','-singlefile','-scale-to','1200','-png',out,path.join(dir,`${stem}-page-1`)],{encoding:'utf8'});
+if(pdftoppm.status===0)console.log(`Cover preview: ${path.join(dir,stem+'-page-1.png')}`);
+else console.log('Install poppler (pdftoppm) for PNG preview, or review the PDF manually.');

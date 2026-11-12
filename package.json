@@ -1,0 +1,18 @@
+{
+  "name": "ai-auto-slides",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Evidence-first, editable research presentation generator with an optional AI storyboard stage",
+  "engines": {"node": ">=20"},
+  "scripts": {
+    "build": "node src/cli.mjs build --input examples/research-demo.json --out outputs/research-demo.pptx",
+    "validate": "node src/cli.mjs validate --input examples/research-demo.json",
+    "plan:ai": "node src/ai-plan.mjs --input sources/brief.md --out content/ai-storyboard.json",
+    "preview": "node scripts/preview.mjs outputs/research-demo.pptx",
+    "test": "node --test",
+    "check": "npm run test && npm run validate && npm run build"
+  },
+  "dependencies": {"pptxgenjs": "^4.0.0"},
+  "license": "MIT"
+}

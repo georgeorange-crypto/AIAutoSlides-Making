@@ -1,0 +1,16 @@
+{
+  "id": "keynote-minimal",
+  "description": "High whitespace, bold editorial minimalism",
+  "background": "FFFFFF",
+  "surface": "F4F4F1",
+  "surfaceAlt": "ECECE8",
+  "title": "171717",
+  "text": "282828",
+  "muted": "777777",
+  "accent": "3555C5",
+  "accent2": "13826C",
+  "warning": "BD5B3C",
+  "line": "DBDBD7",
+  "headFontFace": "Arial",
+  "bodyFontFace": "Arial"
+}

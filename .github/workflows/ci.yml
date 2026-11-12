@@ -1,0 +1,24 @@
+name: Validation and PPTX build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # First online npm install creates package-lock.json; commit it and switch to npm ci.
+      - run: npm install --no-audit --no-fund
+      - run: npm run check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: example-editable-deck
+          path: |
+            outputs/research-demo.pptx
+            outputs/research-demo.review.json

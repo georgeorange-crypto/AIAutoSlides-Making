@@ -1,0 +1,20 @@
+{
+  "entries": [
+    {
+      "id": "E1",
+      "label": "Qwen3-32B TP4 experiment summary, 2026-11-12",
+      "source": "User-provided experimental numbers in this project's research discussion",
+      "locator": "KVServe_Qwen3-32B_GPU-KV压力实验详细报告_2026-11-12.md",
+      "verified": false,
+      "note": "Illustrative for slide generation; verify against the original logs and report before public dissemination"
+    },
+    {
+      "id": "E2",
+      "label": "Critical-path profiling hypothesis",
+      "source": "Next-phase research question supplied with the experiment summary",
+      "locator": "Next-step optimization task; not an experimentally validated claim",
+      "verified": false,
+      "note": "Hypothesis, not a finding"
+    }
+  ]
+}

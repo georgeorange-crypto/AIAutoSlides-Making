@@ -1,0 +1,74 @@
+{
+  "meta": {
+    "title": "KV Cache Compression: The Recovery Bottleneck",
+    "subtitle": "A reproducible research meeting demo · Qwen3-32B / TP4",
+    "audience": "AI Systems Research Group",
+    "theme": "tech-dark",
+    "duration_minutes": 7,
+    "status": "DEMO / UNVERIFIED"
+  },
+  "slides": [
+    {
+      "type": "cover",
+      "kicker": "AI SYSTEMS / RESEARCH REVIEW",
+      "title": "Compression is not free.",
+      "body": ["A 72.7% reduction in stored bytes reveals a severe recovery bottleneck.", "Qwen3-32B · TP4 · Example experimental data"],
+      "evidence_ids": ["E1"],
+      "notes": "Open with the tradeoff. Present values as preliminary observations until logs and repetitions are verified."
+    },
+    {
+      "type": "statement",
+      "kicker": "THE CENTRAL FINDING",
+      "title": "The saved bytes do not translate into faster first tokens.",
+      "body": ["Raw Hit TTFT P50 is 0.353s; BitPack4 compressed Hit is 67.792s.", "The performance gap motivates critical-path measurement, not claims about the final codec."],
+      "evidence_ids": ["E1"]
+    },
+    {
+      "type": "metrics",
+      "kicker": "EXPERIMENT SNAPSHOT",
+      "title": "The storage gain is real; the latency penalty needs explanation.",
+      "metrics": [
+        {"label": "Storage saved", "value": "72.7%", "detail": "Relative to raw store"},
+        {"label": "Raw hit TTFT · P50", "value": "0.353s", "detail": "Baseline"},
+        {"label": "Compressed hit TTFT · P50", "value": "67.792s", "detail": "BitPack4"}
+      ],
+      "evidence_ids": ["E1"]
+    },
+    {
+      "type": "chart",
+      "kicker": "EVIDENCE / LATENCY",
+      "title": "Compressed cache hit is far slower than the raw path in this setup.",
+      "chart": {
+        "kind": "bar",
+        "unit": "seconds",
+        "categories": ["Raw miss", "Raw hit", "BitPack4 hit"],
+        "values": [0.369, 0.353, 67.792],
+        "series_name": "TTFT P50"
+      },
+      "body": ["These are one setup's reported P50 values, not a distribution or uncertainty estimate."],
+      "evidence_ids": ["E1"]
+    },
+    {
+      "type": "process",
+      "kicker": "SYSTEM HYPOTHESIS",
+      "title": "Instrument the complete recovery path before optimizing components.",
+      "steps": ["Payload GET", "Host decode", "GPU transfer", "Sync barrier", "Ready for prefill"],
+      "body": ["The per-part host decode timing cannot be compared directly with full-request TTFT without part counts and overlap analysis."],
+      "evidence_ids": ["E1", "E2"]
+    },
+    {
+      "type": "bullets",
+      "kicker": "NEXT EXPERIMENT",
+      "title": "Three controlled checks can expose the real bottleneck.",
+      "body": ["Trace per-part latency and critical-path stalls", "Compare sequential and batched recovery under matched workloads", "Verify post-reload correctness before performance claims"],
+      "evidence_ids": ["E2"]
+    },
+    {
+      "type": "closing",
+      "kicker": "DECISION REQUIRED",
+      "title": "Prioritize recovery profiling over a higher compression ratio.",
+      "body": ["Proposed next step: paired, repeatable tests with decode/transfer/sync breakdown and a correctness gate."],
+      "evidence_ids": ["E1", "E2"]
+    }
+  ]
+}

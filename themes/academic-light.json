@@ -1,0 +1,16 @@
+{
+  "id": "academic-light",
+  "description": "Research-grade bright theme with generous whitespace",
+  "background": "F6F8FB",
+  "surface": "FFFFFF",
+  "surfaceAlt": "E8EFF6",
+  "title": "15293C",
+  "text": "31465A",
+  "muted": "64778C",
+  "accent": "176E9E",
+  "accent2": "12A888",
+  "warning": "DA704D",
+  "line": "DAE3EB",
+  "headFontFace": "Aptos Display",
+  "bodyFontFace": "Aptos"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "tech-dark",
+  "description": "Deep navy theme for engineering and systems talks",
+  "background": "0E1827",
+  "surface": "18283D",
+  "surfaceAlt": "20344C",
+  "title": "F4F7FB",
+  "text": "DFE7F0",
+  "muted": "9AADC1",
+  "accent": "64C9F8",
+  "accent2": "5CE0BB",
+  "warning": "FFAF96",
+  "line": "32445A",
+  "headFontFace": "Aptos Display",
+  "bodyFontFace": "Aptos"
+}
