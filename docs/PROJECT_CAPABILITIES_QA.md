@@ -65,9 +65,9 @@ M3 已加入受众/目标/时长字段、可选 AI 分镜、按规则 ID 和页�
 
 ## Q6. 能自主搜索网页、下载/截取图片或从用户文件提取图片并插入 Slides 吗？
 
-**答：已有本地图片素材清单、PPTX 嵌入、本地 PDF/DOCX 文本提取，以及 PDF 扫描页的离线 OCR；网页截图和 PDF/DOCX 内嵌图片抽取仍未接入。**
+**答：已有本地图片素材清单、PPTX 嵌入、本地 PDF/DOCX 文本提取、PDF 扫描页离线 OCR，以及可选的 DOCX 正文 PNG/JPEG/SVG 抽取；PDF 内嵌图片抽取和网页截图仍未接入。**
 
-`src/assets.mjs` 和 `--assets` 支持本地 PNG/JPEG/SVG 清单校验及 PPTX 图片对象嵌入，记录 SHA-256、来源、许可、核验状态和关联 slide ID；`examples/multimodal/` 有 hypothetical SVG 演示。素材仍是单个图片对象，SVG 路径不会自动转为原生可编辑形状。`src/import-document.mjs` 可在本地抽取 PDF/DOCX 文本，并对 PDF 扫描页调用离线 OCR；OCR 输出仍标记为未核验。尚无网页搜索/下载、网页截图、授权语义验证或 PDF/DOCX 内嵌图片提取。
+`src/assets.mjs` 和 `--assets` 支持本地 PNG/JPEG/SVG 清单校验及 PPTX 图片对象嵌入，记录 SHA-256、来源、许可、核验状态和关联 slide ID；活动内容、外部引用和实体声明会被 SVG 检查拒绝。`examples/multimodal/` 有 hypothetical SVG 演示。素材仍是单个图片对象，SVG 路径不会自动转为原生可编辑形状。`src/import-document.mjs` 可在本地抽取 PDF/DOCX 文本、对 PDF 扫描页调用离线 OCR，并用 `--extract-images` 提取 DOCX 正文引用的 PNG/JPEG/SVG。提取保留文档哈希、包内 part/relationship 定位和来源状态；继承许可仍待人工确认，OCR 和图片均不会自动变为已核验。暂不提取 PDF 图像、DOCX 页眉页脚图像、网页截图或网页下载素材，也不判断图片语义或权利。
 
 任何未来检索或提取功能都应保留来源 URL/文件定位、授权或许可信息、采集日期和人工审核状态；外部页面与用户文件应作为不可信材料处理，不能当成指令或未经核验的事实。
 

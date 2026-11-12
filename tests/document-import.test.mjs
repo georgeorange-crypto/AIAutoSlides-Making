@@ -6,14 +6,24 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
-import {zipSync,strToU8} from 'fflate';
+import {unzipSync,zipSync,strToU8} from 'fflate';
 import {buildSourceBundle,createTesseractRecognizer,extractDocxParagraphs,extractPdfPages,extractPdfPagesWithOcr,parsePdfPages} from '../src/document-extractors.mjs';
+import {extractDocxAssets} from '../src/document-assets.mjs';
+import {loadAssetManifest} from '../src/assets.mjs';
+import {generatePresentation} from '../src/render.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
 function syntheticDocx(){
  const xml='<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>SYNTHETIC source statement &amp; evidence.</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Methods section</w:t></w:r></w:p><w:tbl><w:tr><w:tc><w:p><w:r><w:t>Table cell text</w:t></w:r></w:p></w:tc></w:tr></w:tbl><w:sectPr/></w:body></w:document>';
  return zipSync({'[Content_Types].xml':strToU8('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>'),'word/document.xml':strToU8(xml)});
+}
+
+function syntheticDocxWithImages(){
+ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+nmGQAAAAASUVORK5CYII=','base64'),jpeg=Buffer.from([0xff,0xd8,0xff,0xd9]),svg=strToU8('<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="#123456"/></svg>');
+ const document='<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body><w:p><w:r><w:t>SYNTHETIC embedded image source</w:t></w:r><w:drawing><wp:docPr id="1" name="Picture 1" descr="Synthetic topology"/><a:blip r:embed="rIdPng"/></w:drawing></w:p><w:p><w:drawing><wp:docPr id="2" name="Picture 2" title="Synthetic vector"/><a:blip r:embed="rIdSvg"/></w:drawing></w:p><w:p><w:drawing><a:blip r:embed="rIdDuplicate"/><a:blip r:embed="rIdJpeg"/></w:drawing></w:p></w:body></w:document>';
+ const rels='<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdPng" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image1.png"/><Relationship Id="rIdSvg" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image2.svg"/><Relationship Id="rIdDuplicate" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image3.png"/><Relationship Id="rIdJpeg" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/photo.jpg"/></Relationships>';
+ return zipSync({'[Content_Types].xml':strToU8('<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>'),'word/document.xml':strToU8(document),'word/_rels/document.xml.rels':strToU8(rels),'word/media/image1.png':png,'word/media/image2.svg':svg,'word/media/image3.png':png,'word/media/photo.jpg':jpeg});
 }
 
 function syntheticPdf(text='SYNTHETIC PDF source text'){
@@ -53,6 +63,29 @@ test('DOCX parser rejects invalid packages and PDF page parser preserves blank-p
  assert.deepEqual(parsePdfPages('Page one\f\fPage three\f').map(x=>x.locator),['page 1','page 2','page 3']);
  assert.equal(parsePdfPages('Page one\f\fPage three\f')[1].content,'');
  assert.throws(()=>parsePdfPages('\f\n\f'),/image-only PDFs require OCR/);
+});
+
+test('optional DOCX image extraction writes deduplicated local assets and a compatible provenance manifest',async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-docx-assets-')),source=path.join(dir,'synthetic-images.docx'),prefix=path.join(dir,'imported');
+ try{
+  fs.writeFileSync(source,syntheticDocxWithImages());
+  const run=spawnSync(process.execPath,['src/import-document.mjs','--input',source,'--id','E_LOCAL_IMAGES','--extract-images','--out-prefix',prefix],{encoding:'utf8'});assert.equal(run.status,0,run.stderr);
+  const manifest=JSON.parse(fs.readFileSync(`${prefix}.assets.json`,'utf8')),importReport=JSON.parse(fs.readFileSync(`${prefix}.manifest.json`,'utf8'));
+  assert.equal(manifest.assets.length,3,'duplicate image bytes should be deduplicated');assert.equal(importReport.extracted_asset_count,3);assert.equal(manifest.assets[0].verified,false);
+  assert.ok(manifest.assets.every(asset=>asset.source_file_sha256===crypto.createHash('sha256').update(fs.readFileSync(source)).digest('hex')));
+  const svg=manifest.assets.find(asset=>asset.mime_type==='image/svg+xml'),png=manifest.assets.find(asset=>asset.mime_type==='image/png'),jpeg=manifest.assets.find(asset=>asset.mime_type==='image/jpeg');assert.equal(svg.source_parts[0].relationships[0].alt_text,'Synthetic vector');assert.equal(png.source_parts.length,2);assert.ok(jpeg);
+  for(const asset of manifest.assets)assert.ok(fs.existsSync(path.join(dir,asset.path)));
+  const deck={slides:[{slide_id:'S01',visuals:[{asset_id:png.asset_id,x:1,y:1,w:2,h:2},{asset_id:svg.asset_id,x:4,y:1,w:2,h:2},{asset_id:jpeg.asset_id,x:7,y:1,w:2,h:2}]}]};
+  const mapped=loadAssetManifest(`${prefix}.assets.json`,deck);assert.equal(mapped.get(svg.asset_id).slides[0],'S01');assert.equal(mapped.get(jpeg.asset_id).slides[0],'S01');assert.equal(mapped.get(png.asset_id).verified,false);
+  const renderDeck={meta:{title:'Synthetic extracted assets',status:'SYNTHETIC'},slides:[{slide_id:'S01',type:'cover',title:'Synthetic document image import',body:['Local source; pending review'],evidence_ids:[],visuals:[{asset_id:png.asset_id,x:1,y:1,w:2,h:2},{asset_id:svg.asset_id,x:4,y:1,w:2,h:2}]}]},renderAssets=new Map([png.asset_id,svg.asset_id].map(id=>[id,mapped.get(id)])),pptx=path.join(dir,'extracted-assets.pptx'),theme=JSON.parse(fs.readFileSync('themes/academic-light.json','utf8'));
+  await generatePresentation(renderDeck,{entries:[]},theme,pptx,renderAssets);
+  const packageFiles=unzipSync(new Uint8Array(fs.readFileSync(pptx))),slideXml=new TextDecoder().decode(packageFiles['ppt/slides/slide1.xml']);assert.equal((slideXml.match(/<p:pic>/g)||[]).length,2);assert.ok(Object.keys(packageFiles).some(file=>/^ppt\/media\/.*\.png$/i.test(file)));assert.ok(Object.keys(packageFiles).some(file=>/^ppt\/media\/.*\.svg$/i.test(file)));
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('DOCX image extraction ignores external and path-traversal relationships',()=>{
+ const bytes=zipSync({'[Content_Types].xml':strToU8('<Types/>'),'word/document.xml':strToU8('<w:document><a:blip r:embed="rId1"/><a:blip r:embed="rId2"/></w:document>'),'word/_rels/document.xml.rels':strToU8('<Relationships><Relationship Id="rId1" Type="image" Target="https://example.test/p.png" TargetMode="External"/><Relationship Id="rId2" Type="image" Target="../outside.png"/></Relationships>'),'outside.png':Buffer.from([0x89,0x50,0x4e,0x47])});
+ assert.throws(()=>extractDocxAssets(bytes),/no referenced PNG, JPEG, or SVG/);
 });
 
 test('optional bundled Tesseract fallback renders PDF pages and keeps OCR output explicitly unverified',async()=>{

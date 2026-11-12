@@ -194,6 +194,10 @@ Get-Content outputs/imports/paper.md
 
 The command writes `.md`, `.manifest.json`, and `.evidence.json` files under the selected output prefix. When an existing ledger is supplied, its entries are copied and the new unverified entry is appended to the generated ledger; the original ledger is not modified. DOCX tables are linearized and headers/footers are not extracted. Use the generated evidence ID in a storyboard and cite the exact excerpt/locator in `claim_support`.
 
+For DOCX files, add `--extract-images` to copy referenced body PNG/JPEG/SVG parts into `<out-prefix>.assets/` and write `<out-prefix>.assets.json`. The manifest includes source-document SHA-256, DOCX part and relationship locators, per-image hashes, MIME types, and `verified:false`; duplicate bytes are deduplicated. Rights inherit from the source document and remain unreviewed. Pass the generated JSON to `--assets` after adding its asset IDs to the storyboard. Header/footer images, PDF image extraction, OCR-driven figure extraction, and semantic placement are not supported.
+
+See [`docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md`](docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md) for test results and current limits.
+
 For a scanned PDF, install Poppler locally and explicitly opt into OCR. Tesseract.js and its `eng`/`chi_sim` models are installed with the project dependencies; a separate Tesseract binary or language-pack installation is not needed:
 
 ```powershell

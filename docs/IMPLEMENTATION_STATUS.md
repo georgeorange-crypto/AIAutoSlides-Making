@@ -43,7 +43,7 @@
 ## Remaining beyond Phase 1
 
 - Phase 0 bakeoff is incomplete for some requested engines/task groups; blocked and unrun candidates remain identified in `docs/POC_RESULTS.md`.
-- Phase 2 has bounded, opt-in OpenAlex/Crossref/arXiv metadata search and local PDF/DOCX text extraction with offline PDF OCR. Search candidates stay unverified; paper downloads, crawlers, embedded document image extraction and licensed media integrations remain incomplete and are not called by the local workflow API.
+- Phase 2 has bounded, opt-in OpenAlex/Crossref/arXiv metadata search; local PDF/DOCX text extraction with offline PDF OCR; and optional DOCX body PNG/JPEG/SVG extraction with hashes and source-part lineage. Search candidates and extracted content stay unverified. Paper downloads, crawlers, PDF image extraction, DOCX header/footer images and licensed-media integrations remain incomplete and are not called by the local workflow API.
 - Phase 3 audience/narrative/media intelligence and rendered-image critic remain planned.
 - Phase 4 local stdio MCP server over the loopback API is implemented; full UI, remote auth/scopes and Android remain planned.
 - Full Presentation IR element coverage, native Mermaid shape rendering and unchanged-slide hash preservation remain incomplete.
@@ -66,3 +66,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - One shared evidence-first presentation Skill is available to Codex at `.agents/skills/aiautoslides/` and Claude Code at `.claude/skills/aiautoslides/`; both are checked against `skills/aiautoslides/SKILL.md` by an automated test.
 - The Skill uses local deterministic import, validate, build, structural QA and preview commands. It requires review of every rendered page and keeps scientific verification and human visual approval pending until performed.
 - Optional AI planning and scholarly search remain separate opt-in network workflows. The Skill does not invoke them, and source evidence/metadata is never promoted to verified automatically.
+
+## Local DOCX image extraction follow-on — 2026-11-12
+
+- `src/document-assets.mjs` optionally extracts only PNG/JPEG/SVG image parts referenced by the DOCX body. External relationships and paths outside `word/media/` are ignored; images are deduplicated by SHA-256 and bounded by per-image, aggregate-size and count limits.
+- `node src/import-document.mjs --extract-images` writes copied assets and an `--assets`-compatible JSON manifest with document SHA-256, source part, relationship IDs, alt text when available, MIME type, and `verified:false` inherited rights state.
+- Unit/integration coverage checks PNG/SVG extraction, duplicate handling, exact hashes, manifest loading/slide association, and external/path-traversal rejection. PDF embedded-image extraction and DOCX header/footer image extraction remain unimplemented.
