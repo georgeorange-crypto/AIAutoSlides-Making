@@ -61,6 +61,13 @@ test('editable table validation enforces shape, evidence, and bounded cell value
  d.slides[2].table.rows[1]=['Cached',Number.NaN];assert.match(validateDeck(d,ledger).errors.join(' '),/each table row must match/);
  d.slides[2].table.rows[1]=['Cached',315];d.slides[2].evidence_ids=[];assert.match(validateDeck(d,ledger).errors.join(' '),/table requires evidence IDs/);
 });
+test('editable code validation enforces supported language, bounded lines, wraps, and evidence',()=>{
+ const d=deepCopy(sample);d.slides[2]={slide_id:'S03',type:'code',title:'Synthetic code fragment',evidence_ids:['E1'],code:{language:'python',filename:'demo.py',lines:['def mean(values):','    return sum(values) / len(values)']}};
+ assert.deepEqual(validateDeck(d,ledger).errors,[]);
+ d.slides[2].code.language='unknown';assert.match(validateDeck(d,ledger).errors.join(' '),/supported language/);
+ d.slides[2].code.language='python';d.slides[2].evidence_ids=[];assert.match(validateDeck(d,ledger).errors.join(' '),/code requires evidence IDs/);
+ d.slides[2].evidence_ids=['E1'];d.slides[2].code.lines=Array(14).fill('x'.repeat(180));assert.match(validateDeck(d,ledger).errors.join(' '),/more than 20 visual lines/);
+});
 test('excessive text is surfaced as a readability warning',()=>{
  const d=deepCopy(sample);d.slides[1].body=['Readable start. '+'x'.repeat(195)];assert.ok(validateDeck(d,ledger).warnings.some(w=>/long body item/.test(w)));
 });

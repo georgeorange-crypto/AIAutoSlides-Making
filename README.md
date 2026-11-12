@@ -292,3 +292,16 @@ On 2026-11-12, `npm ci`, `npm run check`, and PowerPoint-to-PDF-to-PNG preview c
 ## License
 
 Project code is MIT licensed; see [`LICENSE`](LICENSE). External links are references, not permission to redistribute their copyrighted material.
+
+## Editable code snippet slides
+
+Use `type: "code"` with a supported language, filename, source lines, and evidence IDs. The renderer creates native editable PowerPoint text objects and wraps long lines at whitespace or punctuation while retaining their exact text in the evidence manifest. The layout is limited to 20 displayed lines; the snippet is not parsed or executed.
+
+```powershell
+node src/cli.mjs validate --input examples/code-demo/storyboard.json --evidence examples/code-demo/evidence.json
+node src/cli.mjs build --input examples/code-demo/storyboard.json --evidence examples/code-demo/evidence.json --out outputs/code-demo.pptx
+node src/qa.mjs outputs/code-demo.pptx
+node scripts/preview.mjs outputs/code-demo.pptx
+```
+
+The example is synthetic. QA compares each displayed segment with the source lines, but does not validate code behavior or font availability. See [`docs/M3A_CODE_SLIDE_REPORT.md`](docs/M3A_CODE_SLIDE_REPORT.md).

@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import {empiricalCdfStep,studentTMeanInterval} from './statistics.mjs';
+import {CODE_LANGUAGES,codeSegments} from './code-snippet.mjs';
 
-const VALID_TYPES = new Set(['cover','statement','bullets','metrics','chart','process','architecture','table','closing']);
-const MANUAL_ONLY_TYPES = new Set(['metrics','chart','process','architecture','table']);
+const VALID_TYPES = new Set(['cover','statement','bullets','metrics','chart','process','architecture','table','code','closing']);
+const MANUAL_ONLY_TYPES = new Set(['metrics','chart','process','architecture','table','code']);
 
 function isString(value) { return typeof value === 'string' && value.trim().length > 0; }
 function boundedText(value, max=350) { return isString(value) && value.length <= max; }
@@ -131,6 +132,12 @@ export function validateDeck(input, ledger) {
       else if(Array.isArray(headers)&&headers.length>=2&&rows.some(row=>!Array.isArray(row)||row.length!==headers.length||row.some(cell=>!(typeof cell==='string'&&cell.length<=90||typeof cell==='number'&&Number.isFinite(cell)))))errors.push(`${where}: each table row must match the header count and contain only strings (<=90 characters) or finite numbers`);
       if(t?.caption!==undefined&&!boundedText(t.caption,180))errors.push(`${where}: table caption must contain 1–180 characters`);
       if(!(s.evidence_ids?.length))errors.push(`${where}: table requires evidence IDs`);
+    }
+    if(s.type==='code'){
+      const c=s.code;
+      if(!c||!CODE_LANGUAGES.has(c.language)||!boundedText(c.filename,100)||!Array.isArray(c.lines)||c.lines.length<1||c.lines.length>14||c.lines.some(line=>typeof line!=='string'||line.length>180||/[\t\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(line)))errors.push(`${where}: code requires a supported language, filename, and 1–14 printable source lines (<=180 characters each)`);
+      else if(codeSegments(c.lines).length>20)errors.push(`${where}: code wraps to more than 20 visual lines; shorten the snippet`);
+      if(!(s.evidence_ids?.length))errors.push(`${where}: code requires evidence IDs`);
     }
     if (s.type==='bullets' && (!s.body?.length || s.body.length>5)) errors.push(`${where}: bullets requires 1–5 body items`);
     if(s.type==='statement' && !s.evidence_ids?.length) warnings.push(`${where}: assertion has no evidence ID; confirm this is not presented as a finding`);

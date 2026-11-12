@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import pptxgen from 'pptxgenjs';
+import {codeSegments} from './code-snippet.mjs';
 
 const W = 13.333, H = 7.5;
 const Shape = { roundRect: 'roundRect', line: 'line', ellipse: 'ellipse', rect: 'rect' };
@@ -144,6 +145,15 @@ function editableTable(s,d,t) {
   s.addTable(rows,{x,y,w,rowH,colW:w/columns,margin:[0.07,0.10,0.07,0.10],fontFace:t.bodyFontFace,fontSize,color:t.text,border:{type:'solid',pt:0.65,color:t.line},valign:'middle',autoPage:false,objectName:'Editable evidence table'});
   if(table.caption)txt(s,table.caption,{x:0.86,y:y+rowH*totalRows+0.14,w:11.5,h:0.34,fontFace:t.bodyFontFace,fontSize:12.5,color:t.muted,valign:'top',fit:'shrink'});
 }
+function editableCode(s,d,t,slideNumber){
+  addTop(s,d,t);addTitle(s,d,t);
+  const code=d.code,segments=codeSegments(code.lines),x=0.82,y=2.43,w=11.70,h=4.22;
+  rect(s,{x,y,w,h,rectRadius:0.10,fill:{color:t.surface},line:{color:t.line,width:0.8}});
+  txt(s,code.filename,{x:x+0.22,y:y+0.13,w:8.9,h:0.24,fontFace:t.bodyFontFace,fontSize:11.5,bold:true,color:t.text,fit:'shrink'});
+  txt(s,code.language.toUpperCase(),{x:x+w-2.1,y:y+0.13,w:1.85,h:0.24,fontFace:t.bodyFontFace,fontSize:9.5,bold:true,color:t.accent,align:'right'});
+  const rowH=Math.min(0.225,3.62/segments.length),startY=y+0.52;
+  segments.forEach((segment,index)=>txt(s,segment.text,{x:x+0.22,y:startY+index*rowH,w:w-0.44,h:rowH,fontFace:'Consolas',fontSize:12.3,color:t.text,valign:'mid',fit:'shrink',objectName:`Code_S${String(d.slide_id||`S${String(slideNumber).padStart(2,'0')}`).replace(/^S/,'')}_L${String(segment.line).padStart(2,'0')}_P${String(segment.part).padStart(2,'0')}`}));
+}
 function bullets(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
   const list=d.body||[];
@@ -181,6 +191,7 @@ export async function generatePresentation(deck,evidence,theme,outputPath,assets
     else if(d.type==='process') process(s,d,theme);
     else if(d.type==='architecture') architecture(s,d,theme);
     else if(d.type==='table') editableTable(s,d,theme);
+    else if(d.type==='code') editableCode(s,d,theme,i+1);
     else if(d.type==='bullets') bullets(s,d,theme);
     else if(d.type==='closing') closing(s,d,theme);
     for(const visual of d.visuals||[]){
