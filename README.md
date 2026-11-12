@@ -27,7 +27,7 @@ Generated artifacts are under `outputs/` (ignored by Git):
 
 Open **every page PNG** at presentation scale. XML QA cannot detect visual overflow, font substitution, or unintended overlap.
 
-For the synthetic 10-slide AI Systems project, run `node scripts/build-multimodal-demo.mjs`, then use the generated PPTX path under `outputs/multimodal/`. QA separates machine-checkable layout signals from human visual decisions. `node scripts/preview.mjs <deck.pptx> --renderer auto` records a hash-bound preview manifest; after inspecting each rendered page, record decisions with `node src/visual-review.mjs --pptx <deck.pptx> --reviewer "Name" --slide S01 --decision approve --note "Checked layout and evidence fit"` (repeat for every slide). See [`docs/M3A_VISUAL_REVIEW_REPORT.md`](docs/M3A_VISUAL_REVIEW_REPORT.md) for current verification and renderer limits.
+For the synthetic AI Systems deck, run `node scripts/build-multimodal-demo.mjs`, then use `outputs/multimodal/ai-systems-synthetic.pptx`. QA separates machine findings from subjective prompts. `node scripts/preview.mjs <deck.pptx> --renderer auto` creates hash-bound PDF/PNG output; after inspecting each page, record decisions with `node src/visual-review.mjs --pptx <deck.pptx> --reviewer "Name" --slide S01 --decision approve --note "Checked layout and evidence fit"` for every slide. See [`docs/M3A_VISUAL_REVIEW_REPORT.md`](docs/M3A_VISUAL_REVIEW_REPORT.md) for this stage's verification.
 
 ## Synthetic CSV workflow
 
@@ -218,13 +218,14 @@ The selection command writes the confirmed theme profile to `docs/design.md` and
 Reference local PNG, JPEG, or SVG images in an asset manifest. Paths are relative to the manifest. Every asset records its MIME/type, SHA-256, source, license, and human verification state; duplicate bytes, missing files, mismatched hashes, missing provenance, and unknown slide references fail the build. Slides use `visuals` placements with slide-relative inch coordinates. Embedded SVGs are PowerPoint image objects; their internal paths are not individually editable shapes. No asset is uploaded.
 
 ```powershell
+node scripts/build-multimodal-demo.mjs
 node src/assets-cli.mjs examples/multimodal/assets.json
 node src/cli.mjs validate --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json
-node src/cli.mjs build --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json --out outputs/m3a-assets-demo.pptx
-node src/qa.mjs outputs/m3a-assets-demo.pptx
+node src/cli.mjs build --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json --out outputs/multimodal/ai-systems-synthetic.pptx
+node src/qa.mjs outputs/multimodal/ai-systems-synthetic.pptx
 ```
 
-The three-slide `examples/multimodal/` fixture is explicitly synthetic/hypothetical. It verifies local SVG embedding and lineage only; the planned 10-slide AI Systems acceptance project, raster/JPEG examples, editable architecture primitives, complete visual review, and PDF/PNG deliverables remain future work.
+`node scripts/build-multimodal-demo.mjs` deterministically rebuilds the explicitly synthetic/hypothetical 10-slide AI Systems storyboard and evidence ledger from the technical Markdown, architecture JSON, and synthetic CSV. It includes two original local SVG illustrations, a native editable architecture diagram, a native CSV-derived chart, notes, and evidence IDs. SVGs are image objects; architecture nodes and connectors are native PowerPoint objects. All source records remain `verified:false`. Build to `outputs/multimodal/ai-systems-synthetic.pptx`; use `node scripts/preview.mjs outputs/multimodal/ai-systems-synthetic.pptx` for local PDF/PNG rendering. PowerPoint 16.0 and Poppler rendered all 10 pages in the current environment; the assistant inspected each PNG, and human slide sign-off remains pending.
 
 ## Research and design rules
 

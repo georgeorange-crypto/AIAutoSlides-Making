@@ -1,6 +1,6 @@
 # Milestone 3A follow-on — objective QA and visual review gate
 
-Date: 2026-11-12 · Status: implementation and regression tests complete; final deck rendering remains blocked by local renderer availability.
+Date: 2026-11-12 · Status: implementation and regression tests complete; all 10 pages rendered and inspected, with formal human sign-off still pending.
 
 ## Delivered
 
@@ -17,8 +17,8 @@ Date: 2026-11-12 · Status: implementation and regression tests complete; final 
 | `npm test` | Passed: 74 tests, 0 failures (run inside `npm run check`). |
 | `npm run check` | Passed: dependency audit, all 74 tests, critic evaluation, importer/validator/build/QA fixtures, repeated-run and dual-edition workflows. |
 | Synthetic 10-slide deck build + structural QA | Passed with warnings; all text and object bounds pass, zero text-box overlap pairs, zero small-text findings, one native chart with exact workbook values, and expected unverified-evidence warnings. The cover decoration was brought inside the canvas. |
-| Current Windows preview | Failed within the bounded attempt: PowerPoint COM reported “PowerPoint could not open the file”; LibreOffice is not on PATH. The manifest records both attempts. No PDF or PNGs were produced and no page was visually reviewed. |
+| Current Windows preview | Passed: PowerPoint 16.0 exported PDF and Poppler 26.07 rendered all 10 pages. Every PNG was visually inspected; no clear clipping or unintended overlap was seen. The review remains pending because no human reviewer has recorded a decision. |
 
 ## Limits
 
-Machine checks cannot assess semantic image-to-claim fit, visual hierarchy, true pixel clipping, or actual font substitution. The human visual review stays blocked/pending until page PNGs exist and each is explicitly reviewed. No user source material or external API is involved.
+Machine checks cannot assess semantic image-to-claim fit, visual hierarchy, or actual font substitution. Rendered-page inspection by the assistant is documented, but the hash-bound slide decisions remain pending until a human reviewer records them. No user source material or external API is involved.
