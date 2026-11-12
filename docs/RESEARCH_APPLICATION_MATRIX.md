@@ -57,6 +57,7 @@ For any actual conference, add a dated profile only after checking its official 
 | [Frontend Slides](https://github.com/zarazhangrui/frontend-slides) | Preview-first style-selection UX as an idea. | No code/template/assets copied; precise repository license not audited, so no reuse. |
 | Gamma, Canva, Beautiful.ai, Figma Slides, PowerPoint Copilot, Google Slides, Napkin AI | Product UX comparison only; official APIs and user authorization required before adapters. | No adapters, crawling, or paid-service calls. See benchmark protocol; no comparative scores are asserted. |
 | [Codex AGENTS.md guidance](https://developers.openai.com/cookbook/examples/codex/iterating-development-workflows-with-codex) | Keep repository instructions and repeatable workflows explicit. | `AGENTS.md`, master task, and schema docs; no agent-run remote or paid service. |
+| Local PDF/DOCX source adapter — M4 first tranche | Keep private source files local, retain source locators, and separate extraction from scientific verification. | `src/import-document.mjs` extracts selectable PDF text using optional local `pdftotext`, or DOCX paragraphs with existing `fflate`; it writes quoted text, page/paragraph locators, source/text SHA-256, and a `verified:false` ledger entry. | `tests/document-import.test.mjs`, `docs/M4_IMPLEMENTATION_REPORT.md`; OCR, source verification, and DOCX layout semantics remain human work. Source files are not copied to or uploaded by this workflow. |
 
 ## Community observations and future experiments
 

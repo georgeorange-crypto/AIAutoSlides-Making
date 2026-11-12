@@ -169,6 +169,17 @@ npm run review:draft -- --input outputs/research-draft.json --out outputs/resear
 node src/cli.mjs build --input outputs/research-reviewed.json --evidence sources/evidence.json --out outputs/research-reviewed.pptx
 ```
 
+### Offline PDF/DOCX source import (M4 first tranche)
+
+Import a local research source to quoted text with page/paragraph locators, source and extracted-text hashes, a manifest, and an evidence ledger entry. Source status stays `verified:false`; extraction never verifies scientific claims or uploads the file. DOCX uses the built-in `fflate` dependency. Selectable-text PDF import requires local Poppler `pdftotext`; scanned PDFs are rejected without OCR.
+
+```powershell
+npm run import:document -- --input "D:\research\paper.docx" --id E_LOCAL_PAPER --label "Paper methods section" --evidence sources/evidence.json --out-prefix outputs/imports/paper
+Get-Content outputs/imports/paper.md
+```
+
+The command writes `.md`, `.manifest.json`, and `.evidence.json` files under the selected output prefix. When an existing ledger is supplied, its entries are copied and the new unverified entry is appended to the generated ledger; the original ledger is not modified. DOCX tables are linearized, headers/footers and image OCR are not extracted. Use the generated evidence ID in a storyboard and cite the exact excerpt/locator in `claim_support`.
+
 To compare the built-in themes, generate a 2-slide cover/chart preview in each theme, inspect the six PNGs, and confirm a selection explicitly. No proprietary template or asset is copied.
 
 ```powershell
