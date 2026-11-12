@@ -32,15 +32,22 @@
 - OCR is intentionally out of scope; scanned documents must be processed separately and the output manually checked.
 - This adapter extracts text and provenance; it does not automatically create claims, slides, or verify claim-to-source entailment.
 - An optional open-source export backend was evaluated on a three-slide synthetic fixture. Slidev `pptx-editable` preserved editable text with no raster pictures in this case, but rendered with weaker theme/layout fidelity and did not provide the project's evidence lineage or chart QA contract. The measured comparison and adoption decision are in [`M4_BACKEND_COMPARISON.md`](M4_BACKEND_COMPARISON.md). It remains optional and outside default dependencies/CI.
-- The local update-cost benchmark remains one synthetic run, not a stable speed claim. Human-measured repair-time protocol and repeated samples remain future work.
-- Google Slides/Canva adapters and PowerPoint/Google sync are not included; they require separate user authorization and account/API configuration.
+- The local update-cost benchmark remains synthetic, but the runner now supports repeated samples and reports per-sample timings plus median/range/p90. A five-sample local run is recorded in [`M4_UPDATE_BENCHMARK.md`](M4_UPDATE_BENCHMARK.md); results are descriptive and not a stable speed claim. A repair timer can collect future human repair sessions without recording slide text, but no human repair session has yet been measured.
+- A local Google OAuth PKCE test page is implemented for identity and Slides `presentations.readonly`, including read-only metadata access for a presentation ID the user enters. It requires a user-supplied Desktop OAuth client and real account consent has not yet been performed. Google Slides deck creation/edit/sync and Canva adapters are not included; they require separate user authorization and account/API configuration.
 
 ## M4 current completion boundary
 
 - Delivered locally: offline PDF/DOCX source extraction, source hashes and locators, the synthetic first-build/one-row-update benchmark, and an evidence-backed comparison of the native PPTX route with one open-source editable-PPTX exporter.
 - Ecosystem review: official capability and developer docs for Google Slides, Canva, Gamma, Beautiful.ai, Figma Slides, Microsoft PowerPoint/Copilot, Napkin, Quarto, Slidev and Marp were checked and mapped to adapter decisions in [`M4_ECOSYSTEM_REVIEW.md`](M4_ECOSYSTEM_REVIEW.md).
 - Reused an Apache-2.0 licensed Mozilla library in the local PDF source pipeline to remove Poppler as a hard dependency for text import. Its offline import path is covered by a synthetic CLI integration test; it does not perform OCR or scientific verification.
-- Not delivered: cloud sync/authenticated account adapters, OCR, scientific source verification, chart parity for alternate backends, repeated timing distributions, or manual repair-time measurement. These are not represented as completed.
+- Not delivered: cloud deck creation/edit/sync, OCR, scientific source verification, chart parity for alternate backends, manual repair-time observations, and blinded visual ratings. No real Google account login is claimed until the user configures a client and completes the local test. These are not represented as completed.
+
+## Follow-on benchmark and authorization test additions
+
+- The local update benchmark accepts `--samples 1..20`; one five-sample synthetic run is recorded in [`M4_UPDATE_BENCHMARK.md`](M4_UPDATE_BENCHMARK.md) and its raw JSON. It validates every sample's chart/workbook values and native error bars. The measured median update time was 1,599.84 ms (range 1,556.26–1,985.25 ms) on this Windows workstation; this remains synthetic, local, and load-sensitive.
+- `npm run benchmark:repair` records a user's actual edit interval and edit count with deck hashes only. The tool is implemented, but no real human repair session has been run, so no repair-time result is claimed.
+- The Google OAuth test uses a loopback listener and PKCE with identity-only or Slides read-only access. Unit tests mock Google token/userinfo/Slides endpoints; the environment has no OAuth client file, so no real login or provider request was attempted.
+- Latest shared-worktree `npm run check` passed 69/69 tests plus critic evaluation, synthetic benchmark/update, validation, native PPTX generation/QA and critique. The test total includes six uncommitted M3A layout/research workflow cases; the OAuth/router and benchmark tests are committed separately. Seven pages of the generated 7-slide keynote preview were visually inspected; the repeated-update fixture's pages were not visually inspected.
 
 ## Offline PDF.js integration continuation
 

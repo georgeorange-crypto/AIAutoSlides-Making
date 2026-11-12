@@ -19,10 +19,10 @@ Date: 2026-11-12. Scope: remote/worktree audit, candidate registry, adapter prot
 
 ## Verification actually completed in this checkout
 
-- `npm test`: passed, 60 tests in the latest run (including catalog, CLI, artifact smoke, schema, migration, Google OAuth mock and existing diagram/validation tests).
+- `npm test`: passed, 69 tests in the latest shared-worktree run (six additional M3A tests were uncommitted at that point) (including catalog, CLI, artifact smoke, schema, migration, Google OAuth mock and existing diagram/validation tests).
 - `npm run validate`: passed for the 7-slide research example; retained three warnings (two evidence sources unverified, chart sample size missing).
 - `npm run build`: passed, created `outputs/research-demo.pptx` and review/lineage reports.
-- `npm run check`: passed end to end with 60/60 tests, including dependency inspection (`pptxgenjs@4.0.1`, `fflate@0.8.3`, `pdfjs-dist@5.4.624`), existing import/build/QA/critic/benchmark workflows, synthetic charts and repeated-run fixture.
+- `npm run check`: passed end to end with 69/69 shared-worktree tests, including dependency inspection (`pptxgenjs@4.0.1`, `fflate@0.8.3`, `pdfjs-dist@5.4.624`), existing import/build/QA/critic/benchmark workflows, synthetic charts and repeated-run fixture.
 - `npm exec ai4slides -- tools list`: listed all 52 entries. `tools doctor pptxgenjs` found PptxGenJS 4.0.1; `tools test pptxgenjs` creates a temporary two-slide PPTX, checks OOXML slide and native chart parts, then removes it. `tools doctor docling` correctly reported blocked because its executable is unavailable and no adapter is implemented.
 - `npm run preview`: produced a 7-page PDF and seven 1600×900 PNG previews using the Windows PowerPoint COM path and bundled `pdftoppm`. Every page was visually inspected. No apparent clipping/overlap was found; slide 4's full-request title and plot fit, while source verification remains unresolved as reported by the deck.
 - Cost/network: no external APIs were called; no source material was uploaded.

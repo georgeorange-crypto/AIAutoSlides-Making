@@ -191,6 +191,17 @@ Get-Content outputs/m4/update-benchmark.benchmark.md
 
 This measures the local CSV import, validation, PPTX build, and structural QA pipeline. It reports source diffs, evidence-ID coverage, native chart/workbook values, and editability; it does not measure human repair time or prove cross-platform office rendering quality. The recorded workstation run is in [`docs/M4_UPDATE_BENCHMARK.md`](docs/M4_UPDATE_BENCHMARK.md).
 
+For repeated local samples, pass `--samples` (1–20); the report then includes every sample and median/range/p90 summaries. These timings remain synthetic and machine-load dependent. To record an actual manual PPTX repair session without storing slide content, start a timer before editing and stop it afterward:
+
+```powershell
+npm run benchmark:repair -- start --session outputs/m4/repair-session.json --deck outputs/research-demo.pptx --label "research-demo-review"
+# Edit and save the deck in PowerPoint.
+npm run benchmark:repair -- stop --session outputs/m4/repair-session.json --deck outputs/research-demo.pptx --edits 2
+Get-Content outputs/m4/repair-session.json
+```
+
+The timer records elapsed time, edit count, deck filename and before/after SHA-256 only. It does not capture or upload deck text. Do not use placeholder or synthetic manual-repair durations in product comparisons.
+
 To compare the built-in themes, generate a 2-slide cover/chart preview in each theme, inspect the six PNGs, and confirm a selection explicitly. No proprietary template or asset is copied.
 
 ```powershell

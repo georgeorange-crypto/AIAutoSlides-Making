@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "benchmark": "synthetic repeated-run local update",
-  "created_at": "2026-11-12T17:08:04.600Z",
+  "created_at": "2026-11-12T18:21:44.571Z",
   "source": {
     "path": "examples/from-csv/synthetic-repeated-runs.csv",
     "sha256_first_run": "83cf15cf61584eb6654d02ea93c13730c3aa984b1c53c4c20dbd55bf7482b76e",
@@ -26,14 +26,58 @@
     "removed": 0
   },
   "timing": {
-    "first_run_ms": 1485.7643,
-    "second_update_ms": 1367.7826,
+    "first_run_ms": 1959.2345,
+    "second_update_ms": 1599.8397,
     "second_build_performed": true,
+    "sample_count": 5,
+    "first_run_summary": {
+      "n": 5,
+      "min_ms": 1527.3326,
+      "median_ms": 1618.8258,
+      "p90_ms": 2121.0809,
+      "max_ms": 2121.0809,
+      "mean_ms": 1756.0280400000004
+    },
+    "update_summary": {
+      "n": 5,
+      "min_ms": 1556.2581,
+      "median_ms": 1599.8397,
+      "p90_ms": 1985.2524,
+      "max_ms": 1985.2524,
+      "mean_ms": 1677.6155999999999
+    },
+    "samples": [
+      {
+        "sample": 1,
+        "first_run_ms": 1959.2345,
+        "update_ms": 1599.8397
+      },
+      {
+        "sample": 2,
+        "first_run_ms": 1553.6664,
+        "update_ms": 1556.2581
+      },
+      {
+        "sample": 3,
+        "first_run_ms": 2121.0809,
+        "update_ms": 1985.2524
+      },
+      {
+        "sample": 4,
+        "first_run_ms": 1618.8258,
+        "update_ms": 1647.9415
+      },
+      {
+        "sample": 5,
+        "first_run_ms": 1527.3326,
+        "update_ms": 1598.7863
+      }
+    ],
     "scope": "Local CSV import, validation, PPTX generation, and structural QA; excludes PDF rendering, human visual review, and human repair."
   },
   "output": {
-    "first_pptx_sha256": "a784a99eb3d3bc1f6d907984396c855402470835bc5cb58dcbf3b190d25fd0a0",
-    "updated_pptx_sha256": "89ef9a0ad37502ae3cecfba977b85f0d500d050f8a1c5aef723653c43bfa1f83",
+    "first_pptx_sha256": "e19abf01974153e2e6a6924901d05ebc24765f428449d50b454fd9e02062e361",
+    "updated_pptx_sha256": "aede85bb00e80f718a221f7d1bf7149aa0486c73079563e81237b882b62fdcd2",
     "first_deck_differs_from_updated": true
   },
   "quality": {
@@ -66,7 +110,7 @@
   },
   "limitations": [
     "Synthetic fixture demonstrates pipeline mechanics only and cannot support scientific or product-performance claims.",
-    "This is one local run per stage; elapsed time is descriptive and hardware/load dependent.",
+    "5 local sample(s) per stage; elapsed time is descriptive and hardware/load dependent.",
     "Human repair time, blind design ratings, and pixel-level review were not measured.",
     "Editable-text coverage and exact chart/workbook/error-bar checks are structural QA metrics, not complete office-app interoperability tests."
   ]
