@@ -77,6 +77,16 @@ For each condition, the importer computes the sample mean and two-sided 95% Stud
 
 `verified` is a human-maintained flag. It should only be changed to `true` after the cited material has actually been compared with source data. The software does not currently perform factual verification.
 
+### M3 deterministic Slide Critic and review state
+
+Run `src/critique.mjs --input storyboard.json [--evidence evidence.json] [--out report-prefix]` to write `.json` and `.md` reports. Each finding includes a stable rule ID, severity, slide ID (or `DECK`), element field, recommendation, and guidance source. Rules check audience/goal/duration metadata, claim/evidence framing, source verification state, chart sample counts and descriptions, and long copy. Results are prompts for human review, not scores or proof of scientific validity.
+
+Charts may include `figure_description` (1–550 characters); the renderer adds it to speaker notes for readers who cannot interpret the chart visually. It does not infer alt text from chart values.
+
+The optional `src/ai-plan.mjs` path requests schema-constrained slide JSON and is an explicit API call. Generated content is marked `requires_human_review:true`. A lexical numeric-token check flags numbers absent from the supplied brief, but does not detect all hallucinations or verify semantic support. `src/review-draft.mjs` writes a separate approved/rejected editable copy and records reviewer, note, date, cited critic rules and a content SHA-256. Building an AI draft requires approval, an explicit acknowledgement of the critic findings, and a matching content hash; edits after review invalidate the approval.
+
+`src/theme-gallery.mjs` makes a cover+chart preview in all three bundled themes. Review each rendered PNG, then `src/select-design.mjs` can write an explicitly reviewer-confirmed Markdown design profile and token JSON. Generating the gallery alone does not constitute a selection.
+
 ### AI storyboard format
 
 The optional planner emits a restricted root `{title, subtitle, slides}` which is normalized at build time. It emits only `cover`, `statement`, `bullets`, `closing`; manually add numeric charts/metrics after evidence review.

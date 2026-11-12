@@ -2,10 +2,13 @@
 // Optional AI planning only. Numeric charts are created separately from verified input.
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import {loadEvidence,validateDeck} from './validate.mjs';
+import {auditDraftNumbers,critiqueDeck} from './critic.mjs';
 
 const argv=process.argv.slice(2);
 function arg(name,fallback){const i=argv.indexOf(`--${name}`);return i>=0?argv[i+1]:fallback;}
+if(argv.includes('--help')||argv.includes('-h')){console.log('Usage: npm run plan:ai -- --input brief.md --out outputs/ai-draft.json [--evidence sources/evidence.json] [--audience research_group|academic_conference|investment_committee] [--duration 7] [--goal "Audience action"]\nThis optional command sends the brief and evidence ledger to the configured OpenAI Responses API. It writes an editable draft and requires explicit human approval before PPTX build.');process.exit(0);}
 function loadEnv(){
   const p=path.resolve('.env');if(!fs.existsSync(p))return;
   for(const line of fs.readFileSync(p,'utf8').split(/\r?\n/)){
@@ -17,6 +20,9 @@ const key=process.env.OPENAI_API_KEY;
 if(!key){console.error('Missing OPENAI_API_KEY. Copy .env.example to .env, configure the key, or use the manual demo.');process.exit(2);}
 const input=path.resolve(arg('input','sources/brief.md'));
 const output=path.resolve(arg('out','content/ai-storyboard.json'));
+const audienceProfile=arg('audience','research_group'),duration=Number(arg('duration','7')),goal=arg('goal','Explain the evidence and agree on the next research step');
+if(!['research_group','academic_conference','investment_committee'].includes(audienceProfile))throw new Error('Unsupported --audience; use research_group, academic_conference, or investment_committee');
+if(!Number.isFinite(duration)||duration<1||duration>120)throw new Error('--duration must be between 1 and 120 minutes');
 const ledger=loadEvidence(path.resolve(arg('evidence','sources/evidence.json')));
 const brief=fs.readFileSync(input,'utf8');
 if(brief.length>45000) throw new Error('Source text is >45k characters; curate it manually, do not silently truncate');
@@ -30,7 +36,7 @@ const slidesSchema={
     }}
   }
 };
-const policy=`Create exactly 6 to 9 slides as JSON for an evidence-first research talk. Use ONLY claims stated in the brief. NEVER invent numeric results, statistical significance, citations, company endorsement, or a benchmark. The only permitted evidence IDs are ${ledger.entries.map(x=>x.id).join(', ')}. Cover with a punchy narrative, explain key observations, uncertainty, implications, and decisions. Each slide title is a conclusion, not a topic. At most 3 short body entries per slide. When evidence IDs lack support, use none and clearly mark as hypothesis. Avoid unsupported inference. Use native title/statement/bullets/closing types. Charts and metrics must be curated manually from verified files. Return JSON.`;
+const policy=`Create exactly 6 to 9 slides as JSON for an evidence-first talk for audience profile ${audienceProfile}, target duration ${duration} minutes, goal: ${goal}. Use ONLY factual claims in the brief. NEVER invent numeric results, statistical significance, citations, company endorsement, or benchmarks. The only permitted evidence IDs are ${ledger.entries.map(x=>x.id).join(', ')}. Cite a source only when its ledger entry directly supports the slide claim. When a claim is a hypothesis, identify it as such and do not present it as a finding. Use a clear narrative, preserve relevant uncertainty and limitations, and keep text concise. Do not invent metrics, chart values, or confidence intervals; chart and metric slides are curated manually after source review. Return the exact required JSON schema.`;
 const payload={model:process.env.OPENAI_MODEL||'gpt-6-luna',
   input:[{role:'developer',content:policy},{role:'user',content:`SOURCE BRIEF:\n${brief}\n\nEVIDENCE LEDGER:\n${JSON.stringify(ledger.entries)}`}],
   text:{format:{type:'json_schema',name:'slide_storyboard',schema:slidesSchema,strict:true}}
@@ -42,12 +48,16 @@ async function main(){
  if(!r.ok)throw new Error(`API request failed (${r.status}): ${JSON.stringify(json.error||json).slice(0,700)}`);
  const text=json.output_text||json.output?.flatMap(o=>o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text).join('');
  if(!text)throw new Error('Response did not contain output_text; inspect API response manually');
- const planned=JSON.parse(text);
+ const response=JSON.parse(text);
+ const planned={meta:{title:response.title,subtitle:response.subtitle,audience:audienceProfile,audience_profile:audienceProfile,goal,duration_minutes:duration,theme:arg('theme','academic-light'),status:'AI-GENERATED DRAFT — HUMAN REVIEW REQUIRED',draft_origin:'OpenAI Responses API',requires_human_review:true},slides:response.slides};
  const {deck,errors,warnings}=validateDeck(planned,ledger);
  if(errors.length)throw new Error(`Model output failed validation: ${errors.join('; ')}`);
  if(deck.slides.length<6||deck.slides.length>9)throw new Error('AI must create 6–9 slides; regenerate or edit manually');
+ const numberAudit=auditDraftNumbers(deck,brief),critique=critiqueDeck(deck,ledger);
  fs.mkdirSync(path.dirname(output),{recursive:true});
- fs.writeFileSync(output,JSON.stringify(planned,null,2)+'\n');
- console.log(`Wrote ${output} (${deck.slides.length} slides) / warnings: ${warnings.length}. Human evidence review required.`);
+ fs.writeFileSync(output,JSON.stringify(deck,null,2)+'\n');
+ fs.writeFileSync(`${output}.review.json`,JSON.stringify({schema_version:1,review_status:'pending',source_brief:{path:input,sha256:crypto.createHash('sha256').update(brief).digest('hex')},schema_errors:errors,validation_warnings:warnings,critic,number_audit:numberAudit,required_human_checks:['Check every factual claim and citation against the source material.','Check all numeric tokens against the original records; literal overlap is not semantic verification.','Review uncertainty, limitations, audience fit, narrative and every rendered slide.','After edits, record approval or rejection with src/review-draft.mjs.']},null,2)+'\n');
+ fs.writeFileSync(`${output}.review.md`,[`# Human review required: ${deck.meta.title}`,'',`- Status: **pending**`,`- Audience profile: ${audienceProfile}`,`- Target duration: ${duration} minutes`,`- Source brief: \`${input}\``,`- Schema errors: ${errors.length}`,`- Critic findings: ${critique.issues.length}`,`- Possible unsupported numeric tokens: ${numberAudit.findings.length}`,'','## Required review','', '- Compare each claim and evidence ID with the source.','- Confirm every numeric value against original records and check its unit/context.','- Review limitations, audience, pacing and rendered slide layout.','- Edit this JSON freely, then approve a content-hash-bound copy with `src/review-draft.mjs`.' ,'','## Limits','',...numberAudit.limitations.map(x=>`- ${x}`),''].join('\n'));
+ console.log(`Wrote editable draft ${output} (${deck.slides.length} slides); review pending, ${warnings.length} validation warning(s), ${numberAudit.findings.length} possible unsupported numeric token(s).`);
 }
 main().catch(err=>{console.error(`[ERROR] ${err.message}`);process.exit(1);});

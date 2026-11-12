@@ -37,6 +37,8 @@ export function validateDeck(input, ledger) {
   if (deck.meta.layout && !['assertion-evidence','two-column-contrast','metric-focus','chart-and-takeaway'].includes(deck.meta.layout)) errors.push(`Unsupported layout ${deck.meta.layout}`);
   if (deck.meta.aspect_ratio && deck.meta.aspect_ratio !== '16:9') errors.push('Only 16:9 decks are currently supported');
   if (deck.meta.audience_profile && !['research_group','academic_conference','investment_committee'].includes(deck.meta.audience_profile)) errors.push('Unsupported audience_profile');
+  if(deck.meta.requires_human_review!==undefined&&typeof deck.meta.requires_human_review!=='boolean')errors.push('meta.requires_human_review must be boolean');
+  if(deck.meta.requires_human_review===true&&(!deck.meta.human_review||deck.meta.human_review.decision!=='approve'))warnings.push('AI-generated draft requires a human review before PPTX build');
   if (!deck.slides.length || deck.slides.length>40) errors.push('slides must have 1–40 entries');
   for (const [i,s] of deck.slides.entries()) {
     const where=`Slide ${i+1}`;
@@ -47,6 +49,8 @@ export function validateDeck(input, ledger) {
     if(s.assertion_title!==undefined && !boundedText(s.assertion_title,170)) errors.push(`${where}: assertion_title must contain 1–170 characters`);
     if(s.layout && !['assertion-evidence','two-column-contrast','metric-focus','chart-and-takeaway'].includes(s.layout)) errors.push(`${where}: unsupported layout ${s.layout}`);
     if(s.speaker_notes!==undefined && !boundedText(s.speaker_notes,2000)) errors.push(`${where}: speaker_notes must contain 1–2000 characters`);
+    if(s.figure_description!==undefined&&(!isString(s.figure_description)||s.figure_description.length>550))errors.push(`${where}: figure_description must contain 1–550 characters`);
+    if(s.figure_description!==undefined&&s.type!=='chart')errors.push(`${where}: figure_description is only supported on chart slides`);
     if(s.body!==undefined && (!Array.isArray(s.body)||s.body.some(x=>!boundedText(x,550)))) errors.push(`${where}: body must be an array of nonempty strings (<=550 chars)`);
     if(s.body?.some(x=>x.length>190)) warnings.push(`${where}: long body item may reduce readability`);
     if(!Array.isArray(s.evidence_ids)) errors.push(`${where}: evidence_ids[] is required, even when empty`);

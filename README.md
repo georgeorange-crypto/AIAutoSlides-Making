@@ -145,6 +145,37 @@ Windows rendering uses Microsoft PowerPoint if installed. If COM export is unava
 
 `npm run plan:ai` is opt-in and may incur API charges. It sends the local brief and evidence ledger to the configured OpenAI API. Do not use it with confidential research unless specifically authorized. Local build, validation, tests, and CSV import never call an AI service.
 
+### Slide Critic and human review gate (M3)
+
+Run the deterministic, offline critic on any editable storyboard. Reports list rule IDs, severity, slide IDs, element fields, specific suggestions, and the guidance source behind each rule:
+
+```powershell
+npm run critique -- --input examples/research-demo.json --evidence sources/evidence.json --out outputs/research-demo-critique
+```
+
+The optional AI planner accepts a target audience, goal and duration; its JSON output remains editable. It uses constrained JSON Schema, restricts citations to ledger IDs, reports numeric literals absent from the supplied brief for human checking, and writes a review checklist. The numeric check is lexical only and cannot establish semantic support or truth.
+
+```powershell
+npm run plan:ai -- --input sources/brief.md --out outputs/research-draft.json --audience academic_conference --duration 12 --goal "Explain the result and agree on the next experiment"
+npm run critique -- --input outputs/research-draft.json --evidence sources/evidence.json --out outputs/research-draft-critique
+```
+
+AI drafts marked `requires_human_review:true` cannot build until a reviewer records a decision, note, and review of all critic findings. Approval binds to a SHA-256 of the draft content; any later content change invalidates that approval. Make edits before review, then write the approved editable copy:
+
+```powershell
+npm run review:draft -- --input outputs/research-draft.json --out outputs/research-reviewed.json --decision approve --reviewer "Reviewer name" --note "Checked claims, sources, limitations and slide previews" --ack-findings all
+node src/cli.mjs build --input outputs/research-reviewed.json --evidence sources/evidence.json --out outputs/research-reviewed.pptx
+```
+
+To compare the built-in themes, generate a 2-slide cover/chart preview in each theme, inspect the six PNGs, and confirm a selection explicitly. No proprietary template or asset is copied.
+
+```powershell
+npm run theme-gallery -- --input examples/research-demo.json --evidence sources/evidence.json --out outputs/theme-gallery
+npm run select:design -- --gallery outputs/theme-gallery/gallery.json --theme academic-light --reviewer "Reviewer name" --confirm yes --out docs/design.md
+```
+
+The selection command writes the confirmed theme profile to `docs/design.md` and `docs/design-tokens.json`; change the theme argument to the option you actually select. A gallery alone does not mark any option as confirmed.
+
 ## Research and design rules
 
 - Titles state the slide's point; evidence stays attached to each factual slide.

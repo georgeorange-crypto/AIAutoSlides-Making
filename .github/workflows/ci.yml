@@ -59,3 +59,5 @@ jobs:
             outputs/m2-dual/research-demo-reading.evidence-manifest.json
             outputs/m2-dual/research-demo-shared-evidence.json
             outputs/m2-dual/research-demo-shared-evidence.md
+            outputs/research-demo-critique.json
+            outputs/research-demo-critique.md

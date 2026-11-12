@@ -148,8 +148,8 @@ export async function generatePresentation(deck,evidence,theme,outputPath) {
     else if(d.type==='bullets') bullets(s,d,theme);
     else if(d.type==='closing') closing(s,d,theme);
     addFooter(s,i,deck.slides.length,d,ledger,theme,deck.meta);
-    const notes=d.speaker_notes||d.notes;
-    if(typeof notes==='string' && notes.trim()) s.addNotes(notes);
+    const notes=d.speaker_notes||d.notes,accessibleNotes=d.figure_description?`Figure description: ${d.figure_description}${notes?`\n\n${notes}`:''}`:notes;
+    if(typeof accessibleNotes==='string' && accessibleNotes.trim()) s.addNotes(accessibleNotes);
   }
   fs.mkdirSync(path.dirname(outputPath),{recursive:true});
   await pptx.writeFile({fileName:outputPath});

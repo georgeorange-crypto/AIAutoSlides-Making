@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {loadEvidence,validateDeck} from './validate.mjs';
 import {generatePresentation} from './render.mjs';
 import {patchPptxErrorBars} from './chart-error-bars.mjs';
+import {buildGateError} from './review-state.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const argv=process.argv.slice(2);
@@ -32,6 +33,7 @@ try{
   for (const w of warnings) console.warn(`[WARN] ${w}`);
   if(errors.length){console.error('Validation failed; no PPTX generated.');process.exit(1);}
   if(verb==='validate'){console.log(`Validation passed: ${report.slides} slides, ${warnings.length} warnings`);process.exit(0);}
+  const gate=buildGateError(raw);if(gate)throw new Error(gate);
   const themeName=arg('theme',deck.meta.theme||'academic-light');
   if(!/^[a-z-]+$/.test(themeName)) throw new Error('Invalid theme name');
   const themeFile=path.join(root,'themes',`${themeName}.json`);
