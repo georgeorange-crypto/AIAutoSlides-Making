@@ -45,7 +45,7 @@
 - Phase 0 bakeoff is incomplete for some requested engines/task groups; blocked and unrun candidates remain identified in `docs/POC_RESULTS.md`.
 - Phase 2 research/document extraction, OpenAlex/Crossref/arXiv retrieval, web crawl and licensed media integrations remain planned/blocked; none are called by this API.
 - Phase 3 audience/narrative/media intelligence and rendered-image critic remain planned.
-- Phase 4 MCP, full UI, remote auth/scopes and Android remain planned.
+- Phase 4 local stdio MCP server over the loopback API is implemented; full UI, remote auth/scopes and Android remain planned.
 - Full Presentation IR element coverage, native Mermaid shape rendering and unchanged-slide hash preservation remain incomplete.
 - Transitive dependency, model and media-license audit remains incomplete.
 

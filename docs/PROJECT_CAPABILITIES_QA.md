@@ -75,14 +75,14 @@ M3 已加入受众/目标/时长字段、可选 AI 分镜、按规则 ID 和页�
 
 ## Q7. 有提供给 AI 的 API、Harness，或者可作为 Codex/Claude Code 工作区的工具、Skill、MCP 吗？
 
-**答：有基础规划 API 和项目工作区说明；没有通用 MCP Server、可安装 Skill 或 Claude Code 专用配置。**
+**答：已有本地 REST 项目 API 和 stdio MCP Server；尚无可安装 Codex/Claude Skill，也不提供可远程部署的 MCP/API。**
 
-- `src/ai-plan.mjs` 提供的是可选 OpenAI Responses API 分镜调用，不是面向外部 Agent 的通用 PPT 生成 API。
-- 输入校验、来源 ID 校验、PPTX 构建、Slide Critic、人工审核门、QA、测试及追溯报告构成了基础执行与检查链条，可以供 Codex 在工作区中使用；但没有统一工具协议和多步骤 Agent 调度器。
-- 仓库提供 `AGENTS.md`、README、Schema 和 npm 命令，Codex 可直接按项目指令操作代码和生成器。Claude Code 可读取一般项目文件，但仓库没有 `CLAUDE.md`、Skill 包或 MCP 配置。
+- `src/ai-plan.mjs` 提供可选 OpenAI Responses API 分镜调用；`src/mcp.mjs` 提供面向 MCP 客户端的本地工具接口，可查询项目/作业/产物、创建项目、导入 incoming 文件、编辑 slide 和排队生成。
+- MCP 通过 stdio 连接已运行的 loopback REST API，支持协议 `2026-07-28` 和旧式 `2025-11-25` 系列握手；没有 HTTP MCP transport，也不支持远程 bind、身份认证或多用户授权。
+- 读写型 MCP 操作会在工具描述中要求用户审批；最终确认界面由宿主 MCP 客户端负责。仓库提供 `AGENTS.md`、README、Schema 和 npm 命令，Codex/Claude Code 可通过 MCP 使用工具，但尚无专门的可安装 Skill 或 `CLAUDE.md`。
 - CI 工作流会运行构建/检查并上传示例产物；它是自动验证流水线，不是交互式制作 Agent。
 
-参考：`AGENTS.md`、`package.json`、`src/ai-plan.mjs`、`.github/workflows/`、`docs/CONFIGURATION.md`。
+参考：`AGENTS.md`、`package.json`、`src/ai-plan.mjs`、`src/mcp.mjs`、[`docs/MCP_SERVER.md`](MCP_SERVER.md)、`.github/workflows/`、`docs/CONFIGURATION.md`。
 
 ## Q8. 各机构的 PPT 指导意见有保存在本地吗？
 

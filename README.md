@@ -412,3 +412,7 @@ node src/qa.mjs outputs/multimodal/ai-systems-synthetic.pptx
 ```
 
 PPTX, PDF, ten page PNGs, preview, evidence manifest and QA reports are written under `outputs/multimodal/`. Synthetic values remain unverified; the two SVGs are embedded picture objects and their `verified:false` state requires human provenance review. See [`docs/M3A_SYNTHETIC_DECK_REPORT.md`](docs/M3A_SYNTHETIC_DECK_REPORT.md).
+
+## Local MCP server
+
+The stdio MCP server exposes the local project API to MCP clients. Start the API in one terminal, then configure the MCP client to run `node src/mcp.mjs`; see [`docs/MCP_SERVER.md`](docs/MCP_SERVER.md) for Codex and Claude Code examples. The server accepts only a loopback API URL, performs no web research or model calls, and expects the MCP host to request user approval for project edits, source import and render jobs.
