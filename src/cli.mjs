@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {loadEvidence,validateDeck} from './validate.mjs';
 import {generatePresentation} from './render.mjs';
@@ -39,5 +40,8 @@ try{
   report.theme=themeName;
   report.output=path.relative(process.cwd(),output);
   fs.writeFileSync(output.replace(/\.pptx$/i,'')+'.review.json',JSON.stringify(report,null,2)+'\n');
+  const lineageSlides=deck.slides.map((s,i)=>({slide_id:s.slide_id||`S${String(i+1).padStart(2,'0')}`,slide_number:i+1,assertion:s.assertion_title||s.title,evidence_ids:s.evidence_ids||[],sources:(s.evidence_ids||[]).map(id=>{const e=evidence.entries.find(v=>v.id===id),hash=(e.locator||'').match(/SHA-256\s+([a-f0-9]{64})/i)?.[1]||null;return{id,label:e.label,source:e.source,source_sha256:hash,locator:e.locator||null,verification_status:e.verified?'verified':'unverified'};})}));
+  const lineage={schema_version:1,generated_at:new Date().toISOString(),storyboard:{path:path.relative(process.cwd(),input),sha256:crypto.createHash('sha256').update(fs.readFileSync(input)).digest('hex')},evidence_ledger:{path:path.relative(process.cwd(),evidenceFile),sha256:crypto.createHash('sha256').update(fs.readFileSync(evidenceFile)).digest('hex')},slides:lineageSlides,figures:deck.slides.flatMap((s,i)=>s.type==='chart'?[{figure_id:s.figure_id||`F${String(i+1).padStart(2,'0')}`,slide_id:lineageSlides[i].slide_id,assertion:s.assertion_title||s.title,kind:s.chart.kind,unit:s.chart.unit,categories:s.chart.categories,values:s.chart.values,transform:'identity mapping from storyboard values to editable PptxGenJS chart',source_ids:s.evidence_ids,source_sha256:lineageSlides[i].sources.map(x=>x.source_sha256).filter(Boolean)}]:[])};
+  fs.writeFileSync(output.replace(/\.pptx$/i,'')+'.evidence-manifest.json',JSON.stringify(lineage,null,2)+'\n');
   console.log(`Created ${output} (${report.slides} slides) and review report`);
 }catch(err){console.error(`[FATAL] ${err.message}`);process.exit(1);}

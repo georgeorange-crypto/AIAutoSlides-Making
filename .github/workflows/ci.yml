@@ -13,8 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      # First online npm install creates package-lock.json; commit it and switch to npm ci.
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - run: npm run check
       - uses: actions/upload-artifact@v4
         with:
@@ -22,3 +21,15 @@ jobs:
           path: |
             outputs/research-demo.pptx
             outputs/research-demo.review.json
+            outputs/research-demo.evidence-manifest.json
+            outputs/research-demo.qa.json
+            outputs/research-demo.qa.md
+            outputs/synthetic-csv-demo.pptx
+            outputs/synthetic-csv-demo.evidence-manifest.json
+            outputs/synthetic-csv-demo.qa.json
+            outputs/synthetic-csv-demo.qa.md
+            outputs/synthetic-line-demo.pptx
+            outputs/synthetic-line-demo.review.json
+            outputs/synthetic-line-demo.evidence-manifest.json
+            outputs/synthetic-line-demo.qa.json
+            outputs/synthetic-line-demo.qa.md

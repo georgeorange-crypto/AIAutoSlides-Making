@@ -1,0 +1,6 @@
+# SYNTHETIC hypothetical service-stage latency values. Not measured system performance.
+category,value,unit,sample_n
+Queue,2.1,ms,10
+Prefill,18.4,ms,10
+Transfer,4.7,ms,10
+Decode,31.2,ms,10

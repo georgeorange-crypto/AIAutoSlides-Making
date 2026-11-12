@@ -10,14 +10,19 @@ The local build is **fully offline** after dependencies are installed; AI planni
     "title": "Research talk title",
     "subtitle": "Context / author / date",
     "audience": "Research lab",
+    "audience_profile": "research_group",
+    "goal": "Get feedback on the next experiment",
+    "duration_minutes": 7,
+    "aspect_ratio": "16:9",
+    "layout": "assertion-evidence",
     "theme": "academic-light",
     "status": "DRAFT — source verification pending"
   },
   "slides": [
     {"type":"cover", "kicker":"INTRO", "title":"Title", "body":["Subtitle"], "evidence_ids":[]},
-    {"type":"statement", "kicker":"FINDING", "title":"Claim", "body":["Supporting evidence"], "evidence_ids":["E1"]},
+    {"slide_id":"S02", "type":"statement", "layout":"two-column-contrast", "kicker":"FINDING", "title":"Claim", "assertion_title":"The slide's main claim", "body":["Supporting evidence"], "evidence_ids":["E1"], "speaker_notes":"Explain the comparison and its limitation."},
     {"type":"metrics", "kicker":"EVIDENCE", "title":"Metric interpretation", "metrics":[{"label":"Latency", "value":"0.4s", "detail":"P50, ms"}], "evidence_ids":["E1"]},
-    {"type":"chart", "kicker":"EVIDENCE", "title":"Chart takeaway", "chart":{"kind":"bar","unit":"seconds","series_name":"TTFT P50","categories":["Raw","Compressed"],"values":[0.35,1.1]}, "evidence_ids":["E1"]},
+    {"slide_id":"S04", "type":"chart", "layout":"chart-and-takeaway", "kicker":"EVIDENCE", "title":"Chart takeaway", "chart":{"kind":"bar","unit":"seconds","y_axis_label":"TTFT P50 (seconds)","series_name":"TTFT P50","categories":["Raw","Compressed"],"values":[0.35,1.1]}, "evidence_ids":["E1"]},
     {"type":"process", "kicker":"METHOD", "title":"How the system works", "steps":["Input","Decode","Output"], "evidence_ids":["E2"]},
     {"type":"bullets", "kicker":"NEXT", "title":"Three next steps", "body":["First","Second","Third"], "evidence_ids":["E2"]},
     {"type":"closing", "kicker":"DECISION", "title":"What should we do?", "body":["Ask for a choice"], "evidence_ids":[]}
@@ -32,12 +37,14 @@ The local build is **fully offline** after dependencies are installed; AI planni
 - `cover`: Hero text / optional 1–2 body lines.
 - `statement`: One compelling full-sentence assertion + 0–2 supporting points.
 - `metrics`: 1–4 metric cards; requires at least one evidence ID.
-- `chart`: Native PowerPoint bar chart; requires 2–9 nonnegative numeric values and at least one evidence ID.
+- `chart`: Native PowerPoint bar or line chart; requires 2–9 finite values, unit, y-axis label, and at least one evidence ID. Bar values are nonnegative and use a zero baseline; line values may be signed.
 - `process`: 2–6 steps in horizontal sequence; lengths must fit.
 - `bullets`: 1–5 ordered next steps.
 - `closing`: Decision required and concrete next step.
 
 Each `evidence_ids` item must match an entry from `sources/evidence.json`. No source ID may be silently invented or ignored.
+
+`slide_id` is optional for legacy decks and should be stable (`S01`, `S02`, …) for maintained decks. Chart units and y-axis labels are required; `sample_size` must be a positive integer when supplied and otherwise triggers a warning. Bar charts must begin at zero. Only 16:9 is currently supported. `speaker_notes` is copied to PowerPoint speaker notes.
 
 ### Evidence ledger (`sources/evidence.json`)
 

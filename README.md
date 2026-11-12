@@ -1,203 +1,116 @@
-# AIAutoSlides Making 🎬
+# AIAutoSlides Making
 
-**Evidence-first · AI-assisted · Editable PowerPoint · Reproducible research talks**
+Evidence-first, offline-by-default generation of editable PowerPoint research talks. The local pipeline uses Node.js and PptxGenJS; it does not require an AI key or cloud service.
 
-> A small, runnable starter project for turning a research brief or a verified storyboard into an editable `.pptx` deck. It prioritizes **scientific accuracy and reproducibility** over one-click visual spectacle.
->
-> 中文说明为主；命令和配置兼容 Windows PowerShell、macOS 和 Linux。**No API key is required for the local demo.**
+> The included KV-cache example contains user-supplied, **unverified** values. Treat its charts and claims as drafts until checked against original experiment logs. The CSV teaching workflow is explicitly **synthetic** and is not research evidence.
 
-![Demonstration cover](docs/demo-cover.png)
+## Quick start — Windows PowerShell
 
-## ✨ What it does today (MVP v0.1.0)
-
-| Capability | Status | Notes |
-|---|---|---|
-| JSON storyboard → editable PPTX | ✅ Implemented | PptxGenJS native text, shapes and chart objects |
-| Seven-slide research example | ✅ Implemented | Covers research findings, metrics, chart, process, next steps |
-| Three selectable themes | ✅ Implemented | `academic-light`, `tech-dark`, `keynote-minimal` |
-| Evidence ledger and structural validation | ✅ Implemented | Rejects unknown evidence IDs and malformed numerical charts |
-| Optional AI storyboard via Responses API | 🟡 Implemented, requires your key | Requires network/API access; not tested against a live account here |
-| GitHub Actions unit checks / PPTX artifact | 🟡 Workflow included | Must validate after first push to your own GitHub repository |
-| Local PDF/PNG preview | 🟡 Optional | Requires LibreOffice; PNG also needs Poppler (`pdftoppm`) |
-| PDF input / automatic chart extraction | ⏳ Not in MVP | Convert/curate evidence into Markdown/JSON manually |
-| Visual overflow auto-detection | ⏳ Future work | Current validation checks structure, *not* rendered pixel geometry |
-| Multi-agent design critic | ⏳ Future work | Use the included Codex task brief |
-
-**Important:** The demonstration experimental numbers were provided in the research discussion and have not been independently verified against original experiment logs. They are tagged as unverified in `sources/evidence.json`. Do not publish the example as a scientific conclusion without checking them.
-
-## 1. Quick start (Windows PowerShell)
-
-**Prerequisites:** [Node.js](https://nodejs.org/en/download) **20+**, npm, and optionally [Git](https://git-scm.com/downloads). PowerPoint is needed only to edit/open the exported deck, not to generate it.
+Requirements: Node.js 20+, npm, and PowerPoint or LibreOffice for PDF export. Poppler (`pdftoppm`) is needed for page PNGs.
 
 ```powershell
-# Download/unzip the project, then open PowerShell in its root
-cd AIAutoSlides
-node --version
-npm install
-npm run test
-npm run validate
-npm run build
-```
-
-Open `outputs/research-demo.pptx` in Microsoft PowerPoint. The accompanying `outputs/research-demo.review.json` reports unresolved evidence warnings. **No API charge for the commands above.**
-
-If an existing PPTX viewer cannot display the generated chart correctly, open it in PowerPoint and inspect the chart separately. Do not substitute a screenshot without documenting the loss of editability.
-
-### macOS / Linux
-
-```bash
-cd AIAutoSlides
-node --version
-npm install
+cd D:\OPPitems\HOMEWORK\Liberty\AIAutoSlides
+npm ci
 npm run check
+npm run preview
 ```
 
-This generates `outputs/research-demo.pptx`. No Docker, GPU, or Python required for the core project.
+`npm run check` runs unit/negative tests, imports the synthetic CSV, validates both storyboards, builds both PPTX files, and audits the PowerPoint XML. `npm run preview` exports the research demo to PDF and renders every PDF page to PNG. On Windows it uses locally installed PowerPoint through COM; on Linux it uses LibreOffice.
 
-## 2. Generate a different theme
+Generated artifacts are under `outputs/` (ignored by Git):
 
-```bash
-node src/cli.mjs build \
-  --input examples/research-demo.json \
-  --theme academic-light \
-  --out outputs/research-light.pptx
-```
+- `research-demo.pptx`, `.pdf`, `-page-1.png` … `-page-N.png`
+- `research-demo.review.json` — schema/evidence warnings
+- `research-demo.evidence-manifest.json` — input hashes and slide/source lineage
+- `research-demo.qa.json` and `.qa.md` — editability and object audit
+- Equivalent `synthetic-csv-demo.*` outputs for the synthetic example
 
-Available themes are in `themes/*.json` and can be extended without changing source code. For a high-contrast visual style, try `--theme tech-dark`.
+Open **every page PNG** at presentation scale. XML QA cannot detect visual overflow, font substitution, or unintended overlap.
 
-## 3. Build your own research slides (without any AI service)
+## Synthetic CSV workflow
 
-1. Copy `examples/research-demo.json` to `content/my-talk.json` and update `meta`, slide titles, body, metrics, chart data, and notes.
-2. Add citations to `sources/evidence.json`; give each evidence entry a stable ID such as `E3`, a source/locator, and the verification status.
-3. For factual slides, include those IDs under `evidence_ids`. Numerical charts and metrics **must** include an evidence ID.
-4. Build and check:
-
-```bash
-node src/cli.mjs validate --input content/my-talk.json
-node src/cli.mjs build --input content/my-talk.json --out outputs/my-talk.pptx
-```
-
-Supported slide types: `cover`, `statement`, `metrics`, `chart` (native bar chart), `process`, `bullets`, `closing`. See `docs/SCHEMA.md` for exact examples.
-
-> The numerical values in charts must come from the evidence source, not from text-to-image or AI extrapolation. Validation currently checks that they are numeric and referenced, **not** that they match original experiments. Human verification remains mandatory.
-
-## 4. Let AI create a storyboard (optional)
-
-The optional `plan:ai` command uses the [OpenAI Responses API](https://developers.openai.com/api/reference/resources/responses/methods/create) with [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs). It generates only narrative slide types to reduce the risk of fabricated numerical charts. It **never generates empirical chart values**.
-
-**Setup:** An OpenAI API key is separate from a ChatGPT subscription and usage may incur API charges. You can also skip this integration entirely and ask Codex to edit `content/my-talk.json` interactively.
+The values in [`examples/from-csv/synthetic-latency.csv`](examples/from-csv/synthetic-latency.csv) are fictional teaching values. The importer refuses a CSV that does not identify itself as synthetic, requires consistent units and a sample count per row, and calculates a source hash.
 
 ```powershell
-Copy-Item .env.example .env
-notepad .env
-# Set OPENAI_API_KEY=... and, if desired, OPENAI_MODEL=...
-npm run plan:ai
-node src/cli.mjs validate --input content/ai-storyboard.json
-node src/cli.mjs build --input content/ai-storyboard.json --theme academic-light --out outputs/ai-first-draft.pptx
+npm run from:csv
+node src/cli.mjs validate --input outputs/synthetic-csv/storyboard.json --evidence outputs/synthetic-csv/storyboard-evidence.json
+node src/cli.mjs build --input outputs/synthetic-csv/storyboard.json --evidence outputs/synthetic-csv/storyboard-evidence.json --out outputs/synthetic-csv-demo.pptx
+node src/qa.mjs outputs/synthetic-csv-demo.pptx
+node scripts/preview.mjs outputs/synthetic-csv-demo.pptx
 ```
 
-Default model in `.env.example` is `gpt-6-luna`, as listed in the [current API model catalog](https://developers.openai.com/api/docs/models); if your account lacks access, select another model available to your account. The script reads your **local** `sources/brief.md` and `sources/evidence.json`, sends their contents to the configured API, then saves the structured output locally. **Do not submit confidential/unpublished research to a third-party or cloud API unless authorized.** Never commit `.env` or keys.
+The generated talk has eight slides with stable IDs, speaker notes, an editable native bar chart, and a slide-to-source manifest. To use actual research data, create a separate input and evidence ledger; do not mark a source verified until it has been compared with its underlying files.
 
-If the API returns a schema error, review the response error and rerun after correcting your account/model configuration. **This API path was not live-tested in the build environment.**
+CSV columns: `category,value,unit,sample_n`; values must be finite and nonnegative. Each row is one plotted category. The importer does not aggregate repetitions or infer statistical uncertainty.
 
-## 5. Preview and visually QA the deck
+### Native line chart (Milestone 2 first step)
 
-Install [LibreOffice](https://www.libreoffice.org/download/download-libreoffice/) for PPTX → PDF; install [Poppler](https://poppler.freedesktop.org/) for optional PDF → PNG.
+The same deterministic importer can create an editable PowerPoint line chart from a synthetic ordered series:
 
-```bash
-npm run preview
-# or:
+```powershell
+npm run from:line
+node src/cli.mjs validate --input outputs/synthetic-line/storyboard.json --evidence outputs/synthetic-line/storyboard-evidence.json
+node src/cli.mjs build --input outputs/synthetic-line/storyboard.json --evidence outputs/synthetic-line/storyboard-evidence.json --out outputs/synthetic-line-demo.pptx
+node src/qa.mjs outputs/synthetic-line-demo.pptx
+node scripts/preview.mjs outputs/synthetic-line-demo.pptx
+```
+
+Line values may be signed; bar values must be nonnegative and start at zero. This step uses synthetic values. Scatter, CDF, waterfall, multi-series, and repeated-run uncertainty displays remain future work.
+
+## Markdown outline workflow
+
+Use the controlled Markdown grammar in [`examples/from-markdown/research-outline.md`](examples/from-markdown/research-outline.md). It supports deck frontmatter and slide sections for cover, statement, bullets, and closing; body entries are Markdown list items, and every slide can carry evidence IDs and speaker notes.
+
+```powershell
+npm run from:markdown
+node src/cli.mjs validate --input outputs/markdown/storyboard.json --evidence sources/evidence.json
+node src/cli.mjs build --input outputs/markdown/storyboard.json --evidence sources/evidence.json --out outputs/markdown-demo.pptx
+```
+
+The importer is deterministic and does not invent citations or metric values. Use JSON when slides need native charts or metric cards; the Markdown importer keeps numeric/chart authoring in the explicitly structured JSON path for now.
+
+## Build a custom storyboard
+
+Copy `examples/research-demo.json`, update the slide text and `evidence_ids`, then add entries to `sources/evidence.json`. Chart slides require categories, finite nonnegative values, a unit, and a y-axis label. Include `sample_size` when known; otherwise the validator emits a warning. A bar chart with a nonzero minimum axis is rejected. Unknown IDs and malformed evidence entries fail validation.
+
+```powershell
+node src/cli.mjs validate --input examples/my-talk.json --evidence sources/evidence.json
+node src/cli.mjs build --input examples/my-talk.json --evidence sources/evidence.json --theme academic-light --out outputs/my-talk.pptx
+node src/qa.mjs outputs/my-talk.pptx
 node scripts/preview.mjs outputs/my-talk.pptx
 ```
 
-Windows users may need to add LibreOffice's `program` directory to `PATH`. On systems without LibreOffice, open the `.pptx` in PowerPoint, use Export → PDF, and review every page.
+Supported slide types: `cover`, `statement`, `metrics`, `chart` (native bar or line chart), `process`, `bullets`, `closing`. Deck ratio is fixed at 16:9. Optional slide fields include `slide_id`, `assertion_title`, `speaker_notes`, and one of four reusable layouts: `assertion-evidence`, `two-column-contrast`, `metric-focus`, `chart-and-takeaway`.
 
-**Human QA gate:** (1) read all titles as a single story; (2) verify numbers against original files; (3) inspect chart axes and legends; (4) check text overflow and font substitution; (5) verify slides are editable in PowerPoint; (6) run a rehearsal at the actual projection resolution. The automatic validator cannot replace this step.
+## Themes and local rendering
 
-## 6. Work with Codex
+Theme tokens live in `themes/*.json`; current options are `academic-light`, `tech-dark`, and `keynote-minimal`. Themes use installed fonts only; check font substitution on the actual presentation machine.
 
-Install [Codex CLI](https://github.com/openai/codex) and sign in with your supported account. Windows installation can use:
+Windows rendering uses Microsoft PowerPoint if installed. If COM export is unavailable, open the PPTX in PowerPoint and use **File → Export → Create PDF/XPS**. Linux rendering requires LibreOffice Impress. Both paths require Poppler for PNG rendering. The preview command reports the number and paths of every page image; it does not claim to detect layout defects automatically.
 
-```powershell
-npm install -g @openai/codex
-codex
-```
+## Optional AI storyboard
 
-For Codex on Windows, Microsoft and OpenAI documentation may recommend different environments depending on the CLI release; follow the official [Codex setup guide](https://learn.chatgpt.com/docs/codex/cli).
+`npm run plan:ai` is opt-in and may incur API charges. It sends the local brief and evidence ledger to the configured OpenAI API. Do not use it with confidential research unless specifically authorized. Local build, validation, tests, and CSV import never call an AI service.
 
-The repo includes [`AGENTS.md`](AGENTS.md), which Codex reads as project instructions, plus a task-specific prompt in [`docs/CODEX_TASK.md`](docs/CODEX_TASK.md). Start Codex **inside the repository folder** and paste the task:
+## Research and design rules
 
-```powershell
-cd AIAutoSlides
-codex
-# In Codex chat: Read AGENTS.md and docs/CODEX_TASK.md. Execute Phase 1, run all tests, and report evidence.
-```
+- Titles state the slide's point; evidence stays attached to each factual slide.
+- Use editable text, shapes, and chart objects. Images are not a substitute for editable slide content.
+- Keep source verification state visible. `verified:false` produces a warning and is not scientific validation.
+- Preserve units, baselines, sample counts, and aggregation method. Do not infer confidence intervals or significance.
+- Audience and context matter: investment-pitch guidance is not a rulebook for systems research talks.
+- Third-party guidance is translated into independent checks; no copyrighted templates, fonts, or artwork are bundled.
 
-Codex may need your permission to install npm dependencies, open external documents, or alter the workspace. Keep approval prompts enabled for untrusted commands.
+See [`docs/RESEARCH_APPLICATION_MATRIX.md`](docs/RESEARCH_APPLICATION_MATRIX.md) for source-to-code traceability, [`docs/PRODUCT_BENCHMARK.md`](docs/PRODUCT_BENCHMARK.md) for a measurement protocol, [`docs/SCHEMA.md`](docs/SCHEMA.md), and [`docs/CODEX_MASTER_PROMPT.md`](docs/CODEX_MASTER_PROMPT.md) for the roadmap.
 
-## 7. Publish to GitHub
+## CI and repository state
 
-This archive is a **local starter repository**, not yet a live remote repository. Create an empty repo named `AIAutoSlides-Making` on [GitHub](https://github.com/new) (do **not** pre-initialize README/LICENSE/gitignore), then run:
+GitHub Actions runs `npm ci` and `npm run check`, then uploads both PPTX outputs and QA reports. It does not use paid APIs. Local preview rendering uses installed desktop software and is not part of CI.
 
-```bash
-git init
-git add .
-git commit -m "Initial evidence-first slides engine"
-git branch -M main
-git remote add origin https://github.com/YOUR_GITHUB_USERNAME/AIAutoSlides-Making.git
-git push -u origin main
-```
+## Verified in this checkout
 
-The included `.github/workflows/ci.yml` runs validation/tests/build and saves a PPTX artifact. On the first online `npm install`, commit the generated `package-lock.json` for more deterministic dependency installs, then prefer `npm ci` in CI. Check Actions run results rather than assuming the workflow passed.
-
-## 8. Project layout
-
-```text
-AIAutoSlides/
-├── AGENTS.md                   # Codex working rules
-├── README.md                   # Setup + workflows
-├── src/
-│   ├── ai-plan.mjs             # optional AI storyboard
-│   ├── cli.mjs                 # validate / build
-│   ├── render.mjs              # editable PPTX layouts
-│   └── validate.mjs            # source and schema checks
-├── sources/
-│   ├── brief.md                # natural-language source brief
-│   └── evidence.json           # evidence ledger
-├── examples/research-demo.json # curated 7-slide example
-├── themes/*.json               # style tokens
-├── docs/
-│   ├── CODEX_TASK.md           # next Codex implementation tasks
-│   ├── SCHEMA.md               # storyboard reference
-│   ├── REFERENCES.md           # research and docs links
-│   └── demo-cover.png          # screenshot from example deck
-├── scripts/preview.mjs         # optional LibreOffice conversion
-├── tests/validate.test.mjs     # built-in Node test suite
-└── .github/workflows/ci.yml    # CI
-```
-
-## 9. Design philosophy
-
-- **Assertion–Evidence:** every substantive slide starts with the claim, then shows supporting evidence ([MIT EECS](https://mitcommlab.mit.edu/eecs/commkit/slideshow/), [Michael Alley/Penn State](https://www.writing.engr.psu.edu/speaking.html)).
-- **Narrative before cosmetics:** plan audience, decision, story arc, and slide sequence before choosing visuals ([Apple WWDC](https://developer.apple.com/videos/play/wwdc2018/811/), [YC](https://www.ycombinator.com/blog/how-to-design-a-better-pitch-deck)).
-- **Real source → real chart:** editable chart data from curated measurements, not illustration generated by a text/image model.
-- **Two delivery modes (future):** short **Talk Deck** and detailed **Reading Deck** generated from one evidence ledger.
-- **Repeatable builds:** source files tracked with Git, tests and rendering review performed on every change.
-
-See [`docs/REFERENCES.md`](docs/REFERENCES.md) for universities, financial firms, Silicon Valley, professional associations, open-source tools, and community examples.
-
-## 10. MVP boundaries and roadmap
-
-This is an engineered starter, not a finished slide-design SaaS. Priorities for Codex:
-
-1. Add true rendered-slide clipping/contrast detection and visual regression tests.
-2. Add line/scatter/CDF charts, CSV ingestion and provenance-aware figure compilation.
-3. Add optional source-file extraction for Markdown/PDF/DOCX without silently losing citations.
-4. Add a visual-critic evaluation with deterministic rubrics, comparing native editable PPTX versus HTML approaches.
-5. Support Talk Deck and Reading Deck outputs with the same content graph.
-
-These follow-up tasks are detailed in [`docs/CODEX_TASK.md`](docs/CODEX_TASK.md).
+On 2026-11-12, `npm ci`, `npm run check`, and PowerPoint-to-PDF-to-PNG preview completed on this Windows checkout (Node.js 24.14.0, PptxGenJS 4.0.1, fflate 0.8.3). I manually inspected all 7 research-demo pages, all 8 synthetic CSV pages, and all 8 synthetic line-chart pages at 1600×900. The first review caught low-contrast dark chart axes; the current render uses theme-colored axis labels. Structural QA confirms text bounds, source IDs, native chart objects, theme contrast, and exact agreement among storyboard values, chart caches, and embedded workbooks. It cannot detect every font, overlap, or clipping problem, so presentation-machine review is still required. The research-demo report intentionally remains `warning` because E1/E2 are unverified and its chart lacks a sample count. Synthetic CSV and line-chart reports warn because their teaching data is unverified by design.
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE). Sources and third-party examples linked in the documentation remain owned by their respective authors. This repository does not redistribute third-party slide templates or proprietary designs.
+Project code is MIT licensed; see [`LICENSE`](LICENSE). External links are references, not permission to redistribute their copyrighted material.

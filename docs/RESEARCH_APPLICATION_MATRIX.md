@@ -1,0 +1,61 @@
+# Research application matrix
+
+Checked 2026-11-12. This matrix separates guidance that was read from product features actually implemented. Recommendations are not treated as binding conference rules. No third-party slide template, font file, image, or code was copied.
+
+## Research and communication guidance
+
+| Source and class | Guidance reviewed | Software rule / implementation | Evidence and remaining limit |
+|---|---|---|---|
+| [MIT EECS Communication Lab](https://mitcommlab.mit.edu/eecs/commkit/slideshow/) — university guidance | Start from audience purpose; each slide has a message; connect experiments and results to motivation. | Storyboard metadata supports audience, goal, duration; slide records support `assertion_title`, stable `slide_id`, and `evidence_ids`; chart takeaway is rendered explicitly. | `src/validate.mjs`, `src/render.mjs`, `examples/from-csv/`; tests cover ID shape and source IDs. Automated checks cannot judge narrative flow or whether a claim is justified. |
+| [CMU Assertion–Evidence design](https://www.cmu.edu/student-success/other-resources/resource-descriptions/powerpoint-design.html) — university recommendation | State one claim and support it with visual evidence; simplify the slide. | Reusable `assertion-evidence`, `two-column-contrast`, `metric-focus`, and `chart-and-takeaway` layout tokens; native chart and shape components. | `src/render.mjs`, `examples/research-demo.json`, `examples/from-csv/`; contrast layout implemented for statement slides. No universal requirement to remove all lists. |
+| [Michael Alley / Penn State](https://writing.engr.psu.edu/courses/presentations.html) — research and teaching | Scientific presentation design is a research topic; do not overgeneralize one style rule. | Evidence records retain verification state and locator; unknown sources fail validation and unverified sources remain warnings. | `src/validate.mjs`, `src/cli.mjs`; current demo E1/E2 remain unverified. This project does not claim the design choices have been validated in a controlled study. |
+| [Harvard T.H. Chan slide checklist](https://hsph.harvard.edu/research/health-communication/resources/slide-checklist/) — institutional guidance | Readable type and strong text/background contrast; checklist reports 4.5:1 contrast. | Theme foreground/background combinations are computed and enforced at a 4.5:1 minimum; rendered slides still need human review. | `src/contrast.mjs`, `src/qa.mjs`, `tests/validate.test.mjs`; all three bundled themes pass. This is a product guardrail based on cited guidance, not a universal accessibility certification. |
+| [UC San Diego presentation design](https://multimedia.ucsd.edu/best-practices/presentation-design.html) — institutional guidance | Reduce cognitive load and focus the audience on the point. | Slide types and four layout options constrain composition; long body text produces warnings. | `src/validate.mjs`, `src/render.mjs`; progressive reveal is not implemented. |
+| [Stanford GSB communication tips](https://www.gsb.stanford.edu/insights/communication-tips-classroom-around-world) — institutional advice | Build the story for the audience before polishing the slides. | `audience`, `goal`, and `duration_minutes` fields; speaker notes pass through to PowerPoint. | `src/import-csv.mjs`, `src/render.mjs`; no human storyboard approval UI. |
+| [Apple WWDC: Presenting Design Work](https://developer.apple.com/videos/play/wwdc2018/811/) — vendor conference talk | Clarify purpose, audience, central idea, dialogue, and the decision/action sought. | Closing slide and speaker notes remain first-class; objectives are carried in deck metadata. | `src/import-csv.mjs`, `src/render.mjs`. No Apple template, logo, font, or visual asset reused. |
+| [Y Combinator / Kevin Hale](https://www.ycombinator.com/blog/how-to-design-a-better-pitch-deck) — startup pitch advice | Legible, simple, obvious; distill a short talk to a few memorable ideas. | Bounded titles/body fields and explicit takeaways; test coverage includes overlong copy warnings. | `src/validate.mjs`, `tests/validate.test.mjs`. Pitch constraints are not applied as scientific conference requirements. |
+| [Sequoia business plan guide](https://sequoiacap.com/article/writing-a-business-plan/) — VC advice | Purpose, problem, solution, why now, alternatives, business model, team, vision. | Reserved for a future investment-committee storyboard profile. | Not implemented in M1; no startup narrative imposed on the research demo. |
+| [Google developer image guidance](https://developers.google.com/style/images) — vendor documentation style guide | Prefer diagrams over screenshots for concepts; do not rasterize explanatory text; use descriptions for complex figures. | Native text/shapes/chart; XML QA counts text, chart frames, and raster pictures per slide. | `src/render.mjs`, `src/qa.mjs`; image-only slides fail the editable-text gate, but raster elements within a slide only warn and require visual inspection. |
+| [Duarte, Resonate](https://www.duarte.com/resources/books/resonate/) — design methodology | Contrast between current state and possible future state can support a narrative. | `two-column-contrast` is available as a neutral comparison layout. | `src/render.mjs`; no automatic tension arc or unsupported dramatic claim generation. Book content not reproduced. |
+| [Garr Reynolds](https://www.garrreynolds.com/tips) — designer guidance | Simplicity and restraint. | Three themes; bounded text; clean layouts without bundled stock artwork. | `themes/*.json`, `src/validate.mjs`. This is design advice, not a quantitative rule. |
+| [Storytelling with Data](https://www.storytellingwithdata.com/book/downloads) — data communication practice | Explain the takeaway and reduce chart clutter. | Chart labels require units and y-axis text; bar charts reject a nonzero axis minimum; takeaway is rendered separately. | `src/validate.mjs`, `src/render.mjs`, tests. Chart correctness still requires comparison to source rows and visual review. |
+| Native line chart extension — M2 first tranche | Show ordered observations as a trend while preserving source values. | CSV import accepts an explicit line-chart mode; native editable PowerPoint line chart uses markers and a zero-based axis; negative finite values are allowed for line series. | `src/import-csv.mjs`, `src/render.mjs`, `src/validate.mjs`, `examples/from-csv/synthetic-series.csv`; test `line charts accept finite signed values`; 8-slide `synthetic-line-demo` rendered and manually reviewed page by page on 2026-11-12. Synthetic values are not research evidence. |
+
+## Finance and decision communication
+
+| Source and scope | Transferable principle | Current application | Limit |
+|---|---|---|---|
+| [J.P. Morgan Startup Banking](https://www.jpmorgan.com/insights/business-planning/creating-an-investor-pitch-deck-for-your-startup) | Credible progress, clear narrative, evidence, risks/competition, explicit ask. This is startup-banking advice. | Future `investment_committee` profile listed in product benchmark. | Not implemented as a deck template; this is not an internal investment-bank pitchbook standard. |
+| [CFA Institute, Six Presentation Tips](https://rpc.cfainstitute.org/blogs/enterprising-investor/2017/six-presentation-tips-for-finance-professionals) | Tie evidence to a “so what,” audience, and call to action; explain axes verbally. | Chart takeaway and speaker notes are supported. | No risk/assumption decision-page template yet; article is practitioner advice, not a controlled experiment. |
+
+## Academic associations and conference rules
+
+| Source | Advice read | Implementation / status |
+|---|---|---|
+| [IEEE Author Center](https://conferences.ieeeauthorcenter.ieee.org/become-an-ieee-conference-author/present-your-paper/) | Begin with the key message and make slide content readable. | `assertion_title`, duration metadata, and review workflow exist; no official IEEE-specific profile currently enforces talk limits. |
+| [ACM CSCW 2026 accessibility guidance](https://cscw.acm.org/2026/accessiblepresentations.html) | Large type, contrast, low-text slides, captions, verbally describe meaningful visuals. | Guidance informs the manual checklist. This is **CSCW 2026-specific advice**, not a SIGMETRICS, IMC, or universal ACM requirement. |
+| [ACM CSCW 2025 accessible presentation guidelines](https://cscw.acm.org/2025/index.php/accessible-presentation-guidelines/) | Conference-specific accessibility advice. | Historical/specific; not treated as current 2026 or other conference policy. |
+| [USENIX sample slide guide](https://www.usenix.org/legacy/events/samples/slide.guide.pdf) | Projection legibility and restrained content. | Included in the manual rendered-slide review checklist. | Older sample guide; check the target conference's current instructions independently. |
+| [ACM Creativity & Cognition 2025 video preparation](https://cc.acm.org/2025/videoprep/) | Account for recorded presentation and video framing constraints. | Recorded-talk safe area is a future profile. | Not implemented; year/event-specific guidance, not generalized as an ACM requirement. |
+
+For any actual conference, add a dated profile only after checking its official current-year presenter instructions. No SIGMETRICS/IMC 2027 policy is claimed here.
+
+## Open-source tools and product patterns
+
+| Project / product | Reuse decision | Current status |
+|---|---|---|
+| [PptxGenJS](https://github.com/gitbrent/PptxGenJS) | MIT-licensed dependency; generate native editable text, shapes, notes and chart objects. | In use (`package.json`); PPTX XML audit verifies text/chart structures. |
+| [Quarto presentations](https://quarto.org/docs/presentations/) | Reproducible publishing reference; adapter only if a real need is demonstrated. | Not integrated or benchmarked. |
+| [Slidev export](https://sli.dev/guide/exporting) | Browser-first technical talks; compare editable PPTX output before adoption. | Not integrated or benchmarked. |
+| [Marp CLI](https://github.com/marp-team/marp-cli) | Markdown-first workflow reference. | Not integrated or benchmarked. |
+| [Frontend Slides](https://github.com/zarazhangrui/frontend-slides) | Preview-first style-selection UX as an idea. | No code/template/assets copied; precise repository license not audited, so no reuse. |
+| Gamma, Canva, Beautiful.ai, Figma Slides, PowerPoint Copilot, Google Slides, Napkin AI | Product UX comparison only; official APIs and user authorization required before adapters. | No adapters, crawling, or paid-service calls. See benchmark protocol; no comparative scores are asserted. |
+| [Codex AGENTS.md guidance](https://developers.openai.com/cookbook/examples/codex/iterating-development-workflows-with-codex) | Keep repository instructions and repeatable workflows explicit. | `AGENTS.md`, master task, and schema docs; no agent-run remote or paid service. |
+
+## Community observations and future experiments
+
+Community posts/videos are anecdotal prompts for failure modes, not evidence of comparative performance. Stories about repair time, text overflow, and number changes motivate regression cases and a future blinded benchmark. The sources in `REFERENCES.md` are not treated as a statistically representative sample. `docs/PRODUCT_BENCHMARK.md` defines how to measure alternatives before reporting scores.
+
+## Reproducibility and licensing
+
+The current codebase is MIT licensed. Only PptxGenJS and fflate are runtime dependencies; their lockfile versions are recorded in `package-lock.json`. External content is summarized as short principles with a link and scope. No proprietary slide designs, visual assets, fonts, or substantial source passages are redistributed.

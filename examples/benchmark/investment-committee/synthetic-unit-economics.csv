@@ -1,0 +1,5 @@
+# SYNTHETIC fictional startup unit-economics fixture. Not a real business, market, forecast, or investment recommendation.
+category,value,unit,sample_n
+Price per unit,48,USD,1
+Variable cost,21,USD,1
+Contribution per unit,27,USD,1

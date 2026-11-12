@@ -51,6 +51,11 @@ function statement(s,d,t) {
   const fs=d.title.length>90?35:d.title.length>65?42:49;
   txt(s,d.title,{x:0.77,y:1.45,w:11.4,h:2.36,fontFace:t.headFontFace,fontSize:fs,bold:true,color:t.title,valign:'mid',fit:'shrink'});
   line(s,0.80,4.24,4.50,4.24,t.accent);
+  if(d.layout==='two-column-contrast' && (d.body||[]).length>=2){
+    panel(s,0.80,4.52,5.55,1.70,t);panel(s,6.70,4.52,5.55,1.70,t,true);
+    (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:1.04+i*5.9,y:4.83,w:5.05,h:1.10,fontFace:t.bodyFontFace,fontSize:19,color:t.text,valign:'mid',fit:'shrink'}));
+    return;
+  }
   (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.80,y:4.65+i*0.89,w:11.35,h:0.74,fontFace:t.bodyFontFace,fontSize:20,color:i===0?t.text:t.muted,valign:'top',fit:'shrink'}));
 }
 function metrics(s,d,t) {
@@ -71,17 +76,23 @@ function chart(s,d,t,pptx) {
   const c=d.chart;
   panel(s,0.75,2.61,11.82,3.46,t);
   const data=[{name:c.series_name||'Series',labels:c.categories,values:c.values}];
-  s.addChart(pptx.ChartType.bar,data,{
+  const chartType=c.kind==='line'?pptx.ChartType.line:pptx.ChartType.bar;
+  s.addChart(chartType,data,{
     x:1.03,y:2.86,w:11.20,h:2.91,
     catAxisLabelFontFace:t.bodyFontFace,catAxisLabelFontSize:13.5,
     valAxisLabelFontFace:t.bodyFontFace,valAxisLabelFontSize:11.5,
+    catAxisLabelColor:t.text,valAxisLabelColor:t.text,
+    catAxisLineColor:t.muted,valAxisLineColor:t.muted,
     showLegend:false,showValue:true,showTitle:false,showBorder:false,
     showCatName:false,showSerName:false,
     dataLabelPosition:'outEnd',dataLabelColor:t.text,dataLabelFormatCode:'0.###',
     chartColors:[t.accent],valGridLine:{color:t.line,width:0.6},
-    grouping:'clustered',barDir:'col'
+    grouping:c.kind==='line'?'standard':'clustered',barDir:'col',
+    lineDataSymbol:c.kind==='line'?'circle':'none',lineDataSymbolSize:6,lineSize:2.5
   });
-  txt(s,(d.body||[])[0]||'',{x:0.86,y:6.27,w:11.5,h:0.43,fontFace:t.bodyFontFace,fontSize:13.4,color:t.muted,fit:'shrink'});
+  txt(s,c.y_axis_label||c.unit,{x:0.91,y:2.43,w:4.0,h:0.22,fontFace:t.bodyFontFace,fontSize:10.5,color:t.muted,fit:'shrink'});
+  if(d.assertion_title&&d.assertion_title!==d.title)txt(s,d.assertion_title,{x:0.86,y:6.18,w:11.5,h:0.30,fontFace:t.bodyFontFace,fontSize:13.4,bold:true,color:t.text,fit:'shrink'});
+  if((d.body||[])[0])txt(s,d.body[0],{x:0.86,y:d.assertion_title&&d.assertion_title!==d.title?6.51:6.24,w:11.5,h:0.28,fontFace:t.bodyFontFace,fontSize:11.4,color:t.muted,fit:'shrink'});
 }
 function process(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
@@ -133,7 +144,8 @@ export async function generatePresentation(deck,evidence,theme,outputPath) {
     else if(d.type==='bullets') bullets(s,d,theme);
     else if(d.type==='closing') closing(s,d,theme);
     addFooter(s,i,deck.slides.length,d,ledger,theme,deck.meta);
-    if(typeof d.notes==='string' && d.notes.trim()) s.addNotes(d.notes);
+    const notes=d.speaker_notes||d.notes;
+    if(typeof notes==='string' && notes.trim()) s.addNotes(notes);
   }
   fs.mkdirSync(path.dirname(outputPath),{recursive:true});
   await pptx.writeFile({fileName:outputPath});
