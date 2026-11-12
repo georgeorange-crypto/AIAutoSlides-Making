@@ -1,10 +1,20 @@
 import unittest
 from unittest.mock import patch
 
-from worker import allowed_page_request, assert_public_host
+from worker import allowed_page_request, assert_public_host, robots_allows
 
 
 class CrawlNetworkPolicyTests(unittest.TestCase):
+    def test_robots_policy_allows_article_and_denies_api_path(self):
+        policy = """User-agent: *
+Disallow: /w/
+Disallow: /api/
+Disallow: /trap/
+Disallow: /wiki/Special:
+"""
+        self.assertTrue(robots_allows(policy, "https://en.wikipedia.org/wiki/Robots_exclusion_standard"))
+        self.assertFalse(robots_allows(policy, "https://en.wikipedia.org/w/api.php?action=query"))
+
     def test_only_same_origin_https_requests_are_allowed(self):
         self.assertTrue(allowed_page_request("https://example.org/article", "example.org"))
         self.assertFalse(allowed_page_request("http://example.org/article", "example.org"))
