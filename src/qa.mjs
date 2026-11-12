@@ -40,7 +40,7 @@ slides.forEach(s=>{const outside=s.elementBounds.filter(b=>!b.ok);if(outside.len
 slides.forEach(s=>{if(s.overlaps.length)warnings.push(`Slide ${s.slide} has ${s.overlaps.length} overlapping text-shape pair(s); inspect for unintended overlap`);if(s.smallText.length)warnings.push(`Slide ${s.slide} has ${s.smallText.length} non-footer text shape(s) below 9.5 pt`);});
 if(expectedChartValues.length&&(!chartNames.length||!slides.some(s=>s.charts)))errors.push('Storyboard includes a chart but the PPTX has no native chart object');
 if(expectedChartValues.length&&!embedded.length)warnings.push('No embedded chart workbook detected; inspect the chart in PowerPoint');
-if(slides.some(s=>s.images>0))warnings.push('One or more slides include raster images; image-only status requires visual review');
+if(slides.some(s=>s.images>0))warnings.push('One or more slides include embedded picture objects; check the asset manifest for vector/raster type and inspect their rendered appearance.');
 if(fs.existsSync(cliReview)){
  const selected=JSON.parse(fs.readFileSync(cliReview,'utf8')).theme, themeFile=path.join('themes',`${selected}.json`);
  if(fs.existsSync(themeFile)){
