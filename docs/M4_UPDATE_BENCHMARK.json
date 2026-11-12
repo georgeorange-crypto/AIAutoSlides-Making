@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "benchmark": "synthetic repeated-run local update",
+  "created_at": "2026-11-12T18:21:44.571Z",
+  "source": {
+    "path": "examples/from-csv/synthetic-repeated-runs.csv",
+    "sha256_first_run": "83cf15cf61584eb6654d02ea93c13730c3aa984b1c53c4c20dbd55bf7482b76e",
+    "sha256_updated_run": "c2adc1b6d04a4648fee958944959b5cb4e4ab90fc90fc4b4b487f9e1883d5164",
+    "observations": 20,
+    "runs": 20,
+    "synthetic_only": true
+  },
+  "update": {
+    "changed_observation": {
+      "run_id": "baseline-01",
+      "observation_id": "obs-b01",
+      "previous_row": 3,
+      "current_row": 3,
+      "previous_sha256": "e547e2d6633e75f9854cc2e5aa950e4d6a48db23a82874238efcce7904279a0d",
+      "current_sha256": "8105bbcebe091b172bf018d7798052f3d71004596bc77de617c6a142b843c362"
+    },
+    "value_before": 52,
+    "value_after": 53,
+    "added": 0,
+    "changed": 1,
+    "removed": 0
+  },
+  "timing": {
+    "first_run_ms": 1959.2345,
+    "second_update_ms": 1599.8397,
+    "second_build_performed": true,
+    "sample_count": 5,
+    "first_run_summary": {
+      "n": 5,
+      "min_ms": 1527.3326,
+      "median_ms": 1618.8258,
+      "p90_ms": 2121.0809,
+      "max_ms": 2121.0809,
+      "mean_ms": 1756.0280400000004
+    },
+    "update_summary": {
+      "n": 5,
+      "min_ms": 1556.2581,
+      "median_ms": 1599.8397,
+      "p90_ms": 1985.2524,
+      "max_ms": 1985.2524,
+      "mean_ms": 1677.6155999999999
+    },
+    "samples": [
+      {
+        "sample": 1,
+        "first_run_ms": 1959.2345,
+        "update_ms": 1599.8397
+      },
+      {
+        "sample": 2,
+        "first_run_ms": 1553.6664,
+        "update_ms": 1556.2581
+      },
+      {
+        "sample": 3,
+        "first_run_ms": 2121.0809,
+        "update_ms": 1985.2524
+      },
+      {
+        "sample": 4,
+        "first_run_ms": 1618.8258,
+        "update_ms": 1647.9415
+      },
+      {
+        "sample": 5,
+        "first_run_ms": 1527.3326,
+        "update_ms": 1598.7863
+      }
+    ],
+    "scope": "Local CSV import, validation, PPTX generation, and structural QA; excludes PDF rendering, human visual review, and human repair."
+  },
+  "output": {
+    "first_pptx_sha256": "e19abf01974153e2e6a6924901d05ebc24765f428449d50b454fd9e02062e361",
+    "updated_pptx_sha256": "aede85bb00e80f718a221f7d1bf7149aa0486c73079563e81237b882b62fdcd2",
+    "first_deck_differs_from_updated": true
+  },
+  "quality": {
+    "slides": 8,
+    "editable_text_slides": 8,
+    "native_charts": 1,
+    "native_error_bar_series": 1,
+    "raster_images": 0,
+    "first_chart_values_exact": true,
+    "updated_chart_values_exact": true,
+    "first_error_bars_exact": true,
+    "updated_error_bars_exact": true,
+    "factual_slides": 7,
+    "slides_with_valid_evidence_ids": 7,
+    "chart_values_checked": 2,
+    "manual_repair_minutes": null,
+    "visual_review": "not performed for the repeated-run benchmark decks; only the separate 7-slide keynote demo was visually inspected."
+  },
+  "runtime": {
+    "node": "v24.14.0",
+    "pptxgenjs": "4.0.1",
+    "fflate": "0.8.3",
+    "platform": "win32",
+    "arch": "x64",
+    "os": "Windows_NT",
+    "release": "10.0.26300",
+    "cpu": "AMD Ryzen 9 7945HX with Radeon Graphics",
+    "logical_cpu_count": 32,
+    "total_memory_bytes": 16308015104
+  },
+  "limitations": [
+    "Synthetic fixture demonstrates pipeline mechanics only and cannot support scientific or product-performance claims.",
+    "5 local sample(s) per stage; elapsed time is descriptive and hardware/load dependent.",
+    "Human repair time, blind design ratings, and pixel-level review were not measured.",
+    "Editable-text coverage and exact chart/workbook/error-bar checks are structural QA metrics, not complete office-app interoperability tests."
+  ]
+}

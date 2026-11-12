@@ -1,0 +1,43 @@
+schema_version: 1
+id: research
+execution: scripts/run-research-workflow.mjs
+policy:
+  default_network: false
+  paid_api_calls: false
+  source_files_immutable: true
+  verify_claims_automatically: false
+inputs:
+  paper: selectable-text PDF (scanned PDFs fail with an OCR-not-installed message)
+  csv: synthetic by default; unlabeled local CSV requires explicit workflow selection and remains unverified
+  architecture: structured local JSON diagram
+stages:
+  - id: parse-paper
+    adapter: pdfjs-dist
+    input: paper
+    output: page-located extracted text, source hash, pending evidence entry
+    fallback: existing Poppler text extraction path may be run separately; does not add OCR
+  - id: ingest-data
+    adapter: local deterministic CSV importer
+    input: csv
+    output: chart storyboard and source-hashed evidence entry
+    fallback: malformed headers, units, or numeric cells fail the run
+  - id: plan
+    adapter: deterministic local composition
+    output: storyboard with stable slide IDs and explicit source references
+  - id: generate
+    adapter: legacy PptxGenJS backend
+    output: native-editable text, architecture shapes/connectors, and chart objects
+  - id: inspect
+    adapter: OOXML QA
+    output: editable object counts, source/chart checks, review JSON/Markdown
+  - id: preview
+    adapter: PowerPoint COM + Poppler pdftoppm (Windows)
+    output: PDF and one PNG per slide
+    fallback: --skip-preview only for automated tests; full delivery requires preview and visual inspection
+outputs:
+  - pptx
+  - pdf
+  - page_pngs
+  - evidence_manifest
+  - qa_json_and_markdown
+  - run_manifest_with_sha256

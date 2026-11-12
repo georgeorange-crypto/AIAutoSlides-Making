@@ -1,0 +1,40 @@
+{
+  "id": "ppt-master",
+  "name": "PPT Master",
+  "kind": "full-deck-generator",
+  "official_url": "https://github.com/smallooo/ppt-master",
+  "version": "not-pinned",
+  "interface": "REST/MCP or host Skill/CLI",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "full-deck-generator"
+  ],
+  "inputs": [
+    "brief",
+    "storyboard",
+    "template"
+  ],
+  "outputs": [
+    "pptx",
+    "source-script"
+  ],
+  "dependencies": [],
+  "needs_network": true,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "partial",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": null,
+  "limitations": "Independent runtime/host or service needed; no wrapper-only integration claims.",
+  "status": "catalogued"
+}

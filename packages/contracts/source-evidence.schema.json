@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai4slides.local/schemas/source-evidence-1.0.0.json",
+  "title": "Source, Evidence and Claim IR",
+  "type": "object",
+  "required": ["schema_version", "sources"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+    "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+    "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$", "minLength": 1},
+    "source": {
+      "type": "object", "required": ["source_id", "type", "verification_status"],
+      "properties": {
+        "source_id": {"$ref": "#/$defs/id"}, "type": {"type": "string", "minLength": 1},
+        "uri": {"type": ["string", "null"]}, "sha256": {"type": ["string", "null"], "pattern": "^[A-Fa-f0-9]{64}$"},
+        "locator": {"type": ["string", "null"]}, "verification_status": {"enum": ["verified", "unverified", "pending", "contradicted"]},
+        "claims": {"type": "array", "items": {"$ref": "#/$defs/id"}}, "assets": {"type": "array", "items": {"$ref": "#/$defs/id"}}
+      }, "additionalProperties": true
+    },
+    "evidence": {
+      "type": "object", "required": ["evidence_id", "source_id", "excerpt", "verification_status"],
+      "properties": {"evidence_id": {"$ref": "#/$defs/id"}, "source_id": {"$ref": "#/$defs/id"}, "excerpt": {"type": "string", "minLength": 1}, "locator": {"type": ["string", "null"]}, "verification_status": {"enum": ["verified", "unverified", "pending", "contradicted"]}, "reviewer": {"type": ["string", "null"]}, "reviewed_at": {"type": ["string", "null"], "format": "date-time"}},
+      "additionalProperties": true
+    },
+    "claim": {
+      "type": "object", "required": ["claim_id", "statement", "evidence_ids", "review_status"],
+      "properties": {"claim_id": {"$ref": "#/$defs/id"}, "statement": {"type": "string", "minLength": 1}, "evidence_ids": {"type": "array", "items": {"$ref": "#/$defs/id"}}, "review_status": {"enum": ["pending", "verified", "contradicted"]}, "reviewer": {"type": ["string", "null"]}, "reviewed_at": {"type": ["string", "null"], "format": "date-time"}},
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

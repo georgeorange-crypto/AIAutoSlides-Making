@@ -1,0 +1,24 @@
+id: modify-existing
+version: 1
+status: e2e-tested-local-text-route
+policy:
+  network: local-only
+  paid_api_calls: 0
+  overwrite_source: false
+inputs:
+  required: [pptx, exact-text-edit-request]
+  request_schema: examples/existing-pptx/request.json
+route:
+  - inspect: OOXML slide order and relationships
+  - edit: exact replacement in one existing editable text run on a selected slide
+  - preserve: all package parts and every unedited slide XML part
+  - qa: OOXML bounds, text, chart, and package checks
+  - preview: render source and output to page PNGs, compare untouched page hashes
+outputs: [new-pptx, edit-report-json, before-after-pdf-png, qa-json]
+failure:
+  - ambiguous, absent, multi-run or unsupported text target fails without creating output
+  - if any untouched rendered slide differs, workflow fails and retains both decks/previews for diagnosis
+limitations:
+  - chart/image/master/note/animation editing is not implemented
+  - exact one-run text replacement only; modified page requires visual overflow review
+  - generic pptx-automizer package is not installed or claimed as integrated

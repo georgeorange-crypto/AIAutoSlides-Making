@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "title": "Synthetic Backend Editability Check",
+    "subtitle": "Controlled 3-slide test · not research findings",
+    "audience": "Engineering QA",
+    "theme": "keynote-minimal",
+    "duration_minutes": 2,
+    "status": "SYNTHETIC TEST"
+  },
+  "slides": [
+    {
+      "slide_id": "S01",
+      "type": "cover",
+      "kicker": "SYNTHETIC BACKEND TEST",
+      "title": "Editable slide export",
+      "body": [
+        "A controlled comparison of native PPTX generation and an optional Markdown exporter.",
+        "Synthetic content only · no research evidence"
+      ],
+      "evidence_ids": [
+        "E_SYN_M4"
+      ]
+    },
+    {
+      "slide_id": "S02",
+      "type": "bullets",
+      "kicker": "OBJECT CHECK",
+      "title": "Text and shapes should remain editable",
+      "body": [
+        "Short heading and two-column comparison",
+        "Text wrapping sample: a longer sentence checks whether export keeps words selectable and editable in PowerPoint."
+      ],
+      "evidence_ids": [
+        "E_SYN_M4"
+      ]
+    },
+    {
+      "slide_id": "S03",
+      "type": "statement",
+      "layout": "two-column-contrast",
+      "kicker": "CONTROLLED CONTENT",
+      "title": "A text-only export preserves selectable content.",
+      "body": [
+        "Left label: native generation",
+        "Right label: optional Markdown backend"
+      ],
+      "evidence_ids": [
+        "E_SYN_M4"
+      ]
+    }
+  ]
+}

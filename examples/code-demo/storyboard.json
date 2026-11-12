@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "title": "Editable code snippet demonstration",
+    "subtitle": "Synthetic layout fixture",
+    "audience": "Engineering team",
+    "theme": "academic-light",
+    "status": "SYNTHETIC / HYPOTHETICAL"
+  },
+  "slides": [
+    {
+      "slide_id": "S01",
+      "type": "cover",
+      "title": "Code stays editable in the deck",
+      "body": ["A local layout fixture; no performance claims"],
+      "evidence_ids": []
+    },
+    {
+      "slide_id": "S02",
+      "type": "code",
+      "title": "The example keeps its source text",
+      "assertion_title": "The rendered code lines reconstruct the supplied snippet",
+      "evidence_ids": ["E_SYN_CODE"],
+      "speaker_notes": "This is a synthetic layout example, not a validated method or experiment.",
+      "code": {
+        "language": "python",
+        "filename": "synthetic_mean.py",
+        "lines": [
+          "def mean(values):",
+          "    if not values:",
+          "        raise ValueError('values must not be empty')",
+          "    label = format_result(values, include_details=True, include_source=False, precision=4, mode='synthetic demonstration')",
+          "    return sum(values) / len(values)"
+        ]
+      }
+    }
+  ]
+}

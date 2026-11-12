@@ -1,0 +1,23 @@
+{
+  "id": "crawl4ai",
+  "name": "Crawl4AI",
+  "kind": "web-research",
+  "official_url": "https://github.com/unclecode/crawl4ai",
+  "version": "0.9.5",
+  "interface": "isolated Python sidecar via research-ingest CLI",
+  "platforms": ["windows", "linux", "macos"],
+  "capabilities": ["single-page-web-extraction", "robots-check", "same-host-browser-requests"],
+  "inputs": ["operator-authorized-https-url"],
+  "outputs": ["page-markdown", "url-provenance", "unverified-excerpt-candidates"],
+  "dependencies": ["workers/research/requirements-lock.txt", "local Playwright Chromium"],
+  "needs_network": true,
+  "needs_auth": false,
+  "expected_cost": "free-local; site/network terms apply",
+  "editable": "not-applicable",
+  "license": {"identifier": "Apache-2.0", "review_status": "verified-from-package-metadata", "note": "Crawl4AI 0.9.5 declares Apache-2.0; review dependency notices separately."},
+  "verification_status": "single-page-smoke-tested",
+  "adapter": "src/research-ingest.mjs crawl",
+  "probe": null,
+  "limitations": "Requires --allow-network and --site-authorized. One page only, robots checked, same-host requests, no link traversal/media downloads; page terms and excerpts need human review.",
+  "status": "single-page-smoke-tested"
+}

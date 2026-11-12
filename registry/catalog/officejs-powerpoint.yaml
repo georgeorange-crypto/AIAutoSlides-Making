@@ -1,0 +1,41 @@
+{
+  "id": "officejs-powerpoint",
+  "name": "PowerPoint Office.js",
+  "kind": "editor",
+  "official_url": "https://learn.microsoft.com/en-us/office/dev/add-ins/powerpoint/",
+  "version": "not-pinned",
+  "interface": "Node API or Office.js host",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "editor"
+  ],
+  "inputs": [
+    "pptx",
+    "edit-request"
+  ],
+  "outputs": [
+    "pptx",
+    "change-report"
+  ],
+  "dependencies": [
+    "PowerPoint host for Office.js"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "native",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": null,
+  "limitations": "Cannot promise lossless arbitrary PPTX editing; preserve untouched pages and compare rendered output.",
+  "status": "catalogued"
+}

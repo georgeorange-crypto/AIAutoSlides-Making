@@ -1,0 +1,9 @@
+{
+  "edits": [
+    {
+      "slide": 2,
+      "find": "Draft finding: replace this placeholder.",
+      "replace": "Verified wording stays pending human review."
+    }
+  ]
+}

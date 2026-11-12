@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "case_count": 24,
+  "annotation_method": "Hand-labeled synthetic cases; labels represent required review states, not semantic truth judgments.",
+  "scope": "Classification of explicit claim-to-source review states only; not semantic truth or support detection.",
+  "rules": {
+    "CLAIM-001": {
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "tn": 18,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "CLAIM-002": {
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "tn": 18,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "CLAIM-003": {
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "tn": 18,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    }
+  },
+  "rows": [
+    {
+      "id": "missing-en-01",
+      "expected": [
+        "CLAIM-001"
+      ],
+      "predicted": [
+        "CLAIM-001"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "missing-en-02",
+      "expected": [
+        "CLAIM-001"
+      ],
+      "predicted": [
+        "CLAIM-001"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "missing-en-03",
+      "expected": [
+        "CLAIM-001"
+      ],
+      "predicted": [
+        "CLAIM-001"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "missing-en-04",
+      "expected": [
+        "CLAIM-001"
+      ],
+      "predicted": [
+        "CLAIM-001"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "missing-zh-01",
+      "expected": [
+        "CLAIM-001"
+      ],
+      "predicted": [
+        "CLAIM-001"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "missing-zh-02",
+      "expected": [
+        "CLAIM-001"
+      ],
+      "predicted": [
+        "CLAIM-001"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "pending-en-01",
+      "expected": [
+        "CLAIM-002"
+      ],
+      "predicted": [
+        "CLAIM-002"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "pending-en-02",
+      "expected": [
+        "CLAIM-002"
+      ],
+      "predicted": [
+        "CLAIM-002"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "pending-en-03",
+      "expected": [
+        "CLAIM-002"
+      ],
+      "predicted": [
+        "CLAIM-002"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "pending-en-04",
+      "expected": [
+        "CLAIM-002"
+      ],
+      "predicted": [
+        "CLAIM-002"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "pending-zh-01",
+      "expected": [
+        "CLAIM-002"
+      ],
+      "predicted": [
+        "CLAIM-002"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "pending-zh-02",
+      "expected": [
+        "CLAIM-002"
+      ],
+      "predicted": [
+        "CLAIM-002"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "conflict-en-01",
+      "expected": [
+        "CLAIM-003"
+      ],
+      "predicted": [
+        "CLAIM-003"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "conflict-en-02",
+      "expected": [
+        "CLAIM-003"
+      ],
+      "predicted": [
+        "CLAIM-003"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "conflict-en-03",
+      "expected": [
+        "CLAIM-003"
+      ],
+      "predicted": [
+        "CLAIM-003"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "conflict-en-04",
+      "expected": [
+        "CLAIM-003"
+      ],
+      "predicted": [
+        "CLAIM-003"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "conflict-zh-01",
+      "expected": [
+        "CLAIM-003"
+      ],
+      "predicted": [
+        "CLAIM-003"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "conflict-zh-02",
+      "expected": [
+        "CLAIM-003"
+      ],
+      "predicted": [
+        "CLAIM-003"
+      ],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "reviewed-en-01",
+      "expected": [],
+      "predicted": [],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "reviewed-en-02",
+      "expected": [],
+      "predicted": [],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "reviewed-en-03",
+      "expected": [],
+      "predicted": [],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "reviewed-en-04",
+      "expected": [],
+      "predicted": [],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "reviewed-zh-01",
+      "expected": [],
+      "predicted": [],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    },
+    {
+      "id": "reviewed-zh-02",
+      "expected": [],
+      "predicted": [],
+      "correct": [
+        "CLAIM-001",
+        "CLAIM-002",
+        "CLAIM-003"
+      ]
+    }
+  ]
+}

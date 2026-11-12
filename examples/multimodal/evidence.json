@@ -1,0 +1,28 @@
+{
+  "entries": [
+    {
+      "id": "E_TECH",
+      "label": "Hypothetical AI systems technical introduction",
+      "source": "examples/multimodal/technical-introduction.md",
+      "locator": "SHA-256 6658c760b250d541522f77044f028221033c1cc952d606cf20232d5d55ffe836; sections: scenario and claim boundaries",
+      "verified": false,
+      "note": "Synthetic scenario description only; not a deployed system or experimental finding."
+    },
+    {
+      "id": "E_DATA",
+      "label": "Synthetic per-condition latency fixture",
+      "source": "examples/multimodal/synthetic-latency.csv",
+      "locator": "SHA-256 ec63adcb53851da86625fe8cd4661bc2782e0e0ba266abd25ca48ffa14fb405f; data rows 2–4",
+      "verified": false,
+      "note": "Synthetic/hypothetical values; not measurements. One illustrative row per condition; no uncertainty inference."
+    },
+    {
+      "id": "E_ARCH",
+      "label": "Hypothetical system architecture description",
+      "source": "examples/multimodal/architecture.json",
+      "locator": "SHA-256 f34663c3171e6d9bc3a778959dbcb2df1f8d4cf53fe4b72b4031f57c69db6ec3; groups, nodes and directed edges",
+      "verified": false,
+      "note": "Conceptual architecture fixture, not a deployed design."
+    }
+  ]
+}

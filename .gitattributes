@@ -1,0 +1,13 @@
+* text=auto
+*.md whitespace=-blank-at-eol
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.gif -text
+*.webp -text
+*.pdf -text
+*.pptx -text
+*.zip -text
+*.woff -text
+*.woff2 -text
+*.pdf whitespace=-blank-at-eol

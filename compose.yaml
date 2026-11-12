@@ -1,0 +1,15 @@
+services:
+  slides:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /workspace
+    init: true
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+    environment:
+      HOME: /tmp/aiautoslides-home
+
+volumes:
+  node_modules:

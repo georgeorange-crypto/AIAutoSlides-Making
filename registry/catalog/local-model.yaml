@@ -1,0 +1,39 @@
+{
+  "id": "local-model",
+  "name": "Local compatible model provider",
+  "kind": "planner",
+  "official_url": "https://ollama.com/",
+  "version": "not-pinned",
+  "interface": "SDK / local rules",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "storyboard-draft",
+    "speaker-notes"
+  ],
+  "inputs": [
+    "evidence-ir",
+    "task-contract"
+  ],
+  "outputs": [
+    "storyboard"
+  ],
+  "dependencies": [],
+  "needs_network": true,
+  "needs_auth": false,
+  "expected_cost": "metered",
+  "editable": "not-applicable",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": null,
+  "limitations": "External model providers are optional; generated text remains a draft. Deterministic planner is local and has no model service.",
+  "status": "catalogued"
+}

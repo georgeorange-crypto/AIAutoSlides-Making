@@ -1,0 +1,5 @@
+# SYNTHETIC teaching data. Not measured performance and not suitable as a scientific claim.
+category,value,unit,sample_n
+Baseline,12.4,ms,5
+Variant A,10.8,ms,5
+Variant B,14.1,ms,5

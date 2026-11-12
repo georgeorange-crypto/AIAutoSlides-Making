@@ -1,0 +1,2558 @@
+{
+  "metadata": {
+    "title": "AIAutoSlides Official Template Research",
+    "date": "2026-11-12",
+    "scope": "research catalog with local-only acquisition plan; no redistribution",
+    "entries": 57,
+    "method": "Official source pages inspected; direct download links recorded when found; local file acquisition is separate from license clearance and editability QA.",
+    "null_policy": "unknown / null rather than invented data",
+    "direct_link_resolution": "26 public download targets attempted; 16 downloaded locally, 10 failed; restricted, dead, and non-template resources remain source-page references",
+    "download_execution": {
+      "date": "2026-11-12T20:54:08.594Z",
+      "downloaded": 16,
+      "failed": 10,
+      "skipped": 38,
+      "total_bytes": 173537268,
+      "report": "local-assets/download-report.json"
+    }
+  },
+  "templates": [
+    {
+      "template_id": "mit-central",
+      "institution": "MIT",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "MIT Institute presentation templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://brand.mit.edu/applying-brand/templates",
+      "download_url": "unknown",
+      "format": "PPTX / Google Slides",
+      "download_access": "Touchstone required",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "formal university reports"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "University login required; no external redistribution authorization.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_login_required"
+    },
+    {
+      "template_id": "mit-csail",
+      "institution": "MIT CSAIL",
+      "institution_type": "research_lab",
+      "department": "unknown",
+      "resource_name": "CSAIL Logo Assets & Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.csail.mit.edu/logo_asset_suite",
+      "download_url": "unknown",
+      "format": "PPTX / KEY / Google Slides-compatible PPTX",
+      "download_access": "public links",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "English"
+      ],
+      "use_cases": [
+        "AI / CS research talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "native_pptx / native_keynote",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Designed for speaking as CSAIL member; trademark and font rights unreviewed.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review",
+        "Direct URL resolved via official-page link; download file and recheck status, rights, integrity, SHA-256 before use"
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_intended_audience_members_only",
+      "download_assets": []
+    },
+    {
+      "template_id": "stanford-med",
+      "institution": "Stanford School of Medicine",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "PowerPoint template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://med.stanford.edu/identity/how-we-use-it/powerpoint.html",
+      "download_url": "https://med.stanford.edu/content/dam/sm/identity/documents/how-we-use-it/SOM_16x9_PPT.potx",
+      "format": "PPTX",
+      "download_access": "public link",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "16:9 available or mentioned",
+      "languages": [
+        "English"
+      ],
+      "use_cases": [
+        "science talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "native_pptx",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "School of Medicine-branded; not presumed for unrelated talks.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review",
+        "Direct URL resolved via official-page link; download file and recheck status, rights, integrity, SHA-256 before use"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "School of Medicine 16:9 PowerPoint template",
+          "url": "https://med.stanford.edu/content/dam/sm/identity/documents/how-we-use-it/SOM_16x9_PPT.potx",
+          "filename": "stanford-som-16x9.potx",
+          "local_file": "docs/template/local-assets/stanford-med/stanford-som-16x9.potx",
+          "sha256": "7c06eed68d4655cc26fb1c4947856702d2287653521ca860421abcb4292849a5",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "stanford-spire",
+      "institution": "Stanford S-SPIRE",
+      "institution_type": "research_lab",
+      "department": "unknown",
+      "resource_name": "S-SPIRE Presentation and Image Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://med.stanford.edu/s-spire/Resources/branding---identity.html",
+      "download_url": "https://stanfordmedicine.box.com/s/j1o1hmk7myq450ed3nyifvqd8z4do4c6?download=1",
+      "format": "PPTX / poster",
+      "download_access": "public link",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "research talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Center brand use requires authorization.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "S-SPIRE PowerPoint template",
+          "url": "https://stanfordmedicine.box.com/s/j1o1hmk7myq450ed3nyifvqd8z4do4c6?download=1",
+          "filename": "stanford-ssspire.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "received_html_instead_of_a_template_file"
+        }
+      ]
+    },
+    {
+      "template_id": "harvard-kempner",
+      "institution": "Harvard Kempner Institute",
+      "institution_type": "research_lab",
+      "department": "unknown",
+      "resource_name": "Communications Resources",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://kempnerinstitute.harvard.edu/kempner-community/communications-resources/",
+      "download_url": "unknown",
+      "format": "PPTX / KEY / Google Slides",
+      "download_access": "public links",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "AI / neuroscience research"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Community resources; logos not for third-party endorsement.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_intended_audience_community_members"
+    },
+    {
+      "template_id": "harvard-hms",
+      "institution": "Harvard Medical School",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Identity Guide PowerPoints",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://identityguide.hms.harvard.edu/templates",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "request via school email",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "university reports"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Not public downloadable.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P3",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "harvard-seas",
+      "institution": "Harvard SEAS",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Logos & Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://seas.harvard.edu/office-communications/brand-style-guide/logos-templates",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "Harvard ID and authorization",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "engineering seminars"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Access restricted.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "berkeley-engineering",
+      "institution": "UC Berkeley College of Engineering",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Brand Toolkit Slide Presentation",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://engineering.berkeley.edu/news/press-kit/brand-toolkit/resources/",
+      "download_url": "unknown",
+      "format": "Google Slides / PPTX",
+      "download_access": "CalNet required",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "engineering research"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "CalNet login required; not external generic template.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_login_required"
+    },
+    {
+      "template_id": "berkeley-campus",
+      "institution": "UC Berkeley",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Google Slide Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://brand.berkeley.edu/downloads/google-templates/",
+      "download_url": "unknown",
+      "format": "Google Slides",
+      "download_access": "CalNet required",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "campus presentations"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "University use / login restrictions.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_login_required"
+    },
+    {
+      "template_id": "berkeley-its",
+      "institution": "Berkeley Institute of Transportation Studies",
+      "institution_type": "research_lab",
+      "department": "unknown",
+      "resource_name": "ITS Brand Assets",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://its.berkeley.edu/about-us/its-brand-toolkit/its-brand-assets",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "faculty / staff; others contact",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "transport research"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Staff-only access or request access.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "cmu-compbio",
+      "institution": "Carnegie Mellon University CompBio",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Department Powerpoint Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://cbi.cmu.edu/about-us/brand-guidelines.html",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "public listing",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "CS research"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "School brand and logo permission unconfirmed.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "eth",
+      "institution": "ETH Zurich",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Corporate Design Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://ethz.ch/staffnet/en/service/communication/corporate-design/templates.html",
+      "download_url": "https://ethz.ch/content/dam/ethz/associates/services/Service/kommunikation/cd/template-downloadbereich/ETH-Praesentation-Template.zip",
+      "format": "PPTX / LaTeX in ZIP",
+      "download_access": "public ZIP listing",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "16:9 available or mentioned",
+      "languages": [
+        "English"
+      ],
+      "use_cases": [
+        "academic lectures"
+      ],
+      "editability": "not tested",
+      "conversion_path": "native_pptx_and_latex",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "ETH CD use restricted to organizational units / approved institutional use.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review",
+        "Official terms explicitly prohibit use by third parties; excluded from automated downloads."
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_explicit_third_party_prohibition"
+    },
+    {
+      "template_id": "ucl",
+      "institution": "University College London",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Brand and Experience Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.ucl.ac.uk/brand-and-experience/brand/brand-resources/templates",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "public listing",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "English"
+      ],
+      "use_cases": [
+        "university presentations"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "UCL Sans font and UCL identity restrictions.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_microsoft_login_required"
+    },
+    {
+      "template_id": "cambridge",
+      "institution": "University of Cambridge",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "University Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.cam.ac.uk/brand-resources/guidelines/templates",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "University SharePoint",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "university presentations"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "University branding not permitted for independent external activity.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "cambridge-chem",
+      "institution": "Cambridge Chemistry Postdocs",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Poster and Presentation Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://pdac.ch.cam.ac.uk/poster-and-presentation-templates",
+      "download_url": "https://pdac.ch.cam.ac.uk/files/Templates/AthenaSWANGreenImpactSilverV1.pptx",
+      "format": "PPTX / PDF",
+      "download_access": "mixed",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "research posters"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Department award logos / rights need review.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P3",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "Chemistry postdocs presentation template",
+          "url": "https://pdac.ch.cam.ac.uk/files/Templates/AthenaSWANGreenImpactSilverV1.pptx",
+          "filename": "cambridge-chem-pdac.pptx",
+          "local_file": "docs/template/local-assets/cambridge-chem/cambridge-chem-pdac.pptx",
+          "sha256": "614b4a70224ccddc659083ae74b355139becfe3fadefe0124f71474c33b0b139",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "georgia-tech",
+      "institution": "Georgia Institute of Technology",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Presentation Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://brand.gatech.edu/brand-assets/presentation-templates",
+      "download_url": "unknown",
+      "format": "PPTX / ZIP",
+      "download_access": "Georgia Tech login",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "university talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Login / authorized use.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_login_required"
+    },
+    {
+      "template_id": "umich-library",
+      "institution": "University of Michigan Library",
+      "institution_type": "public_research",
+      "department": "unknown",
+      "resource_name": "Document Templates and Guidelines",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://design-system.lib.umich.edu/visual-elements/document-templates-and-guidelines/",
+      "download_url": "unknown",
+      "format": "Google Slides / PPTX",
+      "download_access": "public Google Drive folder",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "accessible presentations"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Library branded; permitted uses must be checked.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "tsinghua",
+      "institution": "Tsinghua University",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "2023–2025 Presentation Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.env.tsinghua.edu.cn/info/1344/7931.htm",
+      "download_url": "https://www.env.tsinghua.edu.cn/2025nianduyanshiwengaomoban5-kejizhuti.pptx",
+      "format": "PPTX",
+      "download_access": "public attachments",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "16:9 available or mentioned",
+      "languages": [
+        "Chinese"
+      ],
+      "use_cases": [
+        "Chinese science presentation"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Free download is not a blanket redistribution license.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review",
+        "Direct URL resolved via official-page link; download file and recheck status, rights, integrity, SHA-256 before use"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "2025 technology presentation template",
+          "url": "https://www.env.tsinghua.edu.cn/2025nianduyanshiwengaomoban5-kejizhuti.pptx",
+          "filename": "tsinghua-2025-tech.pptx",
+          "local_file": "docs/template/local-assets/tsinghua/tsinghua-2025-tech.pptx",
+          "sha256": "187c7620370a0f8b37648653e1e967c80ca90095ee522c7d54f9093fa0131676",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "imperial",
+      "institution": "Imperial College London",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "Official Brand PowerPoint Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.imperial.ac.uk/staff/tools-and-reference/web-guide/training-and-events/materials/accessibility/documents/",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "brand platform / unclear",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "accessible scientific talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Institution-only asset access.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P3",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "oxford-ndorms",
+      "institution": "Oxford NDORMS",
+      "institution_type": "university",
+      "department": "unknown",
+      "resource_name": "NDORMS Corporate Brand Slides",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.ndorms.ox.ac.uk/files/for-staff/ndorms-brand-guidelines.pdf/view",
+      "download_url": "unknown",
+      "format": "PPTX (described in PDF)",
+      "download_access": "request / unknown",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "biomedical talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "No public reusable master confirmed.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P3",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "microsoft-create",
+      "institution": "Microsoft PowerPoint / Microsoft Create",
+      "institution_type": "technology",
+      "department": "unknown",
+      "resource_name": "Microsoft Create PowerPoint Templates",
+      "resource_type": "institution_official",
+      "official_status": "verified_official",
+      "official_url": "https://create.microsoft.com/en-us/powerpoint-templates",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "gallery / account may be required",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "16:9 available or mentioned",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "generic business and education"
+      ],
+      "editability": "not tested",
+      "conversion_path": "native_pptx",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Personal use and customization supported; library redistribution terms unconfirmed.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "google-slides",
+      "institution": "Google Workspace",
+      "institution_type": "technology",
+      "department": "unknown",
+      "resource_name": "Google Slides Template Gallery",
+      "resource_type": "tool_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://workspace.google.com/products/slides/",
+      "download_url": "unknown",
+      "format": "Google Slides",
+      "download_access": "in app, Google account",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "web-based collaboration"
+      ],
+      "editability": "not tested",
+      "conversion_path": "GoogleSlides_export_pptx",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "This is tool-official not Google corporate brand template.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "google-brand",
+      "institution": "Google",
+      "institution_type": "technology",
+      "department": "unknown",
+      "resource_name": "Google Brand Resource Center",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://about.google/brand-resource-center/products-and-services/",
+      "download_url": "unknown",
+      "format": "guidelines",
+      "download_access": "public page",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "brand usage reference"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Does not grant reusable corporate presentation master.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "ibm-developer",
+      "institution": "IBM Developer",
+      "institution_type": "technology",
+      "department": "unknown",
+      "resource_name": "IBM Developer PowerPoint Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.ibm.com/brand/experience-guides/developer/implementation/templates/",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "redirects to IBM sign-in during opening",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "developer and enterprise presentations"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "IBM ID/login and use requirements; do not bundle.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "ibm-design",
+      "institution": "IBM",
+      "institution_type": "technology",
+      "department": "unknown",
+      "resource_name": "IBM Design Language",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.ibm.com/design/language/resources/",
+      "download_url": "unknown",
+      "format": "design tokens / charts / typography",
+      "download_access": "public guidance",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "enterprise data visualization"
+      ],
+      "editability": "not tested",
+      "conversion_path": "own_theme_after_rights_review",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Brand assets separate from openly accessible design principles.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "apple-keynote",
+      "institution": "Apple Keynote",
+      "institution_type": "technology",
+      "department": "unknown",
+      "resource_name": "Built-in Keynote Themes",
+      "resource_type": "tool_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://support.apple.com/guide/keynote/create-a-presentation-tan317e80e8c/mac",
+      "download_url": "unknown",
+      "format": "KEY",
+      "download_access": "inside Keynote",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "minimal editorial presentations"
+      ],
+      "editability": "not tested",
+      "conversion_path": "Keynote_export_pptx",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Built-in app themes, not Apple corporate brand templates.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "openai-brand",
+      "institution": "OpenAI",
+      "institution_type": "technology",
+      "department": "unknown",
+      "resource_name": "OpenAI Design Guidelines",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://openai.com/brand/",
+      "download_url": "unknown",
+      "format": "visual guidelines",
+      "download_access": "public",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "brand reference only"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Logo not for unrelated slides or implied endorsement.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "anthropic-trademark",
+      "institution": "Anthropic",
+      "institution_type": "technology",
+      "department": "unknown",
+      "resource_name": "Trademark Guidelines",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.anthropic.com/legal",
+      "download_url": "unknown",
+      "format": "visual/trademark guidelines",
+      "download_access": "public",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "brand reference"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Not a PPTX template.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P3",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "atlassian",
+      "institution": "Atlassian",
+      "institution_type": "technology",
+      "department": "unknown",
+      "resource_name": "Atlassian Design / Presentation Kit",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://atlassian.design/get-started/content-design",
+      "download_url": "unknown",
+      "format": "brand assets / presentation kit",
+      "download_access": "login required",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "software product slides"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Employee-only branding assets.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "goldman-brand",
+      "institution": "Goldman Sachs",
+      "institution_type": "finance",
+      "department": "unknown",
+      "resource_name": "Goldman Sachs Brand Guidelines",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://goldmansachs.papirfly.com/newsread/defaultViewer.aspx?docid=14373&nodeid=7307",
+      "download_url": "unknown",
+      "format": "brand guidelines",
+      "download_access": "public page",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "finance visual reference"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "No official public reusable PPTX master established.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "goldman-ir",
+      "institution": "Goldman Sachs Investor Relations",
+      "institution_type": "finance",
+      "department": "unknown",
+      "resource_name": "Investor Relations Presentations",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.goldmansachs.com/investor-relations/presentations",
+      "download_url": "unknown",
+      "format": "PDF / presentation decks",
+      "download_access": "public",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "English"
+      ],
+      "use_cases": [
+        "finance investor presentation"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Reference and source attribution only; not template license.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "mckinsey-viz",
+      "institution": "McKinsey & Company",
+      "institution_type": "professional_services",
+      "department": "unknown",
+      "resource_name": "Visual Graphics and Media",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.mckinsey.com/careers/our-roles/internal-roles/capabilities-and-roles/visual-graphics-and-media",
+      "download_url": "unknown",
+      "format": "design practice description",
+      "download_access": "public",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "consulting design reference"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "No public corporate PPTX template found in this search.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "ieee-master",
+      "institution": "IEEE",
+      "institution_type": "professional_association",
+      "department": "unknown",
+      "resource_name": "IEEE Master Brand Presentation Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://events.ieee.org/forms-and-templates/",
+      "download_url": "unknown",
+      "format": "PPTX (linked)",
+      "download_access": "linked brand portal",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "association meeting"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "IEEE branding rights and portal restrictions unknown.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_org_unit_portal_restricted"
+    },
+    {
+      "template_id": "ieee-ias",
+      "institution": "IEEE Industry Applications Society",
+      "institution_type": "professional_association",
+      "department": "unknown",
+      "resource_name": "IAS Presentation Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://ias.ieee.org/about/branding-communications/",
+      "download_url": "https://ias.ieee.org/wp-content/uploads/2025/09/IAS-PPT-Template.pptx",
+      "format": "PPTX",
+      "download_access": "public download link",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "English"
+      ],
+      "use_cases": [
+        "professional society events"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Logo files limited to IAS official/sanctioned use; template license not separately shown.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review",
+        "Direct URL resolved via official-page link; download file and recheck status, rights, integrity, SHA-256 before use"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "IEEE IAS presentation template",
+          "url": "https://ias.ieee.org/wp-content/uploads/2025/09/IAS-PPT-Template.pptx",
+          "filename": "ieee-ias-template.pptx",
+          "local_file": "docs/template/local-assets/ieee-ias/ieee-ias-template.pptx",
+          "sha256": "532f924e8ddd19cea597751b3cebba383d98cb5d441dbab9b654146cccf738fd",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "ieee-ias2026",
+      "institution": "IEEE IAS Annual Meeting 2026",
+      "institution_type": "academic_conference",
+      "department": "unknown",
+      "resource_name": "IAS2026 Oral Presentation Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://ias-am.ieee.org/2026/presenting-at-conference/",
+      "download_url": "https://ias-am.ieee.org/2026/wp-content/uploads/sites/7/2026/09/Template-for-IAS-2026-AM-Oral-Presentation.pptx",
+      "format": "PPTX",
+      "download_access": "public link",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "conference talk"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Conference-specific, not generic IEEE template.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "IEEE IAS 2026 oral presentation template",
+          "url": "https://ias-am.ieee.org/2026/wp-content/uploads/sites/7/2026/09/Template-for-IAS-2026-AM-Oral-Presentation.pptx",
+          "filename": "ieee-ias-2026-oral.pptx",
+          "local_file": "docs/template/local-assets/ieee-ias2026/ieee-ias-2026-oral.pptx",
+          "sha256": "a2ea046adbed88b7cff6e97a384fa073a72aa2ac9498ff5ed3150f5fdd797a51",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "acm-iss2026",
+      "institution": "ACM ISS 2026",
+      "institution_type": "academic_conference",
+      "department": "unknown",
+      "resource_name": "ISS 2026 Official Slide Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://iss.acm.org/2026/authors/papers/",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "public download link",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "HCI conference talk"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Conference requirement does not imply general redistribution.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review",
+        "Official page download link returned HTTP 404 on 2026-11-12; no working file URL found."
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [],
+      "download_policy": "skip_official_link_returns_404"
+    },
+    {
+      "template_id": "acm-chi2022",
+      "institution": "ACM CHI 2022",
+      "institution_type": "academic_conference",
+      "department": "unknown",
+      "resource_name": "CHI2022 Slide Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://chi2022.acm.org/for-attendees/resources-for-presenters/",
+      "download_url": "https://chi2022.acm.org/wp-content/uploads/resources/CHI-2022-Theme.pptx",
+      "format": "PPTX",
+      "download_access": "public link",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "HCI talk"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Historical conference asset; no general reuse grant.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "ACM CHI 2022 presenter slide template",
+          "url": "https://chi2022.acm.org/wp-content/uploads/resources/CHI-2022-Theme.pptx",
+          "filename": "acm-chi-2022.pptx",
+          "local_file": "docs/template/local-assets/acm-chi2022/acm-chi-2022.pptx",
+          "sha256": "9ecf21f482140973d77126845c1e4dfa697305981594c22a94fddcac00b363ca",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "ccf-tc",
+      "institution": "CCF China Computer Federation",
+      "institution_type": "professional_association",
+      "department": "unknown",
+      "resource_name": "TC election PPT template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.ccf.org.cn/Chapters/TC/Downloadt/",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "public listing",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "Chinese"
+      ],
+      "use_cases": [
+        "committee operations"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Specific election use; not generic lecture theme.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P3",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review",
+        "CCF source page identifies this as a candidate election presentation template; excluded from general-purpose download plan."
+      ],
+      "file_sha256": "unknown",
+      "download_policy": "skip_candidate_only"
+    },
+    {
+      "template_id": "ccf-usage",
+      "institution": "CCF China Computer Federation",
+      "institution_type": "professional_association",
+      "department": "unknown",
+      "resource_name": "CCF Branding FAQ",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.ccf.org.cn/Chapters/TC/FAQ/2020-05-19/702409.shtml",
+      "download_url": "unknown",
+      "format": "rules",
+      "download_access": "public page",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "Chinese"
+      ],
+      "use_cases": [
+        "brand compliance"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Logo placement restricted to sanctioned activities.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "nih-irp",
+      "institution": "NIH Intramural Research Program",
+      "institution_type": "government_lab",
+      "department": "unknown",
+      "resource_name": "IRP PowerPoint Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://irp.nih.gov/irp-brand-materials/irp-powerpoint-templates",
+      "download_url": "https://irp.nih.gov/system/files/media/file/2022-01/IRP_MasterPPT_2019-02-08_16x9.pptx",
+      "format": "PPTX 4:3 / 16:9",
+      "download_access": "public links",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "16:9 available or mentioned",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "research lecture"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "NIH logo should not imply endorsement of non-NIH products.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review",
+        "Direct URL resolved via official-page link; download file and recheck status, rights, integrity, SHA-256 before use"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "NIH IRP 16:9 master template",
+          "url": "https://irp.nih.gov/system/files/media/file/2022-01/IRP_MasterPPT_2019-02-08_16x9.pptx",
+          "filename": "nih-irp-16x9.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
+        },
+        {
+          "label": "NIH IRP 4:3 master template",
+          "url": "https://irp.nih.gov/system/files/media/file/2022-01/IRP_MasterPPT_112618_4x3.pptx",
+          "filename": "nih-irp-4x3.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
+        }
+      ]
+    },
+    {
+      "template_id": "nasa-ixpe",
+      "institution": "NASA IXPE",
+      "institution_type": "government_lab",
+      "department": "unknown",
+      "resource_name": "IXPE Presentation Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://ixpe.msfc.nasa.gov/for_scientists/templates/",
+      "download_url": "https://ixpe.msfc.nasa.gov/for_scientists/templates/IXPE-Presentation-Template.pptx",
+      "format": "PPTX",
+      "download_access": "public link",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "science talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Mission branding not reusable beyond intended purpose without review.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "NASA IXPE presentation template",
+          "url": "https://ixpe.msfc.nasa.gov/for_scientists/templates/IXPE-Presentation-Template.pptx",
+          "filename": "nasa-ixpe-template.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
+        }
+      ]
+    },
+    {
+      "template_id": "nasa-apollo",
+      "institution": "NASA",
+      "institution_type": "government_lab",
+      "department": "unknown",
+      "resource_name": "Apollo 16 Adaptable Presentation",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.nasa.gov/stem-content/downloadable-apollo-16-presentation/",
+      "download_url": "unknown",
+      "format": "presentation",
+      "download_access": "public download",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "STEM education"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "NASA insignia and third-party imagery require separate checking.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "cdc-education",
+      "institution": "CDC",
+      "institution_type": "government",
+      "department": "unknown",
+      "resource_name": "Communication Toolkit Slide Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://portugues.cdc.gov/healthy-youth/communication-toolkit/communication-templates.html",
+      "download_url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/PowerPoint-_template_teal508.pptx",
+      "format": "PPTX",
+      "download_access": "public download links",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "public education"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "CDC brand and template content restrictions need review.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "CDC presentation teal",
+          "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/PowerPoint-_template_teal508.pptx",
+          "filename": "cdc-presentation-teal.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
+        },
+        {
+          "label": "CDC presentation orange",
+          "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/PowerPoint_template_orange508.pptx",
+          "filename": "cdc-presentation-orange.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
+        },
+        {
+          "label": "CDC presentation purple",
+          "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/PowerPoint-_template_purple508.pptx",
+          "filename": "cdc-presentation-purple.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
+        },
+        {
+          "label": "CDC webinar teal",
+          "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/toolkit-webinar-template-teal.pptx",
+          "filename": "cdc-webinar-teal.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
+        },
+        {
+          "label": "CDC webinar orange",
+          "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/toolkit-webinar-template-orange.pptx",
+          "filename": "cdc-webinar-orange.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
+        },
+        {
+          "label": "CDC webinar purple",
+          "url": "https://www.cdc.gov/healthy-youth/communication-toolkit/tools/toolkit-webinar-template-purple.pptx",
+          "filename": "cdc-webinar-purple.pptx",
+          "acquisition_status": "download_attempt_failed",
+          "acquisition_failure": "fetch failed"
+        }
+      ]
+    },
+    {
+      "template_id": "doe-cmei",
+      "institution": "US Department of Energy CMEI",
+      "institution_type": "government",
+      "department": "unknown",
+      "resource_name": "DOE Brand Assets",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://www.energy.gov/cmei/communicationstandards/brand-guidelines-office-critical-minerals-and-energy-innovation",
+      "download_url": "unknown",
+      "format": "PPTX",
+      "download_access": "Energy Hub login / approved request",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "agency presentations"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Not directly available for unrelated personal use.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P3",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "uk-ons",
+      "institution": "UK Office for National Statistics",
+      "institution_type": "government",
+      "department": "unknown",
+      "resource_name": "ONS Presentation Design Guidance",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://service-manual.ons.gov.uk/brand-guidelines/application/creating-powerpoint-presentations",
+      "download_url": "unknown",
+      "format": "PPTX guidance and internal template",
+      "download_access": "ONS internal",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "data and policy briefings"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Internal template; principles can be studied.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "eu-study",
+      "institution": "EU Study in Europe",
+      "institution_type": "intergovernmental",
+      "department": "unknown",
+      "resource_name": "Presentation Templates",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://erasmus-networks.ec.europa.eu/book-page/study-europe-toolkit/digital-visual-resources/presentation-templates",
+      "download_url": "https://erasmus-networks.ec.europa.eu/system/files/2026-09/Study%20in%20Europe_students%20-%20make%20the%20most%20of%20fairs.pptx",
+      "format": "PPTX / PDF",
+      "download_access": "public downloads",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "public outreach"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Adjust only for the stated purpose; preserve EU visual identity.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "Study in Europe student presentation before fair",
+          "url": "https://erasmus-networks.ec.europa.eu/system/files/2026-09/Study%20in%20Europe_students%20-%20make%20the%20most%20of%20fairs.pptx",
+          "filename": "eu-study-before-fair.pptx",
+          "local_file": "docs/template/local-assets/eu-study/eu-study-before-fair.pptx",
+          "sha256": "9bbb036a4640bc9a483bea2c7486864a1d159e96011402d27f905a317008212c",
+          "acquisition_status": "downloaded_local"
+        },
+        {
+          "label": "Study in Europe national promotion agencies presentation",
+          "url": "https://erasmus-networks.ec.europa.eu/system/files/2026-09/Study%20in%20Europe_stakeholder%20-%20NAT_0.pptx",
+          "filename": "eu-study-national-agencies.pptx",
+          "local_file": "docs/template/local-assets/eu-study/eu-study-national-agencies.pptx",
+          "sha256": "7aec1c5993c02da20384735f4d0b53f832ac81fc36dbbb74fcd98f11ad1e9395",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "eu-gateway",
+      "institution": "European Commission Global Gateway",
+      "institution_type": "intergovernmental",
+      "department": "unknown",
+      "resource_name": "Global Gateway Brand Book 2026",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://international-partnerships.ec.europa.eu/policies/global-gateway/communication-resources_en",
+      "download_url": "https://international-partnerships.ec.europa.eu/document/download/382b13a7-1fdc-4232-b2c4-9e6d3fc70b60_en?filename=global-gateway-brand-book-2026-ppt-presentation-template.zip",
+      "format": "PPTX / design system",
+      "download_access": "public download listing",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "16:9 available or mentioned",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "policy executive decks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "unknown",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Brand ownership / permitted usage must be reviewed.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review",
+        "Direct URL resolved via official-page link; download file and recheck status, rights, integrity, SHA-256 before use"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "EU Global Gateway PowerPoint template bundle",
+          "url": "https://international-partnerships.ec.europa.eu/document/download/382b13a7-1fdc-4232-b2c4-9e6d3fc70b60_en?filename=global-gateway-brand-book-2026-ppt-presentation-template.zip",
+          "filename": "eu-global-gateway-template.zip",
+          "local_file": "docs/template/local-assets/eu-gateway/eu-global-gateway-template.zip",
+          "sha256": "d7de2336fe6dd25926369b7eaa846d832ca7d22ccb2bae572e32d25cdade5c80",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "eu-ecl",
+      "institution": "European Commission",
+      "institution_type": "intergovernmental",
+      "department": "unknown",
+      "resource_name": "Europa Component Library",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://ec.europa.eu/component-library/ec/",
+      "download_url": "unknown",
+      "format": "HTML/CSS component system",
+      "download_access": "public",
+      "license_url": "unknown",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "data report design"
+      ],
+      "editability": "not tested",
+      "conversion_path": "web_reference_only",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Website library, not PowerPoint brand template.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P2",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "pptxgenjs",
+      "institution": "PptxGenJS",
+      "institution_type": "tool_ecosystem",
+      "department": "unknown",
+      "resource_name": "PptxGenJS Masters and Placeholders",
+      "resource_type": "tool_official",
+      "official_status": "verified_official",
+      "official_url": "https://gitbrent.github.io/PptxGenJS/docs/masters",
+      "download_url": "unknown",
+      "format": "JS / PPTX",
+      "download_access": "public npm/github",
+      "license_url": "https://github.com/gitbrent/PptxGenJS/blob/master/LICENSE",
+      "license_summary": "MIT",
+      "commercial_use": "subject to license and asset exclusions",
+      "derivative_use": "subject to license and asset exclusions",
+      "redistribution": "subject to license and asset exclusions",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "editable PPTX authoring"
+      ],
+      "editability": "not tested",
+      "conversion_path": "programmatic_master",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Tool MIT license, but external templates separately licensed.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "eligible_engine_dependency",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "slidev",
+      "institution": "Slidev",
+      "institution_type": "tool_ecosystem",
+      "department": "unknown",
+      "resource_name": "Slidev Themes and Addons",
+      "resource_type": "tool_official",
+      "official_status": "verified_official",
+      "official_url": "https://sli.dev/guide/theme-addon",
+      "download_url": "unknown",
+      "format": "Markdown / Vue / HTML",
+      "download_access": "npm and GitHub",
+      "license_url": "https://github.com/slidevjs/slidev/blob/main/LICENSE",
+      "license_summary": "MIT",
+      "commercial_use": "subject to license and asset exclusions",
+      "derivative_use": "subject to license and asset exclusions",
+      "redistribution": "subject to license and asset exclusions",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "developer talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "html_pdf_primary",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Framework license MIT; theme/package licenses per asset.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "eligible_engine_dependency",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown"
+    },
+    {
+      "template_id": "slidev-themes",
+      "institution": "Slidev",
+      "institution_type": "tool_ecosystem",
+      "department": "unknown",
+      "resource_name": "Official Slidev Themes",
+      "resource_type": "tool_official",
+      "official_status": "verified_official",
+      "official_url": "https://github.com/slidevjs/themes",
+      "download_url": "https://github.com/slidevjs/themes/archive/refs/heads/main.zip",
+      "format": "npm theme packages",
+      "download_access": "public repo",
+      "license_url": "https://github.com/slidevjs/themes",
+      "license_summary": "MIT",
+      "commercial_use": "subject to license and asset exclusions",
+      "derivative_use": "subject to license and asset exclusions",
+      "redistribution": "subject to license and asset exclusions",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "developer slides"
+      ],
+      "editability": "not tested",
+      "conversion_path": "html_pdf_primary",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Individual artwork/font assets may differ.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "eligible_engine_dependency",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "Official Slidev themes source archive",
+          "url": "https://github.com/slidevjs/themes/archive/refs/heads/main.zip",
+          "filename": "slidev-official-themes.zip",
+          "local_file": "docs/template/local-assets/slidev-themes/slidev-official-themes.zip",
+          "sha256": "547e541d32a7032fbc7aac1b323dad264aa48858982773aa23ddf3385f446bf3",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "marp",
+      "institution": "Marp Team",
+      "institution_type": "tool_ecosystem",
+      "department": "unknown",
+      "resource_name": "Marp CLI and Core",
+      "resource_type": "tool_official",
+      "official_status": "verified_official",
+      "official_url": "https://github.com/marp-team/marp-cli",
+      "download_url": "https://github.com/marp-team/marp-core/archive/refs/heads/main.zip",
+      "format": "Markdown / HTML / PDF / PPTX",
+      "download_access": "public npm/GitHub",
+      "license_url": "https://github.com/marp-team/marp-cli/blob/main/LICENSE",
+      "license_summary": "MIT",
+      "commercial_use": "subject to license and asset exclusions",
+      "derivative_use": "subject to license and asset exclusions",
+      "redistribution": "subject to license and asset exclusions",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "markdown academic slides"
+      ],
+      "editability": "not tested",
+      "conversion_path": "html_pdf_or_experimental_editable_pptx",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Engine MIT; third-party image and theme licensing separate.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "eligible_engine_dependency",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "Official Marp Core source archive",
+          "url": "https://github.com/marp-team/marp-core/archive/refs/heads/main.zip",
+          "filename": "marp-core.zip",
+          "local_file": "docs/template/local-assets/marp/marp-core.zip",
+          "sha256": "8ecb090f395aea30f7d53cb750f328f2c0ab24f3f3b252754a3e0060fc27d735",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "reveal",
+      "institution": "reveal.js",
+      "institution_type": "tool_ecosystem",
+      "department": "unknown",
+      "resource_name": "reveal.js HTML Presentation Framework",
+      "resource_type": "tool_official",
+      "official_status": "verified_official",
+      "official_url": "https://github.com/hakimel/reveal.js",
+      "download_url": "https://github.com/hakimel/reveal.js/archive/refs/heads/master.zip",
+      "format": "HTML / CSS / Markdown / PDF",
+      "download_access": "public GitHub",
+      "license_url": "https://github.com/hakimel/reveal.js/blob/master/LICENSE",
+      "license_summary": "MIT",
+      "commercial_use": "subject to license and asset exclusions",
+      "derivative_use": "subject to license and asset exclusions",
+      "redistribution": "subject to license and asset exclusions",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "interactive web talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "html_pdf_primary",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "MIT covers code, not all embedded media.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "eligible_engine_dependency",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "Official reveal.js source archive",
+          "url": "https://github.com/hakimel/reveal.js/archive/refs/heads/master.zip",
+          "filename": "revealjs-source.zip",
+          "local_file": "docs/template/local-assets/reveal/revealjs-source.zip",
+          "sha256": "51293648ad9e82d9bfa404a8730238999796d627e100a41d09bd2f95af83bac8",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "beamer",
+      "institution": "LaTeX Beamer",
+      "institution_type": "tool_ecosystem",
+      "department": "unknown",
+      "resource_name": "Beamer Class",
+      "resource_type": "tool_official",
+      "official_status": "verified_official",
+      "official_url": "https://ctan.org/pkg/beamer?lang=en",
+      "download_url": "https://mirrors.ctan.org/macros/latex/contrib/beamer.zip",
+      "format": "LaTeX / PDF",
+      "download_access": "CTAN",
+      "license_url": "https://ctan.org/pkg/beamer?lang=en",
+      "license_summary": "LPPL / GPL / FDL",
+      "commercial_use": "subject to license and asset exclusions",
+      "derivative_use": "subject to license and asset exclusions",
+      "redistribution": "subject to license and asset exclusions",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "equation-heavy research talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "latex_pdf",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "PDF-native, not an editable PPTX renderer.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "eligible_engine_dependency",
+      "priority": "P0",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "CTAN Beamer source package",
+          "url": "https://mirrors.ctan.org/macros/latex/contrib/beamer.zip",
+          "filename": "latex-beamer.zip",
+          "local_file": "docs/template/local-assets/beamer/latex-beamer.zip",
+          "sha256": "de55bbbf4046a7c22d41c2fed7cf5ac4015e79bdff46c38f4e0ebe0f32c3d846",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "metropolis",
+      "institution": "Metropolis Beamer Theme",
+      "institution_type": "tool_ecosystem",
+      "department": "unknown",
+      "resource_name": "Metropolis / mtheme",
+      "resource_type": "tool_official",
+      "official_status": "verified_official",
+      "official_url": "https://github.com/matze/mtheme",
+      "download_url": "https://github.com/matze/mtheme/archive/refs/heads/master.zip",
+      "format": "LaTeX / PDF",
+      "download_access": "GitHub / CTAN",
+      "license_url": "https://github.com/matze/mtheme",
+      "license_summary": "CC BY-SA 4.0",
+      "commercial_use": "subject to license and asset exclusions",
+      "derivative_use": "subject to license and asset exclusions",
+      "redistribution": "subject to license and asset exclusions",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "modern research talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "latex_pdf",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Share-alike applies to modified redistributions of theme source.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "eligible_engine_dependency",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "Metropolis Beamer theme source archive",
+          "url": "https://github.com/matze/mtheme/archive/refs/heads/master.zip",
+          "filename": "beamer-metropolis.zip",
+          "local_file": "docs/template/local-assets/metropolis/beamer-metropolis.zip",
+          "sha256": "2ec35fa9acb487da69dfe8bd544fe2a253aa38060e279adb23f6d20cd818c914",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "touying",
+      "institution": "Touying / Typst",
+      "institution_type": "tool_ecosystem",
+      "department": "unknown",
+      "resource_name": "Touying Typst Presentation Package",
+      "resource_type": "tool_official",
+      "official_status": "verified_official",
+      "official_url": "https://github.com/touying-typ/touying",
+      "download_url": "https://github.com/touying-typ/touying/archive/refs/heads/main.zip",
+      "format": "Typst / PDF / experimental PPTX",
+      "download_access": "public GitHub",
+      "license_url": "https://github.com/touying-typ/touying/blob/main/LICENSE",
+      "license_summary": "MIT",
+      "commercial_use": "subject to license and asset exclusions",
+      "derivative_use": "subject to license and asset exclusions",
+      "redistribution": "subject to license and asset exclusions",
+      "trademark_notes": "not assessed",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "unknown"
+      ],
+      "use_cases": [
+        "math-heavy academic talks"
+      ],
+      "editability": "not tested",
+      "conversion_path": "typst_pdf_or_experimental_editable",
+      "quality_score": null,
+      "quality_score_note": "Not scored: requires actual slide screenshots, object inspection and QA.",
+      "evidence": "Experimental conversions limited and should be tested.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "eligible_engine_dependency",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "No source binary inspected in this research pass",
+        "Do not bundle institution assets without explicit rights review"
+      ],
+      "file_sha256": "unknown",
+      "download_assets": [
+        {
+          "label": "Official Touying source archive",
+          "url": "https://github.com/touying-typ/touying/archive/refs/heads/main.zip",
+          "filename": "typst-touying.zip",
+          "local_file": "docs/template/local-assets/touying/typst-touying.zip",
+          "sha256": "b751e08c522f6b76be0d5a6490e199a81210e366833a684e0ee85f8400caf827",
+          "acquisition_status": "downloaded_local"
+        }
+      ]
+    },
+    {
+      "template_id": "ieee-education-week",
+      "institution": "IEEE Education Week",
+      "institution_type": "professional_association",
+      "department": "IEEE Education Week toolkit",
+      "resource_name": "IEEE Education Week PowerPoint Template",
+      "resource_type": "institution_official",
+      "official_status": "official_but_license_unclear",
+      "official_url": "https://educationweek.ieee.org/toolkit/",
+      "download_url": "https://educationweek.ieee.org/wp-content/uploads/IEEE-Education-Week-2026-Google-Slides-Template.pptx",
+      "download_assets": [
+        {
+          "label": "IEEE Education Week PowerPoint template",
+          "url": "https://educationweek.ieee.org/wp-content/uploads/IEEE-Education-Week-2026-Google-Slides-Template.pptx",
+          "filename": "ieee-education-week-template.pptx",
+          "local_file": "docs/template/local-assets/ieee-education-week/ieee-education-week-template.pptx",
+          "sha256": "70c9b076e6ecd7ed446f62b58cb833dc4c82411e08a5a18b66a663a0fd313f26",
+          "acquisition_status": "downloaded_local"
+        }
+      ],
+      "download_access": "public download",
+      "license_url": "https://educationweek.ieee.org/toolkit/",
+      "license_summary": "unknown",
+      "commercial_use": "unknown",
+      "derivative_use": "unknown",
+      "redistribution": "unknown",
+      "trademark_notes": "IEEE community toolkit branding; use only within stated campaign context",
+      "aspect_ratio": "unknown",
+      "languages": [
+        "English"
+      ],
+      "use_cases": [
+        "IEEE Education Week community communications"
+      ],
+      "editability": "not tested",
+      "conversion_path": "native_pptx",
+      "quality_score": null,
+      "quality_score_note": "Not scored; not yet rendered or inspected.",
+      "evidence": "Official toolkit page labels a PowerPoint Template and provides a direct PPTX download. Download is for local review; campaign/brand-use conditions remain to be reviewed.",
+      "reviewed_at": "2026-11-12",
+      "integration_recommendation": "research_reference",
+      "priority": "P1",
+      "trial_state": "not_executed",
+      "limitations": [
+        "Local acquisition does not grant public reuse or redistribution rights."
+      ],
+      "file_sha256": "unknown",
+      "format": "PPTX"
+    }
+  ]
+}

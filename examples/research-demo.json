@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "KV Cache Compression: The Recovery Bottleneck",
+    "subtitle": "A reproducible research meeting demo · Qwen3-32B / TP4",
+    "audience": "AI Systems Research Group",
+    "theme": "keynote-minimal",
+    "duration_minutes": 7,
+    "status": "DEMO / UNVERIFIED"
+  },
+  "slides": [
+    {
+      "slide_id": "S01",
+      "type": "cover",
+      "kicker": "AI SYSTEMS / RESEARCH REVIEW",
+      "title": "Compression is not free.",
+      "body": ["A reported 72.7% storage reduction coincides with slower recovery in this setup.", "Qwen3-32B · TP4 · Unverified example data"],
+      "evidence_ids": ["E1"],
+      "notes": "Open with the tradeoff. Present values as preliminary observations until logs and repetitions are verified."
+    },
+    {
+      "slide_id": "S02",
+      "type": "statement",
+      "layout": "two-column-contrast",
+      "kicker": "THE CENTRAL FINDING",
+      "title": "Reported compression does not imply a faster first token.",
+      "body": ["Raw Hit TTFT P50 is 0.353s; BitPack4 compressed Hit is 67.792s.", "The performance gap motivates critical-path measurement, not claims about the final codec."],
+      "evidence_ids": ["E1"],
+      "claim_support": [{"evidence_id":"E1","claim_text":"Reported compression does not imply a faster first token.","source_excerpt":"Raw cache hit TTFT P50: 0.353 seconds. BitPack4 compressed cache hit TTFT P50: 67.792 seconds.","locator":"sources/brief.md, Observations from an example experiment report, rows 4–5","review_status":"pending"}]
+    },
+    {
+      "slide_id": "S03",
+      "type": "metrics",
+      "layout": "metric-focus",
+      "kicker": "EXPERIMENT SNAPSHOT",
+      "title": "Reported storage savings need verification; latency needs explanation.",
+      "metrics": [
+        {"label": "Storage saved", "value": "72.7%", "detail": "Relative to raw store"},
+        {"label": "Raw hit TTFT · P50", "value": "0.353s", "detail": "Baseline"},
+        {"label": "Compressed hit TTFT · P50", "value": "67.792s", "detail": "BitPack4"}
+      ],
+      "evidence_ids": ["E1"],
+      "claim_support": [{"evidence_id":"E1","claim_text":"Reported storage savings need verification; latency needs explanation.","source_excerpt":"Byte savings for the compression setup: 72.7%. Raw cache hit TTFT P50: 0.353 seconds. BitPack4 compressed cache hit TTFT P50: 67.792 seconds.","locator":"sources/brief.md, Observations from an example experiment report, rows 3–6","review_status":"pending"}]
+    },
+    {
+      "slide_id": "S04",
+      "type": "chart",
+      "layout": "chart-and-takeaway",
+      "kicker": "EVIDENCE / LATENCY",
+      "title": "Reported BitPack4 hit TTFT is higher in this single setup.",
+      "chart": {
+        "kind": "bar",
+        "unit": "seconds",
+        "y_axis_label": "TTFT P50 (seconds)",
+        "categories": ["Raw miss", "Raw hit", "BitPack4 hit"],
+        "values": [0.369, 0.353, 67.792],
+        "series_name": "TTFT P50"
+      },
+      "body": ["These are one setup's reported P50 values, not a distribution or uncertainty estimate."],
+      "evidence_ids": ["E1"],
+      "claim_support": [{"evidence_id":"E1","claim_text":"Reported BitPack4 hit TTFT is higher in this single setup.","source_excerpt":"Raw cache miss TTFT P50: 0.369 seconds. Raw cache hit TTFT P50: 0.353 seconds. BitPack4 compressed cache hit TTFT P50: 67.792 seconds.","locator":"sources/brief.md, Observations from an example experiment report, rows 3–5","review_status":"pending"}]
+    },
+    {
+      "slide_id": "S05",
+      "type": "process",
+      "kicker": "SYSTEM HYPOTHESIS",
+      "title": "Instrument the complete recovery path before optimizing components.",
+      "steps": ["Payload GET", "Host decode", "GPU transfer", "Sync barrier", "Ready for prefill"],
+      "body": ["The per-part host decode timing cannot be compared directly with full-request TTFT without part counts and overlap analysis."],
+      "evidence_ids": ["E1", "E2"]
+    },
+    {
+      "slide_id": "S06",
+      "type": "bullets",
+      "kicker": "NEXT EXPERIMENT",
+      "title": "Three controlled checks can localize the bottleneck.",
+      "body": ["Trace per-part latency and critical-path stalls", "Compare sequential and batched recovery under matched workloads", "Verify post-reload correctness before performance claims"],
+      "evidence_ids": ["E2"]
+    },
+    {
+      "slide_id": "S07",
+      "type": "closing",
+      "kicker": "DECISION REQUIRED",
+      "title": "Prioritize recovery profiling over a higher compression ratio.",
+      "body": ["Proposed next step: paired, repeatable tests with decode/transfer/sync breakdown and a correctness gate."],
+      "evidence_ids": ["E1", "E2"]
+    }
+  ]
+}

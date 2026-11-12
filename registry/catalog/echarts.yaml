@@ -1,0 +1,43 @@
+{
+  "id": "echarts",
+  "name": "Apache ECharts",
+  "kind": "figure",
+  "official_url": "https://github.com/apache/echarts",
+  "version": "not-pinned",
+  "interface": "Python/JS library or CLI",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "figure"
+  ],
+  "inputs": [
+    "data",
+    "figure-spec"
+  ],
+  "outputs": [
+    "svg",
+    "png",
+    "html",
+    "figure-manifest"
+  ],
+  "dependencies": [
+    "isolated runtime required"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "partial",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": null,
+  "limitations": "Image/vector output is not a native PowerPoint chart by default; data lineage must be retained.",
+  "status": "catalogued"
+}

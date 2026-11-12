@@ -1,0 +1,73 @@
+name: Validation and PPTX build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: example-editable-deck
+          path: |
+            outputs/research-demo.pptx
+            outputs/research-demo.review.json
+            outputs/research-demo.evidence-manifest.json
+            outputs/research-demo.qa.json
+            outputs/research-demo.qa.md
+            outputs/synthetic-csv-demo.pptx
+            outputs/synthetic-csv-demo.evidence-manifest.json
+            outputs/synthetic-csv-demo.qa.json
+            outputs/synthetic-csv-demo.qa.md
+            outputs/synthetic-line-demo.pptx
+            outputs/synthetic-line-demo.review.json
+            outputs/synthetic-line-demo.evidence-manifest.json
+            outputs/synthetic-line-demo.qa.json
+            outputs/synthetic-line-demo.qa.md
+            outputs/synthetic-multiseries-demo.pptx
+            outputs/synthetic-multiseries-demo.evidence-manifest.json
+            outputs/synthetic-multiseries-demo.qa.json
+            outputs/synthetic-multiseries-demo.qa.md
+            outputs/synthetic-scatter-demo.pptx
+            outputs/synthetic-scatter-demo.evidence-manifest.json
+            outputs/synthetic-scatter-demo.qa.json
+            outputs/synthetic-scatter-demo.qa.md
+            outputs/synthetic-cdf-demo.pptx
+            outputs/synthetic-cdf-demo.evidence-manifest.json
+            outputs/synthetic-cdf-demo.qa.json
+            outputs/synthetic-cdf-demo.qa.md
+            outputs/synthetic-repeated-demo.pptx
+            outputs/synthetic-repeated-demo.evidence-manifest.json
+            outputs/synthetic-repeated-demo.qa.json
+            outputs/synthetic-repeated-demo.qa.md
+            outputs/m2-dual/research-demo-talk.pptx
+            outputs/m2-dual/research-demo-talk.qa.json
+            outputs/m2-dual/research-demo-talk.qa.md
+            outputs/m2-dual/research-demo-talk.evidence-manifest.json
+            outputs/m2-dual/research-demo-reading.pptx
+            outputs/m2-dual/research-demo-reading.qa.json
+            outputs/m2-dual/research-demo-reading.qa.md
+            outputs/m2-dual/research-demo-reading.evidence-manifest.json
+            outputs/m2-dual/research-demo-shared-evidence.json
+            outputs/m2-dual/research-demo-shared-evidence.md
+            outputs/research-demo-critique.json
+            outputs/research-demo-critique.md
+            outputs/m4/update-benchmark.benchmark.json
+            outputs/m4/update-benchmark.benchmark.md
+            outputs/m4/update-benchmark-first.pptx
+            outputs/m4/update-benchmark-first.qa.json
+            outputs/m4/update-benchmark-first.qa.md
+            outputs/m4/update-benchmark-first.evidence-manifest.json
+            outputs/m4/update-benchmark-updated.pptx
+            outputs/m4/update-benchmark-updated.qa.json
+            outputs/m4/update-benchmark-updated.qa.md
+            outputs/m4/update-benchmark-updated.evidence-manifest.json

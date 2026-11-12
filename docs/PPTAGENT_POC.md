@@ -1,0 +1,90 @@
+# PPTAgent backend POC
+
+## Result
+
+The PPTAgent standalone Skill conversion path completed locally in WSL: 9 reviewed HTML slides became an editable 16:9 PPTX and a PDF. PPTAgent `finalize` reported `complete=true` and `delivery_ready=true`. All nine PPTX pages were rendered by the upstream workflow, inspected at full size, and recorded with `record-deck-review --verdict pass`.
+
+This validates the HTML-to-editable-PPTX conversion and review path. The slide content was authored deterministically by this repository's fixture generator; this is **not** evidence that an AI authoring model produced the deck. The test used synthetic/hypothetical content only, made no model/API call, and contains no user research data.
+
+## Reproducibility record
+
+| Item | Value |
+|---|---|
+| Upstream | [`icip-cas/PPTAgent`](https://github.com/icip-cas/PPTAgent), cloned commit `9dacac53ac9ef39346461063df729396551d929e` (2026-11-08) |
+| Integration surface | Official `skills/pptagent` standalone workflow; no upstream source copied into AIAutoSlides |
+| Upstream license | MIT (`PPTAgent/LICENSE` and skill `LICENSE` at the tested checkout) |
+| Host | Ubuntu 24.04 under WSL 2; native Windows dependency install failed building `fasttext==0.9.3` because MSVC C++ Build Tools were unavailable |
+| Runtime | Python 3.12.3; `pptagent==1.1.37`; `playwright==1.62.0`; `PyYAML==6.0.3`; `Pillow==11.3.0`; `PyMuPDF==2.1`; `fastmcp==2.13.3`; Node 24.18.1; LibreOffice Impress installed in WSL |
+| Browser | Playwright Chromium installed by the official skill setup; doctor verified the runtime/browser version pairing |
+| Output | 9-slide 16:9 `answer.pptx`, PDF, nine LibreOffice-rendered JPG pages, nine additional PNG pages rendered from the PDF with PyMuPDF 2.1, and nine HTML sources; PPTX SHA-256 `9ea231a90b8e39b9335c49127547296f4d09b512bfb58fff152d14f6034fee00` |
+| External services | None used for generation. No paid API, cloud model, stock image API, or private input. |
+
+The upstream skill documents Linux (including WSL) or macOS, Python 3.11+, `uv`, npm, and LibreOffice. The tested WSL setup ran the official `doctor`, `review-slides`, `build`, `review-deck`, `record-deck-review`, and `finalize` commands. `finalize` checked current slide review hashes, artifact structure, current build, and deck review.
+
+### External dependency and license inventory
+
+The following are the direct dependencies/runtime components installed or used for this POC. Licenses are reported from upstream package/repository metadata; this is an inventory, not a redistribution clearance for their transitive dependencies.
+
+| Component | Tested version | Role | Upstream license |
+|---|---:|---|---|
+| PPTAgent repository and standalone Skill | commit above | HTML rendering, PPTX conversion and QA workflow | MIT |
+| `pptagent` Python package | 1.1.37 | HTML-to-PPTX converter interface | MIT (upstream project) |
+| Playwright Python/Node | 1.62.0 | Browser rendering | Apache-2.0 |
+| PyYAML | 6.0.3 | Skill config parsing | MIT |
+| Pillow | 11.3.0 | Image helper/PNG conversion | HPND |
+| PyMuPDF | 2.1 | PDF page count and direct PDF-to-PNG rendering | AGPL-3.0-or-later **or commercial**; resolve before redistribution or bundling |
+| FastMCP | 2.13.3 | Skill tool integration dependency | Apache-2.0 |
+| `fast-glob` | 3.3.3 | Node file matching | MIT |
+| `minimist` | 1.2.8 | Node CLI arguments | MIT |
+| PptxGenJS | 4.0.1 | Converter's editable PowerPoint generation | MIT |
+| `sharp` | 0.34.5 | Node image processing | Apache-2.0 |
+| Node.js | 24.18.1 | Skill runtime | MIT; bundled third-party notices apply |
+| LibreOffice Impress | WSL Ubuntu package | PDF/PPTX rendering for QA | MPL-2.0; distribution includes additional notices |
+| Playwright Chromium | installed via official Playwright workflow | HTML slide screenshots | Chromium BSD-3-Clause plus bundled third-party notices |
+
+No third-party image, icon, template or downloaded font assets were used. HTML uses the host `Arial` font family; actual font substitution on the Linux rendering host was not independently fingerprinted. PyMuPDF's dual license is a material integration review item even though this POC did not distribute its source/runtime.
+
+## Editable-object audit
+
+The deck follows the same nine slide assertions, caveats, synthetic values, and source identifier as the shared [`synthetic-systems-talk.md`](../examples/open-source-bakeoff/synthetic-systems-talk.md) bake-off fixture. The PPTX package contains 9/9 slides with editable text, 116 native PowerPoint shapes, 17 native line objects, 2 native PowerPoint tables, zero picture objects, and zero native chart objects. The two tables are on slides 4 and 7. Slide 4 retains the exact synthetic values `120`, `240`, and `360 req/s` as editable table-cell text. Each slide visibly includes its slide ID and `E_SYN_01` pending/unverified state. These values are hypothetical and are not benchmark results.
+
+`node src/qa.mjs <PPTX>` was also run as a cross-check. It confirmed 9 text-editable slides and 2 native tables, but returned `fail` because this external PPTX has no AIAutoSlides build-review/storyboard sidecar for its source-aware checks (it therefore cannot compare table placement/cells to a nonexistent storyboard). Its `render_blocked` field is likewise unrelated to actual render availability: the PPTAgent workflow produced and visually reviewed all nine rendered pages. Do not interpret that cross-backend run as a PPTAgent defect or a passing AIAutoSlides source-lineage check.
+
+The dedicated structural inventory is [object-audit.json](../artifacts/open-source-bakeoff/pptagent/object-audit.json), generated by [audit-pptx-objects.mjs](../examples/open-source-bakeoff/pptagent/audit-pptx-objects.mjs). It checks OOXML object counts and editable text runs. It does not claim that every native shape is convenient to edit or that a chart exists.
+
+## Visual QA
+
+Every final PPTX page was inspected at full resolution. No text clipping, collisions, or out-of-bounds elements were observed. The native tables and cards have readable spacing; all numeric content and evidence-status caveats are visible. The review evidence and per-page renders are stored under [the artifact directory](../artifacts/open-source-bakeoff/pptagent/). The review was performed by direct host inspection, not an external vision model.
+
+## Reproduction
+
+From the AIAutoSlides repository root, with WSL Ubuntu 24.04, Node, `uv`, npm, and LibreOffice available:
+
+```bash
+git clone https://github.com/icip-cas/PPTAgent.git outputs/open-source-bakeoff/PPTAgent
+git -C outputs/open-source-bakeoff/PPTAgent checkout 9dacac53ac9ef39346461063df729396551d929e
+cd outputs/open-source-bakeoff/PPTAgent/skills/pptagent
+uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+.venv/bin/python -m playwright install --with-deps chromium
+.venv/bin/python scripts/pptagent.py doctor
+cd ../../../../..
+node examples/open-source-bakeoff/pptagent/create-slides.mjs outputs/open-source-bakeoff/pptagent-run/slides
+outputs/open-source-bakeoff/PPTAgent/skills/pptagent/.venv/bin/python \
+  outputs/open-source-bakeoff/PPTAgent/skills/pptagent/scripts/pptagent.py init \
+  --workspace outputs/open-source-bakeoff/pptagent-run \
+  --slides 9 --aspect-ratio 16:9 --language English
+# Follow outputs/open-source-bakeoff/PPTAgent/skills/pptagent/SKILL.md, using
+# that same absolute script with --workspace outputs/open-source-bakeoff/pptagent-run:
+# review-slides, inspect each render, record-slide-review, build, review-deck,
+# inspect every deck page, record-deck-review, and finalize. Deliver only when complete=true.
+node examples/open-source-bakeoff/pptagent/audit-pptx-objects.mjs outputs/open-source-bakeoff/pptagent-run/answer.pptx
+```
+
+The exact checked-in outputs live under `artifacts/open-source-bakeoff/pptagent/`. The temporary upstream clone and runtime are intentionally not vendored.
+
+## Integration recommendation
+
+Use PPTAgent as an optional, isolated **HTML-to-PPTX renderer/authoring tool** behind a backend adapter, consuming a frozen slide specification or approved HTML package. Keep AIAutoSlides responsible for source IDs, evidence verification, deterministic numeric data, and source-aware QA. Revalidate all output objects and provenance after conversion. Do not designate PPTAgent as the scientific evidence authority.
+
+Before promotion, add a same-fixture native chart case, speaker-note behavior, asset-license lineage, arbitrary existing-PPTX import/edit tests, and source-sidecar semantic validation. This POC does not establish those capabilities.

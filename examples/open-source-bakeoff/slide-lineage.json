@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "source_file": "synthetic-systems-talk.md",
+  "evidence_file": "synthetic-evidence.json",
+  "status": "synthetic-only; evidence intentionally unverified",
+  "slides": [
+    {"slide_id":"S01","evidence_ids":["E_SYN_01"]},
+    {"slide_id":"S02","evidence_ids":["E_SYN_01"]},
+    {"slide_id":"S03","evidence_ids":["E_SYN_01"]},
+    {"slide_id":"S04","evidence_ids":["E_SYN_01"]},
+    {"slide_id":"S05","evidence_ids":["E_SYN_01"]},
+    {"slide_id":"S06","evidence_ids":["E_SYN_01"]},
+    {"slide_id":"S07","evidence_ids":["E_SYN_01"]},
+    {"slide_id":"S08","evidence_ids":["E_SYN_01"]},
+    {"slide_id":"S09","evidence_ids":["E_SYN_01"]}
+  ]
+}

@@ -1,0 +1,284 @@
+{
+  "meta": {
+    "title": "A synthetic AI inference workflow",
+    "subtitle": "Hypothetical systems research talk · not empirical results",
+    "audience": "Systems research group",
+    "audience_profile": "research_group",
+    "goal": "Review a traceable illustrative workflow and define evidence needed for a real study",
+    "duration_minutes": 7,
+    "aspect_ratio": "16:9",
+    "theme": "keynote-minimal",
+    "status": "SYNTHETIC / HYPOTHETICAL"
+  },
+  "slides": [
+    {
+      "slide_id": "S01",
+      "type": "cover",
+      "kicker": "SYNTHETIC / HYPOTHETICAL",
+      "title": "A traceable AI inference workflow",
+      "body": [
+        "Illustrative architecture and data only",
+        "No measured performance is reported"
+      ],
+      "evidence_ids": [],
+      "speaker_notes": "State clearly that every system and number in this talk is synthetic and hypothetical."
+    },
+    {
+      "slide_id": "S02",
+      "type": "statement",
+      "kicker": "MOTIVATION",
+      "title": "Inference systems coordinate requests across shared resources",
+      "assertion_title": "The teaching scenario needs a clear request-to-worker path",
+      "body": [
+        "This is a framing scenario for the generator example, not an empirical claim about deployed systems."
+      ],
+      "evidence_ids": [
+        "E_TECH"
+      ],
+      "visuals": [
+        {
+          "asset_id": "A_SYSTEM_TOPOLOGY",
+          "x": 7.1,
+          "y": 3.15,
+          "w": 5.2,
+          "h": 2.4
+        }
+      ],
+      "speaker_notes": "Explain that the scenario was written to exercise slide structures. Do not generalize it to real inference deployments."
+    },
+    {
+      "slide_id": "S03",
+      "type": "bullets",
+      "kicker": "QUESTION",
+      "title": "What would a real evaluation need to establish?",
+      "body": [
+        "Define the workload, request mix and measurement protocol",
+        "Compare policies under the same hardware and traffic",
+        "Report repeated independent runs and uncertainty",
+        "Retain source logs, exclusions, units and code versions"
+      ],
+      "evidence_ids": [
+        "E_TECH"
+      ],
+      "speaker_notes": "These are proposed evaluation requirements, not results from this fixture."
+    },
+    {
+      "slide_id": "S04",
+      "type": "architecture",
+      "kicker": "SYSTEM OVERVIEW",
+      "title": "Separate request handling, control, and execution",
+      "diagram": {
+        "status": "SYNTHETIC / HYPOTHETICAL",
+        "groups": [
+          {
+            "label": "REQUEST PLANE",
+            "x": 0.85,
+            "y": 2.55,
+            "w": 3.1,
+            "h": 3.7
+          },
+          {
+            "label": "CONTROL PLANE",
+            "x": 4.18,
+            "y": 2.55,
+            "w": 3.4,
+            "h": 3.7
+          },
+          {
+            "label": "EXECUTION PLANE",
+            "x": 7.82,
+            "y": 2.55,
+            "w": 4.65,
+            "h": 3.7
+          }
+        ],
+        "nodes": [
+          {
+            "id": "client",
+            "label": "Client request",
+            "x": 1.25,
+            "y": 4,
+            "w": 2.3,
+            "h": 0.8
+          },
+          {
+            "id": "gateway",
+            "label": "API gateway",
+            "x": 4.62,
+            "y": 4,
+            "w": 2.3,
+            "h": 0.8
+          },
+          {
+            "id": "scheduler",
+            "label": "Hypothetical scheduler",
+            "x": 8.05,
+            "y": 4,
+            "w": 2.3,
+            "h": 0.8
+          },
+          {
+            "id": "worker",
+            "label": "Inference workers",
+            "x": 10.5,
+            "y": 3,
+            "w": 1.7,
+            "h": 0.8
+          },
+          {
+            "id": "cache",
+            "label": "Context cache",
+            "x": 10.5,
+            "y": 5,
+            "w": 1.7,
+            "h": 0.8
+          }
+        ],
+        "edges": [
+          {
+            "from": "client",
+            "to": "gateway",
+            "label": "request"
+          },
+          {
+            "from": "gateway",
+            "to": "scheduler"
+          },
+          {
+            "from": "scheduler",
+            "to": "worker"
+          },
+          {
+            "from": "scheduler",
+            "to": "cache"
+          }
+        ]
+      },
+      "evidence_ids": [
+        "E_ARCH"
+      ],
+      "speaker_notes": "Every box and connector is a native PowerPoint shape or connector. The architecture is hypothetical; do not present it as a product deployment."
+    },
+    {
+      "slide_id": "S05",
+      "type": "process",
+      "kicker": "METHOD FLOW",
+      "title": "A request passes through explicit routing stages",
+      "steps": [
+        "Receive request",
+        "Check context cache",
+        "Select worker",
+        "Generate response"
+      ],
+      "body": [
+        "Conceptual sequence from the hypothetical architecture description."
+      ],
+      "evidence_ids": [
+        "E_ARCH",
+        "E_TECH"
+      ],
+      "speaker_notes": "Describe the flow as a design sketch, not a measured implementation."
+    },
+    {
+      "slide_id": "S06",
+      "type": "statement",
+      "kicker": "LOCAL MATERIALS",
+      "title": "Keep illustrative inputs linked to their original files",
+      "assertion_title": "Each local image retains a source record and file hash",
+      "body": [
+        "The two original SVG illustrations are embedded as image objects.",
+        "Their paths are not converted into editable PowerPoint vector primitives."
+      ],
+      "evidence_ids": [
+        "E_TECH"
+      ],
+      "visuals": [
+        {
+          "asset_id": "A_EXPERIMENT_FLOW",
+          "x": 7.25,
+          "y": 3.15,
+          "w": 4.95,
+          "h": 2.3
+        }
+      ],
+      "speaker_notes": "The SVG source is local and attributed in the asset manifest as an original CC0-1.0 demonstration. The verified flag remains false pending human confirmation."
+    },
+    {
+      "slide_id": "S07",
+      "type": "chart",
+      "kicker": "SYNTHETIC INPUT DATA",
+      "title": "Three hypothetical values map directly from the CSV",
+      "assertion_title": "The chart copies one synthetic latency row per condition",
+      "chart": {
+        "kind": "bar",
+        "unit": "ms",
+        "y_axis_label": "Illustrative latency (ms)",
+        "categories": [
+          "Hypothetical baseline",
+          "Hypothetical cached path",
+          "Hypothetical routed path"
+        ],
+        "values": [
+          420,
+          315,
+          360
+        ],
+        "sample_size": 1
+      },
+      "body": [
+        "Synthetic fixture only; no benchmark or system conclusion."
+      ],
+      "figure_description": "Native bar chart of three fictional per-condition latency values copied directly from the bundled CSV.",
+      "evidence_ids": [
+        "E_DATA"
+      ],
+      "speaker_notes": "The chart values are copied from the labeled synthetic CSV. One row per condition is not repeated-run evidence; no uncertainty or causal interpretation is supported."
+    },
+    {
+      "slide_id": "S08",
+      "type": "statement",
+      "kicker": "LIMITATIONS",
+      "title": "The fixture cannot support a performance conclusion",
+      "assertion_title": "Synthetic single-row values do not estimate real system behavior",
+      "body": [
+        "No real system, workload, hardware or experiment was measured.",
+        "No repeated runs, error bars, significance test or causal analysis exists."
+      ],
+      "evidence_ids": [
+        "E_TECH",
+        "E_DATA"
+      ],
+      "speaker_notes": "Keep this limitation visible whenever the example is reused."
+    },
+    {
+      "slide_id": "S09",
+      "type": "bullets",
+      "kicker": "NEXT STUDY",
+      "title": "Collect the evidence needed for a defensible comparison",
+      "body": [
+        "Freeze a workload and a predeclared metric",
+        "Capture independent run IDs and source-row locators",
+        "Record hardware, software versions and system configuration",
+        "Validate data and inspect every rendered slide with a human reviewer"
+      ],
+      "evidence_ids": [
+        "E_TECH"
+      ],
+      "speaker_notes": "These are proposed next steps, not completed experiments."
+    },
+    {
+      "slide_id": "S10",
+      "type": "closing",
+      "kicker": "DISCUSSION",
+      "title": "Which measurement should the real study prioritize?",
+      "body": [
+        "Choose the workload and primary metric before collecting results.",
+        "All diagrams and values in this example remain hypothetical."
+      ],
+      "evidence_ids": [
+        "E_TECH"
+      ],
+      "speaker_notes": "Ask the audience to choose a workload and primary measurement for a future real evaluation."
+    }
+  ]
+}

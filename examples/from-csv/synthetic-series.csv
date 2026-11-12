@@ -1,0 +1,8 @@
+# SYNTHETIC time-series teaching data. Values are fictional and not measured performance.
+category,value,unit,sample_n
+Step 0,4.2,ms,5
+Step 1,5.1,ms,5
+Step 2,3.8,ms,5
+Step 3,6.4,ms,5
+Step 4,5.7,ms,5
+Step 5,7.0,ms,5

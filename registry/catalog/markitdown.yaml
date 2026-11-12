@@ -1,0 +1,44 @@
+{
+  "id": "markitdown",
+  "name": "Microsoft MarkItDown",
+  "kind": "parser",
+  "official_url": "https://github.com/microsoft/markitdown",
+  "version": "0.1.9",
+  "interface": "isolated Python API worker",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "local-markdown-conversion",
+    "source-sha256",
+    "plugins-disabled",
+    "unverified-source-record"
+  ],
+  "inputs": [
+    "authorized-local-file"
+  ],
+  "outputs": [
+    "markdown-source-record-1.0.0"
+  ],
+  "dependencies": [
+    "workers/markitdown/requirements.in",
+    "workers/markitdown/requirements.lock.txt",
+    "isolated workers/markitdown/.venv"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "free-local",
+  "editable": "not-applicable",
+  "license": {
+    "identifier": "MIT",
+    "review_status": "verified-from-package-metadata",
+    "note": "MarkItDown 0.1.9 declares MIT; transitive dependency licenses still require a complete audit."
+  },
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/markitdown.mjs",
+  "probe": null,
+  "limitations": "Local text-oriented conversion only; no exact layout or page coordinates. Plugins and remote URI conversion are disabled. Extracted content remains unverified.",
+  "status": "e2e-tested"
+}

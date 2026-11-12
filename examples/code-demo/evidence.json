@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "id": "E_SYN_CODE",
+      "label": "Synthetic teaching code",
+      "source": "examples/code-demo/storyboard.json",
+      "locator": "Slide S02 code field; fictional example written for layout verification",
+      "verified": false,
+      "note": "Demonstration snippet only; not a research result or production implementation."
+    }
+  ]
+}

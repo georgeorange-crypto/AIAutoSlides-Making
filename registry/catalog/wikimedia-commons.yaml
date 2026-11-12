@@ -1,0 +1,23 @@
+{
+  "id": "wikimedia-commons",
+  "name": "Wikimedia Commons API",
+  "kind": "licensed-asset-research",
+  "official_url": "https://commons.wikimedia.org/wiki/Commons:Machine-readable_data/en",
+  "version": "MediaWiki API",
+  "interface": "Node fetch adapter via asset-research CLI",
+  "platforms": ["windows", "linux", "macos"],
+  "capabilities": ["asset-search", "creator-license-attribution-metadata", "single-item-download"],
+  "inputs": ["search-query", "explicitly-selected-result"],
+  "outputs": ["asset-file", "rights-aware-asset-manifest"],
+  "dependencies": ["native Node fetch"],
+  "needs_network": true,
+  "needs_auth": false,
+  "expected_cost": "free API; terms and rate limits apply",
+  "editable": "not-applicable",
+  "license": {"identifier": "per-item", "review_status": "needs-review", "note": "Licensing, attribution and reuse requirements vary by file; verify each file description page."},
+  "verification_status": "search-and-single-download-smoke-tested",
+  "adapter": "src/asset-research.mjs",
+  "probe": null,
+  "limitations": "Search and download are separate. At most one selected image per command. Rights remain needs_human_review until a person reviews the file page and intended use.",
+  "status": "search-and-single-download-smoke-tested"
+}

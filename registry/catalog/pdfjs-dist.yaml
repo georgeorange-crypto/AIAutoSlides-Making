@@ -1,0 +1,42 @@
+{
+  "id": "pdfjs-dist",
+  "name": "Mozilla PDF.js",
+  "kind": "parser",
+  "official_url": "https://github.com/mozilla/pdf.js",
+  "version": "not-pinned",
+  "interface": "Node library",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "local-pdf-text-extraction",
+    "page-locators",
+    "source-hash"
+  ],
+  "inputs": [
+    "pdf"
+  ],
+  "outputs": [
+    "source-document-ir",
+    "evidence-ledger"
+  ],
+  "dependencies": [
+    "root npm dependency"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "not-applicable",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/pdfjs.mjs",
+  "probe": null,
+  "limitations": "Selectable text only; image-only scans require the separate optional local Tesseract.js OCR path, and extraction does not verify claims.",
+  "status": "e2e-tested"
+}

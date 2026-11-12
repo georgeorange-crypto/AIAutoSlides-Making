@@ -1,0 +1,45 @@
+{
+  "id": "pptxgenjs-ir",
+  "name": "PptxGenJS Presentation IR adapter",
+  "kind": "deck-backend",
+  "official_url": "https://github.com/georgeorange-crypto/AIAutoSlides-Making",
+  "version": "not-pinned",
+  "interface": "Node adapter + CLI",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "presentation-ir-1.0.0",
+    "native-editable-pptx",
+    "native-charts",
+    "source-lineage",
+    "run-manifest"
+  ],
+  "inputs": [
+    "presentation-ir-1.0.0"
+  ],
+  "outputs": [
+    "pptx",
+    "lineage-manifest",
+    "run-manifest"
+  ],
+  "dependencies": [
+    "PptxGenJS root dependency"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "free-local",
+  "editable": "native",
+  "license": {
+    "identifier": "MIT",
+    "review_status": "verified-in-repository",
+    "note": "Adapter is internal project code; root package.json declares MIT. PptxGenJS dependency has its own license."
+  },
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/pptxgenjs-ir.mjs",
+  "probe": null,
+  "limitations": "Supports the declared element mapping only; no remote research, native Mermaid layout, per-slide edit, or OCR.",
+  "status": "e2e-tested"
+}

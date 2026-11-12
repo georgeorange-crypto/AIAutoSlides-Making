@@ -1,0 +1,43 @@
+{
+  "id": "poppler",
+  "name": "Poppler",
+  "kind": "parser",
+  "official_url": "https://poppler.freedesktop.org/",
+  "version": "not-pinned",
+  "interface": "CLI",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "pdf-page-text",
+    "pdf-page-raster"
+  ],
+  "inputs": [
+    "pdf"
+  ],
+  "outputs": [
+    "text",
+    "png-pages"
+  ],
+  "dependencies": [
+    "local executable"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "not-applicable",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "e2e-tested",
+  "adapter": "not-implemented",
+  "probe": {
+    "command": "pdftoppm"
+  },
+  "limitations": "External process; rendering and text extraction do not verify claims.",
+  "status": "e2e-tested"
+}

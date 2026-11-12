@@ -1,0 +1,50 @@
+{
+  "id": "mermaid",
+  "name": "Mermaid",
+  "kind": "diagram",
+  "official_url": "https://github.com/mermaid-js/mermaid-cli",
+  "version": "12.2.0",
+  "interface": "isolated Node CLI",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "flowchart",
+    "local-svg",
+    "local-png",
+    "local-pdf",
+    "editable-source"
+  ],
+  "inputs": [
+    "diagram-dsl"
+  ],
+  "outputs": [
+    "svg",
+    "png",
+    "pdf",
+    "editable-source",
+    "diagram-manifest"
+  ],
+  "dependencies": [
+    "workers/mermaid/package-lock.json",
+    "Puppeteer-managed Chromium"
+  ],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "unknown",
+  "editable": "partial",
+  "license": {
+    "identifier": "MIT",
+    "review_status": "needs-review",
+    "note": "Upstream CLI declares MIT; transitive package and bundled browser licenses still require a full audit."
+  },
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/mermaid.mjs",
+  "probe": {
+    "command": "mmdc"
+  },
+  "limitations": "Browser networking is disabled and remote/data URIs are rejected. SVG/PNG/PDF are image/page artifacts, not native editable PowerPoint shapes.",
+  "status": "e2e-tested"
+}

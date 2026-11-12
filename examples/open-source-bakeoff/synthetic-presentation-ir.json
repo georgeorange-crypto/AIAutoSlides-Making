@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0.0",
+  "meta": {
+    "title": "Synthetic local-first presentation pipeline",
+    "audience": "Technical reviewers",
+    "goal": "Demonstrate a backend-neutral IR mapping without empirical claims",
+    "status": "synthetic/hypothetical"
+  },
+  "source_ir": {
+    "schema_version": "1.0.0",
+    "sources": [
+      {
+        "source_id": "E_SYN_01",
+        "type": "synthetic_fixture",
+        "uri": "fixture://synthetic-systems-talk",
+        "locator": "examples/open-source-bakeoff/synthetic-presentation-ir.json",
+        "verification_status": "unverified",
+        "claims": [],
+        "assets": []
+      }
+    ]
+  },
+  "slides": [
+    {
+      "slide_id": "S01",
+      "type": "cover",
+      "title": "Synthetic local-first presentation pipeline",
+      "assertion_title": "A hypothetical design for evidence-preserving technical talks",
+      "evidence_ids": ["E_SYN_01"],
+      "speaker_notes": "Fictional architecture exercise. No performance result is measured or claimed.",
+      "elements": [
+        {"element_id":"S01-E01","kind":"text","text":"SYNTHETIC / HYPOTHETICAL TEST MATERIAL · 9-slide backend bake-off"}
+      ]
+    },
+    {
+      "slide_id": "S02",
+      "type": "statement",
+      "title": "Design the pipeline around evidence",
+      "assertion_title": "Scientific review needs exact data mapping, source lineage, and explicit uncertainty.",
+      "evidence_ids": ["E_SYN_01"],
+      "speaker_notes": "This is a hypothetical test question, not an empirical result.",
+      "elements": [
+        {"element_id":"S02-E01","kind":"text","text":"Presentation tools can draft and arrange slides while review checks the source trail."},
+        {"element_id":"S02-E02","kind":"callout","text":"No empirical performance data"}
+      ]
+    },
+    {
+      "slide_id": "S03",
+      "type": "architecture",
+      "title": "Separate evidence from presentation layout",
+      "evidence_ids": ["E_SYN_01"],
+      "speaker_notes": "Illustrative architecture only; not evidence that any component is implemented.",
+      "elements": [
+        {"element_id":"S03-E01","kind":"mermaid","source":"flowchart LR\n  A[Source files] --> B[Evidence ledger]\n  B --> C[Storyboard + figures]\n  C --> D[Backend adapter]\n  D --> E[PPTX / PDF / HTML]\n  C --> F[Source manifest + QA]\n  E --> F"},
+        {"element_id":"S03-E02","kind":"text","text":"Source identifiers and verification state travel with the rendered deck."}
+      ]
+    },
+    {
+      "slide_id": "S04",
+      "type": "table",
+      "title": "Keep figures deterministic",
+      "evidence_ids": ["E_SYN_01"],
+      "speaker_notes": "Invented test inputs only; not observations or benchmark results.",
+      "elements": [
+        {"element_id":"S04-E01","kind":"table","headers":["Figure field","Hypothetical input"],"rows":[["Load tier A","120 req/s"],["Load tier B","240 req/s"],["Load tier C","360 req/s"]]},
+        {"element_id":"S04-E02","kind":"callout","text":"Synthetic fixture values, not benchmark results."}
+      ]
+    },
+    {
+      "slide_id": "S05",
+      "type": "cards",
+      "title": "Layout intent should survive backend changes",
+      "evidence_ids": ["E_SYN_01"],
+      "speaker_notes": "These cards illustrate semantic roles; they do not assert a measured design benefit.",
+      "elements": [
+        {"element_id":"S05-E01","kind":"cards","items":[{"title":"Assertion","body":"One claim per slide"},{"title":"Evidence","body":"Show source and data"},{"title":"Review","body":"Keep caveats visible"}]},
+        {"element_id":"S05-E02","kind":"text","text":"Synthetic design example · no measured results"}
+      ]
+    },
+    {
+      "slide_id": "S06",
+      "type": "bullets",
+      "title": "Track limitations as structured output",
+      "evidence_ids": ["E_SYN_01"],
+      "speaker_notes": "Proposed acceptance checklist for a hypothetical system.",
+      "elements": [
+        {"element_id":"S06-E01","kind":"bullets","items":["Unsupported chart type → explicit warning","Raster-only element → object-level editability report","Missing source ID → build error","Unverified evidence → visible pending state","Provider call → explicit opt-in and cost boundary"]}
+      ]
+    },
+    {
+      "slide_id": "S07",
+      "type": "table",
+      "title": "Compare capabilities, not marketing labels",
+      "evidence_ids": ["E_SYN_01"],
+      "speaker_notes": "The table defines bake-off checks; it does not claim that all backends passed.",
+      "elements": [
+        {"element_id":"S07-E01","kind":"table","headers":["Check","Required evidence"],"rows":[["Export","PPTX produced by local command"],["Editability","Text, shapes, charts inspected in package"],["Fidelity","Every rendered page reviewed"],["Lineage","Source IDs preserved in sidecar"],["Operations","Version, dependencies, services logged"]]}
+      ]
+    },
+    {
+      "slide_id": "S08",
+      "type": "statement",
+      "title": "A backend is useful only when its boundary is clear",
+      "evidence_ids": ["E_SYN_01"],
+      "speaker_notes": "Keep rendering, optional AI drafting, and scientific QA as distinct capabilities.",
+      "elements": [
+        {"element_id":"S08-E01","kind":"bullets","items":["Local renderer: repeatable exports without model calls","AI service: optional drafting with provider and cost disclosed","Scientific QA: checks every output outside the renderer"]},
+        {"element_id":"S08-E02","kind":"text","text":"SYNTHETIC / HYPOTHETICAL ARCHITECTURE"}
+      ]
+    },
+    {
+      "slide_id": "S09",
+      "type": "closing",
+      "title": "Recommendation for this test",
+      "assertion_title": "Keep evidence and chart data in a backend-neutral contract.",
+      "evidence_ids": ["E_SYN_01"],
+      "speaker_notes": "Test-design recommendation only, not a research result.",
+      "elements": [
+        {"element_id":"S09-E01","kind":"text","text":"Use isolated adapters; promote a renderer only after same-input, object-editability, and visual checks pass."},
+        {"element_id":"S09-E02","kind":"callout","text":"No backend comparison in this fixture establishes research performance."}
+      ]
+    }
+  ]
+}

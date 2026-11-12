@@ -1,0 +1,39 @@
+{
+  "id": "deterministic-planner",
+  "name": "Deterministic local planner",
+  "kind": "planner",
+  "official_url": "https://github.com/georgeorange-crypto/AIAutoSlides-Making",
+  "version": "not-pinned",
+  "interface": "SDK / local rules",
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
+  "capabilities": [
+    "storyboard-draft",
+    "speaker-notes"
+  ],
+  "inputs": [
+    "evidence-ir",
+    "task-contract"
+  ],
+  "outputs": [
+    "storyboard"
+  ],
+  "dependencies": [],
+  "needs_network": false,
+  "needs_auth": false,
+  "expected_cost": "free-local",
+  "editable": "not-applicable",
+  "license": {
+    "identifier": "unreviewed",
+    "review_status": "needs-review",
+    "note": "Verify the current upstream license and transitive dependencies before production use."
+  },
+  "verification_status": "catalogued",
+  "adapter": "not-implemented",
+  "probe": null,
+  "limitations": "External model providers are optional; generated text remains a draft. Deterministic planner is local and has no model service.",
+  "status": "catalogued"
+}
