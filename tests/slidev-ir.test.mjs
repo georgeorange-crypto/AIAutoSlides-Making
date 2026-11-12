@@ -28,7 +28,21 @@ test('Presentation IR rejects unknown or duplicate provenance IDs and unsupporte
   const duplicate=structuredClone(fixture);duplicate.slides[1].slide_id=duplicate.slides[0].slide_id;
   assert.throws(()=>compilePresentationIR(duplicate),/Duplicate slide_id/);
   const unsupported=structuredClone(fixture);unsupported.slides[0].elements[0].kind='raster-chart';
-  assert.throws(()=>compilePresentationIR(unsupported),/unsupported Slidev IR element kind/);
+  assert.throws(()=>compilePresentationIR(unsupported),/unsupported element kind 'raster-chart'/);
+});
+
+test('Slidev IR uses shared semantic validation and preserves evidence records in lineage',()=>{
+  const input=structuredClone(fixture);
+  input.source_ir.evidence=[{evidence_id:'EV_SYN_01',source_id:'E_SYN_01',excerpt:'Synthetic evidence excerpt.',locator:'fixture row 1',verification_status:'pending'}];
+  input.slides[0].evidence_ids=['EV_SYN_01'];
+  input.slides[0].elements[0].source_ids=['EV_SYN_01'];
+  const {markdown,lineage,warnings}=compilePresentationIR(input);
+  assert.deepEqual(lineage.evidence,input.source_ir.evidence);
+  assert.deepEqual(lineage.slides[0].evidence_ids,['EV_SYN_01']);
+  assert.match(markdown,/EV_SYN_01: pending/);
+  assert.ok(warnings.some(warning=>warning.includes('E_SYN_01 remains unverified')));
+  const malformed=structuredClone(input);malformed.slides[0].elements[0].source_ids=['E_MISSING'];
+  assert.throws(()=>compilePresentationIR(malformed),/unknown source\/evidence ID 'E_MISSING'/);
 });
 
 test('Slidev IR maps chart series exactly and preserves chart data/source lineage',()=>{
@@ -36,7 +50,7 @@ test('Slidev IR maps chart series exactly and preserves chart data/source lineag
   const {markdown,lineage}=compilePresentationIR(input);
   assert.match(markdown,/data-values="12,18,15"/);assert.match(markdown,/Latency \(ms\)/);assert.match(markdown,/AIAUTOSLIDES_CHART/);
   assert.deepEqual(lineage.charts,[{slide_id:'S01',element_id:'chart-1',kind:'line',x_values:[1,2,3],series:[{name:'Baseline',values:[12,18,15]},{name:'Variant',values:[10,14,13]}],source_ids:['E_SYN_01']}]);
-  const malformed=structuredClone(input);malformed.slides[0].elements.at(-1).series[1].values=[10,14];assert.throws(()=>compilePresentationIR(malformed),/align with x_values/);
+  const malformed=structuredClone(input);malformed.slides[0].elements.at(-1).series[1].values=[10,14];assert.throws(()=>compilePresentationIR(malformed),/aligned with x_values/);
 });
 
 test('Markdown source text cannot inject another slide or note comment',()=>{

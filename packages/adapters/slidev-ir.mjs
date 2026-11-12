@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto';
 import {unzipSync,strFromU8} from 'fflate';
+import {assertValidPresentationIR} from '../core/validate-presentation.mjs';
 
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const text=value=>typeof value==='string'?value:(typeof value==='number'?String(value):null);
@@ -11,11 +12,6 @@ const noteSafe=value=>String(value||'').replaceAll('-->','--&gt;').replaceAll('<
 function requireText(value,label) {
   if(typeof value!=='string'||!value.trim()) throw new Error(`${label} must be a non-empty string`);
   return value.trim();
-}
-function requireId(value,label) {
-  const id=requireText(value,label);
-  if(!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(id)) throw new Error(`${label} must use letters, digits, dot, underscore, colon, or hyphen`);
-  return id;
 }
 function oneLine(value,label) {return requireText(value,label).replace(/[\r\n]+/g,' ');}
 function safeMarkdown(value) {
@@ -77,42 +73,24 @@ function renderElement(element,slideId) {
 }
 
 export function compilePresentationIR(ir) {
-  if(!ir||ir.schema_version!=='1.0.0'||!ir.meta||typeof ir.meta!=='object'||!Array.isArray(ir.slides)||!ir.slides.length) throw new Error('Expected Presentation IR schema_version 1.0.0 with meta and non-empty slides[]');
+  const validation=assertValidPresentationIR(ir);
   const sources=ir.source_ir?.sources;
-  if(ir.source_ir?.schema_version!=='1.0.0'||!Array.isArray(sources)) throw new Error('Presentation IR requires source_ir schema_version 1.0.0 with sources[]');
   const sourceById=new Map();
-  for(const source of sources) {
-    const id=requireId(source?.source_id,'source_id');
-    if(sourceById.has(id)) throw new Error(`Duplicate source_id '${id}'`);
-    requireText(source.type,`Source '${id}' type`);
-    if(!['verified','unverified','contradicted','pending'].includes(source.verification_status)) throw new Error(`Source '${id}' has invalid verification_status`);
-    if(source.sha256!==undefined&&!/^[a-fA-F0-9]{64}$/.test(source.sha256))throw new Error(`Source '${id}' sha256 must contain 64 hexadecimal characters`);
-    if(source.uri!==undefined&&source.uri!==null&&typeof source.uri!=='string')throw new Error(`Source '${id}' uri must be a string or null`);
-    sourceById.set(id,source);
-  }
-  const slideIds=new Set(),lineageSlides=[],markdownSlides=[],chartAudits=[];
+  for(const source of sources)sourceById.set(source.source_id,source);
+  const evidenceById=new Map((ir.source_ir.evidence||[]).map(item=>[item.evidence_id,item]));
+  const lineageSlides=[],markdownSlides=[],chartAudits=[];
   for(const slide of ir.slides) {
-    const id=requireId(slide?.slide_id,'slide_id');
-    if(slideIds.has(id)) throw new Error(`Duplicate slide_id '${id}'`);
-    slideIds.add(id);
-    requireText(slide.type,`${id} type`);
+    const id=slide.slide_id;
     const title=oneLine(slide.title,`${id} title`);
-    if(!Array.isArray(slide.evidence_ids)||!Array.isArray(slide.elements)) throw new Error(`${id}: evidence_ids[] and elements[] are required`);
-    const evidenceIds=[...new Set(slide.evidence_ids.map(item=>requireId(item,`${id} evidence ID`)))];
-    for(const evidenceId of evidenceIds) if(!sourceById.has(evidenceId)) throw new Error(`${id}: unknown source/evidence ID '${evidenceId}'`);
-    const elementIds=new Set();
+    const evidenceIds=[...new Set(slide.evidence_ids)];
     const elements=slide.elements.map(element=>{
-      const elementId=requireId(element?.element_id,`${id} element_id`);
-      if(elementIds.has(elementId)) throw new Error(`${id}: duplicate element_id '${elementId}'`);
-      elementIds.add(elementId);
+      const elementId=element.element_id;
       const sourceIds=element.source_ids??evidenceIds;
-      if(!Array.isArray(sourceIds)) throw new Error(`${id}/${elementId}: source_ids must be an array`);
-      for(const sourceId of sourceIds) if(!sourceById.has(sourceId)) throw new Error(`${id}/${elementId}: unknown source ID '${sourceId}'`);
       return {...element,source_ids:[...new Set(sourceIds.length?sourceIds:evidenceIds)]};
     });
     const assertion=slide.assertion_title?`\n## ${html(oneLine(slide.assertion_title,`${id} assertion_title`))}\n`:'';
     const body=elements.map(element=>renderElement(element,id)).filter(Boolean).join('\n\n');
-    const status=evidenceIds.map(evidenceId=>`${evidenceId}: ${sourceById.get(evidenceId).verification_status}`).join('; ')||'none';
+    const status=evidenceIds.map(evidenceId=>`${evidenceId}: ${sourceById.get(evidenceId)?.verification_status||evidenceById.get(evidenceId)?.verification_status}`).join('; ')||'none';
     const notes=noteSafe(slide.speaker_notes||'No speaker notes supplied.');
     const elementLineage=elements.map(element=>({element_id:element.element_id,source_ids:element.source_ids.length?element.source_ids:evidenceIds}));
     const elementMap=elementLineage.map(element=>`${element.element_id}=${element.source_ids.join(',')||'none'}`).join('; ');
@@ -124,8 +102,8 @@ export function compilePresentationIR(ir) {
   const deckTitle=oneLine(ir.meta.title||ir.slides[0].title,'meta.title');
   const frontmatter=['---','theme: default',`title: ${JSON.stringify(deckTitle)}`,`info: ${JSON.stringify('Generated from Presentation IR 1.0.0; evidence status is preserved, not verified.')}`,'---',''].join('\n');
   const markdown=frontmatter+markdownSlides.join('\n\n---\n\n')+'\n';
-  const lineage={schema_version:'1.0.0',source_ir_sha256:hash(Buffer.from(JSON.stringify(ir))),sources:sources.map(source=>({source_id:source.source_id,type:source.type,uri:source.uri??null,sha256:source.sha256??null,locator:source.locator??null,verification_status:source.verification_status})),slides:lineageSlides,charts:chartAudits};
-  return {markdown,lineage,sourceIrSha256:lineage.source_ir_sha256};
+  const lineage={schema_version:'1.0.0',source_ir_sha256:hash(Buffer.from(JSON.stringify(ir))),sources:sources.map(source=>({source_id:source.source_id,type:source.type,uri:source.uri??null,sha256:source.sha256??null,locator:source.locator??null,verification_status:source.verification_status})),evidence:ir.source_ir.evidence||[],claims:ir.source_ir.claims||[],slides:lineageSlides,charts:chartAudits};
+  return {markdown,lineage,sourceIrSha256:lineage.source_ir_sha256,warnings:validation.warnings};
 }
 
 export function verifyPptxLineage(pptxBytes,lineage) {
