@@ -9,12 +9,12 @@ const imageMime=new Map([['png','image/png'],['jpg','image/jpeg'],['jpeg','image
 
 function xmlAttributes(tag){const result={};for(const m of tag.matchAll(/([\w:-]+)\s*=\s*(["'])(.*?)\2/g))result[m[1]]=decodeXml(m[3]);return result;}
 
-/** Extract only supported inline image parts referenced by the DOCX body, retaining source-package lineage. */
+/** Extract supported inline image parts referenced by DOCX body/header/footer XML, retaining source-package lineage. */
 export function extractDocxAssets(bytes,{filename='source.docx'}={}){
   if(bytes.byteLength>MAX_DOCUMENT_BYTES)throw new Error('DOCX source exceeds 100 MB limit');
-  let documentBytes,relationshipsBytes;const mediaNames=new Set(),rejected=[];let mediaCount=0,totalMediaBytes=0;
+  const mediaNames=new Set(),rejected=[];let mediaCount=0,totalMediaBytes=0;
   const files=unzipSync(new Uint8Array(bytes),{filter:file=>{
-    if(file.name==='word/document.xml'||file.name==='word/_rels/document.xml.rels'){
+    if(/^word\/(?:document|header\d*|footer\d*)\.xml$/.test(file.name)||/^word\/_rels\/(?:document|header\d*|footer\d*)\.xml\.rels$/.test(file.name)){
       if(file.originalSize>MAX_XML_BYTES)throw new Error(`DOCX XML part exceeds 10 MB limit: ${file.name}`);
       return true;
     }
@@ -27,25 +27,24 @@ export function extractDocxAssets(bytes,{filename='source.docx'}={}){
     if(totalMediaBytes>MAX_TOTAL_IMAGE_BYTES)throw new Error('DOCX extracted images exceed 50 MB total');
     mediaNames.add(file.name);return true;
   }});
-  documentBytes=files['word/document.xml'];relationshipsBytes=files['word/_rels/document.xml.rels'];
-  if(!documentBytes)throw new Error('Invalid DOCX package: expected word/document.xml');
-  const documentXml=strFromU8(documentBytes),relsXml=relationshipsBytes?strFromU8(relationshipsBytes):'',relationships=new Map();
-  for(const match of relsXml.matchAll(/<Relationship\b[^>]*\/?\s*>/g)){
-    const a=xmlAttributes(match[0]);if(!a.Id||!a.Target||!a.Type?.endsWith('/image')||a.TargetMode==='External')continue;
-    const target=a.Target.replaceAll('\\','/');
-    if(target.startsWith('/')||target.includes('?')||target.includes('#'))continue;
-    const part=path.posix.normalize(path.posix.join('word',target));
-    if(!part.startsWith('word/media/')||part.split('/').includes('..'))continue;
-    relationships.set(a.Id,part);
-  }
+  if(!files['word/document.xml'])throw new Error('Invalid DOCX package: expected word/document.xml');
   const used=new Map();
-  for(const tag of documentXml.matchAll(/<(?:a:blip|v:imagedata)\b[^>]*>/g)){
-    const attrs=xmlAttributes(tag[0]),rid=attrs['r:embed']||attrs['r:id'];if(!rid||!relationships.has(rid))continue;
-    const part=relationships.get(rid);if(!mediaNames.has(part))continue;
-    const altMatch=documentXml.slice(Math.max(0,tag.index-1200),tag.index).match(/<wp:docPr\b[^>]*\/?\s*>/g),alt=altMatch?.length?xmlAttributes(altMatch.at(-1)):{};
-    const refs=used.get(part)||[];refs.push({relationship_id:rid,alt_text:alt.descr||alt.title||null});used.set(part,refs);
+  for(const [xmlPart,documentBytes] of Object.entries(files).filter(([name])=>/^word\/(?:document|header\d*|footer\d*)\.xml$/.test(name))){
+    const documentXml=strFromU8(documentBytes),relationshipPath=path.posix.join('word/_rels',`${path.posix.basename(xmlPart)}.rels`),relsXml=files[relationshipPath]?strFromU8(files[relationshipPath]):'',relationships=new Map();
+    for(const match of relsXml.matchAll(/<Relationship\b[^>]*\/?\s*>/g)){
+      const a=xmlAttributes(match[0]);if(!a.Id||!a.Target||!a.Type?.endsWith('/image')||a.TargetMode==='External')continue;
+      const target=a.Target.replaceAll('\\','/');if(target.startsWith('/')||target.includes('?')||target.includes('#'))continue;
+      const part=path.posix.normalize(path.posix.join(path.posix.dirname(xmlPart),target));
+      if(!part.startsWith('word/media/')||part.split('/').includes('..'))continue;relationships.set(a.Id,part);
+    }
+    for(const tag of documentXml.matchAll(/<(?:a:blip|v:imagedata)\b[^>]*>/g)){
+      const attrs=xmlAttributes(tag[0]),rid=attrs['r:embed']||attrs['r:id'];if(!rid||!relationships.has(rid))continue;
+      const part=relationships.get(rid);if(!mediaNames.has(part))continue;
+      const altMatch=documentXml.slice(Math.max(0,tag.index-1200),tag.index).match(/<wp:docPr\b[^>]*\/?\s*>/g),alt=altMatch?.length?xmlAttributes(altMatch.at(-1)):{};
+      const refs=used.get(part)||[];refs.push({relationship_id:rid,source_part:xmlPart,alt_text:alt.descr||alt.title||null});used.set(part,refs);
+    }
   }
-  if(!used.size)throw new Error('DOCX body contains no referenced PNG, JPEG, or SVG image parts');
+  if(!used.size)throw new Error('DOCX body/header/footer contains no referenced PNG, JPEG, or SVG image parts');
   const sourceHash=sha256(bytes),byHash=new Map(),assets=[];
   for(const [part,refs] of used){
     const data=files[part],hash=sha256(data),ext=path.posix.extname(part).slice(1).toLowerCase(),mime=imageMime.get(ext);
