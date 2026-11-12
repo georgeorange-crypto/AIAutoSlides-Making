@@ -1,4 +1,23 @@
-# Integration Status — P0 registry tranche
+# Integration Status — P1 local workflow tranche
+
+Date: 2026-11-12. Current checkout is `dev`; this section supersedes the historical P0 status below.
+
+## P1 slice implemented and verified
+
+- Added a fully local PDF.js + CSV + architecture JSON route that produces a source-linked storyboard/evidence ledger, native editable PPTX, OOXML QA, PDF/PNG previews, and SHA-256 run manifest. The checked-in PDF fixture and CSV values are explicitly synthetic; all evidence remains unverified.
+- Added a local PDF.js adapter with doctor/smoke test, page locators and hashes; unlabeled CSV requires explicit local-input opt-in and remains verification-pending.
+- Added preview renderer metadata/page hashes and native shape bounds/overlap checks. Cover decoration and architecture connectors stay in slide bounds. Visual review remains a separate human decision gate.
+- Verified on Windows with `pdfjs-dist@5.4.624`, PowerPoint 16.0 COM, and Poppler `pdftoppm 26.07.0`. The 10-page result was rendered and every page visually inspected. No paid API or external upload was used.
+- `npm test`: 74/74 passed. `npm run check`: passed end to end. `npm run validate` and `npm run build`: passed with the existing three warnings (missing chart sample size and two unverified example evidence entries).
+- Full workflow command: `npm run workflow:research`. Artifacts: `outputs/research-workflow/research-workflow.pptx`, `.pdf`, ten `research-workflow-page-*.png` files, `.qa.json`, `.evidence-manifest.json`, `.preview.json`, and `run-manifest.json`.
+
+## Remaining P1 work
+
+The P1 ecosystem tranche is not complete: Docling, MarkItDown, PyMuPDF, Matplotlib, Mermaid, Graphviz/D2, Quarto, Marp and LibreOffice adapters/routes are not verified by this slice; importing and selectively editing an existing PPTX template with unchanged-page visual comparison is also outstanding. Do not describe these as tested. Next implement the existing-PPTX selective replacement route with a fixture, before/after snapshots and OOXML/visual checks, then continue isolated adapter integrations.
+
+---
+
+# Historical P0 registry tranche
 
 Date: 2026-11-12. Scope: remote/worktree audit, candidate registry, adapter protocol, CLI discovery and IR contract/migration scaffold.
 

@@ -4,23 +4,25 @@
   "kind": "parser",
   "official_url": "https://poppler.freedesktop.org/",
   "version": "not-pinned",
-  "interface": "library or CLI",
+  "interface": "CLI",
   "platforms": [
     "windows",
     "linux",
     "macos"
   ],
   "capabilities": [
-    "local-pdf-text-extraction"
+    "pdf-page-text",
+    "pdf-page-raster"
   ],
   "inputs": [
     "pdf"
   ],
   "outputs": [
-    "text-with-page-locators"
+    "text",
+    "png-pages"
   ],
   "dependencies": [
-    "local install or root npm dependency"
+    "local executable"
   ],
   "needs_network": false,
   "needs_auth": false,
@@ -31,11 +33,11 @@
     "review_status": "needs-review",
     "note": "Verify the current upstream license and transitive dependencies before production use."
   },
-  "verification_status": "catalogued",
+  "verification_status": "e2e-tested",
   "adapter": "not-implemented",
   "probe": {
     "command": "pdftoppm"
   },
-  "limitations": "Existing document import supports local PDF text extraction; individual engine adapter contract and fixtures are not registered.",
-  "status": "catalogued"
+  "limitations": "External process; rendering and text extraction do not verify claims.",
+  "status": "e2e-tested"
 }

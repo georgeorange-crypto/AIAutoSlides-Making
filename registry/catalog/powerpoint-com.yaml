@@ -36,9 +36,9 @@
     "review_status": "needs-review",
     "note": "Verify the current upstream license and transitive dependencies before production use."
   },
-  "verification_status": "catalogued",
+  "verification_status": "e2e-tested",
   "adapter": "not-implemented",
   "probe": null,
   "limitations": "Structural checks do not replace page-by-page human visual inspection or factual verification.",
-  "status": "catalogued"
+  "status": "e2e-tested"
 }

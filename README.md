@@ -27,6 +27,8 @@ Generated artifacts are under `outputs/` (ignored by Git):
 
 Open **every page PNG** at presentation scale. XML QA cannot detect visual overflow, font substitution, or unintended overlap.
 
+For the synthetic 10-slide AI Systems project, run `node scripts/build-multimodal-demo.mjs`, then use the generated PPTX path under `outputs/multimodal/`. QA separates machine-checkable layout signals from human visual decisions. `node scripts/preview.mjs <deck.pptx> --renderer auto` records a hash-bound preview manifest; after inspecting each rendered page, record decisions with `node src/visual-review.mjs --pptx <deck.pptx> --reviewer "Name" --slide S01 --decision approve --note "Checked layout and evidence fit"` (repeat for every slide). See [`docs/M3A_VISUAL_REVIEW_REPORT.md`](docs/M3A_VISUAL_REVIEW_REPORT.md) for current verification and renderer limits.
+
 ## Synthetic CSV workflow
 
 The values in [`examples/from-csv/synthetic-latency.csv`](examples/from-csv/synthetic-latency.csv) are fictional teaching values. The importer refuses a CSV that does not identify itself as synthetic, requires consistent units and a sample count per row, and calculates a source hash.

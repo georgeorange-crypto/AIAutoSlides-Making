@@ -24,7 +24,7 @@ function addFooter(s,index,total,d,ledger,t,meta) {
   line(s,0.74,7.02,12.58,7.02,t.line);
   const e=(d.evidence_ids||[]).map(id=>ledger.get(id)?.label||id).join(' · ');
   const foot=e?`Evidence: ${e}`:'No source IDs on this slide';
-  txt(s,foot,{x:0.74,y:7.09,w:9.6,h:0.20,fontFace:t.bodyFontFace,fontSize:7.9,color:t.muted,fit:'shrink'});
+  txt(s,foot,{x:0.74,y:7.09,w:9.1,h:0.20,fontFace:t.bodyFontFace,fontSize:7.9,color:t.muted,fit:'shrink'});
   txt(s,String(meta.status||'DRAFT'),{x:10.05,y:7.09,w:1.72,h:0.20,fontFace:t.bodyFontFace,fontSize:7.8,color:t.muted,align:'right',fit:'shrink'});
   txt(s,`${String(index+1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`,{x:11.98,y:7.08,w:0.60,h:0.22,fontFace:t.bodyFontFace,fontSize:8.1,bold:true,color:t.muted,align:'right'});
 }
@@ -36,7 +36,9 @@ function body(s,d,t,y=2.60,fs=20) {
 }
 function cover(s,d,t,meta) {
   // Bold editorial cover, editable vector/shape background.
-  rect(s,{x:9.88,y:-0.65,w:5.1,h:8.95,rectRadius:0,fill:{color:t.surfaceAlt},line:{color:t.surfaceAlt,transparency:100},rotate:12});
+  // Keep the decorative panel within the slide canvas so geometry QA can
+  // distinguish intentional styling from content accidentally clipped off-slide.
+  rect(s,{x:9.18,y:0,w:4.15,h:7.5,rectRadius:0,fill:{color:t.surfaceAlt},line:{color:t.surfaceAlt,transparency:100}});
   s.addShape(Shape.ellipse,{x:10.40,y:1.14,w:2.0,h:2.0,line:{color:t.accent,width:3},fill:{color:t.background,transparency:100}});
   s.addShape(Shape.ellipse,{x:10.96,y:3.57,w:1.03,h:1.03,line:{color:t.accent2,width:3},fill:{color:t.background,transparency:100}});
   txt(s,(d.kicker||'RESEARCH PRESENTATION').toUpperCase(),{x:0.85,y:0.71,w:9.5,h:0.34,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,charSpacing:1.5});
@@ -121,7 +123,8 @@ function architecture(s,d,t) {
   const byId=new Map(g.nodes.map(n=>[n.id,n]));
   for(const edge of g.edges){
     const a=byId.get(edge.from),b=byId.get(edge.to),x1=a.x+a.w/2,y1=a.y+a.h/2,x2=b.x+b.w/2,y2=b.y+b.h/2;
-    s.addShape(Shape.line,{x:x1,y:y1,w:x2-x1,h:y2-y1,line:{color:t.accent,width:1.8,endArrowType:'triangle'}});
+    const dx=x2-x1,dy=y2-y1;
+    s.addShape(Shape.line,{x:Math.min(x1,x2),y:Math.min(y1,y2),w:Math.abs(dx),h:Math.abs(dy),flipH:dx<0,flipV:dy<0,line:{color:t.accent,width:1.8,endArrowType:'triangle'}});
     if(edge.label)txt(s,edge.label,{x:(x1+x2)/2-0.55,y:(y1+y2)/2-0.25,w:1.1,h:0.22,fontFace:t.bodyFontFace,fontSize:9.5,color:t.muted,align:'center',fit:'shrink'});
   }
   g.nodes.forEach((node,i)=>{

@@ -51,6 +51,12 @@ An optional `--assets <manifest.json>` can accompany `validate` and `build`. Man
 
 Slides may contain `visuals:[{"asset_id":"A1","x":7.1,"y":2.3,"w":5.2,"h":2.5}]`; geometry uses inches on the 13.333 × 7.5 slide canvas. Unknown asset IDs and out-of-bounds placements fail. SVGs are embedded as picture objects and can be replaced/cropped/resized as one object; their vector primitives are not native editable PowerPoint shapes. With no asset manifest, existing decks build as before. CLI builds copy asset hash, provenance, verification state, and associated slide IDs into the evidence manifest.
 
+### QA and page-by-page visual review
+
+`src/qa.mjs <deck.pptx>` emits machine-checkable findings separately from per-slide subjective review prompts. Machine checks include bounds for text, shape, picture, chart-frame, and connector objects; overlapping text-box rectangles; non-footer text below 9.5 pt; theme token contrast; missing chart labels; native chart/workbook values; and source IDs. Object overflow and overlap are findings for review because decorative bleed or intentional layering is possible. Font availability/substitution is a risk prompt, not an assertion inferred from PPTX XML. Human prompts cover fit, connectors, chart legibility, and whether visuals support the assertion.
+
+`node scripts/preview.mjs <deck.pptx> [--renderer auto|powerpoint|libreoffice]` writes a SHA-256-bound `.preview.json` only after PDF and all page PNGs render. Automatic mode tries PowerPoint COM on Windows then LibreOffice; other platforms use LibreOffice. QA only recognizes render images when the preview manifest's PPTX hash matches the deck. After inspecting every rendered page, record one decision per slide: `node src/visual-review.mjs --pptx outputs/demo.pptx --reviewer "Name" --slide S01 --decision approve --note "Checked text, image and layout at presentation size"`. Decisions are stored in `.visual-review.json`, bound to the PPTX hash, and stale decisions cannot approve changed content. Review status remains pending or render-blocked until every page is rendered and recorded.
+
 ### Claim-to-source review records (M3)
 
 Factual `statement`, `metrics`, and `chart` slides can record one `claim_support` entry per cited source ID:

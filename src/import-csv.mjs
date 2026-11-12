@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import {empiricalCdfStep} from './statistics.mjs';
 
 const args=process.argv.slice(2), input=path.resolve(args[0]||'examples/from-csv/synthetic-latency.csv'), output=path.resolve(args[1]||'outputs/synthetic-csv/storyboard.json'), chartKind=args[2]||'bar';
+const allowUnverifiedLocal=args.includes('--allow-unverified-local');
 if(!['bar','line','scatter','cdf'].includes(chartKind))throw new Error('chartKind must be bar, line, scatter, or cdf');
 function parseCsv(text){
   text=text.replace(/^#.*(?:\r?\n|$)/,'');
@@ -17,10 +18,12 @@ function parseCsv(text){
   if(cell.length||row.length){row.push(cell.replace(/\r$/,''));rows.push(row);}
   const [headers,...data]=rows;
   if(!headers||data.some(r=>r.length!==headers.length))throw new Error('CSV rows must match the header column count');
-  return data.filter(r=>r.some(Boolean)).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]])));
+  const normalizedHeaders=headers.map(h=>h==='condition'&&!headers.includes('category')?'category':h);
+  return data.filter(r=>r.some(Boolean)).map(r=>Object.fromEntries(normalizedHeaders.map((h,i)=>[h,r[i]])));
 }
 const csv=fs.readFileSync(input,'utf8');
-if(!/SYNTHETIC/i.test(csv.slice(0,300)))throw new Error('CSV must explicitly label itself SYNTHETIC in its first 300 characters');
+const synthetic=/SYNTHETIC/i.test(csv.slice(0,300));
+if(!synthetic&&!allowUnverifiedLocal)throw new Error('CSV must explicitly label itself SYNTHETIC, or pass --allow-unverified-local for a user-supplied local dataset; the resulting evidence remains unverified');
 const rows=parseCsv(csv), unit=rows[0]?.unit, isScatter=chartKind==='scatter', isCdf=chartKind==='cdf', pointChart=isScatter||isCdf;
 const maxRows=pointChart?200:54;
 if(rows.length<2||rows.length>maxRows)throw new Error(`CSV workflow requires 2–${maxRows} rows for ${chartKind}`);
@@ -50,16 +53,17 @@ if(isScatter){
 }
 chart.sample_size=sampleSize;
 const hash=crypto.createHash('sha256').update(csv).digest('hex');
-const evidence={entries:[{id:'E_SYN1',label:'Synthetic chart teaching dataset',source:path.relative(process.cwd(),input).replaceAll('\\','/'),locator:`CSV rows 2–${rows.length+1}; SHA-256 ${hash}`,verified:false,note:'Synthetic values for demonstrating the import pipeline; not experimental evidence.'}]};
-const deck={meta:{title:'From CSV to an editable research talk',subtitle:'Synthetic teaching data · no empirical claim',audience:'Research group',audience_profile:'research_group',mode:'talk',goal:'Demonstrate a traceable data-to-slide workflow',duration_minutes:7,theme:'academic-light',status:'SYNTHETIC DEMO — NOT RESEARCH EVIDENCE',data_status:'synthetic',aspect_ratio:'16:9'},slides:[
- {slide_id:'S01',type:'cover',kicker:'SYNTHETIC WORKFLOW',title:'A CSV can produce an editable, traceable slide deck',body:['Synthetic example only — values are not experimental results.'],evidence_ids:['E_SYN1'],speaker_notes:'State clearly that the dataset is synthetic.'},
- {slide_id:'S02',type:'statement',layout:'assertion-evidence',kicker:'WORKFLOW',title:'Keep the data source attached to every quantitative claim',body:['CSV rows become chart values without an AI-generated numeric step.'],evidence_ids:['E_SYN1'],speaker_notes:'Describe the deterministic transformation.'},
- {slide_id:'S03',type:'metrics',layout:'metric-focus',kicker:'DATA SNAPSHOT',title:'The example contains labeled source observations',metrics:[{label:'Categories / points',value:String(categoryCount),detail:'Synthetic rows'},{label:'Sample size',value:String(sampleSize),detail:'From source rows'},{label:'Unit',value:unit,detail:'From CSV'}],evidence_ids:['E_SYN1']},
- {slide_id:'S04',type:'chart',layout:'chart-and-takeaway',kicker:'SOURCE DATA',title:isCdf?'The empirical CDF is calculated from sorted source rows':'Synthetic values are read directly from the CSV',assertion_title:isCdf?'The plotted right-continuous step counts tied observations together':'The plotted values map 1:1 to the source rows',chart,evidence_ids:['E_SYN1'],body:['Synthetic teaching values; not a measured result.'],speaker_notes:isCdf?'Raw values are sorted and ties grouped. Each right-continuous ECDF step is cumulative count divided by the raw observation count.':'Describe the deterministic transformation.'},
- {slide_id:'S05',type:'statement',layout:'two-column-contrast',kicker:'INTERPRETATION',title:'A pipeline demo does not establish a scientific finding',body:['What this verifies: deterministic CSV parsing and chart generation.','What this does not verify: any real system behavior or causal explanation.'],evidence_ids:['E_SYN1']},
- {slide_id:'S06',type:'process',kicker:'PROVENANCE',title:'Each output can be traced to a specific source file',steps:['CSV input','Schema checks','Evidence ID','Native chart','QA report'],body:[`Source SHA-256: ${hash.slice(0,16)}…`],evidence_ids:['E_SYN1']},
- {slide_id:'S07',type:'bullets',kicker:'LIMITS',title:'Use verified data before drawing a research conclusion',body:['Replace the synthetic CSV with measured data and stable run IDs','Confirm units, sample counts, aggregation and missing values','Review the chart and source lineage before presenting'],evidence_ids:['E_SYN1']},
- {slide_id:'S08',type:'closing',kicker:'NEXT STEP',title:'Replace the demo rows with an audited experiment export',body:['The workflow stays offline and generates an editable PowerPoint chart.'],evidence_ids:['E_SYN1'],speaker_notes:'Do not reuse the synthetic values in research claims.'}
+const evidenceId=synthetic?'E_SYN1':'E_CSV1',evidenceLabel=synthetic?'Synthetic chart teaching dataset':'User-supplied local CSV';
+const evidence={entries:[{id:evidenceId,label:evidenceLabel,source:path.relative(process.cwd(),input).replaceAll('\\','/'),locator:`CSV rows 2–${rows.length+1}; SHA-256 ${hash}`,verified:false,note:synthetic?'Synthetic values for demonstrating the import pipeline; not experimental evidence.':'Local source was parsed deterministically, but provenance and scientific meaning have not been independently verified.'}]};
+const qualifier=synthetic?'Synthetic':'Local unverified',deck={meta:{title:'From CSV to an editable research talk',subtitle:synthetic?'Synthetic teaching data · no empirical claim':'User-supplied data · verification pending',audience:'Research group',audience_profile:'research_group',mode:'talk',goal:'Demonstrate a traceable data-to-slide workflow',duration_minutes:7,theme:'academic-light',status:synthetic?'SYNTHETIC DEMO — NOT RESEARCH EVIDENCE':'LOCAL DATA — SOURCE VERIFICATION PENDING',data_status:synthetic?'synthetic':'unverified-local',aspect_ratio:'16:9'},slides:[
+ {slide_id:'S01',type:'cover',kicker:`${qualifier.toUpperCase()} WORKFLOW`,title:'A CSV can produce an editable, traceable slide deck',body:[synthetic?'Synthetic example only — values are not experimental results.':'Local values remain unverified until compared with their original records.'],evidence_ids:[evidenceId],speaker_notes:synthetic?'State clearly that the dataset is synthetic.':'State that source provenance and scientific verification are pending.'},
+ {slide_id:'S02',type:'statement',layout:'assertion-evidence',kicker:'WORKFLOW',title:'Keep the data source attached to every quantitative claim',body:['CSV rows become chart values without an AI-generated numeric step.'],evidence_ids:[evidenceId],speaker_notes:'Describe the deterministic transformation.'},
+ {slide_id:'S03',type:'metrics',layout:'metric-focus',kicker:'DATA SNAPSHOT',title:'The input contains labeled source observations',metrics:[{label:'Categories / points',value:String(categoryCount),detail:'Source rows'},{label:'Sample size',value:String(sampleSize),detail:'From source rows'},{label:'Unit',value:unit,detail:'From CSV'}],evidence_ids:[evidenceId]},
+ {slide_id:'S04',type:'chart',layout:'chart-and-takeaway',kicker:'SOURCE DATA',title:isCdf?'The empirical CDF is calculated from sorted source rows':`${qualifier} values are read directly from the CSV`,assertion_title:isCdf?'The plotted right-continuous step counts tied observations together':'The plotted values map 1:1 to the source rows',chart,evidence_ids:[evidenceId],body:[synthetic?'Synthetic teaching values; not a measured result.':'Values are source-linked; their meaning and provenance remain unverified.'],speaker_notes:isCdf?'Raw values are sorted and ties grouped. Each right-continuous ECDF step is cumulative count divided by the raw observation count.':'Describe the deterministic transformation.'},
+ {slide_id:'S05',type:'statement',layout:'two-column-contrast',kicker:'INTERPRETATION',title:synthetic?'A pipeline demo does not establish a scientific finding':'A local data import does not establish a scientific finding',body:['What this verifies: deterministic CSV parsing and chart generation.','What this does not verify: source authenticity, protocol, or causal interpretation.'],evidence_ids:[evidenceId]},
+ {slide_id:'S06',type:'process',kicker:'PROVENANCE',title:'Each output can be traced to a specific source file',steps:['CSV input','Schema checks','Evidence ID','Native chart','QA report'],body:[`Source SHA-256: ${hash.slice(0,16)}…`],evidence_ids:[evidenceId]},
+ {slide_id:'S07',type:'bullets',kicker:'LIMITS',title:'Verify source data before drawing a research conclusion',body:['Compare values with the original records and measurement protocol','Confirm units, sample counts, aggregation and missing values','Review the chart and source lineage before presenting'],evidence_ids:[evidenceId]},
+ {slide_id:'S08',type:'closing',kicker:'NEXT STEP',title:synthetic?'Replace the demo rows with an audited experiment export':'Verify the source records before using this chart',body:['The workflow stays offline and generates an editable PowerPoint chart.'],evidence_ids:[evidenceId],speaker_notes:synthetic?'Do not reuse the synthetic values in research claims.':'Do not present these rows as verified evidence until checked.'}
 ]};
 fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(deck,null,2)+'\n');
 fs.writeFileSync(output.replace(/\.json$/,'-evidence.json'),JSON.stringify(evidence,null,2)+'\n');

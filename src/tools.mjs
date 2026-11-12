@@ -4,17 +4,19 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {pptxgenjsAdapter} from '../packages/adapters/pptxgenjs.mjs';
+import {pdfjsAdapter} from '../packages/adapters/pdfjs.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
+import {createCanvaOAuthServer} from './canva-oauth.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
  const [, , group, command, id]=process.argv;
- if(group!=='tools'||!['list','doctor','test','recommend','auth-status','connect-google'].includes(command)){console.log('Usage: node src/tools.mjs tools <list|doctor|test [tool-id]|recommend <workflow>|auth-status|connect-google>');process.exitCode=2;return;}
+ if(group!=='tools'||!['list','doctor','test','recommend','auth-status','connect-google','connect-canva'].includes(command)){console.log('Usage: node src/tools.mjs tools <list|doctor|test [tool-id]|recommend <workflow>|auth-status|connect-google|connect-canva>');process.exitCode=2;return;}
  const all=loadCatalog();
  if(command==='auth-status'){let state='not configured; set GOOGLE_OAUTH_CLIENT_FILE';if(process.env.GOOGLE_OAUTH_CLIENT_FILE){try{loadOAuthClient(process.env.GOOGLE_OAUTH_CLIENT_FILE);state='configured (local consent test available)';}catch(e){state=`configuration error: ${e.message}`;process.exitCode=1;}}console.log(`google-slides: ${state}`);return;}
  if(command==='recommend'){
@@ -56,6 +58,9 @@ async function main(){
  }
  if(command==='connect-google'){
   const app=createGoogleOAuthServer();const address=await app.listen();const url=`http://127.0.0.1:${address.port}`;console.log(`Google OAuth test listening at ${url}`);console.log(process.env.GOOGLE_OAUTH_CLIENT_FILE?'OAuth client loaded. Open the URL in your browser.':'Configure GOOGLE_OAUTH_CLIENT_FILE, then restart. The local UI shows setup status.');console.log('Press Ctrl+C to stop. No presentation is created or uploaded.');return;
+ }
+ if(command==='connect-canva'){
+  const app=createCanvaOAuthServer();const address=await app.listen();const url=`http://127.0.0.1:${address.port}`;console.log(`Canva login test listening at ${url}`);console.log(process.env.CANVA_CLIENT_ID&&process.env.CANVA_CLIENT_SECRET?'OAuth client configured. Open the URL in your browser.':'Set CANVA_CLIENT_ID and CANVA_CLIENT_SECRET, then restart.');console.log('In the Canva Developer Portal register http://127.0.0.1:53682/callback and allow profile:read.');console.log('Press Ctrl+C to stop. No design is created or uploaded.');return;
  }
  if(command==='list'){for(const t of all)line(t);console.log(`\n${all.length} catalog entries. Status records implementation evidence, not vendor claims.`);return;}
  const selected=id?all.filter(t=>t.id===id):all;

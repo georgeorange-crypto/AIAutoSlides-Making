@@ -15,7 +15,7 @@
   "edges": [
     {"from":"client","to":"gateway","label":"request"},
     {"from":"gateway","to":"scheduler"},
-    {"from":"scheduler","to":"worker","label":"dispatch"},
-    {"from":"scheduler","to":"cache","label":"lookup"}
+    {"from":"scheduler","to":"worker"},
+    {"from":"scheduler","to":"cache"}
   ]
 }

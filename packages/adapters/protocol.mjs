@@ -8,5 +8,6 @@ export function defineToolAdapter(adapter) {
   for (const [name, fn] of Object.entries({doctor, probeCapabilities, run})) {
     if (typeof fn !== 'function') throw new TypeError(`Adapter ${manifest.id} requires ${name}()`);
   }
+  if(adapter.smokeTest!==undefined&&typeof adapter.smokeTest!=='function')throw new TypeError(`Adapter ${manifest.id} smokeTest must be a function`);
   return Object.freeze({...adapter, apiVersion: TOOL_ADAPTER_API_VERSION});
 }

@@ -4,23 +4,26 @@
   "kind": "parser",
   "official_url": "https://github.com/mozilla/pdf.js",
   "version": "not-pinned",
-  "interface": "library or CLI",
+  "interface": "Node library",
   "platforms": [
     "windows",
     "linux",
     "macos"
   ],
   "capabilities": [
-    "local-pdf-text-extraction"
+    "local-pdf-text-extraction",
+    "page-locators",
+    "source-hash"
   ],
   "inputs": [
     "pdf"
   ],
   "outputs": [
-    "text-with-page-locators"
+    "source-document-ir",
+    "evidence-ledger"
   ],
   "dependencies": [
-    "local install or root npm dependency"
+    "root npm dependency"
   ],
   "needs_network": false,
   "needs_auth": false,
@@ -31,9 +34,9 @@
     "review_status": "needs-review",
     "note": "Verify the current upstream license and transitive dependencies before production use."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/pdfjs.mjs",
   "probe": null,
-  "limitations": "Existing document import supports local PDF text extraction; individual engine adapter contract and fixtures are not registered.",
-  "status": "catalogued"
+  "limitations": "Selectable text only; scanned pages are not OCRed, and extraction does not verify claims.",
+  "status": "e2e-tested"
 }
