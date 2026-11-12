@@ -24,7 +24,7 @@ OpenAlex search follows its works search endpoint and supports optional API-key 
 
 - Real network smoke requests and provider-specific failure-rate evidence.
 - DOI/paper downloading, source-byte storage for remote records, landing-page crawling, and page-located excerpts.
-- PDF embedded-image extraction and DOCX header/footer image extraction; optional Docling and MarkItDown adapters and comparative extraction QA.
+- PDF inline-image extraction and DOCX header/footer image extraction; optional Docling and MarkItDown adapters and comparative extraction QA.
 - Crawl4AI integration and website terms/robots enforcement.
 - Licensed image search/download providers and asset rights workflow.
 - Crossref bibliographic search is supported by this module and returns DOI/landing-page metadata when the provider has it. This operation does not resolve a DOI into full text or create evidence.

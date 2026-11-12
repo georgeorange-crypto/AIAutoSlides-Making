@@ -43,7 +43,7 @@
 ## Remaining beyond Phase 1
 
 - Phase 0 bakeoff is incomplete for some requested engines/task groups; blocked and unrun candidates remain identified in `docs/POC_RESULTS.md`.
-- Phase 2 has bounded, opt-in OpenAlex/Crossref/arXiv metadata search; local PDF/DOCX text extraction with offline PDF OCR; and optional DOCX body PNG/JPEG/SVG extraction with hashes and source-part lineage. Search candidates and extracted content stay unverified. Paper downloads, crawlers, PDF image extraction, DOCX header/footer images and licensed-media integrations remain incomplete and are not called by the local workflow API.
+- Phase 2 has bounded, opt-in OpenAlex/Crossref/arXiv metadata search; local PDF/DOCX text extraction with offline PDF OCR; and optional DOCX body PNG/JPEG/SVG or PDF image-XObject extraction with hashes and source locators. Search candidates and extracted content stay unverified. Paper downloads, crawlers, PDF inline images, DOCX header/footer images and licensed-media integrations remain incomplete and are not called by the local workflow API.
 - Phase 3 audience/narrative/media intelligence and rendered-image critic remain planned.
 - Phase 4 local stdio MCP server over the loopback API is implemented; full UI, remote auth/scopes and Android remain planned.
 - Full Presentation IR element coverage, native Mermaid shape rendering and unchanged-slide hash preservation remain incomplete.
@@ -69,6 +69,6 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 ## Local DOCX image extraction follow-on — 2026-11-12
 
-- `src/document-assets.mjs` optionally extracts only PNG/JPEG/SVG image parts referenced by the DOCX body. External relationships and paths outside `word/media/` are ignored; images are deduplicated by SHA-256 and bounded by per-image, aggregate-size and count limits.
+- `src/document-assets.mjs` optionally extracts PNG/JPEG/SVG image parts referenced by the DOCX body; `src/pdf-assets.mjs` decodes PDF image XObjects to PNG. External DOCX relationships and paths outside `word/media/` are ignored; images are deduplicated by SHA-256 and bounded by per-image, aggregate-size, image-count and page-count limits.
 - `node src/import-document.mjs --extract-images` writes copied assets and an `--assets`-compatible JSON manifest with document SHA-256, source part, relationship IDs, alt text when available, MIME type, and `verified:false` inherited rights state.
-- Unit/integration coverage checks PNG/SVG extraction, duplicate handling, exact hashes, manifest loading/slide association, and external/path-traversal rejection. PDF embedded-image extraction and DOCX header/footer image extraction remain unimplemented.
+- Unit/integration coverage checks DOCX PNG/JPEG/SVG and PDF XObject extraction, duplicate handling, exact hashes, manifest loading/slide association, embedded PPTX objects, and external/path-traversal rejection. PDF inline-image extraction and DOCX header/footer image extraction remain unimplemented.

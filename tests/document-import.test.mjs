@@ -9,6 +9,7 @@ import {spawnSync} from 'node:child_process';
 import {unzipSync,zipSync,strToU8} from 'fflate';
 import {buildSourceBundle,createTesseractRecognizer,extractDocxParagraphs,extractPdfPages,extractPdfPagesWithOcr,parsePdfPages} from '../src/document-extractors.mjs';
 import {extractDocxAssets} from '../src/document-assets.mjs';
+import {extractPdfAssets} from '../src/pdf-assets.mjs';
 import {loadAssetManifest} from '../src/assets.mjs';
 import {generatePresentation} from '../src/render.mjs';
 
@@ -32,10 +33,10 @@ function syntheticPdf(text='SYNTHETIC PDF source text'){
  const xrefOffset=Buffer.byteLength(pdf,'binary'),xref=['xref','0 6','0000000000 65535 f ',...offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n `)].join('\n');return Buffer.from(`${pdf}${xref}\ntrailer << /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`,'binary');
 }
 
-function imageOnlyPdfFromPng(pngBytes){
+function imageOnlyPdfFromPng(pngBytes,{repeat=false}={}){
  const width=pngBytes.readUInt32BE(16),height=pngBytes.readUInt32BE(20),colorType=pngBytes[25];if(colorType!==2||pngBytes[24]!==8)throw new Error('Test PNG must be 8-bit RGB');
  const chunks=[];for(let i=8;i<pngBytes.length;){const size=pngBytes.readUInt32BE(i),type=pngBytes.toString('ascii',i+4,i+8);if(type==='IDAT')chunks.push(pngBytes.subarray(i+8,i+8+size));i+=12+size;}
- const image=Buffer.concat(chunks),pageHeight=612*height/width,content=Buffer.from(`q\n612 0 0 ${pageHeight} 0 0 cm\n/Im0 Do\nQ\n`),objects=[
+ const image=Buffer.concat(chunks),pageHeight=612*height/width,content=Buffer.from(`q\n612 0 0 ${pageHeight} 0 0 cm\n/Im0 Do${repeat?' /Im0 Do':''}\nQ\n`),objects=[
   Buffer.from('<< /Type /Catalog /Pages 2 0 R >>'),Buffer.from('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'),
   Buffer.from(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 ${pageHeight}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`),
   Buffer.concat([Buffer.from(`<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode /DecodeParms << /Predictor 15 /Colors 3 /BitsPerComponent 8 /Columns ${width} >> /Length ${image.length} >>\nstream\n`),image,Buffer.from('\nendstream')]),
@@ -86,6 +87,22 @@ test('optional DOCX image extraction writes deduplicated local assets and a comp
 test('DOCX image extraction ignores external and path-traversal relationships',()=>{
  const bytes=zipSync({'[Content_Types].xml':strToU8('<Types/>'),'word/document.xml':strToU8('<w:document><a:blip r:embed="rId1"/><a:blip r:embed="rId2"/></w:document>'),'word/_rels/document.xml.rels':strToU8('<Relationships><Relationship Id="rId1" Type="image" Target="https://example.test/p.png" TargetMode="External"/><Relationship Id="rId2" Type="image" Target="../outside.png"/></Relationships>'),'outside.png':Buffer.from([0x89,0x50,0x4e,0x47])});
  assert.throws(()=>extractDocxAssets(bytes),/no referenced PNG, JPEG, or SVG/);
+});
+
+test('optional PDF image extraction decodes bounded XObjects and imports them into a PPTX as sourced picture objects',async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-pdf-assets-')),source=path.join(dir,'synthetic-scan.pdf'),prefix=path.join(dir,'imported'),pptx=path.join(dir,'assets.pptx');
+ try{
+  const pdfBytes=imageOnlyPdfFromPng(fs.readFileSync(path.join(root,'tests/fixtures/ocr-synthetic.png')),{repeat:true});fs.writeFileSync(source,pdfBytes);
+  const result=await extractPdfAssets(pdfBytes,{filename:path.basename(source)});assert.equal(result.assets.length,1,'same decoded object should be deduplicated');assert.equal(result.assets[0].source_parts.length,2);assert.equal(result.assets[0].source_file_sha256,crypto.createHash('sha256').update(pdfBytes).digest('hex'));
+  const run=spawnSync(process.execPath,['src/import-document.mjs','--input',source,'--id','E_LOCAL_PDF_IMAGE','--extract-images','--out-prefix',prefix],{encoding:'utf8'});assert.equal(run.status,0,run.stderr);
+  const manifest=JSON.parse(fs.readFileSync(`${prefix}.assets.json`,'utf8')),textReport=JSON.parse(fs.readFileSync(`${prefix}.manifest.json`,'utf8')),evidence=JSON.parse(fs.readFileSync(`${prefix}.evidence.json`,'utf8'));assert.equal(manifest.assets.length,1);assert.equal(textReport.extracted_asset_count,1);assert.equal(textReport.block_count,0);assert.equal(manifest.assets[0].verified,false);assert.match(fs.readFileSync(`${prefix}.md`,'utf8'),/Selectable text: none/);assert.match(evidence.entries[0].locator,/No selectable text/);assert.match(run.stdout,/No selectable PDF text was found/);
+  const asset=manifest.assets[0],deck={slides:[{slide_id:'S01',visuals:[{asset_id:asset.asset_id,x:1,y:1,w:3,h:2}]}]},mapped=loadAssetManifest(`${prefix}.assets.json`,deck),renderDeck={meta:{title:'Synthetic PDF image',status:'SYNTHETIC'},slides:[{slide_id:'S01',type:'cover',title:'Extracted PDF image',body:['Local image object'],evidence_ids:[],visuals:[{asset_id:asset.asset_id,x:1,y:1,w:3,h:2}]}]},theme=JSON.parse(fs.readFileSync('themes/academic-light.json','utf8'));
+  await generatePresentation(renderDeck,{entries:[]},theme,pptx,mapped);const packageFiles=unzipSync(new Uint8Array(fs.readFileSync(pptx))),xml=new TextDecoder().decode(packageFiles['ppt/slides/slide1.xml']);assert.equal((xml.match(/<p:pic>/g)||[]).length,1);assert.ok(Object.keys(packageFiles).some(file=>/^ppt\/media\/.*\.png$/i.test(file)));
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('PDF image extraction does not mistake page renders for embedded images',async()=>{
+ await assert.rejects(()=>extractPdfAssets(syntheticPdf('Selectable text only')),/No supported PDF image XObjects/);
 });
 
 test('optional bundled Tesseract fallback renders PDF pages and keeps OCR output explicitly unverified',async()=>{
