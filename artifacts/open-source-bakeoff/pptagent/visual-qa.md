@@ -1,6 +1,6 @@
 # PPTAgent POC — page-by-page visual review
 
-**Deck:** `answer.pptx` · **SHA-256:** `9ea231a90b8e39b9335c49127547296f4d09b512bfb58fff152d14f6034fee00` · **Rendered by:** upstream PPTAgent `review-deck` using LibreOffice · **Review:** manual inspection of every final rendered page at full resolution · **Overall:** PASS · **Reviewer mode:** host/manual; no vision-model call.
+**Deck:** `answer.pptx` · **SHA-256:** `9ea231a90b8e39b9335c49127547296f4d09b512bfb58fff152d14f6034fee00` · **Primary render:** upstream PPTAgent `review-deck` using LibreOffice · **Supplemental PNG render:** exported PDF rasterized with PyMuPDF 2.1; all nine PNG pages also inspected · **Overall:** PASS · **Reviewer mode:** host/manual; no vision-model call.
 
 | Page | Main content inspected | Text fit / clipping | Overlap / bounds | Readability / hierarchy | Disposition |
 |---:|---|---|---|---|---|

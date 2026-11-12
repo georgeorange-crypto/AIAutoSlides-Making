@@ -16,7 +16,7 @@ This validates the HTML-to-editable-PPTX conversion and review path. The slide c
 | Host | Ubuntu 24.04 under WSL 2; native Windows dependency install failed building `fasttext==0.9.3` because MSVC C++ Build Tools were unavailable |
 | Runtime | Python 3.12.3; `pptagent==1.1.37`; `playwright==1.62.0`; `PyYAML==6.0.3`; `Pillow==11.3.0`; `PyMuPDF==2.1`; `fastmcp==2.13.3`; Node 24.18.1; LibreOffice Impress installed in WSL |
 | Browser | Playwright Chromium installed by the official skill setup; doctor verified the runtime/browser version pairing |
-| Output | 9-slide 16:9 `answer.pptx`, PDF, nine rendered page images, nine HTML sources; PPTX SHA-256 `9ea231a90b8e39b9335c49127547296f4d09b512bfb58fff152d14f6034fee00` |
+| Output | 9-slide 16:9 `answer.pptx`, PDF, nine LibreOffice-rendered JPG pages, nine additional PNG pages rendered from the PDF with PyMuPDF 2.1, and nine HTML sources; PPTX SHA-256 `9ea231a90b8e39b9335c49127547296f4d09b512bfb58fff152d14f6034fee00` |
 | External services | None used for generation. No paid API, cloud model, stock image API, or private input. |
 
 The upstream skill documents Linux (including WSL) or macOS, Python 3.11+, `uv`, npm, and LibreOffice. The tested WSL setup ran the official `doctor`, `review-slides`, `build`, `review-deck`, `record-deck-review`, and `finalize` commands. `finalize` checked current slide review hashes, artifact structure, current build, and deck review.
@@ -32,7 +32,7 @@ The following are the direct dependencies/runtime components installed or used f
 | Playwright Python/Node | 1.62.0 | Browser rendering | Apache-2.0 |
 | PyYAML | 6.0.3 | Skill config parsing | MIT |
 | Pillow | 11.3.0 | Image helper/PNG conversion | HPND |
-| PyMuPDF | 2.1 | PDF helper dependency | AGPL-3.0-or-later **or commercial**; resolve before redistribution or bundling |
+| PyMuPDF | 2.1 | PDF page count and direct PDF-to-PNG rendering | AGPL-3.0-or-later **or commercial**; resolve before redistribution or bundling |
 | FastMCP | 2.13.3 | Skill tool integration dependency | Apache-2.0 |
 | `fast-glob` | 3.3.3 | Node file matching | MIT |
 | `minimist` | 1.2.8 | Node CLI arguments | MIT |

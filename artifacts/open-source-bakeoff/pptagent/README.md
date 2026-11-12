@@ -4,7 +4,7 @@ This directory stores the synthetic 9-slide PPTAgent backend proof-of-concept.
 
 - `answer.pptx`: editable deck (SHA-256 recorded in `final-report.json`).
 - `answer.pdf`: PDF exported by the upstream review-deck workflow.
-- `pages/`: nine rendered JPGs that were visually reviewed; `pages/png/` has PNG conversions of those reviewed page renders for convenient viewing.
+- `pages/`: nine LibreOffice-rendered JPGs that were visually reviewed; `pages/png/` has nine PNG pages rendered directly from the exported PDF with PyMuPDF 2.1 and visually inspected.
 - `visual-qa.md`: per-page findings and overall human review disposition.
 - `html/`: the nine input HTML slide sources used by the converter.
 - `create-slides.mjs`: deterministic fixture source generator.
