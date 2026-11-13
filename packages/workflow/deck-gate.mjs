@@ -7,6 +7,7 @@ const SECTION_ROLE=/^(section[_ -]?transition|section)$/i;
 const OPENING_ROLE=/^(cover|opening)$/i;
 const ENDING_ROLE=/^(closing|conclusion|summary)$/i;
 const NON_CONTENT_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening|closing|conclusion|summary)$/i;
+const EVIDENCE_OPTIONAL_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening)$/i;
 
 const hash=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const planBody=plan=>{const body={...plan};delete body.approval;delete body.representative_review;return body;};
@@ -46,6 +47,10 @@ export function validateDeckPlan(plan){
       for(const key of ['assertion','visual_type','visual_source','tool_id','rights_status','narrative_role','importance','explanation_goal','visual_rationale','layout_intent'])if(typeof s[key]!=='string'||!s[key].trim())errors.push(`slides[${i}].${key} must be a nonempty string`);
       if(s.importance&&classifyImportance(s.importance)===null)errors.push(`slides[${i}].importance must be one of: ${importanceLevels().join(', ')}`);
       if(!Array.isArray(s.evidence_ids))errors.push(`slides[${i}].evidence_ids must be an array`);
+      else{
+        if(s.evidence_ids.some(id=>typeof id!=='string'||!id.trim()))errors.push(`slides[${i}].evidence_ids must contain only nonempty source/evidence IDs`);
+        if(!EVIDENCE_OPTIONAL_ROLE.test(s.narrative_role||'')&&s.evidence_ids.length===0)errors.push(`slides[${i}].evidence_ids must cite at least one source/evidence ID for substantive content`);
+      }
       if(s.section_name!==undefined&&typeof s.section_name!=='string')errors.push(`slides[${i}].section_name must be a string when present`);
     }
     if(!Array.isArray(plan.representative_slides)||!plan.representative_slides.length||plan.representative_slides.some(id=>!ids.has(id)))errors.push('representative_slides must name one or more planned slide IDs');
@@ -95,6 +100,15 @@ export function assertApprovedDeckPlan(plan,presentationIR){
   const report=validateDeckPlan(plan);if(report.status!=='pass')throw new Error(`Deck plan is invalid: ${report.errors.join('; ')}`);
   const approved=planBody(plan);
   if(plan.approval?.status!=='approved'||!plan.approval.reviewer||plan.approval.plan_sha256!==hash(approved))throw new Error('Deck plan is not approved for its current contents.');
+  const availableEvidence=new Set([...(presentationIR.source_ir?.sources||[]).map(item=>item.source_id),...(presentationIR.source_ir?.evidence||[]).map(item=>item.evidence_id)]);
+  for(const plannedSlide of plan.slides){
+    const actualSlide=presentationIR.slides.find(slide=>slide.slide_id===plannedSlide.slide_id);
+    if(!actualSlide)continue;
+    const unknown=(plannedSlide.evidence_ids||[]).filter(id=>!availableEvidence.has(id));
+    if(unknown.length)throw new Error(`Deck plan slide ${plannedSlide.slide_id} cites unknown source/evidence IDs: ${unknown.join(', ')}.`);
+    const actual=new Set(actualSlide.evidence_ids||[]),missing=(plannedSlide.evidence_ids||[]).filter(id=>!actual.has(id));
+    if(missing.length)throw new Error(`Deck plan evidence is not carried into Presentation IR slide ${plannedSlide.slide_id}: ${missing.join(', ')}.`);
+  }
   if(plan.task.expected_slide_count!==presentationIR.slides.length){
     const prototype=plan.representative_slides;
     if(JSON.stringify([...prototype].sort())!==JSON.stringify(presentationIR.slides.map(s=>s.slide_id).sort()))throw new Error('Deck plan page count does not match Presentation IR; prototype runs must contain exactly representative_slides.');

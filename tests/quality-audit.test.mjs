@@ -9,7 +9,7 @@ function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const divider={slide_id:'DIV-RESULTS',type:'statement',title:'Results',role:'section_transition',section_name:'Results',elements:[{element_id:'DIV-T01',kind:'text',text:'本节先解释关键机制及其作用，再说明这一机制如何连接到观察结果。'}]};
   const contentSlides=Array.from({length:count},(_,index)=>({slide_id:`S${index+1}`,type:'statement',title:`Claim ${index+1}`,role,evidence_ids:['E1'],elements:[{element_id:`T${index+1}`,kind:'text',text:body},...(index%visualEvery===0?[{element_id:`D${index+1}`,kind:'diagram',groups:[{label:'System'}],nodes:[{id:'a',label:'Input'},{id:'b',label:'Output'}],edges:[{from:'a',to:'b',label:'maps'}]}]:[])]}));
   const slides=[agenda,divider,...contentSlides];
-  const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text'}))];
+  const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text',evidence_ids:['E1']}))];
   const contentPlan={slides:plannedSlides.map(slide=>({slide_id:slide.slide_id,time_budget_seconds:slide.importance==='core'?60:slide.importance==='supporting'?20:5}))};
   const plan={quality_contract:{...contract},slides:plannedSlides};
   return{plan,presentationIR:{slides},contentPlan,renderedQa:{slides:slides.map(slide=>({textBoundsPass:true,textOverlaps:[],smallText:[],visualGroupBounds:slide.elements.filter(element=>element.kind==='diagram').map(()=>({group_id:`${slide.slide_id}:diagram`,kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,ok:true}))}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}))}};
@@ -23,13 +23,34 @@ test('formal quality audit passes a deck meeting the declared visual, explanatio
 test('opening-context pages and repeated opening labels cannot bypass content and priority audits',()=>{
  const input=fixture({count:5,visualEvery:2});input.plan.quality_contract.minimum_priority_slide_share=0.5;
  for(let index=0;index<3;index++){
-  const id=`HIDDEN-${index+1}`,slide={slide_id:id,type:'statement',title:'Unimportant filler',role:'opening_context',section_name:'Results',elements:[{element_id:`${id}-T`,kind:'text',text:'少量文字。'}]},planned={slide_id:id,narrative_role:'opening_context',section_name:'Results',importance:'supporting',visual_type:'text'};
+  const id=`HIDDEN-${index+1}`,slide={slide_id:id,type:'statement',title:'Unimportant filler',role:'opening_context',section_name:'Results',evidence_ids:['E1'],elements:[{element_id:`${id}-T`,kind:'text',text:'少量文字。'}]},planned={slide_id:id,narrative_role:'opening_context',section_name:'Results',importance:'supporting',visual_type:'text',evidence_ids:['E1']};
   input.presentationIR.slides.push(slide);input.plan.slides.push(planned);input.contentPlan.slides.push({slide_id:id,time_budget_seconds:20});input.renderedQa.slides.push({textBoundsPass:true,textOverlaps:[],smallText:[]});input.imageReview.pages.push({slide_id:id,page:input.imageReview.pages.length+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:2});
  }
  const result=auditDeckQuality(input),codes=new Set(result.blockers.map(item=>item.code));
  assert.equal(result.content_slide_count,8,'opening_context is substantive content, not a transition role');
  assert.ok(codes.has('QUALITY_PRIORITY_SLIDE_SHARE'),'extra low-priority pages must dilute the actual core-page share');
  assert.ok(codes.has('QUALITY_CONTENT_TOO_THIN'),'opening_context copy must meet the normal content floor');
+});
+
+test('formal quality audit blocks planned evidence that is absent from the rendered content page',()=>{
+ const input=fixture(),slide=input.presentationIR.slides.find(item=>item.slide_id==='S2');slide.evidence_ids=[];
+ const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_EVIDENCE_LINEAGE_MISSING'&&item.slide_id==='S2');
+ assert.deepEqual(finding?.missing_evidence_ids,['E1']);
+});
+
+test('formal quality audit blocks unplanned or missing pages even when rendered and planned counts match',()=>{
+ const input=fixture(),index=input.presentationIR.slides.findIndex(item=>item.slide_id==='S5');input.presentationIR.slides[index]={...input.presentationIR.slides[index],slide_id:'UNPLANNED'};
+ const result=auditDeckQuality(input),codes=new Set(result.blockers.map(item=>item.code));
+ assert.ok(codes.has('QUALITY_PLAN_SLIDE_MISSING'));assert.ok(codes.has('QUALITY_PLAN_SLIDE_UNPLANNED'));
+});
+
+test('formal quality audit distinguishes a declared representative pilot from an incomplete full-deck run',()=>{
+ const input=fixture(),missing=input.presentationIR.slides.pop();input.renderedQa.slides.pop();input.imageReview.pages.pop();
+ const result=auditDeckQuality(input);
+ assert.ok(result.blockers.some(item=>item.code==='QUALITY_PLAN_PAGE_MAP_MISMATCH'));
+ assert.ok(!result.warnings.some(item=>item.code==='QUALITY_NARRATIVE_STRUCTURE_DEFERRED'));
+ input.plan.representative_slides=[missing.slide_id];input.presentationIR.slides=[missing];input.renderedQa.slides=[{textBoundsPass:true,textOverlaps:[],smallText:[]}];input.imageReview.pages=[{slide_id:missing.slide_id,page:1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}];
+ const pilot=auditDeckQuality(input);assert.ok(!pilot.blockers.some(item=>item.code==='QUALITY_PLAN_PAGE_MAP_MISMATCH'));assert.ok(pilot.warnings.some(item=>item.code==='QUALITY_NARRATIVE_STRUCTURE_DEFERRED'));
 });
 
 test('formal quality audit blocks too few core pages and too little talk time for priority content',()=>{
@@ -202,6 +223,7 @@ test('representative-slide pilot defers whole-deck agenda checks until the plann
   const input=fixture({count:4});
   input.plan.task={expected_slide_count:input.presentationIR.slides.length};
   input.presentationIR.slides=[input.presentationIR.slides[3]];
+  input.plan.representative_slides=[input.presentationIR.slides[0].slide_id];
   input.renderedQa.slides=[input.renderedQa.slides[3]];
   input.imageReview.pages=[{slide_id:input.presentationIR.slides[0].slide_id,page:1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}];
   const result=auditDeckQuality(input);

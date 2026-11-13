@@ -6,6 +6,7 @@ const AGENDA_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i;
 const SECTION_ROLE=/^(section[_ -]?transition|section)$/i;
 const TRANSITION_ROLE=/^(cover|opening|agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|closing|conclusion|summary)$/i;
 const ENDING_ROLE=/^(closing|conclusion|summary)$/i;
+const EVIDENCE_OPTIONAL_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening)$/i;
 const ASSISTANT_VOICE=/(?:\b(?:you(?:'ll| will| can| may| should| need to| might want to)|your (?:task|next step|turn|input)|if you (?:want|would like|need)|please (?:provide|tell|share|upload|choose|review)|let me know|tell me|in this presentation you|I will now|I am going to show you|I hope this helps|feel free to ask)\b|你(?:可以|将会|会发现|需要|可以看到|可以先)|您(?:可以|将会|会发现|需要|可以看到|可以先)|如果(?:你|您)(?:愿意|需要|想要|希望)|(?:请|麻烦)(?:告诉我|提供|上传|选择|检查|查看)|告诉我|我(?:将|会)(?:为你|为您|向你|向您)?(?:展示|介绍|说明|讲解)|下面我(?:将|会)|接下来我(?:将|会)|希望(?:这|本次汇报|以上内容)(?:能)?(?:对你|对您)?(?:有帮助|有所帮助)|如(?:果你|果您|需)|欢迎(?:随时)?(?:提问|告诉我)|供(?:你|您)参考)/iu;
 const CAVEAT_CLAUSE=/(?:\b(?:does not|doesn't|do not|don't|cannot|can't|should not|shouldn't|is not|isn't|are not|aren't)\s+(?:prove|show|mean|imply|establish|demonstrate|represent|indicate|guarantee|confirm|measure|capture|constitute|replace|cover)\b|\bnot\s+(?:necessarily|evidence of|proof of|a measure of|intended to|a guarantee)\b|\b(?:no claim is made|should not be interpreted|cannot be interpreted)\b|不代表|不表明|不意味着|并不意味着|不能证明|无法证明|不能说明|无法说明|不构成|不可据此|不应(?:被)?解读为|不宜解读为)/iu;
 const VISUAL_WORDS=/(?:image|illustration|photo|figure|chart|diagram|architecture|process|table|图|照片|插图|示意|图表|架构|流程|表格|原图)/iu;
@@ -59,8 +60,17 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
   const slides=presentationIR?.slides||[],content=[],endings=[],repeatedCaveats=new Map();
   const sections=Array.isArray(contract.narrative_sections)?contract.narrative_sections:[];
   const expectedSlideCount=Number.isInteger(plan?.task?.expected_slide_count)?plan.task.expected_slide_count:plannedSlides.length;
-  const isFullDeck=slides.length===expectedSlideCount&&slides.length===plannedSlides.length;
-  if(!isFullDeck)warnings.push(issue('QUALITY_NARRATIVE_STRUCTURE_DEFERRED','DECK','This run is a representative-slide subset; complete agenda and section checks are deferred to the full-deck run.',{planned_slide_count:expectedSlideCount,rendered_slide_count:slides.length}));
+  const plannedIds=new Set(plannedSlides.map(slide=>slide.slide_id)),actualIds=new Set(slides.map(slide=>slide.slide_id));
+  const sameIds=(left,right)=>left.size===right.size&&[...left].every(id=>right.has(id));
+  const isFullDeck=slides.length===expectedSlideCount&&slides.length===plannedSlides.length&&sameIds(plannedIds,actualIds);
+  const representativeIds=new Set(Array.isArray(plan?.representative_slides)?plan.representative_slides:[]);
+  const isRepresentativeRun=representativeIds.size>0&&sameIds(representativeIds,actualIds);
+  if(!isFullDeck&&!isRepresentativeRun)blockers.push(issue('QUALITY_PLAN_PAGE_MAP_MISMATCH','DECK','Rendered Presentation IR must match the complete planned page map or exactly match its declared representative slide IDs.',{planned_slide_count:expectedSlideCount,planned_ids:[...plannedIds],rendered_ids:[...actualIds],representative_ids:[...representativeIds]}));
+  if(isFullDeck||(!isRepresentativeRun&&slides.length===plannedSlides.length)){
+    for(const id of plannedIds)if(!actualIds.has(id))blockers.push(issue('QUALITY_PLAN_SLIDE_MISSING',id,'A slide required by the approved plan is absent from the rendered Presentation IR.'));
+    for(const id of actualIds)if(!plannedIds.has(id))blockers.push(issue('QUALITY_PLAN_SLIDE_UNPLANNED',id,'This rendered slide is absent from the approved deck plan.'));
+  }
+  if(!isFullDeck&&isRepresentativeRun)warnings.push(issue('QUALITY_NARRATIVE_STRUCTURE_DEFERRED','DECK','This run matches the declared representative-slide subset; complete agenda and section checks are deferred to the full-deck run.',{planned_slide_count:expectedSlideCount,rendered_slide_count:slides.length}));
   else{
     const agendaPlans=plannedSlides.filter(slide=>AGENDA_ROLE.test(slide.narrative_role||''));
     if(agendaPlans.length!==1)blockers.push(issue('QUALITY_AGENDA_PLAN','DECK',`The approved plan must contain exactly one agenda slide; found ${agendaPlans.length}.`));
@@ -86,6 +96,12 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
   }
   for(const [index,slide] of slides.entries()){
     const planned=byId.get(slide.slide_id),role=planned?.narrative_role||slide.role||'',elements=slide.elements||[],elementTexts=elements.flatMap(textOfElement),visible=[slide.title,slide.assertion_title,slide.kicker,...elementTexts].filter(value=>typeof value==='string').join('\n'),speakerNotes=typeof slide.speaker_notes==='string'?slide.speaker_notes:'',explanation=elementTexts.join('\n'),slideUnits=units(explanation),hasVisual=materializedVisual(slide,renderWarnings),id=slide.slide_id;
+    if(isFullDeck&&planned&&!EVIDENCE_OPTIONAL_ROLE.test(planned.narrative_role||'')){
+      const plannedRefs=Array.isArray(planned.evidence_ids)?planned.evidence_ids:[],actualRefs=new Set(Array.isArray(slide.evidence_ids)?slide.evidence_ids:[]);
+      if(!plannedRefs.length)blockers.push(issue('QUALITY_PLAN_EVIDENCE_MISSING',id,'Substantive content needs at least one source/evidence ID in the approved slide plan.'));
+      const missing=plannedRefs.filter(ref=>!actualRefs.has(ref));
+      if(missing.length)blockers.push(issue('QUALITY_EVIDENCE_LINEAGE_MISSING',id,'Evidence IDs declared for this slide are missing from the rendered Presentation IR page.',{missing_evidence_ids:missing}));
+    }
     if(!isTransition({narrative_role:role}))content.push({slide,planned,index,visible,elementTexts,slideUnits,hasVisual});
     if(ENDING_ROLE.test(role))endings.push({slide,index,slideUnits});
     if(!isTransition({narrative_role:role})){

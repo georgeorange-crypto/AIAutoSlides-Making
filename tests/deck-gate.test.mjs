@@ -7,13 +7,16 @@ const plan=()=>({schema_version:'1.1.0',task:{scope:'Create a research talk with
 
 test('deck plan requires complete materials, capability evidence, page map and acceptance gates',()=>{
  const value=plan();assert.equal(validateDeckPlan(value).status,'pass');value.slides.pop();assert.equal(validateDeckPlan(value).status,'fail');
+ const ungrounded=plan();ungrounded.slides[2].evidence_ids=[];assert.match(validateDeckPlan(ungrounded).errors.join(' '),/must cite at least one source\/evidence ID/);
 });
 
 test('approval is bound to the exact plan and the Presentation IR page map',()=>{
  const approved=approveDeckPlan(plan(),{reviewer:'Reviewer',note:'Plan checked'});assert.throws(()=>assertApprovedDeckPlan(approved,{slides:[{slide_id:'S01'},{slide_id:'S02'}]}),/page count does not match/);
  assert.equal(assertApprovedDeckPlan(approved,{slides:[{slide_id:'S02'}]}),true);
  const pilot={...approved,representative_review:{artifact_sha256:'b'.repeat(64)}};assert.equal(assertApprovedDeckPlan(pilot,{slides:[{slide_id:'S02'}]}),true);
- const representativeApproved=approveRepresentativeSlides(approved,{reviewer:'Reviewer',note:'Pilot checked',artifact_sha256:'b'.repeat(64)});assert.equal(assertApprovedDeckPlan(representativeApproved,{slides:[{slide_id:'S01'},{slide_id:'S02'},{slide_id:'S03'}]}),true);
+ const representativeApproved=approveRepresentativeSlides(approved,{reviewer:'Reviewer',note:'Pilot checked',artifact_sha256:'b'.repeat(64)}),fullIR={source_ir:{sources:[{source_id:'E1'}],evidence:[]},slides:[{slide_id:'S01'},{slide_id:'S02'},{slide_id:'S03',evidence_ids:['E1']}]};assert.equal(assertApprovedDeckPlan(representativeApproved,fullIR),true);
+ const missingEvidence=structuredClone(fullIR);missingEvidence.slides[2].evidence_ids=[];assert.throws(()=>assertApprovedDeckPlan(representativeApproved,missingEvidence),/not carried into Presentation IR/);
+ const unknownEvidence=structuredClone(fullIR);unknownEvidence.source_ir.sources=[];assert.throws(()=>assertApprovedDeckPlan(representativeApproved,unknownEvidence),/unknown source\/evidence IDs/);
  approved.slides[0].assertion='changed';assert.throws(()=>assertApprovedDeckPlan(approved,{slides:[{slide_id:'S01'},{slide_id:'S02'},{slide_id:'S03'}]}),/not approved/);
 });
 
