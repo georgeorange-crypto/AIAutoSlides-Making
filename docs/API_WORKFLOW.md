@@ -90,6 +90,8 @@ Create a plan with `schema_version: "1.2.0"` and fields `task` (`scope`, `expect
 
 For every core/high page assigned to a `deep` priority, also set `explanation_stage` to `question`, `mechanism`, `evidence`, `comparison`, `result`, `implication`, `boundary`, or `synthesis`. Each deep priority must cover at least four distinct stages. This checks the declared outline, not whether the slide actually performs its stage; page-by-page `emphasis_depth` review must verify that.
 
+For every page included in a run, the approved plan's `assertion` must match the Presentation IR's rendered headline (`assertion_title`, falling back to `title`); Unicode normalization and whitespace differences are ignored. The Harness rejects a changed, missing, or unplanned headline before rendering so an approved page map cannot silently drift from the generated deck.
+
 ```powershell
 node src/harness.mjs plan validate --plan deck-plan.json
 node src/harness.mjs plan approve --plan deck-plan.json --reviewer "Name" --note "Reviewed scope, evidence, tools and page plan"

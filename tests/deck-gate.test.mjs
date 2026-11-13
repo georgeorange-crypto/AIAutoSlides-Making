@@ -31,11 +31,14 @@ test('deck plan maps every declared focus topic to enough distinct core/high pag
  assert.equal(validateDeckPlan(malformed).status,'fail');
 });
 
-test('approval is bound to the exact plan and the Presentation IR page map',()=>{
- const approved=approveDeckPlan(plan(),{reviewer:'Reviewer',note:'Plan checked'});assert.throws(()=>assertApprovedDeckPlan(approved,{slides:[{slide_id:'S01'},{slide_id:'S02'}]}),/page count does not match/);
- assert.equal(assertApprovedDeckPlan(approved,{slides:[{slide_id:'S02'}]}),true);
- const pilot={...approved,representative_review:{artifact_sha256:'b'.repeat(64)}};assert.equal(assertApprovedDeckPlan(pilot,{slides:[{slide_id:'S02'}]}),true);
- const representativeApproved=approveRepresentativeSlides(approved,{reviewer:'Reviewer',note:'Pilot checked',artifact_sha256:'b'.repeat(64)}),fullIR={source_ir:{sources:[{source_id:'E1'}],evidence:[]},slides:[{slide_id:'S01'},{slide_id:'S02'},{slide_id:'S03',evidence_ids:['E1']},{slide_id:'S04',evidence_ids:['E1']},{slide_id:'S05',evidence_ids:['E1']}]};assert.equal(assertApprovedDeckPlan(representativeApproved,fullIR),true);
+test('approval binds every rendered headline and evidence mapping to the approved page map',()=>{
+ const approved=approveDeckPlan(plan(),{reviewer:'Reviewer',note:'Plan checked'});assert.throws(()=>assertApprovedDeckPlan(approved,{source_ir:{sources:[{source_id:'E1'}],evidence:[]},slides:[{slide_id:'S01',title:'Agenda'},{slide_id:'S03',assertion_title:'Evidence supports the finding, step 1',evidence_ids:['E1']}]}),/page count does not match/);
+ assert.equal(assertApprovedDeckPlan(approved,{slides:[{slide_id:'S02',title:'Finding'}]}),true);
+ const pilot={...approved,representative_review:{artifact_sha256:'b'.repeat(64)}};assert.equal(assertApprovedDeckPlan(pilot,{slides:[{slide_id:'S02',title:'Finding'}]}),true);
+ const representativeApproved=approveRepresentativeSlides(approved,{reviewer:'Reviewer',note:'Pilot checked',artifact_sha256:'b'.repeat(64)}),fullIR={source_ir:{sources:[{source_id:'E1'}],evidence:[]},slides:[{slide_id:'S01',title:'Agenda'},{slide_id:'S02',title:'Finding'},{slide_id:'S03',assertion_title:'Evidence supports the finding, step 1',evidence_ids:['E1']},{slide_id:'S04',assertion_title:'Evidence supports the finding, step 2',evidence_ids:['E1']},{slide_id:'S05',assertion_title:'Evidence supports the finding, step 3',evidence_ids:['E1']}]};assert.equal(assertApprovedDeckPlan(representativeApproved,fullIR),true);
+ const changedHeadline=structuredClone(fullIR);changedHeadline.slides[2].assertion_title='A different claim was generated';assert.throws(()=>assertApprovedDeckPlan(representativeApproved,changedHeadline),/Approved assertion for slide S03/);
+ const missingHeadline=structuredClone(fullIR);delete missingHeadline.slides[2].assertion_title;assert.throws(()=>assertApprovedDeckPlan(representativeApproved,missingHeadline),/Approved assertion for slide S03/);
+ const whitespaceOnly=structuredClone(fullIR);whitespaceOnly.slides[2].assertion_title=' Evidence   supports the finding, step 1 ';assert.equal(assertApprovedDeckPlan(representativeApproved,whitespaceOnly),true);
  const missingEvidence=structuredClone(fullIR);missingEvidence.slides[2].evidence_ids=[];assert.throws(()=>assertApprovedDeckPlan(representativeApproved,missingEvidence),/not carried into Presentation IR/);
  const unknownEvidence=structuredClone(fullIR);unknownEvidence.source_ir.sources=[];assert.throws(()=>assertApprovedDeckPlan(representativeApproved,unknownEvidence),/unknown source\/evidence IDs/);
  approved.slides[0].assertion='changed';assert.throws(()=>assertApprovedDeckPlan(approved,{slides:[{slide_id:'S01'},{slide_id:'S02'},{slide_id:'S03'},{slide_id:'S04'},{slide_id:'S05'}]}),/not approved/);

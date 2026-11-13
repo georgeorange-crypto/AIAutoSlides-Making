@@ -11,6 +11,7 @@ const NON_CONTENT_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|sec
 const EVIDENCE_OPTIONAL_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening)$/i;
 
 const hash=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const normalizeAssertion=value=>String(value||'').normalize('NFC').trim().replace(/\s+/gu,' ');
 const planBody=plan=>{const body={...plan};delete body.approval;delete body.representative_review;return body;};
 const fail=errors=>({status:errors.length?'fail':'pass',errors});
 export const PAGE_QUALITY_CHECKS=Object.freeze([
@@ -131,6 +132,8 @@ export function assertApprovedDeckPlan(plan,presentationIR){
   for(const plannedSlide of plan.slides){
     const actualSlide=presentationIR.slides.find(slide=>slide.slide_id===plannedSlide.slide_id);
     if(!actualSlide)continue;
+    const plannedAssertion=normalizeAssertion(plannedSlide.assertion),actualAssertion=normalizeAssertion(actualSlide.assertion_title||actualSlide.title);
+    if(!plannedAssertion||plannedAssertion!==actualAssertion)throw new Error(`Approved assertion for slide ${plannedSlide.slide_id} does not match its Presentation IR headline.`);
     const unknown=(plannedSlide.evidence_ids||[]).filter(id=>!availableEvidence.has(id));
     if(unknown.length)throw new Error(`Deck plan slide ${plannedSlide.slide_id} cites unknown source/evidence IDs: ${unknown.join(', ')}.`);
     const actual=new Set(actualSlide.evidence_ids||[]),missing=(plannedSlide.evidence_ids||[]).filter(id=>!actual.has(id));
