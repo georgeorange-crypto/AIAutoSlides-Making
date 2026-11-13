@@ -47,3 +47,14 @@ test('formal Harness run records a blocking quality gate when render QA or page 
     assert.ok(fs.existsSync(path.join(workspace,'runs','quality','workflow.critique.json')));
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
+
+test('formal Harness reports stacked disclaimer copy as a blocking content finding',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-caveat-workflow-'));
+  try{
+    const ir=structuredClone(fixture),body=ir.slides[1].elements.find(element=>element.kind==='text');
+    body.text='本页解释测量机制与结果之间的关系，并指出关键证据如何支持当前结论。该结果不代表因果关系。当前样本不能证明其他人群也适用。该结论不意味着部署后效果相同。';
+    const result=await runPresentationWorkflow({jobId:'caveat-workflow-test',presentationIR:ir,qualityPlan,workspace,outputDir:path.join(workspace,'runs','caveat'),preview:false,adapters:[adapter('only',{nativeCharts:true})]});
+    assert.equal(result.review_context.quality_gate_status,'fail');
+    assert.ok(result.report.critique.quality_gate.blockers.some(item=>item.code==='QUALITY_CAVEAT_OVERLOAD'));
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});

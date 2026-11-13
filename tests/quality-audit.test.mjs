@@ -25,6 +25,19 @@ test('formal quality audit blocks thin text, low visual coverage, repeated layou
   for(const code of ['QUALITY_CONTENT_TOO_THIN','QUALITY_VISUAL_COVERAGE','QUALITY_LAYOUT_REPETITION','QUALITY_ASSISTANT_VOICE','QUALITY_LONG_ENGLISH_BLOCK','QUALITY_PLANNED_VISUAL_MISSING'])assert.ok(codes.has(code),code);
 });
 
+test('formal quality audit blocks stacked or copy-pasted disclaimer clauses while allowing one specific limitation',()=>{
+ const focused=fixture();focused.presentationIR.slides[3].elements[0].text=`${longText} 当前样本不能证明所有场景都适用。`;
+ assert.ok(!auditDeckQuality(focused).blockers.some(item=>item.code.startsWith('QUALITY_CAVEAT_')),'one specific limitation should remain allowed');
+
+ const stacked=fixture();stacked.presentationIR.slides[3].elements[0].text=`${longText} 该结果不代表因果关系。当前样本不能证明其他人群也适用。该结论不意味着部署后效果相同。`;
+ assert.ok(auditDeckQuality(stacked).blockers.some(item=>item.code==='QUALITY_CAVEAT_OVERLOAD'));
+
+ const repeated=fixture({count:4});
+ for(const slide of repeated.presentationIR.slides.slice(3))slide.elements[0].text=`${longText} 该结果不代表因果关系。`;
+ const issue=auditDeckQuality(repeated).blockers.find(item=>item.code==='QUALITY_CAVEAT_REPETITION');
+ assert.deepEqual(issue.slide_ids,['S2','S3','S4']);
+});
+
 test('formal quality audit blocks a text-unit-compliant page with sparse rendered body copy and missing density evidence',()=>{
  const sparse=fixture({count:2,visualEvery:99});sparse.imageReview.pages[3].visible_text_occupancy_ratio=0.034;sparse.imageReview.pages[3].visible_text_line_count=3;
  assert.ok(auditDeckQuality(sparse).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW'));
