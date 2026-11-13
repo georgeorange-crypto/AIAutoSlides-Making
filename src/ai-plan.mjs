@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {loadEvidence,validateDeck} from './validate.mjs';
 import {auditDraftNumbers,critiqueDeck} from './critic.mjs';
-import {createPlannerContract,createPlannerDraft,createPlannerReviewRecord} from './ai-plan-contract.mjs';
+import {auditPlannerQuality,createPlannerContract,createPlannerDraft,createPlannerReviewRecord} from './ai-plan-contract.mjs';
 
 const argv=process.argv.slice(2);
 function arg(name,fallback){const i=argv.indexOf(`--${name}`);return i>=0?argv[i+1]:fallback;}
@@ -51,10 +51,12 @@ const planned=createPlannerDraft(response,{audienceProfile,duration,goal,theme:a
  const {deck,errors,warnings}=validateDeck(planned,ledger);
  if(errors.length)throw new Error(`Model output failed validation: ${errors.join('; ')}`);
  if(deck.slides.length<6||deck.slides.length>20)throw new Error('AI must create 6–20 slides; regenerate or edit manually');
+ const qualityAudit=auditPlannerQuality(response);
+ if(qualityAudit.status!=='pass')throw new Error(`Planner quality gate blocked output: ${qualityAudit.findings.map(x=>`${x.rule_id}${x.slide?` slide ${x.slide}`:''}: ${x.message}`).join('; ')}`);
  const numberAudit=auditDraftNumbers(deck,brief),critique=critiqueDeck(deck,ledger);
  fs.mkdirSync(path.dirname(output),{recursive:true});
  fs.writeFileSync(output,JSON.stringify(deck,null,2)+'\n');
- fs.writeFileSync(`${output}.review.json`,JSON.stringify(createPlannerReviewRecord({inputPath:input,brief,schemaErrors:errors,validationWarnings:warnings,critique,numberAudit}),null,2)+'\n');
+ fs.writeFileSync(`${output}.review.json`,JSON.stringify(createPlannerReviewRecord({inputPath:input,brief,schemaErrors:errors,validationWarnings:warnings,qualityAudit,critique,numberAudit}),null,2)+'\n');
  fs.writeFileSync(`${output}.review.md`,[`# Human review required: ${deck.meta.title}`,'',`- Status: **pending**`,`- Audience profile: ${audienceProfile}`,`- Target duration: ${duration} minutes`,`- Source brief: \`${input}\``,`- Schema errors: ${errors.length}`,`- Critic findings: ${critique.issues.length}`,`- Possible unsupported numeric tokens: ${numberAudit.findings.length}`,'','## Required review','', '- Compare each claim and evidence ID with the source.','- Confirm every numeric value against original records and check its unit/context.','- Review limitations, audience, pacing and rendered slide layout.','- Edit this JSON freely, then approve a content-hash-bound copy with `src/review-draft.mjs`.' ,'','## Limits','',...numberAudit.limitations.map(x=>`- ${x}`),''].join('\n'));
  console.log(`Wrote editable draft ${output} (${deck.slides.length} slides); review pending, ${warnings.length} validation warning(s), ${numberAudit.findings.length} possible unsupported numeric token(s).`);
 }

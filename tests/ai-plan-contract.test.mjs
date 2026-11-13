@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {loadEvidence,validateDeck} from '../src/validate.mjs';
-import {createPlannerContract,createPlannerDraft,createPlannerReviewRecord} from '../src/ai-plan-contract.mjs';
+import {auditPlannerQuality,createPlannerContract,createPlannerDraft,createPlannerReviewRecord} from '../src/ai-plan-contract.mjs';
 
 const ledger=loadEvidence('sources/evidence.json');
-const slide=(type,title,evidence_ids=[])=>({type,title,kicker:'Synthetic draft',assertion_title:`Draft assertion: ${title}`,body:type==='bullets'?['A source-grounded point']:[],evidence_ids,layout:'assertion-evidence',visual_needs:[],speaker_notes:`Draft speaker notes for ${title}.`});
+const slide=(type,title,evidence_ids=[])=>({type,title,kicker:'Synthetic draft',assertion_title:`Draft assertion: ${title}`,body:['The first source-grounded explanation describes the mechanism and its role in the argument.','The second explanation connects this point to evidence, implications, or a concrete decision.'],evidence_ids,layout:type==='bullets'?'two-column-contrast':'assertion-evidence',visual_needs:['statement','bullets'].includes(type)?[{kind:'process',description:`Explain ${title} with a labeled evidence-linked visual`,evidence_ids}]:[],speaker_notes:`Draft speaker notes for ${title}.`});
 const response={title:'Draft research talk',subtitle:'Review required',narrative_structure:'problem-method-evidence-limitations-next-steps',structure_rationale:'Start with motivation, then evidence and limitations.',slides:[slide('cover','Motivation'),slide('statement','Question',['E1']),slide('bullets','Approach',['E1']),slide('statement','Evidence',['E1']),slide('statement','Limitations',['E2']),slide('closing','Next steps',['E2'])]};
 
 test('AI planning contract asks for narrative, per-slide assertion, layout, visuals and speaker notes without a network call',()=>{
@@ -12,13 +12,30 @@ test('AI planning contract asks for narrative, per-slide assertion, layout, visu
   assert.deepEqual(schema.required,['title','subtitle','narrative_structure','structure_rationale','slides']);
   assert.deepEqual(schema.properties.slides.items.required,['type','title','kicker','assertion_title','body','evidence_ids','layout','visual_needs','speaker_notes']);
   assert.match(policy,/target duration 7 minutes/);assert.match(policy,/Agree on the next experiment/);assert.match(policy,/Never invent numbers/);assert.match(policy,/do not label any source verified/);
+  assert.match(policy,/at least 30%/);assert.match(policy,/never address the user/);
 });
 
 test('AI planner draft preserves rich storyboard fields and stays behind the existing human review gate',()=>{
   const draft=createPlannerDraft(response,{audienceProfile:'research_group',duration:7,goal:'Agree on the next experiment'});
   assert.equal(draft.meta.requires_human_review,true);assert.equal(draft.meta.narrative_structure,response.narrative_structure);
-  assert.equal(draft.slides[2].speaker_notes,response.slides[2].speaker_notes);assert.equal(draft.slides[2].visual_needs.length,0);
+  assert.equal(draft.slides[2].speaker_notes,response.slides[2].speaker_notes);assert.equal(draft.slides[2].visual_needs.length,1);
+  assert.equal(auditPlannerQuality(response).status,'pass');
   assert.deepEqual(validateDeck(draft,ledger).errors,[]);
+});
+
+test('planner quality gate rejects title-only pages, missing visual plans, repetitive layouts, and assistant voice',()=>{
+  const bad={...response,slides:[...response.slides.slice(0,-1),slide('statement','Repeated fifth page'),response.slides.at(-1)].map((item,index)=>index>0&&index<6?{...item,body:['Short text'],visual_needs:[],type:'statement',layout:'assertion-evidence',...(index===1?{kicker:'Please note this for you'}:{})}:item)};
+  const audit=auditPlannerQuality(bad);const rules=new Set(audit.findings.map(x=>x.rule_id));
+  assert.equal(audit.status,'blocked');
+  for(const rule of ['PLAN-THIN','PLAN-DEPTH','PLAN-VISUAL-RATIO','PLAN-REPETITION','PLAN-ASSISTANT-VOICE'])assert.ok(rules.has(rule),`missing ${rule}`);
+});
+
+test('planner quality gate does not count an empty visual placeholder toward coverage',()=>{
+  const weak={...response,slides:response.slides.map((item,index)=>index===1?{...item,visual_needs:[{kind:'architecture',description:'',evidence_ids:['E1']}]}:item)};
+  const audit=auditPlannerQuality(weak);
+  assert.equal(audit.metrics.visual_slides,3);
+  assert.equal(audit.metrics.visual_slides,auditPlannerQuality(response).metrics.visual_slides-1);
+  assert.ok(audit.findings.some(x=>x.rule_id==='PLAN-VISUAL-SPEC'));
 });
 
 test('AI planner output with fabricated evidence IDs fails local validation',()=>{
@@ -31,6 +48,7 @@ test('AI planner review record serializes the critic report and binds it to the 
   const report=createPlannerReviewRecord({inputPath:'brief.md',brief:'source brief',critique:{status:'review',issues:[{rule_id:'NARR-001'}]},numberAudit:{status:'literal-match-only',findings:[]}});
   assert.equal(report.review_status,'pending');
   assert.equal(report.critic.status,'review');
+  assert.equal(report.quality_audit,null);
   assert.equal(report.critic.issues[0].rule_id,'NARR-001');
   assert.match(report.source_brief.sha256,/^[a-f0-9]{64}$/);
   assert.throws(()=>createPlannerReviewRecord({inputPath:'brief.md',brief:'x',critique:null,numberAudit:{}}),/critique and numberAudit/);
