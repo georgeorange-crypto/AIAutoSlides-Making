@@ -19,6 +19,18 @@ Local outputs: `outputs/open-source-bakeoff/slidev-systems-talk.{pptx,pdf}`, `sl
 | slide-maker | Isolated source checkout `outputs/open-source-bakeoff/slides_maker-checkout`, SHA `a9e2d326d59f720873aa0ee5c58003c4f876b0e0`; MIT license present. Inspected upstream README, Skill and requirements; **not installed into the host**. | **Not run end-to-end**: this is an AI-assistant Skill, not a standalone generation CLI. Running its flow requires an Agent host and its conversational critic workflow. No skill installation or model/provider call was authorized/performed, and no output deck was generated. | Upstream describes editable text/shapes/charts and revision scripts; this remains unverified here. | Keep catalogued/experimental. To test, install in a disposable Agent profile and run only synthetic fixture with explicit provider/cost/privacy review. |
 | SlidePoise | Isolated source checkout `outputs/open-source-bakeoff/slidepoise-checkout`, SHA `40480fd4fcfeb23771386b72fc697bdee2d268b4`; MIT license present. README/architecture inspected; no system setup run. | **Not run end-to-end**: the upstream workflow requires an Agent host, image-generation access, and local rendering tools. Running `setup` can install software and request administrator privileges; no such installation or image-generation call was made. No deck generated. | Upstream architecture claims reconstruction as editable native objects; no local output or object inspection to support that claim. | Keep catalogued/experimental. Retry with disposable environment and explicitly approved image-generation route. |
 
+### slide-maker offline toolchain verification — 2026-11-12
+
+The upstream Skill was not installed into an Agent profile and its interactive generation workflow was not run. Its checkout remained read-only at SHA `a9e2d326d59f720873aa0ee5c58003c4f876b0e0`. A disposable Python 3.12 virtual environment under `%LOCALAPPDATA%\Temp\aiautoslides-slide-maker-poc-20261112` was used for local-only upstream checks; public Python dependencies and CairoSVG 2.9.1 were installed there, with no model, image-generation, research-network, or paid API call.
+
+- `python scripts/smoke_deckkit.py`: **passed**, 0 failures after installing CairoSVG for SVG scaffold rasterization. The run emitted environment-font substitutions and expected fixture lint warnings; no source files were changed.
+- `python scripts/check_tests_wired.py`: **passed**, 151 test files; 151 wired, 1 explicitly allowlisted, 0 problems.
+- `python tests/test_codex_delivery_gate.py`: **passed**.
+- `python tests/test_codex_visual_contract.py`: **passed**.
+- `python tests/test_codex_scaffold_complete.py`: **passed**.
+
+This raises confidence in the upstream offline drawing and delivery-gate code, but does not create a candidate deck, exercise the Agent-host interview/critic flow, or establish parity against the shared academic, commercial, or reference-deck inputs. The slide-maker bakeoff row therefore remains **not run end-to-end**, and Phase 0 remains incomplete.
+
 ## Three shared-input groups
 
 | Group | Present evidence | Missing before acceptance |
