@@ -188,3 +188,8 @@ Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS �
 
 - **Implemented:** project evidence list/create/review now compare excerpts against selectable PDF.js page text and extracted DOCX paragraph text from immutable local source bytes. A match returns the source SHA-256 and page/paragraph locator.
 - **Boundary:** extraction is a text provenance check, not source authenticity or claim entailment; OCR and text normalization are not applied. See `docs/M24_PDF_DOCX_EVIDENCE_MATCH_REPORT.md`.
+
+## M26: explicit local OCR for project API evidence checks
+
+- **Implemented:** API CLI operators can opt in to offline PDF OCR with `--enable-local-pdf-ocr` and select a bundled language. OCR outcomes use `ocr_match`/`ocr_no_match` plus page confidence, distinct from exact source matches; OCR is disabled by default.
+- **Boundary:** OCR can misread content and still requires comparison with the original rendered page. It never marks an excerpt, source or claim verified. See `docs/M26_API_LOCAL_OCR_REPORT.md`.

@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import {extractDocxParagraphs,extractPdfPages} from '../../src/document-extractors.mjs';
+import {extractDocxParagraphs,extractPdfPages,extractPdfPagesWithOcr} from '../../src/document-extractors.mjs';
 import {mkdir} from 'node:fs/promises';
 import {assertValidPresentationIR} from '../core/validate-presentation.mjs';
 import {patchPresentationSlide} from '../core/patch-slide.mjs';
@@ -25,7 +25,7 @@ const json=value=>JSON.stringify(value);
 function within(root,candidate){const rel=path.relative(root,candidate);return rel===''||(!rel.startsWith(`..${path.sep}`)&&rel!=='..'&&!path.isAbsolute(rel));}
 function parse(row){return row?JSON.parse(row):null;}
 
-export async function openProjectStore(workspaceDir){
+export async function openProjectStore(workspaceDir,{enableLocalPdfOcr=false,pdfOcrLanguage='eng',pdfOcrExtractor=extractPdfPagesWithOcr}={}){
   const root=path.resolve(workspaceDir);
   await Promise.all(['','db','source-blobs','runs','incoming'].map(part=>mkdir(path.join(root,part),{recursive:true})));
   let DatabaseSync;
@@ -143,16 +143,22 @@ export async function openProjectStore(workspaceDir){
     let blocks=null,text='';
     if(extension==='.pdf'||extension==='.docx'){
       try{
-        let extraction=extractedSourceCache.get(row.sha256);
-        if(!extraction){extraction=extension==='.pdf'?extractPdfPages(bytes):Promise.resolve(extractDocxParagraphs(bytes));extractedSourceCache.set(row.sha256,extraction);if(extractedSourceCache.size>8)extractedSourceCache.delete(extractedSourceCache.keys().next().value);}
-        blocks=await extraction;
+        const cacheKey=`${row.sha256}:${extension==='.pdf'&&enableLocalPdfOcr?'ocr':'text'}`;let extraction=extractedSourceCache.get(cacheKey);
+        if(!extraction){extraction=(async()=>{
+          if(extension==='.docx')return{blocks:extractDocxParagraphs(bytes),method:'docx_text'};
+          try{return{blocks:await extractPdfPages(bytes),method:'pdf_text'};}
+          catch(error){if(!enableLocalPdfOcr||!error.message.includes('No selectable text found'))throw error;return{blocks:await pdfOcrExtractor(blobPath,{language:pdfOcrLanguage}),method:'local_ocr'};}
+        })();extractedSourceCache.set(cacheKey,extraction);if(extractedSourceCache.size>8)extractedSourceCache.delete(extractedSourceCache.keys().next().value);}
+        const result=await extraction;blocks=result.blocks;var matchMethod=result.method;
       }
-      catch(error){return{status:'unavailable',reason:extension==='.pdf'?'pdf_text_extraction_failed':'docx_text_extraction_failed',source_sha256:row.sha256,detail:error.message.slice(0,240)};}
+      catch(error){const ocrDisabled=extension==='.pdf'&&!enableLocalPdfOcr&&error.message.includes('No selectable text found');return{status:'unavailable',reason:ocrDisabled?'pdf_ocr_disabled':extension==='.pdf'?'pdf_text_or_ocr_extraction_failed':'docx_text_extraction_failed',source_sha256:row.sha256,detail:error.message.slice(0,240)};}
     }else try{text=new TextDecoder('utf-8',{fatal:true}).decode(bytes);}catch{return{status:'unavailable',reason:'source_is_not_utf8_text',source_sha256:row.sha256};}
     const segments=blocks?blocks.map(block=>({locator:block.locator,text:block.content})): [{locator:null,text}];
     const matches=[];for(const segment of segments){let offset=segment.text.indexOf(excerpt);while(offset>=0){matches.push({locator:segment.locator,character_offset:offset});offset=segment.text.indexOf(excerpt,offset+1);}}
-    if(!matches.length)return{status:'no_exact_match',reason:'excerpt_not_found_verbatim',source_sha256:row.sha256,match_count:0,character_offset:null,locator:null};
-    return{status:'exact_match',reason:null,source_sha256:row.sha256,match_count:matches.length,...matches[0]};
+    const ocrUsed=matchMethod==='local_ocr';
+    if(!matches.length)return{status:ocrUsed?'ocr_no_match':'no_exact_match',reason:ocrUsed?'excerpt_not_found_in_ocr_text':'excerpt_not_found_verbatim',source_sha256:row.sha256,match_count:0,character_offset:null,locator:null,...(ocrUsed?{match_method:'local_tesseract_ocr'}:{})};
+    const matchedBlock=blocks?.find(block=>block.locator===matches[0].locator);
+    return{status:ocrUsed?'ocr_match':'exact_match',reason:null,source_sha256:row.sha256,match_count:matches.length,...matches[0],...(ocrUsed?{match_method:'local_tesseract_ocr',ocr_confidence:matchedBlock?.ocr_confidence??null}:{})};
   }
   async function addEvidenceRecord(projectId,{evidenceId,sourceId,excerpt,locator=null}={}){
     const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);

@@ -23,9 +23,9 @@ function send(res,status,value){const body=JSON.stringify(value);res.writeHead(s
 async function bodyJson(req,limit=24*1024*1024){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw Object.assign(new Error(`Request exceeds ${limit} byte limit.`),{status:413});chunks.push(chunk);}if(!chunks.length)return{};try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw Object.assign(new Error('Request body must be valid JSON.'),{status:400});}}
 const notFound=(kind,id)=>Object.assign(new Error(`${kind} '${id}' was not found.`),{status:404});
 
-export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true,researchSearch=defaultMetadataSearch}={}){
+export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true,researchSearch=defaultMetadataSearch,enableLocalPdfOcr=false,pdfOcrLanguage='eng',pdfOcrExtractor}={}){
   if(!workspaceDir)throw new TypeError('workspaceDir is required');
-  const store=await openProjectStore(workspaceDir),controllers=new Map(),running=new Map();
+  const store=await openProjectStore(workspaceDir,{enableLocalPdfOcr,pdfOcrLanguage,pdfOcrExtractor}),controllers=new Map(),running=new Map();
   store.recoverInterruptedJobs();
   async function runJob(jobId){
     if(running.has(jobId))return running.get(jobId);

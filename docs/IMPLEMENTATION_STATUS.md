@@ -156,3 +156,8 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - Corrected current-status statements that had been superseded by later implementation: API excerpt review, local selectable PDF/DOCX matching, and native architecture rendering. Earlier milestone reports remain historical records of their original scope.
 - The source-match/reviewer boundary now consistently distinguishes a verbatim provenance check from a caller-supplied human decision and from semantic scientific verification. Remaining phase-wide gaps are still listed as incomplete rather than implied complete.
 - See `docs/M25_STATUS_DOC_RECONCILIATION_REPORT.md`.
+
+## Explicit local PDF OCR in project API — 2026-11-12
+
+- Scanned-PDF OCR can now be enabled for the local project API through an explicit CLI flag. It remains off by default, runs with local Tesseract/rasterization, and reports distinct `ocr_match` / `ocr_no_match` outcomes with confidence rather than claiming a verbatim source match.
+- See `docs/M26_API_LOCAL_OCR_REPORT.md`.
