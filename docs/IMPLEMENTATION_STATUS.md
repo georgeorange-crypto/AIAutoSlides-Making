@@ -17,6 +17,7 @@ This top-level section supersedes older phase summaries below where they describ
 ## This revision's evidence
 
 - Added deterministic audience-specific narrative roles and per-slide takeaway, evidence references, media candidates/selection reason, and duration allocation to the Presentation IR workflow and local API.
+- Local profile language, tone and slide-density preferences now flow into the deterministic content-plan report. Explicit Presentation IR metadata overrides profile defaults; these values remain authoring guidance and do not cause deterministic translation or text rewriting.
 - Added local rendered-page OCR coverage screening for Critic output, together with OOXML per-slide bounds, overlap, text-size, editability, table/chart and chart-value results. Preview-disabled jobs explicitly report `not_rendered`; OCR initialization/page failures degrade to `unavailable`/`partial` without discarding a successful deck; image checks do not imply visual approval or scientific verification.
 - Added read-only REST/MCP `plan_deck` and `critique_deck` operations. MCP remains stdio and requires the local API to be started separately.
 - Added read-only MCP `aiautoslides_export_deck`, which locates the newest PPTX artifact and returns its SHA-256 plus the existing loopback download route; it does not start a render or embed deck bytes.
@@ -96,7 +97,7 @@ This top-level section supersedes older phase summaries below where they describ
 - Phase 2 research integrations include opt-in OpenAlex/Crossref/arXiv metadata search, local Docling and MarkItDown extraction, one-page Crawl4AI, selected arXiv PDF download and a one-item Wikimedia Commons asset workflow. Durable REST/MCP jobs cover metadata search, arXiv PDF, imported PDF/DOCX extraction (PDF.js/DOCX default, Docling or MarkItDown selectable), authorized one-page Crawl4AI, and one selected Commons download. Extracted claims and asset reuse remain pending human review.
 - Phase 3 deterministic planning and OCR/OOXML screening are implemented; content value selection, argument entailment, aesthetic review, media search and real-time presentation timing remain unimplemented.
 - Phase 4 local stdio MCP server over the loopback API includes `research_topic`, selected arXiv ingestion, local PDF/DOCX extraction (optional Docling), authorized one-page crawl, and `export_deck` (PPTX route + hash); outbound operations require opt-in. Windows UI/installer, remote auth/scopes and Android remain planned and are gated on the Phase 0 product decision.
-- Preference profiles are exposed via REST/MCP but do not synchronize across machines; language, tone and slide density are stored but not yet wired into generation.
+- Preference profiles are exposed via REST/MCP but do not synchronize across machines. Audience, duration and theme seed project defaults; language, tone and slide density are surfaced in the content plan as guidance, but do not automatically translate or rewrite slide content.
 - Full Presentation IR element coverage, native Mermaid shape rendering and unchanged-slide hash preservation remain incomplete.
 - Transitive dependency, model and media-license audit remains incomplete.
 
@@ -141,3 +142,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - Synthetic coverage verifies a real inline-image PDF, repeated-placement deduplication and locator preservation, grouped-sprite crop pixels, and invalid crop rejection. `npm run test` passed **183/183**.
 - `npm run validate` and `npm run build` exited 0 with the existing 3 warnings (chart sample size missing; E1 and E2 unverified). Deck QA confirmed 7 editable slides and 1 native chart. PowerPoint 16.0/Poppler 26.07.0 previewed all 7 pages; each was opened and visually reviewed with no apparent clipping. Human visual approval and source verification remain pending.
 - Remaining PDF asset-extraction gaps: masks/soft masks, uncommon sample formats, vector drawing extraction, semantic matching, OCR-to-figure association, and human rights review.
+
+## Profile preference planning follow-on — 2026-11-12
+
+- Deterministic content-plan reports now carry local profile `language`, `tone`, and `slide_density` as authoring guidance; explicit Presentation IR metadata takes precedence. Planning does not translate or rewrite slide text.
+- `npm run test` passed 184/184; `npm run validate`, `npm run build`, and `npm run preview` passed. PowerPoint 16.0/Poppler 26.07.0 rendered seven pages; all were opened and visually inspected without apparent clipping or overlap.
+- See [`M13_PROFILE_PREFERENCE_PLANNING_REPORT.md`](M13_PROFILE_PREFERENCE_PLANNING_REPORT.md). Existing chart sample-size and unverified-evidence warnings remain; no scientific or formal design approval was recorded.

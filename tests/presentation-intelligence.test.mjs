@@ -44,3 +44,13 @@ test('media plan carries declared asset rights without approving them',()=>{
  const image=planPresentationIntelligence(input).slides[1].media_candidates[0];
  assert.equal(image.asset_id,'A1');assert.equal(image.license,'CC BY 4.0');assert.equal(image.rights_status,'pending');
 });
+
+test('local profile language, tone and density preferences reach the plan with explicit IR overrides',()=>{
+ const input=deck('research_group');input.meta.profile_preferences={language:'zh-CN',tone:'precise',slide_density:'low'};
+ let plan=planPresentationIntelligence(input);
+ assert.deepEqual(plan.authoring_preferences,{language:'zh-CN',tone:'precise',slide_density:'low'});
+ input.meta.tone='conversational';input.meta.slide_density='high';
+ plan=planPresentationIntelligence(input);
+ assert.deepEqual(plan.authoring_preferences,{language:'zh-CN',tone:'conversational',slide_density:'high'});
+ assert.ok(plan.limitations.some(item=>item.includes('does not translate or rewrite slide content')));
+});
