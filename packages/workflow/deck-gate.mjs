@@ -28,6 +28,7 @@ export function validateDeckPlan(plan){
   if(quality){for(const key of ['audience','purpose','language','style_reference'])if(typeof quality[key]!=='string'||!quality[key].trim())errors.push(`quality_contract.${key} must be a nonempty string`);
     for(const key of ['content_priorities','narrative_sections','avoid_patterns'])if(!Array.isArray(quality[key])||quality[key].some(value=>typeof value!=='string'||!value.trim()))errors.push(`quality_contract.${key} must be an array of nonempty strings`);
     if(Array.isArray(quality.content_priorities)&&!quality.content_priorities.length)errors.push('quality_contract.content_priorities must not be empty');
+    if(Array.isArray(quality.content_priorities)&&new Set(quality.content_priorities).size!==quality.content_priorities.length)errors.push('quality_contract.content_priorities must be unique');
     if(Array.isArray(quality.narrative_sections)&&!quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must not be empty');
     if(Array.isArray(quality.narrative_sections)&&new Set(quality.narrative_sections).size!==quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must be unique');
     if(!Number.isFinite(quality.visual_slide_ratio_min)||quality.visual_slide_ratio_min<MIN_FORMAL_VISUAL_SLIDE_RATIO||quality.visual_slide_ratio_min>1)errors.push(`quality_contract.visual_slide_ratio_min must be between ${MIN_FORMAL_VISUAL_SLIDE_RATIO.toFixed(2)} and 1`);
@@ -46,6 +47,12 @@ export function validateDeckPlan(plan){
       for(const key of ['assertion','evidence_ids','visual_type','visual_source','tool_id','rights_status','narrative_role','importance','explanation_goal','visual_rationale','layout_intent'])if(s[key]===undefined)errors.push(`slides[${i}] missing ${key}`);
       for(const key of ['assertion','visual_type','visual_source','tool_id','rights_status','narrative_role','importance','explanation_goal','visual_rationale','layout_intent'])if(typeof s[key]!=='string'||!s[key].trim())errors.push(`slides[${i}].${key} must be a nonempty string`);
       if(s.importance&&classifyImportance(s.importance)===null)errors.push(`slides[${i}].importance must be one of: ${importanceLevels().join(', ')}`);
+      if(!NON_CONTENT_ROLE.test(s.narrative_role||'')){
+        if(!Array.isArray(s.priority_ids)||s.priority_ids.some(id=>typeof id!=='string'||!id.trim()))errors.push(`slides[${i}].priority_ids must be an array of declared content priority labels`);
+        else if(new Set(s.priority_ids).size!==s.priority_ids.length)errors.push(`slides[${i}].priority_ids must not contain duplicate labels`);
+        else for(const id of s.priority_ids)if(!quality?.content_priorities?.includes(id))errors.push(`slides[${i}].priority_ids contains undeclared content priority "${id}"`);
+        if(classifyImportance(s.importance)==='priority'&&Array.isArray(s.priority_ids)&&!s.priority_ids.length)errors.push(`slides[${i}] is core/high but maps to no declared content priority`);
+      }
       if(!Array.isArray(s.evidence_ids))errors.push(`slides[${i}].evidence_ids must be an array`);
       else{
         if(s.evidence_ids.some(id=>typeof id!=='string'||!id.trim()))errors.push(`slides[${i}].evidence_ids must contain only nonempty source/evidence IDs`);
@@ -83,6 +90,10 @@ export function validateDeckPlan(plan){
       }
       if(sectionOrder.some((index,i)=>i>0&&index<=sectionOrder[i-1]))errors.push('section-transition slides must follow quality_contract.narrative_sections order');
       for(const [i,slide] of slides.entries())if(!NON_CONTENT_ROLE.test(slide.narrative_role||'')&&(!slide.section_name||!quality.narrative_sections.includes(slide.section_name)))errors.push(`slides[${i}] content must have section_name matching quality_contract.narrative_sections`);
+    }
+    if(Array.isArray(quality?.content_priorities)&&Array.isArray(slides))for(const priority of quality.content_priorities){
+      const owners=slides.filter(slide=>Array.isArray(slide.priority_ids)&&slide.priority_ids.includes(priority));
+      if(!owners.some(slide=>classifyImportance(slide.importance)==='priority'))errors.push(`content priority "${priority}" must map to at least one core/high slide`);
     }
   }
   if(!plan?.acceptance?.reviewer||!Array.isArray(plan?.acceptance?.gates)||!plan.acceptance.gates.length)errors.push('acceptance requires reviewer and explicit gates');

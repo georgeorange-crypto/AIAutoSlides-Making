@@ -2,12 +2,23 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {approveDeckPlan,approveRepresentativeSlides,assertApprovedDeckPlan,validateDeckPlan,validatePageReviews,PAGE_QUALITY_CHECKS} from '../packages/workflow/deck-gate.mjs';
 
-const slide=(slide_id,assertion,narrative_role,extra={})=>({slide_id,assertion,evidence_ids:[],visual_type:narrative_role==='agenda'?'section list':narrative_role==='section_transition'?'section title':'paper figure',visual_source:'original',tool_id:'pptxgenjs-ir',rights_status:'original',narrative_role,importance:narrative_role==='result'?'core':'supporting',explanation_goal:'Orient or explain the finding',visual_rationale:'Support the planned narrative',layout_intent:narrative_role,...extra});
-const plan=()=>({schema_version:'1.1.0',task:{scope:'Create a research talk with a visible outline and one named section',expected_slide_count:3,target_duration_seconds:420},quality_contract:{audience:'Research peers',purpose:'Explain a finding',language:'Chinese',style_reference:'Clean editorial research deck',content_priorities:['method','result'],narrative_sections:['Finding'],avoid_patterns:['assistant-facing copy','tiny caveats'],visual_slide_ratio_min:0.5,minimum_explanation_units:28,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5},materials:[{path:'brief.md',sha256:'a'.repeat(64),read_status:'read'}],tools:[{id:'pptxgenjs-ir',status:'e2e-tested',evidence:'run-123'}],slides:[slide('S01','Agenda','agenda'),slide('S02','Finding','section_transition',{section_name:'Finding'}),slide('S03','Evidence supports the finding','result',{section_name:'Finding',evidence_ids:['E1']})],representative_slides:['S02'],acceptance:{reviewer:'Human reviewer',gates:['science','visual','structure']}});
+const slide=(slide_id,assertion,narrative_role,extra={})=>({slide_id,assertion,evidence_ids:[],visual_type:narrative_role==='agenda'?'section list':narrative_role==='section_transition'?'section title':'paper figure',visual_source:'original',tool_id:'pptxgenjs-ir',rights_status:'original',narrative_role,importance:narrative_role==='result'?'core':'supporting',priority_ids:narrative_role==='result'?['result']:[],explanation_goal:'Orient or explain the finding',visual_rationale:'Support the planned narrative',layout_intent:narrative_role,...extra});
+const plan=()=>({schema_version:'1.1.0',task:{scope:'Create a research talk with a visible outline and one named section',expected_slide_count:3,target_duration_seconds:420},quality_contract:{audience:'Research peers',purpose:'Explain a finding',language:'Chinese',style_reference:'Clean editorial research deck',content_priorities:['result'],narrative_sections:['Finding'],avoid_patterns:['assistant-facing copy','tiny caveats'],visual_slide_ratio_min:0.5,minimum_explanation_units:28,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5},materials:[{path:'brief.md',sha256:'a'.repeat(64),read_status:'read'}],tools:[{id:'pptxgenjs-ir',status:'e2e-tested',evidence:'run-123'}],slides:[slide('S01','Agenda','agenda'),slide('S02','Finding','section_transition',{section_name:'Finding'}),slide('S03','Evidence supports the finding','result',{section_name:'Finding',evidence_ids:['E1']})],representative_slides:['S02'],acceptance:{reviewer:'Human reviewer',gates:['science','visual','structure']}});
 
 test('deck plan requires complete materials, capability evidence, page map and acceptance gates',()=>{
  const value=plan();assert.equal(validateDeckPlan(value).status,'pass');value.slides.pop();assert.equal(validateDeckPlan(value).status,'fail');
  const ungrounded=plan();ungrounded.slides[2].evidence_ids=[];assert.match(validateDeckPlan(ungrounded).errors.join(' '),/must cite at least one source\/evidence ID/);
+});
+
+test('deck plan maps every declared focus topic to at least one core/high page',()=>{
+ const emptyCore=plan();emptyCore.slides[2].priority_ids=[];
+ assert.match(validateDeckPlan(emptyCore).errors.join('\n'),/core\/high but maps to no declared content priority/);
+ const focusMissing=plan();focusMissing.quality_contract.content_priorities.push('Mechanism');
+ assert.match(validateDeckPlan(focusMissing).errors.join('\n'),/content priority "Mechanism" must map to at least one core\/high slide/);
+ const wrongBand=plan();wrongBand.slides[2].importance='supporting';
+ assert.match(validateDeckPlan(wrongBand).errors.join('\n'),/content priority "result" must map to at least one core\/high slide/);
+ const duplicate=plan();duplicate.slides[2].priority_ids=['result','result'];
+ assert.match(validateDeckPlan(duplicate).errors.join('\n'),/priority_ids must not contain duplicate labels/);
 });
 
 test('approval is bound to the exact plan and the Presentation IR page map',()=>{
