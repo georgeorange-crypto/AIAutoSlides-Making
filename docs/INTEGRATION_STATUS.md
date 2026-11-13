@@ -96,6 +96,13 @@ The P1 ecosystem tranche is not complete. Since this historical status was writt
 - The Quarto three-slide deck was also rendered through LibreOffice and visually inspected page by page after its dedicated preview run. PowerPoint 16.0 and LibreOffice do not share layout fidelity; reports retain renderer identity and no claim is made that one renderer substitutes for the other.
 - Full repository check passed: 188/188 tests (177 parallel-safe, then Graphviz 2/2, D2 2/2, Quarto 2/2, LibreOffice 2/2 and Marp 3/3 serial renderer tests). Critic evaluation, benchmark update, source/CSV imports, validation, legacy deck builds, dual deck build, and QA also completed. Existing unverified-source and missing-chart-sample-size warnings remain expected.
 
+### P1: Local PPTX/POTX metadata registration
+
+- Added `npm run template:import -- <file.pptx|file.potx> --out <record.json>` to inspect local OOXML package metadata and create a metadata-only record. It checks archive size/expanded-size/entry-count limits, rejects unsafe paths, encrypted and ZIP64 packages, validates extension against the main OOXML type, and records SHA-256, slide dimensions/count, masters/layouts, media extensions, fonts, and external relationship count. No source binary is copied, extracted, executed, rendered, or tracked.
+- Rights stay `unknown`; each registration is explicitly unavailable for generation. No actual institution or third-party template was used for this synthetic test, and template application is not claimed.
+- `node --test tests/template-import.test.mjs` covers PPTX, POTX, mismatched extension, malformed ZIP, path traversal, metadata privacy, rights default, and overwrite refusal.
+- Remaining P1 items: full template application/preservation, `pptx-automizer`, PyMuPDF license decision, and Linux/macOS E2E for Graphviz/D2/Quarto/LibreOffice.
+
 ---
 
 # Historical P0 registry tranche
