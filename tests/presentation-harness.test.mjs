@@ -89,6 +89,17 @@ test('formal Harness blocks a full deck built from two alternating repeated page
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('formal Harness does not count Mermaid source rendered as fallback text toward visual coverage',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-unmaterialized-visual-workflow-'));
+  try{
+    const ir=structuredClone(fixture),slide=ir.slides.find(slide=>slide.type==='chart'),source=slide.evidence_ids[0];
+    slide.type='statement';slide.elements=slide.elements.filter(element=>element.kind!=='chart');slide.elements.push({element_id:`${slide.slide_id}-MERMAID`,kind:'mermaid',source:'flowchart LR\nA -.- B',source_ids:[source]});
+    const result=await runPresentationWorkflow({jobId:'unmaterialized-visual-workflow-test',presentationIR:ir,qualityPlan,workspace,outputDir:path.join(workspace,'runs','unmaterialized-visual'),preview:false,adapters:[(await import('../packages/adapters/pptxgenjs-ir.mjs')).pptxgenjsIRAdapter]});
+    const gate=result.report.critique.quality_gate,finding=gate.blockers.find(item=>item.code==='QUALITY_VISUAL_COVERAGE');
+    assert.ok(result.report.critique.structural.renderer_warnings.some(item=>/Mermaid source was preserved as text/.test(item)));assert.equal(result.review_context.quality_gate_status,'fail');assert.ok(finding);assert.equal(gate.visual_slide_count,0);assert.equal(finding.unmaterialized_visuals.length,1);
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('formal Harness reports under-allocated core pages and speaking time',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-priority-workflow-'));
   try{

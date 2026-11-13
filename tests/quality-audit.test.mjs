@@ -39,6 +39,23 @@ test('formal quality audit blocks thin text, low visual coverage, repeated layou
   for(const code of ['QUALITY_CONTENT_TOO_THIN','QUALITY_VISUAL_COVERAGE','QUALITY_LAYOUT_REPETITION','QUALITY_ASSISTANT_VOICE','QUALITY_LONG_ENGLISH_BLOCK','QUALITY_PLANNED_VISUAL_MISSING'])assert.ok(codes.has(code),code);
 });
 
+test('formal visual coverage ignores Mermaid elements that the renderer preserved as text',()=>{
+ const input=fixture({count:4,visualEvery:1});
+ for(const slide of input.presentationIR.slides.slice(2))for(const element of slide.elements)if(element.kind==='diagram'){element.kind='mermaid';element.source='flowchart LR\\nA -.- B';delete element.groups;delete element.nodes;delete element.edges;}
+ const renderWarnings=input.presentationIR.slides.slice(2).map(slide=>`${slide.slide_id}/${slide.elements[1].element_id}: Mermaid source was preserved as text because native conversion was unavailable (unsupported syntax)`);
+ const result=auditDeckQuality({...input,renderWarnings}),finding=result.blockers.find(item=>item.code==='QUALITY_VISUAL_COVERAGE');
+ assert.ok(finding);assert.equal(result.visual_slide_count,0);assert.equal(finding.unmaterialized_visuals.length,3);assert.ok(finding.unmaterialized_visuals.every(item=>item.kind==='mermaid'));
+});
+
+test('layout diversity signatures use the rendered text fallback when Mermaid cannot materialize',()=>{
+ const input=fixture({count:6,visualEvery:99}),content=input.presentationIR.slides.slice(2);
+ input.plan.slides.slice(2).forEach(slide=>{slide.narrative_role='result';});
+ const renderWarnings=[];
+ for(const [index,slide] of content.entries())if(index%2===0){const original=slide.elements[0];slide.elements=[{...original,element_id:`${slide.slide_id}-M`,kind:'mermaid',source:'flowchart LR\\nA -.- B'}];if(index>=2)slide.type='architecture';renderWarnings.push(`${slide.slide_id}/${slide.elements[0].element_id}: Mermaid source was preserved as text because native conversion was unavailable (unsupported syntax)`);}
+ const result=auditDeckQuality({...input,renderWarnings});
+ assert.equal(result.layout_diversity.distinct_signature_count,1);assert.ok(result.blockers.some(item=>item.code==='QUALITY_LAYOUT_DIVERSITY'));
+});
+
 test('full-deck layout diversity gate catches alternating repeated templates even when plan labels differ',()=>{
  const alternating=fixture({count:8,visualEvery:2});
  alternating.plan.slides=alternating.plan.slides.map((slide,index)=>({...slide,narrative_role:slide.slide_id==='AGENDA'?'agenda':slide.slide_id==='DIV-RESULTS'?'section_transition':'result',layout_intent:`supposedly-unique-${index}`}));
