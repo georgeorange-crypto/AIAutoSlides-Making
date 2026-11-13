@@ -1,4 +1,13 @@
 * text=auto
+artifacts/** export-ignore
+outputs/** export-ignore
+workspace/** export-ignore
+models/** export-ignore
+checkpoints/** export-ignore
+content/ai-storyboard.json export-ignore
+docs/demo-contact-sheet.png export-ignore
+docs/demo-cover.png export-ignore
+examples/existing-pptx/fixtures/template.pptx export-ignore
 examples/research-workflow/fixtures/*.pdf binary
 examples/phase1/assets/*.svg binary
 examples/multimodal/assets/*.svg text eol=lf

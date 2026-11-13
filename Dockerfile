@@ -1,20 +1,18 @@
-FROM node:22-bookworm-slim
-
-ENV DEBIAN_FRONTEND=noninteractive \
-    HOME=/tmp/aiautoslides-home
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-       libreoffice-impress \
-       poppler-utils \
-       fonts-liberation \
-       fonts-noto-cjk \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /workspace
+FROM node:22-bookworm-slim AS dependencies
+WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
-COPY . .
-RUN npm run deps
+RUN npm ci --omit=dev --no-audit --no-fund
 
-CMD ["npm", "run", "check"]
+FROM node:22-bookworm-slim AS runtime
+ENV NODE_ENV=production
+LABEL org.opencontainers.image.source="https://github.com/georgeorange-crypto/AIAutoSlides-Making"
+LABEL org.opencontainers.image.description="AIAutoSlides local CLI container; no service endpoint is exposed."
+WORKDIR /app
+COPY --from=dependencies --chown=node:node /app/node_modules ./node_modules
+COPY --chown=node:node package.json ./package.json
+COPY --chown=node:node src ./src
+COPY --chown=node:node themes ./themes
+COPY --chown=node:node examples/research-demo.json ./examples/research-demo.json
+USER node
+WORKDIR /work
+ENTRYPOINT ["node", "/app/src/cli.mjs"]

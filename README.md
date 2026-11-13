@@ -1,8 +1,8 @@
 # AIAutoSlides Making
 
-Evidence-first, offline-by-default generation of editable PowerPoint research talks. The local pipeline uses Node.js and PptxGenJS; it does not require an AI key or cloud service.
+Evidence-first, offline-by-default generation of editable PowerPoint research talks. The local pipeline uses Node.js and PptxGenJS; it does not require an AI key or cloud service. See [docs/CICD.md](docs/CICD.md) for CI checks, release labels, GHCR CLI images, and Docker usage.
 
-> The included KV-cache example contains user-supplied, **unverified** values. Treat its charts and claims as drafts until checked against original experiment logs. The CSV teaching workflow is explicitly **synthetic** and is not research evidence.
+> The default research demo is an explicitly **synthetic** CI fixture; its numbers are invented and are not research evidence. Use your own verified evidence ledger for real work.
 
 ## Quick start — Windows PowerShell
 
