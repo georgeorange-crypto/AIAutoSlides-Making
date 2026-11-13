@@ -3,11 +3,18 @@ import assert from 'node:assert/strict';
 import {auditDeckQuality} from '../packages/workflow/quality-audit.mjs';
 
 const longText='这一页解释研究方法如何影响测量结果，并结合原始证据说明关键机制、适用范围、比较关系及其对结论的具体影响。读者可以据此理解数据从哪里来、为什么这样分析，以及结果支持到什么程度。';
+const distinctPageCopy=[
+ '这一页沿着测量流程追踪样本如何进入分析、指标如何计算，以及每一步留下哪些可复核记录。把处理顺序写清楚，才能区分采集误差、转换误差与最终读数之间的关系。',
+ '这一页比较两个观察指标各自回答的问题，并说明它们在什么条件下会同向变化、何时会给出不同信号。读者应先确认指标定义，再判断差异来自对象变化还是测量口径。',
+ '这一页拆解实验分组和对照条件如何影响可观察差异，指出比较成立所需的前提。若组间起点或资源状态不一致，结果变化就不能直接归因于单一处理因素。',
+ '这一页定位误差沿数据链路的传播位置，从输入噪声、聚合过程到最终估计逐层说明。每个环节都要对应可检查的记录，避免把误差来源混成一个无法诊断的总量。',
+ '这一页界定方法适用的样本、时间范围和运行条件，并指出超出这些条件后需要重新验证什么。适用边界决定结论可以迁移到哪些对象，不能由当前样例自动推出。'
+];
 const contract={content_priorities:['Results'],priority_depth:[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2}],visual_slide_ratio_min:0.4,minimum_explanation_units:28,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,language:'Chinese',narrative_sections:['Results']};
 function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const agenda={slide_id:'AGENDA',type:'bullets',title:'Contents',elements:[{element_id:'A1',kind:'text',text:'Results'}]};
   const divider={slide_id:'DIV-RESULTS',type:'statement',title:'Results',role:'section_transition',section_name:'Results',section_topics:[],elements:[{element_id:'DIV-T01',kind:'text',text:'本节先解释关键机制及其作用，再说明这一机制如何连接到观察结果。'}]};
-  const contentSlides=Array.from({length:count},(_,index)=>({slide_id:`S${index+1}`,type:'statement',title:`Claim ${index+1}`,role,evidence_ids:['E1'],elements:[{element_id:`T${index+1}`,kind:'text',text:body===longText?`${body} 本页聚焦样例观察编号${index+1}及其具体作用。`:body},...(index%visualEvery===0?[{element_id:`D${index+1}`,kind:'diagram',groups:[{label:'System'}],nodes:[{id:'a',label:'Input'},{id:'b',label:'Output'}],edges:[{from:'a',to:'b',label:'maps'}]}]:[])]}));
+  const contentSlides=Array.from({length:count},(_,index)=>({slide_id:`S${index+1}`,type:'statement',title:`Claim ${index+1}`,role,evidence_ids:['E1'],elements:[{element_id:`T${index+1}`,kind:'text',text:body===longText?distinctPageCopy[index%distinctPageCopy.length]:body},...(index%visualEvery===0?[{element_id:`D${index+1}`,kind:'diagram',groups:[{label:'System'}],nodes:[{id:'a',label:'Input'},{id:'b',label:'Output'}],edges:[{from:'a',to:'b',label:'maps'}]}]:[])]}));
   const slides=[agenda,divider,...contentSlides];
   divider.section_topics=contentSlides.slice(0,3).map(slide=>({slide_id:slide.slide_id,title:slide.assertion_title||slide.title}));
   const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',priority_ids:index%2===0?['Results']:[],visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text',evidence_ids:['E1']}))];
@@ -96,11 +103,22 @@ test('formal quality audit requires per-topic core pages to match declared stand
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNMEASURED'));
 });
 
-test('formal quality audit blocks exact repeated explanations across core pages of the same priority',()=>{
+test('formal quality audit blocks exact and near-verbatim repeated explanations across core pages',()=>{
  const input=fixture({count:5,visualEvery:2}),first=input.presentationIR.slides.find(slide=>slide.slide_id==='S1'),duplicate=input.presentationIR.slides.find(slide=>slide.slide_id==='S3');
  duplicate.elements[0].text=first.elements[0].text;
  const finding=auditDeckQuality(input).blockers.find(item=>item.code==='QUALITY_PRIORITY_EXPLANATION_DUPLICATED');
  assert.ok(finding);assert.equal(finding.priority,'Results');assert.deepEqual(finding.slide_ids,['S1','S3']);
+ const paraphrased=fixture({count:5,visualEvery:2}),base=paraphrased.presentationIR.slides.find(slide=>slide.slide_id==='S1').elements[0].text,target=paraphrased.presentationIR.slides.find(slide=>slide.slide_id==='S3');
+ target.elements[0].text=base.replace('测量流程','分析流程').replace('可复核记录','可追溯记录');
+ const near=auditDeckQuality(paraphrased).blockers.find(item=>item.code==='QUALITY_PRIORITY_EXPLANATION_NEAR_DUPLICATED');
+ assert.ok(near,'small synonym substitutions must not count as a second distinct explanation');assert.deepEqual(near.slide_ids,['S1','S3']);assert.ok(near.lexical_overlap_ratio>=0.9);
+ const bullets=fixture({count:5,visualEvery:2}),bulletBase=bullets.presentationIR.slides.find(slide=>slide.slide_id==='S1').elements[0].text,bulletTarget=bullets.presentationIR.slides.find(slide=>slide.slide_id==='S3');
+ bulletTarget.elements[0]={element_id:'T3-BULLETS',kind:'bullets',items:[bulletBase.replace('测量流程','分析流程').replace('可复核记录','可追溯记录')]};
+ assert.ok(auditDeckQuality(bullets).blockers.some(item=>item.code==='QUALITY_PRIORITY_EXPLANATION_NEAR_DUPLICATED'),'bullet text must use the same repeat gate as prose paragraphs');
+ const english=fixture({count:5,visualEvery:2}),englishBase='The research pipeline collects observations, normalizes identifiers, validates schema, aligns timestamps, filters invalid records, computes latency percentiles, aggregates independent runs, estimates uncertainty, compares baselines, checks regressions, preserves provenance, documents assumptions, exports charts, records confidence intervals, tracks exclusions, distinguishes throughput, request size, hardware generation, cache reuse, batching, scheduling, network traffic, memory pressure, warmup, steady state, repeated trials, measurement noise, sample counts, missing values, outliers, control groups, validation splits, deployment conditions, and reproducible seeds.';
+ english.presentationIR.slides.find(slide=>slide.slide_id==='S1').elements[0].text=englishBase;
+ english.presentationIR.slides.find(slide=>slide.slide_id==='S3').elements[0].text=englishBase.replace('collects observations','gathers measurements').replace('preserves provenance','keeps lineage');
+ assert.ok(auditDeckQuality(english).blockers.some(item=>item.code==='QUALITY_PRIORITY_EXPLANATION_NEAR_DUPLICATED'),'English word-token overlap must also block small rewrites');
 });
 
 test('formal quality audit blocks thin text, low visual coverage, repeated layouts, assistant voice, and English blocks',()=>{
