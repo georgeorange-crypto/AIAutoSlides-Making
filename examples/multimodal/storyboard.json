@@ -138,19 +138,22 @@
           {
             "from": "client",
             "to": "gateway",
-            "label": "request"
+            "label": "forwards request"
           },
           {
             "from": "gateway",
-            "to": "scheduler"
+            "to": "scheduler",
+            "label": "routes request"
           },
           {
             "from": "scheduler",
-            "to": "worker"
+            "to": "worker",
+            "label": "assigns task"
           },
           {
             "from": "scheduler",
-            "to": "cache"
+            "to": "cache",
+            "label": "retrieves context"
           }
         ]
       },

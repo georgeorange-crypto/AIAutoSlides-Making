@@ -1,5 +1,6 @@
 const ID=/^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const HASH=/^[a-f\d]{64}$/i;
+import {auditArchitectureGraph} from './architecture-graph.mjs';
 const VERIFICATION=new Set(['verified','unverified','pending','contradicted']);
 const CHARTS=new Set(['bar','line','scatter','cdf']);
 const text=value=>typeof value==='string'&&value.trim().length>0;
@@ -100,7 +101,7 @@ export function validatePresentationIR(ir){
       }
       if(kind==='diagram'){
         const groups=element.groups,nodes=element.nodes,edges=element.edges,inside=box=>box&&[box.x,box.y,box.w,box.h].every(Number.isFinite)&&box.x>=0&&box.y>=2.35&&box.w>0&&box.h>0&&box.x+box.w<=13.333&&box.y+box.h<=6.85;
-        if(!Array.isArray(groups)||!groups.length||!Array.isArray(nodes)||nodes.length<2||nodes.length>12||!Array.isArray(edges)||!edges.length)errors.push(`${sid}/${eid}: diagram requires labeled groups, 2–12 nodes, and at least one edge`);
+        if(!Array.isArray(groups)||!groups.length||!Array.isArray(nodes)||nodes.length<2||nodes.length>12||!Array.isArray(edges)||!edges.length)errors.push(`${sid}/${eid}: diagram requires labeled groups, 2–12 nodes, and at least one labeled edge`);
         else{
           for(const [index,group] of groups.entries())if(!text(group?.label)||!inside(group))errors.push(`${sid}/${eid}: diagram group ${index} requires a label and in-bounds geometry`);
           const nodeIds=new Set();
@@ -109,6 +110,7 @@ export function validatePresentationIR(ir){
             if(text(node?.id))nodeIds.add(node.id);
           }
           for(const [index,edge] of edges.entries())if(!nodeIds.has(edge?.from)||!nodeIds.has(edge?.to)||edge.from===edge.to)errors.push(`${sid}/${eid}: diagram edge ${index} must connect two distinct known nodes`);
+          for(const problem of auditArchitectureGraph(nodes,edges))errors.push(`${sid}/${eid}: ${problem}`);
         }
         if(slide?.type!=='architecture')errors.push(`${sid}/${eid}: diagram elements require slide type 'architecture'`);
       }

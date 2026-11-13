@@ -37,11 +37,18 @@ test('planner quality gate rejects title-only pages, missing visual plans, repet
 });
 
 test('planner quality gate does not count an empty visual placeholder toward coverage',()=>{
-  const weak={...response,slides:response.slides.map((item,index)=>index===1?{...item,visual_needs:[{kind:'architecture',description:'',evidence_ids:['E1'],nodes:[{id:'N1',label:'Client'},{id:'N2',label:'Gateway'},{id:'N3',label:'Worker'}],edges:[{from:'N1',to:'N2',label:'request'},{from:'N2',to:'N3',label:'dispatch'}],steps:[]}]}:item)};
+  const weak={...response,slides:response.slides.map((item,index)=>index===1?{...item,visual_needs:[{kind:'architecture',description:'',evidence_ids:['E1'],nodes:[{id:'N1',label:'Client'},{id:'N2',label:'Gateway'},{id:'N3',label:'Worker'}],edges:[{from:'N1',to:'N2',label:'forwards request'},{from:'N2',to:'N3',label:'assigns work'}],steps:[]}]}:item)};
   const audit=auditPlannerQuality(weak);
   assert.equal(audit.metrics.visual_slides,3);
   assert.equal(audit.metrics.visual_slides,auditPlannerQuality(response).metrics.visual_slides-1);
   assert.ok(audit.findings.some(x=>x.rule_id==='PLAN-VISUAL-SPEC'));
+});
+
+test('planner architecture rejects noun-only connectors, placeholder nodes, and disconnected paths',()=>{
+ const weak={...response,slides:response.slides.map((item,index)=>index===1?{...item,visual_needs:[{kind:'architecture',description:'Map the concrete request-processing path between named system components.',evidence_ids:['E1'],nodes:[{id:'N1',label:'Client'},{id:'N2',label:'Gateway'},{id:'N3',label:'Worker'}],edges:[{from:'N1',to:'N2',label:'request'},{from:'N2',to:'N3',label:'dispatch'}],steps:[]}]}:item)};
+ assert.ok(auditPlannerQuality(weak).findings.some(item=>item.rule_id==='PLAN-DIAGRAM-LOGIC'));
+ const disconnected=structuredClone(weak);disconnected.slides[1].visual_needs[0].edges=[{from:'N1',to:'N2',label:'forwards request'},{from:'N1',to:'N2',label:'dispatches task'}];
+ assert.ok(auditPlannerQuality(disconnected).findings.some(item=>item.rule_id==='PLAN-DIAGRAM-LOGIC'));
 });
 
 test('planner quality gate checks every requested visual and rejects unsupported bookend visuals',()=>{
@@ -57,7 +64,7 @@ test('planner quality gate rejects multiple visual specs that cannot all fit the
 });
 
 test('planner compiles an evidence-linked architecture specification into bounded editable diagram geometry',()=>{
-  const diagramSlide={...slide('statement','Synthetic routing',['E1']),visual_needs:[{kind:'architecture',description:'Show the request path and named stages from input to execution.',evidence_ids:['E1'],nodes:[{id:'N1',label:'Client'},{id:'N2',label:'Gateway'},{id:'N3',label:'Scheduler'},{id:'N4',label:'Worker'}],edges:[{from:'N1',to:'N2',label:'request'},{from:'N2',to:'N3',label:'forward'},{from:'N3',to:'N4',label:'dispatch'}],steps:[]}]};
+  const diagramSlide={...slide('statement','Synthetic routing',['E1']),visual_needs:[{kind:'architecture',description:'Show the request path and named stages from input to execution.',evidence_ids:['E1'],nodes:[{id:'N1',label:'Client'},{id:'N2',label:'Gateway'},{id:'N3',label:'Scheduler'},{id:'N4',label:'Worker'}],edges:[{from:'N1',to:'N2',label:'forwards request'},{from:'N2',to:'N3',label:'routes request'},{from:'N3',to:'N4',label:'assigns work'}],steps:[]}]};
   const draft=createPlannerDraft({...response,slides:[response.slides[0],diagramSlide,...response.slides.slice(2)]},{audienceProfile:'research_group',duration:7,goal:'Explain the synthetic request path'});
   const diagram=draft.slides[1].diagram;
   assert.equal(diagram.nodes.length,4);assert.equal(diagram.edges.length,3);
@@ -66,7 +73,7 @@ test('planner compiles an evidence-linked architecture specification into bounde
 
 test('planner-generated process and architecture visuals render as native editable PowerPoint shapes with explanatory text',async()=>{
   const process={...slide('statement','Synthetic process',['E1']),layout:'two-column-contrast'};
-  const architecture={...slide('statement','Synthetic architecture',['E1']),visual_needs:[{kind:'architecture',description:'Map the request path and its two distinct execution destinations.',evidence_ids:['E1'],nodes:[{id:'N1',label:'Client'},{id:'N2',label:'Gateway'},{id:'N3',label:'Scheduler'},{id:'N4',label:'Worker'},{id:'N5',label:'Cache'}],edges:[{from:'N1',to:'N2',label:'request'},{from:'N2',to:'N3',label:'forward'},{from:'N3',to:'N4',label:'dispatch'},{from:'N3',to:'N5',label:'lookup'}],steps:[]}]};
+  const architecture={...slide('statement','Synthetic architecture',['E1']),visual_needs:[{kind:'architecture',description:'Map the request path and its two distinct execution destinations.',evidence_ids:['E1'],nodes:[{id:'N1',label:'Client'},{id:'N2',label:'Gateway'},{id:'N3',label:'Scheduler'},{id:'N4',label:'Worker'},{id:'N5',label:'Cache'}],edges:[{from:'N1',to:'N2',label:'forwards request'},{from:'N2',to:'N3',label:'routes request'},{from:'N3',to:'N4',label:'assigns work'},{from:'N3',to:'N5',label:'retrieves value'}],steps:[]}]};
   const storyboard={...response,slides:[response.slides[0],process,architecture,response.slides[2],response.slides[3],response.slides[4],response.slides[5]]};
   const draft=createPlannerDraft(storyboard,{audienceProfile:'research_group',duration:7,goal:'Check editable visuals'}),dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-planner-visuals-'));
   try{

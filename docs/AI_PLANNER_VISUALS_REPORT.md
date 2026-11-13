@@ -41,6 +41,14 @@ Adversarial checks in `tests/approved-storyboard-ir.test.mjs` cover pending appr
 
 This is evidence that the approved planner output now reaches the formal IR and rendering path and that one observed diagram collision was repaired. It does not guarantee attractive results for arbitrary content, guarantee semantic correctness of generated relationships, or remove the need to inspect every real deck.
 
+## Architecture relationship gate (2026-11-13)
+
+The legacy storyboard validator and canonical Presentation IR validator share `auditArchitectureGraph`: each diagram needs at least two non-placeholder nodes, one or more action-labeled relationships, and a connected graph. The AI planner uses the same checks with its stricter range of 3–6 nodes and 2–6 relationships. Its prompt and JSON contract state these requirements, and the diagram renderer shows each relationship with its endpoint names in the separate legend.
+
+Adversarial checks cover noun-only labels (`request`, `dispatch`), generic placeholders (`Node 2`), disconnected components, and unlabeled/unknown endpoints; valid synthetic action labels compile to native editable shapes. This prevents unlabeled chains and several obvious placeholder diagrams from passing the generation gate. A short multilingual verb vocabulary can reject valid domain-specific relations or accept a grammatically valid but factually wrong relation. It does not reason about real architecture, evidence entailment, or beauty; human system and page review remain required.
+
+Verification for this phase: targeted architecture/IR/workflow tests passed 55/55; full `npm test` passed 284 tests, failed 0, and skipped 11 optional-tool checks because their local workers are not installed. `npm run validate` passed with three existing evidence/sample-size warnings. A synthetic six-slide architecture fixture was rendered through PowerPoint 16.0 and Poppler 26.07.0; all six previews were inspected, including the architecture page, where endpoint-labeled relationships remain legible without colliding with nodes. The standard seven-slide demo also built to `outputs/architecture-logic-phase/research-demo.pptx`; structural QA reports 7 editable text slides and 1 native chart. These checks do not substitute for human review of whether a real system diagram is true.
+
 ## Source-linked cover visual (2026-11-13)
 
 When an approved planner storyboard contains a structured process, the IR compiler now carries its first three steps into a native editable cover visual and adds the same source IDs to the cover. The PptxGenJS adapter preserves that provenance and the renderer displays three numbered cards in the cover's right panel instead of the unrelated circle motif. Storyboards without a supported process keep the old cover layout; this feature does not synthesize subject-specific artwork or repair all cover styles.

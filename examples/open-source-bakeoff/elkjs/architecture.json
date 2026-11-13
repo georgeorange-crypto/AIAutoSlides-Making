@@ -13,9 +13,9 @@
     {"id":"cache","label":"Context cache","x":10.5,"y":5.0,"w":1.7,"h":0.8}
   ],
   "edges": [
-    {"from":"client","to":"gateway","label":"request"},
-    {"from":"gateway","to":"scheduler"},
-    {"from":"scheduler","to":"worker"},
-    {"from":"scheduler","to":"cache"}
+    {"from":"client","to":"gateway","label":"forwards request"},
+    {"from":"gateway","to":"scheduler","label":"routes request"},
+    {"from":"scheduler","to":"worker","label":"assigns task"},
+    {"from":"scheduler","to":"cache","label":"retrieves context"}
   ]
 }

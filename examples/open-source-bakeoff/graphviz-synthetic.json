@@ -10,8 +10,8 @@
     {"id": "Worker", "label": "Worker pool", "shape": "component", "fill": "#dcfce7"}
   ],
   "edges": [
-    {"from": "Gateway", "to": "Scheduler", "label": "request", "style": "solid"},
-    {"from": "Scheduler", "to": "Worker", "label": "dispatch", "style": "dashed", "color": "#2563eb"}
+    {"from": "Gateway", "to": "Scheduler", "label": "routes request", "style": "solid"},
+    {"from": "Scheduler", "to": "Worker", "label": "assigns task", "style": "dashed", "color": "#2563eb"}
   ],
   "source_ids": ["E_SYN_01"]
 }

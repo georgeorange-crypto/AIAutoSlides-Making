@@ -53,7 +53,7 @@ test('bounded Mermaid flowcharts map to editable diagram shapes with source line
 });
 
 test('canonical diagram validation rejects unsupported native node shapes',()=>{
- const ir=structuredClone(fixture),slide=ir.slides[1],diagram=parseMermaidFlowchart('flowchart TD\nA --> B');slide.type='architecture';slide.elements=[{element_id:'S02-D01',kind:'diagram',source_ids:['E_PHASE1_SYN'],...diagram}];slide.elements[0].nodes[0].shape='star';
+ const ir=structuredClone(fixture),slide=ir.slides[1],diagram=parseMermaidFlowchart('flowchart TD\nA[Input queue] -->|routes request| B{Validated task}\nB -->|assigns work| C[Worker pool]');slide.type='architecture';slide.elements=[{element_id:'S02-D01',kind:'diagram',source_ids:['E_PHASE1_SYN'],...diagram}];slide.elements[0].nodes[0].shape='star';
  assert.throws(()=>assertValidPresentationIR(ir),/supported shape/);
 });
 
@@ -66,7 +66,7 @@ test('unsupported Mermaid source remains editable text with a visible warning',(
 test('bounded Mermaid flowchart renders as native PPTX diagram shapes and passes structural QA',async()=>{
  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-mermaid-ir-'));
  try{
-  const ir=structuredClone(fixture),slide=ir.slides[1];slide.type='statement';slide.elements=[slide.elements[0],{element_id:'S02-M01',kind:'mermaid',source_ids:['E_PHASE1_SYN'],source:'flowchart LR\nA[Source] -->|supports| B{Reviewed}\nB ==> C[Claim]'}];
+  const ir=structuredClone(fixture),slide=ir.slides[1];slide.type='statement';slide.elements=[slide.elements[0],{element_id:'S02-M01',kind:'mermaid',source_ids:['E_PHASE1_SYN'],source:'flowchart LR\nA[Evidence source] -->|supports the claim| B{Reviewed finding}\nB ==> |emits a claim| C[Research claim]'}];
   const result=await pptxgenjsIRAdapter.render({presentationIR:ir,workspace,outputDir:workspace});
   assert.equal(result.status,'completed');assert.deepEqual(result.qa.errors,[]);assert.equal(result.slideEditability[1].images,0);assert.ok(result.slideEditability[1].native_shapes>=5);
   const deck=JSON.parse(fs.readFileSync(path.join(workspace,'presentation.storyboard.json'),'utf8'));

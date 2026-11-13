@@ -44,7 +44,7 @@ test('approved synthetic storyboard compiles to valid IR with editable visuals a
   assert.ok(coverProcess.source_ids.every(id=>cover.evidence_ids.includes(id)));
   assert.equal(ir.slides.find(slide=>slide.type==='process').elements.find(element=>element.kind==='process').steps.length,3);
   const diagram=ir.slides.find(slide=>slide.type==='architecture').elements.find(element=>element.kind==='diagram');
-  assert.equal(diagram.nodes.length,5);assert.equal(diagram.edges.length,4);assert.deepEqual(diagram.edges.map(edge=>edge.label),['request','forward','dispatch','lookup']);
+  assert.equal(diagram.nodes.length,5);assert.equal(diagram.edges.length,4);assert.deepEqual(diagram.edges.map(edge=>edge.label),['forwards request','routes request','assigns work','retrieves value']);
   const mapped=mapPresentationIRToLegacy(ir).deck.slides.find(slide=>slide.slide_id==='S04');
   assert.equal(mapped.type,'statement');assert.match(mapped.figure_description,/Map scheduler branches/);assert.equal(mapped.diagram.edges.length,4);
   const mappedCover=mapPresentationIRToLegacy(ir).deck.slides[0];assert.deepEqual(mappedCover.cover_visual.steps,response.slides[1].visual_needs[0].steps.slice(0,3));

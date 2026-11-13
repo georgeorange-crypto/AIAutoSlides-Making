@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import {empiricalCdfStep,studentTMeanInterval} from './statistics.mjs';
 import {CODE_LANGUAGES,codeSegments} from './code-snippet.mjs';
+import {auditArchitectureGraph} from '../packages/core/architecture-graph.mjs';
 
 const VALID_TYPES = new Set(['cover','statement','bullets','metrics','chart','process','architecture','table','code','timeline','closing']);
 const MANUAL_ONLY_TYPES = new Set(['metrics','chart','process','architecture','table','code','timeline']);
@@ -118,11 +119,12 @@ export function validateDeck(input, ledger) {
     if(s.type==='process' && (!Array.isArray(s.steps)||s.steps.length<2||s.steps.length>6||s.steps.some(x=>!boundedText(x,45)))) errors.push(`${where}: process requires 2–6 steps under 45 characters`);
     if(s.type==='architecture'){
       const g=s.diagram,inside=o=>[o.x,o.y,o.w,o.h].every(Number.isFinite)&&o.x>=0&&o.y>=2.35&&o.w>0&&o.h>0&&o.x+o.w<=13.333&&o.y+o.h<=6.85;
-      if(!g||!Array.isArray(g.groups)||!g.groups.length||!Array.isArray(g.nodes)||g.nodes.length<2||g.nodes.length>12||!Array.isArray(g.edges)||!g.edges.length)errors.push(`${where}: architecture requires groups, 2–12 nodes, and edges`);
+      if(!g||!Array.isArray(g.groups)||!g.groups.length||!Array.isArray(g.nodes)||g.nodes.length<2||g.nodes.length>12||!Array.isArray(g.edges)||!g.edges.length)errors.push(`${where}: architecture requires groups, 2–12 nodes, and labeled edges`);
       else{
         for(const [j,group] of g.groups.entries())if(!isString(group.label)||!inside(group))errors.push(`${where}: diagram.groups[${j}] requires a label and in-bounds geometry`);
         const ids=new Set();for(const [j,node] of g.nodes.entries()){if(!isString(node.id)||ids.has(node.id)||!boundedText(node.label,65)||node.shape!==undefined&&!['rect','roundRect','diamond'].includes(node.shape)||!inside(node))errors.push(`${where}: diagram.nodes[${j}] requires unique id, label, supported shape, and in-bounds geometry`);ids.add(node.id);}
         for(const [j,edge] of g.edges.entries())if(!ids.has(edge.from)||!ids.has(edge.to)||edge.from===edge.to)errors.push(`${where}: diagram.edges[${j}] must connect two distinct known node IDs`);
+        for(const problem of auditArchitectureGraph(g.nodes,g.edges))errors.push(`${where}: ${problem}`);
       }
     }
     if(s.type==='table'){
