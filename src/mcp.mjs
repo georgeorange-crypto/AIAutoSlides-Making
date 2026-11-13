@@ -11,6 +11,7 @@ const projectArg={project_id:UUID},jobArg={job_id:UUID};
 
 const TOOLS=[
   {name:'aiautoslides_health',description:'Read the status of the already-running local AIAutoSlides API. No project data is returned.',inputSchema:obj({}),annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false},method:'GET',route:()=>'/health'},
+  {name:'aiautoslides_research_search',description:'Search scholarly metadata through OpenAlex, Crossref, or arXiv. Sends the query to the selected public provider only when allow_network is explicitly true; results are unverified metadata candidates, not evidence.',inputSchema:obj({provider:{type:'string',enum:['openalex','crossref','arxiv']},query:{type:'string',minLength:2,maxLength:500},limit:{type:'integer',minimum:1,maximum:10},allow_network:{type:'boolean'}},['provider','query','allow_network']),annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:false,openWorldHint:true},method:'POST',route:()=>'/research/search',body:a=>({provider:a.provider,query:a.query,limit:a.limit,allow_network:a.allow_network})},
   {name:'aiautoslides_list_projects',description:'List projects belonging to the local API principal.',inputSchema:obj({}),annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false},method:'GET',route:()=>'/projects'},
   {name:'aiautoslides_create_project',description:'Create a project from a supplied Presentation IR. This writes a local project; call only after user approval.',inputSchema:obj({title:{type:'string',minLength:1,maxLength:180},presentation_ir:{type:'object'}},['title','presentation_ir']),annotations:{readOnlyHint:false,destructiveHint:false,idempotentHint:false,openWorldHint:false},method:'POST',route:()=>'/projects',body:a=>({title:a.title,presentation_ir:a.presentation_ir})},
   {name:'aiautoslides_get_project',description:'Read project metadata, current Presentation IR and source verification states.',inputSchema:obj(projectArg,['project_id']),annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false},method:'GET',route:a=>`/projects/${encodeURIComponent(a.project_id)}`},
@@ -34,11 +35,13 @@ function validateRpc(message){return message&&typeof message==='object'&&!Array.
 function schemaErrors(schema,value,where='arguments'){
   const errors=[];if(schema.type==='object'&&(!value||typeof value!=='object'||Array.isArray(value)))return[`${where} must be an object`];
   if(schema.type==='string'&&typeof value!=='string')return[`${where} must be a string`];if(schema.type==='boolean'&&typeof value!=='boolean')return[`${where} must be a boolean`];
+  if(schema.type==='integer'&&(!Number.isInteger(value)))return[`${where} must be an integer`];
   for(const key of schema.required||[])if(!Object.hasOwn(value,key))errors.push(`${where}.${key} is required`);
   if(schema.additionalProperties===false)for(const key of Object.keys(value))if(!Object.hasOwn(schema.properties||{},key))errors.push(`${where}.${key} is not allowed`);
   for(const [key,child] of Object.entries(schema.properties||{}))if(Object.hasOwn(value,key)){const item=value[key];if(child.type==='object')errors.push(...schemaErrors(child,item,`${where}.${key}`));else errors.push(...schemaErrors(child,item,`${where}.${key}`));}
   if(schema.oneOf){const matches=schema.oneOf.filter(option=>(option.required||[]).every(key=>Object.hasOwn(value,key))&&!(option.not?.required||[]).some(key=>Object.hasOwn(value,key)));if(matches.length!==1)errors.push(`${where} must match exactly one supported input variant`);}
   if(typeof value==='string'){if(schema.minLength!==undefined&&value.length<schema.minLength)errors.push(`${where} is too short`);if(schema.maxLength!==undefined&&value.length>schema.maxLength)errors.push(`${where} is too long`);if(schema.pattern&&!new RegExp(schema.pattern).test(value))errors.push(`${where} has an invalid format`);}
+  if(typeof value==='number'){if(schema.minimum!==undefined&&value<schema.minimum)errors.push(`${where} is below the minimum`);if(schema.maximum!==undefined&&value>schema.maximum)errors.push(`${where} is above the maximum`);}
   if(schema.enum&&!schema.enum.includes(value))errors.push(`${where} must be one of ${schema.enum.join(', ')}`);
   return errors;
 }

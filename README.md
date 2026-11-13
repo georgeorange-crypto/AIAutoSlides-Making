@@ -387,9 +387,11 @@ Start the loopback-only REST service with a durable workspace:
 npm run api -- --workspace D:\AIAutoSlidesData --port 8787
 ```
 
-The service stores projects, slide IR revisions, source metadata, job transitions, artifacts and hashes in SQLite. Place input files in `<workspace>\incoming`; `POST /projects/{id}/sources` imports only from that directory and copies raw bytes to immutable `source-blobs/<sha256>`. Create a project with `POST /projects` and a JSON body containing `title` and `presentation_ir`; start a generation job with `POST /projects/{id}/jobs`. The local workflow inventories evidence without searching the web, plans slide takeaways and adapter capabilities, generates PPTX, renders PDF/PNG previews, runs structural QA, and records artifacts and stage logs. Set `{"preview":false}` on job creation to skip PowerPoint/Poppler previews.
+The service stores projects, slide IR revisions, source metadata, job transitions, artifacts and hashes in SQLite. Place input files in `<workspace>\incoming`; `POST /projects/{id}/sources` imports only from that directory and copies raw bytes to immutable `source-blobs/<sha256>`. Create a project with `POST /projects` and a JSON body containing `title` and `presentation_ir`; start a generation job with `POST /projects/{id}/jobs`. The local generation workflow inventories supplied evidence without web search, plans slide takeaways and adapter capabilities, generates PPTX, renders PDF/PNG previews, runs structural QA, and records artifacts and stage logs. Set `{"preview":false}` on job creation to skip PowerPoint/Poppler previews.
 
-Available routes are documented in [`docs/API_WORKFLOW.md`](docs/API_WORKFLOW.md). The API binds only to loopback and is intended for one local user; it has no remote authentication or OS-level sandbox. Node 22.5 or newer is required for the API's built-in SQLite runtime. The legacy slide CLI remains available on the package's existing minimum Node version. A slide PATCH updates the validated IR revision; a later job rebuilds the whole deck, so unchanged-slide hash preservation is not promised.
+An optional `POST /research/search` route accepts `{ "provider":"openalex|crossref|arxiv", "query":"...", "limit":5, "allow_network":true }`. The explicit flag is required before the selected provider receives the query. Results remain unverified metadata candidates; the route does not fetch full text or add evidence to a project. The MCP tool `aiautoslides_research_search` exposes this same opt-in action and is marked as an external service operation.
+
+Available routes and their network/data boundaries are documented in [`docs/API_WORKFLOW.md`](docs/API_WORKFLOW.md). The API binds only to loopback and is intended for one local user; it has no remote authentication or OS-level sandbox. Node 22.5 or newer is required for the API's built-in SQLite runtime. The legacy slide CLI remains available on the package's existing minimum Node version. A slide PATCH updates the validated IR revision; a later job rebuilds the whole deck, so unchanged-slide hash preservation is not promised.
 
 ## Verified in this checkout
 
@@ -440,7 +442,7 @@ PPTX, PDF, ten page PNGs, preview, evidence manifest and QA reports are written 
 
 ## Local MCP server
 
-The stdio MCP server exposes the local project API to MCP clients. Start the API in one terminal, then configure the MCP client to run `node src/mcp.mjs`; see [`docs/MCP_SERVER.md`](docs/MCP_SERVER.md) for Codex and Claude Code examples. The server accepts only a loopback API URL, performs no web research or model calls, and expects the MCP host to request user approval for project edits, source import and render jobs.
+The stdio MCP server exposes the local project API to MCP clients. Start the API in one terminal, then configure the MCP client to run `node src/mcp.mjs`; see [`docs/MCP_SERVER.md`](docs/MCP_SERVER.md) for Codex and Claude Code examples. The server accepts only a loopback API URL. Its scholarly metadata search tool contacts OpenAlex, Crossref or arXiv only when explicitly called with `allow_network:true`; no model or full-text download is invoked. The MCP host handles approval for project edits, source import and render jobs.
 
 ## Codex and Claude Code Skills
 

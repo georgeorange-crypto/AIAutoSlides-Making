@@ -43,7 +43,7 @@
 ## Remaining beyond Phase 1
 
 - Phase 0 bakeoff is incomplete for some requested engines/task groups; blocked and unrun candidates remain identified in `docs/POC_RESULTS.md`.
-- Phase 2 research integrations are implemented for opt-in OpenAlex/Crossref/arXiv metadata search, local Docling and MarkItDown extraction, single-page Crawl4AI, selected arXiv PDF download, and a Wikimedia Commons workflow for one item or a bounded selection of up to five images. These are CLI/local-worker routes, not API workflow actions; extracted claims and asset reuse remain pending human review.
+- Phase 2 research integrations are implemented for opt-in OpenAlex/Crossref/arXiv metadata search through CLI, local REST and stdio MCP; local Docling and MarkItDown extraction, single-page Crawl4AI, selected arXiv PDF download, and a Wikimedia Commons workflow for one item or a bounded selection of up to five images remain CLI/local-worker routes. Extracted claims and asset reuse remain pending human review.
 - Phase 3 audience/narrative/media intelligence and rendered-image critic remain planned.
 - Phase 4 local stdio MCP server over the loopback API is implemented; full UI, remote auth/scopes and Android remain planned.
 - Full Presentation IR element coverage, native Mermaid shape rendering and unchanged-slide hash preservation remain incomplete.
@@ -51,12 +51,12 @@
 
 ## Phase 2 research, document and asset workflows — 2026-11-12
 
-- Implemented: opt-in OpenAlex/Crossref/arXiv metadata search; local Docling and MarkItDown extraction; single-page Crawl4AI with robots check, same-host requests and URL/IP safeguards; selected single-paper arXiv PDF download; and separately selected one-to-five-item Wikimedia Commons media retrieval. Commands and safety boundaries are documented in `docs/PHASE2_RESEARCH_SEARCH.md`.
+- Implemented: opt-in OpenAlex/Crossref/arXiv metadata search via CLI, loopback REST and stdio MCP; local Docling and MarkItDown extraction; single-page Crawl4AI with robots check, same-host requests and URL/IP safeguards; selected single-paper arXiv PDF download; and separately selected one-to-five-item Wikimedia Commons media retrieval. Commands and safety boundaries are documented in `docs/PHASE2_RESEARCH_SEARCH.md` and `docs/API_WORKFLOW.md`.
 - Retrieval and extraction artifacts include source identifiers, URLs or local locators, retrieval time, source/response/content hashes where applicable, and short excerpt candidates. Candidates remain unverified and asset rights remain pending human review.
 - The existing local document importer also provides offline PDF OCR, DOCX body/header/footer text and image extraction, and PDF inline-image/image-XObject extraction with hashes and source locators. PDF masks/soft masks, uncommon sample formats and DOCX comments/tracked-deletion semantics remain unsupported.
 - Search/download boundaries are explicit: network calls require opt-in; image search does not download files; one selected arXiv paper or a selected Commons batch of at most five images can be downloaded per command; web crawl does not traverse links or fetch media.
 - Docling 2.150.0 and Crawl4AI 0.9.5 are pinned in the isolated Python runtime. Docling model downloads are opt-in. Crawl4AI requires its locally installed Playwright Chromium. MarkItDown 0.1.9 uses its separate isolated worker.
-- Phase 2 is complete for this bounded integration slice. API workflow research actions, general DOI full-text resolution outside Europe PMC, unbounded media acquisition, MinerU integration/licensing, automated scientific verification and parser-accuracy evaluation remain planned or out of scope.
+- Phase 2 is complete for these bounded integration slices. API workflow research beyond metadata search, general DOI full-text resolution outside Europe PMC, unbounded media acquisition, MinerU integration/licensing, automated scientific verification and parser-accuracy evaluation remain planned or out of scope.
 - The prior combined `npm run check` record on the PDF/DOCX asset and cover-layout update is exit 0 with 153/153 tests and the synthetic import/build/QA sequence. On the M12/PDF-DOCX revision, I separately reran the full suite: `npm run test` passed **157/157**; `npm run validate` and `npm run build` exited 0; `node src/qa.mjs outputs/research-demo.pptx` confirmed 7 editable slides and 1 native chart; `npm run preview` rendered seven pages using PowerPoint 16.0 and Poppler 26.07.0, and each page was visually inspected. One chart sample-size warning and two unverified evidence entries remain. The cover title wraps within the content column without intruding into the decorative panel; human design approval remains pending.
 
 ## Verification record
@@ -114,3 +114,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 - Added an explicitly selected batch download of at most five Wikimedia Commons images and 50 MiB total. Provenance and rights metadata are kept per file, duplicate bytes fail the batch, and every asset remains pending human rights review.
 - This is a limited batch adapter, not web crawling or unbounded media collection. See `docs/M17_COMMONS_BATCH_IMPORT_REPORT.md`.
+
+## REST/MCP scholarly metadata search follow-on — 2026-11-12
+
+- Added `POST /research/search` and the `aiautoslides_research_search` MCP tool over the existing OpenAlex/Crossref/arXiv metadata adapter. Both require an explicit `allow_network:true`; provider/query/result-limit validation runs at the API boundary.
+- Results remain unverified metadata candidates and do not create project evidence, download full text, verify claims or call a model. Mocked integration checks cover the network gate and response state. See `docs/M18_API_RESEARCH_SEARCH_REPORT.md`.
+- Generic DOI full-text retrieval outside the Europe PMC slice, web crawling, and scientific claim verification remain incomplete.

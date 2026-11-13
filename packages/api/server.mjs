@@ -5,6 +5,7 @@ import crypto from 'node:crypto';
 import {openProjectStore} from './store.mjs';
 import {runPresentationWorkflow} from '../workflow/index.mjs';
 import {pptxgenjsIRAdapter} from '../adapters/pptxgenjs-ir.mjs';
+import {metadataSearch as defaultMetadataSearch} from '../research/metadata-search.mjs';
 
 const loopback=new Set(['127.0.0.1','::1','localhost']);
 const mime={'pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation','pdf':'application/pdf','png':'image/png','json':'application/json','svg':'image/svg+xml'};
@@ -15,7 +16,7 @@ function send(res,status,value){const body=JSON.stringify(value);res.writeHead(s
 async function bodyJson(req,limit=24*1024*1024){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw Object.assign(new Error(`Request exceeds ${limit} byte limit.`),{status:413});chunks.push(chunk);}if(!chunks.length)return{};try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw Object.assign(new Error('Request body must be valid JSON.'),{status:400});}}
 const notFound=(kind,id)=>Object.assign(new Error(`${kind} '${id}' was not found.`),{status:404});
 
-export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true}={}){
+export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true,researchSearch=defaultMetadataSearch}={}){
   if(!workspaceDir)throw new TypeError('workspaceDir is required');
   const store=await openProjectStore(workspaceDir),controllers=new Map(),running=new Map();
   store.recoverInterruptedJobs();
@@ -41,6 +42,14 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
       const remote=req.socket.remoteAddress?.replace(/^::ffff:/,'');if(!loopback.has(remote)&&!remote?.startsWith('127.'))return send(res,403,{error:'loopback_only'});
       const url=new URL(req.url,'http://127.0.0.1'),segments=url.pathname.split('/').filter(Boolean).map(decodeURIComponent),method=req.method;
       if(method==='GET'&&segments[0]==='health')return send(res,200,{ok:true,service:'aiautoslides-local-api',network:'loopback-only'});
+      if(segments[0]==='research'&&segments[1]==='search'&&segments.length===2&&method==='POST'){
+        const input=await bodyJson(req,16*1024);
+        if(input.allow_network!==true)throw Object.assign(new Error('Research search is disabled unless allow_network is explicitly true.'),{status:400});
+        if(!['openalex','crossref','arxiv'].includes(input.provider))throw Object.assign(new Error('provider must be openalex, crossref, or arxiv.'),{status:400});
+        if(typeof input.query!=='string'||input.query.trim().length<2||input.query.trim().length>500)throw Object.assign(new Error('query must contain 2-500 characters.'),{status:400});
+        if(input.limit!==undefined&&(!Number.isInteger(input.limit)||input.limit<1||input.limit>10))throw Object.assign(new Error('limit must be an integer from 1 to 10.'),{status:400});
+        const result=await researchSearch.search({provider:input.provider,query:input.query,limit:input.limit??5});return send(res,200,result);
+      }
       if(segments[0]==='projects'&&segments.length===1&&method==='GET')return send(res,200,{projects:store.listProjects()});
       if(segments[0]==='projects'&&segments.length===1&&method==='POST'){
         const input=await bodyJson(req);const project=store.createProject({title:input.title,presentationIR:input.presentation_ir});return send(res,201,{project});

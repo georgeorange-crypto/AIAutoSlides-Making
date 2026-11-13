@@ -75,11 +75,11 @@ Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS �
 
 ## Q7. 有提供给 AI 的 API、Harness，或者可作为 Codex/Claude Code 工作区的工具、Skill、MCP 吗？
 
-**答：已有本地 REST 项目 API、stdio MCP Server，以及分别放置于 Codex 与 Claude Code 项目目录的 AIAutoSlides Skill；不提供可远程部署的 MCP/API。**
+**答：已有本地 REST 项目 API、stdio MCP Server，以及分别放置于 Codex 与 Claude Code 项目目录的 AIAutoSlides Skill；REST/MCP 可显式启用学术元数据搜索，但不提供可远程部署的 MCP/API。**
 
-- `src/ai-plan.mjs` 提供可选 OpenAI Responses API 分镜调用；`src/mcp.mjs` 提供面向 MCP 客户端的本地工具接口，可查询项目/作业/产物、创建项目、导入 incoming 文件、编辑 slide 和排队生成。`skills/aiautoslides/SKILL.md` 是共享 Skill 正文，并同步到 `.agents/skills/aiautoslides/` 和 `.claude/skills/aiautoslides/`。
+- `src/ai-plan.mjs` 提供可选 OpenAI Responses API 分镜调用；`src/mcp.mjs` 提供面向 MCP 客户端的本地工具接口，可显式 opt-in 调用 OpenAlex/Crossref/arXiv 元数据搜索，也可查询项目/作业/产物、创建项目、导入 incoming 文件、编辑 slide 和排队生成。搜索发送用户查询到所选公开服务，返回结果仍是未验证元数据候选，不下载全文、不创建证据。`skills/aiautoslides/SKILL.md` 是共享 Skill 正文，并同步到 `.agents/skills/aiautoslides/` 和 `.claude/skills/aiautoslides/`。
 - MCP 通过 stdio 连接已运行的 loopback REST API，支持协议 `2026-07-28` 和旧式 `2025-11-25` 系列握手；没有 HTTP MCP transport，也不支持远程 bind、身份认证或多用户授权。
-- 读写型 MCP 操作会在工具描述中要求用户审批；最终确认界面由宿主 MCP 客户端负责。两个项目 Skill 指引 Agent 使用确定性本地工作流，并要求保留证据、许可、QA 与人工审查边界；它们不安装依赖、不创建凭据，也不隐式调用模型或网络。
+- 写入型 MCP 操作会在工具描述中要求用户审批；外部元数据搜索会在工具说明中明确网络影响并要求 `allow_network:true`。最终确认界面由宿主 MCP 客户端负责。两个项目 Skill 指引 Agent 使用确定性本地工作流，并要求保留证据、许可、QA 与人工审查边界；它们不安装依赖、不创建凭据，也不隐式调用模型或网络。
 - CI 工作流会运行构建/检查并上传示例产物；它是自动验证流水线，不是交互式制作 Agent。
 
 参考：`AGENTS.md`、`package.json`、`src/ai-plan.mjs`、`src/mcp.mjs`、[`docs/MCP_SERVER.md`](MCP_SERVER.md)、`skills/aiautoslides/SKILL.md`、`.github/workflows/`、`docs/CONFIGURATION.md`。
@@ -142,7 +142,7 @@ Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS �
 
 ## 综合判断与建议迭代顺序
 
-当前项目是一个**证据可追溯、离线优先的结构化 PPTX 生成器与开发工作区**，不是全自动多模态 PPT Agent。M3A 已完成本地图片溯源与嵌入、原生架构图、10 页 synthetic 示例、机器 QA 和可渲染逐页审查流程；正式的人类逐页签核仍由审核者完成。原生表格和代码片段页已有受限结构化输入、原生编辑对象及证据清单。自动版式选择仍未实现。通用 CLI/API、Codex/Claude Code Skill 或 MCP 仍需评估，且应以真实产物验证为前提。
+当前项目是一个**证据可追溯、离线优先的结构化 PPTX 生成器与开发工作区**，不是全自动多模态 PPT Agent。M3A 已完成本地图片溯源与嵌入、原生架构图、10 页 synthetic 示例、机器 QA 和可渲染逐页审查流程；正式的人类逐页签核仍由审核者完成。原生表格和代码片段页已有受限结构化输入、原生编辑对象及证据清单。通用版式智能和多媒体语义匹配仍未实现。CLI、本地 loopback API、Codex/Claude Code Skill 与 stdio MCP 已实现；API/MCP 的学术搜索只返回未验证元数据候选，其他网络与全文能力仍有限。
 
 ## Q13. 能否在 PPTX 中生成可编辑表格？
 

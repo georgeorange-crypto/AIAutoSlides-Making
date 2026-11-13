@@ -43,3 +43,13 @@ test('source importer rejects paths outside incoming and keeps content-addressed
     const inside=path.join(workspace,'incoming','source.txt');fs.writeFileSync(inside,'immutable content');const ok=await fetch(`${base}/projects/${project.project_id}/sources`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({source_id:'E_IN',file_path:inside,type:'text'})});assert.equal(ok.status,201);const source=(await ok.json()).source;fs.writeFileSync(inside,'changed after import');assert.equal(fs.readFileSync(path.join(workspace,'source-blobs',source.sha256),'utf8'),'immutable content');
   }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
 });
+
+test('local research search requires explicit network opt-in and returns unverified metadata candidates',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-research-api-'));let api,calls=0;
+  try{
+    api=await createLocalApi({workspaceDir:workspace,preview:false,researchSearch:{search:async input=>{calls++;assert.deepEqual(input,{provider:'crossref',query:'edge inference',limit:2});return{provider:'crossref',verification_status:'unverified',result_count:1,results:[{source_id:'SRC_CROSSREF_FIXTURE',evidence_status:'metadata_candidate_only'}]};}}});const address=await api.listen({port:0}),url=`http://127.0.0.1:${address.port}/research/search`;
+    let response=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:'crossref',query:'edge inference'})});assert.equal(response.status,400);assert.match((await response.json()).error,/allow_network/);assert.equal(calls,0);
+    response=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:'crossref',query:'edge inference',limit:2,allow_network:true})});assert.equal(response.status,200);const result=await response.json();assert.equal(calls,1);assert.equal(result.verification_status,'unverified');assert.equal(result.results[0].evidence_status,'metadata_candidate_only');
+    response=await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:'unknown',query:'edge inference',allow_network:true})});assert.equal(response.status,400);assert.equal(calls,1);
+  }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
+});
