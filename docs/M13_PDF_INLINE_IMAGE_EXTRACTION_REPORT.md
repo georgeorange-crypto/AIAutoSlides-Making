@@ -16,4 +16,8 @@ The existing local image importer now handles `paintInlineImageXObject` and `pai
 
 - PDF image masks/soft masks, uncommon color/sample formats, vector drawings, and OCR-to-figure association are still unsupported.
 - This creates a replaceable/croppable PPTX image object; it does not convert pixels into editable diagram shapes or infer figure meaning/licensing.
-- DOCX header/footer text extraction and automatic scientific/rights verification remain out of scope.
+- Automatic scientific/rights verification remains out of scope. DOCX referenced header/footer text extraction is implemented in M14.
+
+## Preview rerun on the M14 descendant
+
+The preview that failed during the original M13 commit was retried after DOCX header/footer text work: PowerPoint 16.0 and Poppler 26.07.0 successfully rendered the current seven-slide deck, and all seven pages were visually reviewed. See M14 report for the current full verification. M13's original test snapshot is retained as history.
