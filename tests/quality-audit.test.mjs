@@ -116,6 +116,18 @@ test('formal quality audit blocks a text-unit-compliant page with sparse rendere
  assert.ok(auditDeckQuality(sparse).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_UNMEASURED'));
 });
 
+test('formal quality audit blocks an ending with no substantive copy, sparse rendered explanation, or missing OCR evidence',()=>{
+ const input=fixture(),closing={slide_id:'CLOSE',type:'closing',title:'The result changes how the system should be designed.',elements:[{element_id:'CLOSE-T1',kind:'text',text:'实验结果显示，缓存复用显著降低重复计算开销，同时保持输出质量稳定；因此系统应优先优化高复用请求，并持续监测质量变化。'}]};
+ input.presentationIR.slides.push(closing);input.plan.slides.push({slide_id:'CLOSE',narrative_role:'closing'});input.renderedQa.slides.push({textBoundsPass:true,textOverlaps:[],smallText:[]});input.imageReview.pages.push({slide_id:'CLOSE',page:input.imageReview.pages.length+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:2});
+ assert.ok(!auditDeckQuality(input).blockers.some(item=>item.code.startsWith('QUALITY_CLOSING_')),'substantive two-line ending should pass');
+ input.imageReview.pages.at(-1).visible_text_line_count=1;
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_CLOSING_DENSITY_LOW'),'a large headline cannot make one sparse body line pass');
+ delete input.imageReview.pages.at(-1).visible_text_occupancy_ratio;
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_CLOSING_DENSITY_UNMEASURED'));
+ input.presentationIR.slides.at(-1).elements[0].text='Done.';input.imageReview.pages.at(-1).visible_text_occupancy_ratio=0.08;input.imageReview.pages.at(-1).visible_text_line_count=2;
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_CLOSING_TOO_THIN'));
+});
+
 test('formal quality audit blocks rendered overlap, out-of-bounds text, unreadable type, unknown font size, and absent pages',()=>{
   const input=fixture();input.renderedQa.slides[3]={textBoundsPass:false,textOverlaps:[{shape_a:1,shape_b:2,text_a:'one',text_b:'two'}],smallText:[{shape:3,min_font_size_pt:11,text:'tiny body in footer area',x:0,y:950000,w:100,h:100}],unmeasuredText:[{shape:4,text:'inherits unknown font',x:0,y:10,w:100,h:100}]};input.imageReview.pages.pop();
   const result=auditDeckQuality(input),codes=new Set(result.blockers.map(item=>item.code));
