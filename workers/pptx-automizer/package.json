@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "pptx-automizer": "0.9.4"
+  },
+  "overrides": {
+    "image-size": "2.1.0"
+  }
+}

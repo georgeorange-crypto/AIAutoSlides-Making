@@ -18,13 +18,14 @@ import {graphvizAdapter} from '../packages/adapters/graphviz.mjs';
 import {d2Adapter} from '../packages/adapters/d2.mjs';
 import {quartoAdapter} from '../packages/adapters/quarto.mjs';
 import {libreOfficeAdapter} from '../packages/adapters/libreoffice.mjs';
+import {pptxAutomizerAdapter} from '../packages/adapters/pptx-automizer.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
 import {createCanvaOAuthServer} from './canva-oauth.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter],[marpAdapter.manifest.id,marpAdapter],[presentonAdapter.manifest.id,presentonAdapter],[matplotlibAdapter.manifest.id,matplotlibAdapter],[pymupdfAdapter.manifest.id,pymupdfAdapter],[graphvizAdapter.manifest.id,graphvizAdapter],[d2Adapter.manifest.id,d2Adapter],[quartoAdapter.manifest.id,quartoAdapter],[libreOfficeAdapter.manifest.id,libreOfficeAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter],[marpAdapter.manifest.id,marpAdapter],[presentonAdapter.manifest.id,presentonAdapter],[matplotlibAdapter.manifest.id,matplotlibAdapter],[pymupdfAdapter.manifest.id,pymupdfAdapter],[graphvizAdapter.manifest.id,graphvizAdapter],[d2Adapter.manifest.id,d2Adapter],[quartoAdapter.manifest.id,quartoAdapter],[libreOfficeAdapter.manifest.id,libreOfficeAdapter],[pptxAutomizerAdapter.manifest.id,pptxAutomizerAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
@@ -59,7 +60,7 @@ async function main(){
    mermaid:['Compact text DSL for common flowcharts; keep editable source alongside SVG preview.','SVG embedded in PPTX is an image object, not editable native PowerPoint shapes.'],
    d2:['Alternative diagram DSL and layout engine for architecture/flow diagrams.','Separate executable not installed; rendered SVG is not native editable PPTX shapes.'],
    graphviz:['Mature graph layout option for node-edge diagrams.','Separate executable not installed; SVG is not native editable PPTX shapes.'],
-   'pptx-automizer':['Candidate for targeted edits to existing PPTX files while retaining untouched objects.','No adapter/preservation suite yet; never overwrite source deck.'],
+   'pptx-automizer':['Integrated isolated 0.9.4 adapter copies all template slides into a new PPTX and replaces an exactly named native text shape; fixture checks preserve source hash, slide count and native charts.','Animations and some special PowerPoint relationships are not guaranteed; review rendered output. Never overwrite the source deck.'],
    'ooxml-inspector':['Useful for structural inspection and before/after package diffs.','Inspection does not itself provide a safe visual editor or prove render fidelity.'],
    'presenton-service':['Self-hosted service candidate for alternative generation/export workflows.','Requires separate service setup; provider/model configuration may add network use or cost; no AIAuto lineage bridge.'],
    gamma:['Hosted design workflow can be a visual alternative when user accepts provider processing.','Requires account/network and terms/cost review; no integration or data upload is enabled.'],

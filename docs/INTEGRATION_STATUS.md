@@ -27,7 +27,7 @@ Date: 2026-11-12. Current checkout is `dev`; this section supersedes the histori
 
 ## Remaining P1 work
 
-The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, Graphviz, D2, Quarto, and LibreOffice have verified local routes. The PyMuPDF distribution-license decision is pending. Template/POTX import and `pptx-automizer` are outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. Graphviz, D2, Quarto, and LibreOffice are E2E-verified on Windows only; Linux/macOS are not verified in this phase.
+The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, Graphviz, D2, Quarto, and LibreOffice have verified local routes. The PyMuPDF distribution-license decision is pending. Local PPTX/POTX metadata registration and a scoped `pptx-automizer` text-replacement route are now implemented. General template application/preservation, chart/image/master/note edits, vendor extension fidelity, and layout repair remain unverified. Graphviz, D2, Quarto, and LibreOffice are E2E-verified on Windows only; Linux/macOS are not verified in this phase.
 
 ## P1/P2 continuation — 2026-11-12
 
@@ -101,7 +101,14 @@ The P1 ecosystem tranche is not complete. Since this historical status was writt
 - Added `npm run template:import -- <file.pptx|file.potx> --out <record.json>` to inspect local OOXML package metadata and create a metadata-only record. It checks archive size/expanded-size/entry-count limits, rejects unsafe paths, encrypted and ZIP64 packages, validates extension against the main OOXML type, and records SHA-256, slide dimensions/count, masters/layouts, media extensions, fonts, and external relationship count. No source binary is copied, extracted, executed, rendered, or tracked.
 - Rights stay `unknown`; each registration is explicitly unavailable for generation. No actual institution or third-party template was used for this synthetic test, and template application is not claimed.
 - `node --test tests/template-import.test.mjs` covers PPTX, POTX, mismatched extension, malformed ZIP, path traversal, metadata privacy, rights default, and overwrite refusal.
-- Remaining P1 items: full template application/preservation, `pptx-automizer`, PyMuPDF license decision, and Linux/macOS E2E for Graphviz/D2/Quarto/LibreOffice.
+- Remaining P1 items: full template application/preservation beyond exact text replacement, PyMuPDF license decision, and Linux/macOS E2E for Graphviz/D2/Quarto/LibreOffice.
+
+### P1: Isolated pptx-automizer text replacement
+
+- Pinned upstream `pptx-automizer` 0.9.4 in an isolated worker with its package lock; metadata declares MIT and Node.js 20+. The upstream tool warns that animation IDs, video/audio, and special relationships can be affected. The worker accepts PPTX only and edits one exactly named editable text shape on one 1-based slide, rebuilding all slides into a new output and refusing source/output overwrite.
+- A fixture run changed slide 2 while preserving all 3 slide parts and the native chart part. The input SHA-256 was unchanged. LibreOffice 26.2.3.2 + Poppler 26.07 rendered before and after; page 1 and 3 PNG hashes were identical and the modified page was visually inspected.
+- `image-size@2.1.0` is pinned as an isolated transitive override to address the high-severity JXL/HEIF/ICNS parser DoS advisory in `image-size@1.2.1`. `npm audit --prefix workers/pptx-automizer` must pass before this worker is updated.
+- This route is fixture-E2E tested only; it does not prove arbitrary user-template round-trip fidelity, chart editing, or POTX application. Per-upstream limitations and user-deck review remain required.
 
 ---
 
