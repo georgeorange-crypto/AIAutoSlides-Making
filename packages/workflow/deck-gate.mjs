@@ -19,6 +19,7 @@ export function validateDeckPlan(plan){
     for(const key of ['content_priorities','narrative_sections','avoid_patterns'])if(!Array.isArray(quality[key])||quality[key].some(value=>typeof value!=='string'||!value.trim()))errors.push(`quality_contract.${key} must be an array of nonempty strings`);
     if(Array.isArray(quality.content_priorities)&&!quality.content_priorities.length)errors.push('quality_contract.content_priorities must not be empty');
     if(Array.isArray(quality.narrative_sections)&&!quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must not be empty');
+    if(Array.isArray(quality.narrative_sections)&&new Set(quality.narrative_sections).size!==quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must be unique');
     if(!Number.isFinite(quality.visual_slide_ratio_min)||quality.visual_slide_ratio_min<0.3||quality.visual_slide_ratio_min>1)errors.push('quality_contract.visual_slide_ratio_min must be between 0.30 and 1');
     if(!Number.isInteger(quality.minimum_explanation_units)||quality.minimum_explanation_units<18||quality.minimum_explanation_units>120)errors.push('quality_contract.minimum_explanation_units must be an integer between 18 and 120');}
   if(!Array.isArray(plan?.materials)||!plan.materials.length)errors.push('materials must list at least one required project/source material');
@@ -33,8 +34,32 @@ export function validateDeckPlan(plan){
       for(const key of ['assertion','evidence_ids','visual_type','visual_source','tool_id','rights_status','narrative_role','importance','explanation_goal','visual_rationale','layout_intent'])if(s[key]===undefined)errors.push(`slides[${i}] missing ${key}`);
       for(const key of ['assertion','visual_type','visual_source','tool_id','rights_status','narrative_role','importance','explanation_goal','visual_rationale','layout_intent'])if(typeof s[key]!=='string'||!s[key].trim())errors.push(`slides[${i}].${key} must be a nonempty string`);
       if(!Array.isArray(s.evidence_ids))errors.push(`slides[${i}].evidence_ids must be an array`);
+      if(s.section_name!==undefined&&typeof s.section_name!=='string')errors.push(`slides[${i}].section_name must be a string when present`);
     }
     if(!Array.isArray(plan.representative_slides)||!plan.representative_slides.length||plan.representative_slides.some(id=>!ids.has(id)))errors.push('representative_slides must name one or more planned slide IDs');
+    if(Array.isArray(quality?.narrative_sections)&&Array.isArray(slides)){
+      const agenda=slides.filter(slide=>/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i.test(slide.narrative_role||''));
+      if(agenda.length!==1)errors.push('slides must contain exactly one agenda slide with narrative_role=agenda');
+      else{
+        const agendaIndex=slides.indexOf(agenda[0]);
+        if(agendaIndex>1||slides.slice(0,agendaIndex).some(slide=>!/^(cover|opening)$/i.test(slide.narrative_role||'')))errors.push('the agenda must follow at most one cover/opening slide and precede section content');
+      }
+      const sectionOrder=[];
+      for(const section of quality.narrative_sections){
+        const transitions=slides.filter(slide=>/^(section[_ -]?transition|section)$/i.test(slide.narrative_role||'')&&slide.section_name===section);
+        if(transitions.length!==1)errors.push(`narrative section "${section}" must have exactly one section-transition slide with matching section_name`);
+        const content=slides.filter(slide=>slide.section_name===section&&!/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening|closing|conclusion|summary)$/i.test(slide.narrative_role||''));
+        if(!content.length)errors.push(`narrative section "${section}" must own at least one content slide via section_name`);
+        if(transitions.length===1&&content.length){
+          const transitionIndex=slides.indexOf(transitions[0]),firstContentIndex=Math.min(...content.map(slide=>slides.indexOf(slide)));
+          if(agenda.length===1&&transitionIndex<=slides.indexOf(agenda[0]))errors.push(`section-transition slide for "${section}" must follow the agenda`);
+          if(transitionIndex>=firstContentIndex)errors.push(`section-transition slide for "${section}" must precede its content slides`);
+          sectionOrder.push(transitionIndex);
+        }
+      }
+      if(sectionOrder.some((index,i)=>i>0&&index<=sectionOrder[i-1]))errors.push('section-transition slides must follow quality_contract.narrative_sections order');
+      for(const [i,slide] of slides.entries())if(!/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening|closing|conclusion|summary)$/i.test(slide.narrative_role||'')&&(!slide.section_name||!quality.narrative_sections.includes(slide.section_name)))errors.push(`slides[${i}] content must have section_name matching quality_contract.narrative_sections`);
+    }
   }
   if(!plan?.acceptance?.reviewer||!Array.isArray(plan?.acceptance?.gates)||!plan.acceptance.gates.length)errors.push('acceptance requires reviewer and explicit gates');
   return fail(errors);

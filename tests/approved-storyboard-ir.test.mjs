@@ -58,8 +58,7 @@ test('approved synthetic storyboard compiles to valid IR with editable visuals a
     assert.match(processXml,/The client sends a hypothetical request containing its task and inputs\./);
     assert.match(processXml,/The gateway receives that request as the first named stage in the synthetic brief\./);
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
-  const approved=approveDeckPlan(planFor(ir),{reviewer:'Synthetic gate test',note:'Contract test only'});
-  assert.throws(()=>assertApprovedDeckPlan(approved,ir),/representative-slide review/);
+  assert.throws(()=>approveDeckPlan(planFor(ir),{reviewer:'Synthetic gate test',note:'Contract test only'}),/exactly one agenda/);
 });
 
 test('CLI writes canonical IR and Harness still blocks a PPT run without its deck-plan gate',()=>{
