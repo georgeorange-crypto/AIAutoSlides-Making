@@ -111,6 +111,26 @@ export async function openProjectStore(workspaceDir){
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,irBlob.path,irBlob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE sources SET original_name=?,blob_path=? WHERE project_id=? AND source_id=?').run(originalName,blob,projectId,sourceId);});
     return{...source,original_name:originalName,blob_sha256:hash,bytes:bytes.length};
   }
+  function readSourceBlob(projectId,sourceId){
+    const row=db.prepare('SELECT blob_path,sha256,original_name FROM sources WHERE project_id=? AND source_id=?').get(projectId,sourceId);if(!row)throw new Error(`Source '${sourceId}' has no imported local file.`);
+    const realBlob=fs.realpathSync(row.blob_path);if(!within(path.join(root,'source-blobs'),realBlob))throw new Error('Imported source blob is outside the workspace source-blobs directory.');
+    const bytes=fs.readFileSync(realBlob);if(sha256(bytes)!==row.sha256)throw new Error('Imported source blob failed SHA-256 verification.');
+    return{bytes,sha256:row.sha256,filename:row.original_name};
+  }
+  function attachDocumentEvidence(projectId,sourceId,{sourceHash,textHash,format,extractionMethod,evidenceEntries}){
+    const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
+    if(!Array.isArray(evidenceEntries)||!evidenceEntries.length)throw new TypeError('Document extraction requires page or paragraph evidence entries.');
+    const source=project.presentationIR.source_ir.sources.find(item=>item.source_id===sourceId);if(!source||source.sha256!==sourceHash)throw new Error('Extracted document lineage does not match the imported source hash.');
+    const prior=project.presentationIR.source_ir.evidence||[],byId=new Map(prior.map(item=>[item.evidence_id,item])),added=[];
+    for(const entry of evidenceEntries){
+      if(!entry||typeof entry.evidence_id!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(entry.evidence_id)||entry.source_id!==sourceId||typeof entry.excerpt!=='string'||!entry.excerpt.trim()||typeof entry.locator!=='string')throw new TypeError('Document evidence entry has invalid lineage, ID, excerpt or locator.');
+      const existing=byId.get(entry.evidence_id);if(existing){if(existing.source_id!==entry.source_id||existing.excerpt!==entry.excerpt||existing.locator!==entry.locator)throw new Error(`Evidence '${entry.evidence_id}' already exists with different content.`);continue;}
+      byId.set(entry.evidence_id,entry);added.push(entry);
+    }
+    const updatedSource={...source,document_extraction:{source_sha256:sourceHash,extracted_text_sha256:textHash,format,extraction_method:extractionMethod,block_count:evidenceEntries.length,verification_status:'pending_human_review'}},sources=project.presentationIR.source_ir.sources.map(item=>item.source_id===sourceId?updatedSource:item),updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,sources,evidence:[...prior,...added]}},blob=persistIR(updated),at=now();
+    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);});
+    return{project_id:projectId,source_id:sourceId,source_sha256:sourceHash,extracted_text_sha256:textHash,evidence_ids:added.map(item=>item.evidence_id),evidence_count:added.length,added:added.length>0,ir_sha256:blob.sha256};
+  }
   function addResearchCandidates(projectId,result){
     const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
     if(!result||!['openalex','crossref','arxiv'].includes(result.provider)||!Array.isArray(result.results))throw new TypeError('Research result must contain a supported provider and results[].');
@@ -153,7 +173,7 @@ export async function openProjectStore(workspaceDir){
   function createJob(projectId,options={},workflow='presentation'){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);
     const jobId=id(),at=now(),events=[];
-    if(!['presentation','research-topic','arxiv-paper-ingest'].includes(workflow))throw new TypeError(`Unsupported workflow '${workflow}'.`);
+    if(!['presentation','research-topic','arxiv-paper-ingest','document-ingest'].includes(workflow))throw new TypeError(`Unsupported workflow '${workflow}'.`);
     db.prepare('INSERT INTO jobs(job_id,project_id,workflow,status,created_at,updated_at,options_json,events_json) VALUES(?,?,?,?,?,?,?,?)').run(jobId,projectId,workflow,'queued',at,at,json(options),json(events));
     return getJob(jobId);
   }
@@ -175,5 +195,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProfile,updateProfile,getProfile,listProfiles,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,addResearchCandidates,attachArxivPaper,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProfile,updateProfile,getProfile,listProfiles,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,readSourceBlob,attachDocumentEvidence,addResearchCandidates,attachArxivPaper,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }

@@ -12,11 +12,14 @@ Status: **implemented and locally exercised** for the bounded workflows describe
 | Local MarkItDown extraction | `src/research-ingest.mjs extract --engine markitdown` | Existing isolated adapter; local files only | Source/text SHA-256, engine/version, paragraph locator (no page coordinates), short excerpt candidates |
 | One-page Crawl4AI | `src/research-ingest.mjs crawl` | Requires `--allow-network --site-authorized`; HTTPS, public DNS by default, same-host requests, robots check, no link traversal or media | Requested/final URL, retrieval time, robots result, extracted Markdown hash, short unverified excerpts |
 | One selected arXiv PDF | `src/research-ingest.mjs download-arxiv`; durable local API/MCP job | Search result ID plus `--allow-download` or API/MCP `allow_download:true`; one PDF, 50 MiB cap, HTTPS host allowlist and PDF signature check | PDF SHA-256, download/landing URLs, page locators and pending unverified excerpts; durable job stages and four artifacts |
+| Imported local PDF/DOCX | CLI document importer; durable local API/MCP job | Selected immutable source blob plus API/MCP `allow_extract:true`; local-only, PDF.js selectable text or DOCX body paragraphs | Source/text hashes, page/paragraph locators and pending excerpts; durable job status and three artifacts |
 | Wikimedia Commons image | `src/asset-research.mjs` | Search requires `--allow-network`; separately select one result and pass `--allow-download` | Source page, image URL/hash, author, license/terms metadata and `needs_human_review` rights state |
 
 All output writers refuse to overwrite an existing output. Extracted source text and webpages are untrusted data. Generated excerpts are candidates only; `verified` remains false until a human checks them against the source. A license string in an API response is metadata to review, not approval to use an image.
 
 The local API route `POST /projects/{id}/research/papers` accepts a selected arXiv candidate source ID only when `allow_download:true`; MCP clients can enqueue the same operation with `aiautoslides_enqueue_arxiv_ingest`. The durable job stores the original PDF by content hash, locally parses page text, attaches excerpt candidates with page locators and pending verification, and records the PDF, Markdown, manifest and evidence JSON as artifacts. It does not verify scientific claims or grant reuse rights.
+
+An imported PDF/DOCX can be extracted without network access through `POST /projects/{id}/research/documents` or MCP `aiautoslides_enqueue_document_ingest`. The worker verifies the imported blob hash before parsing; PDF.js returns selectable-text page locators and the DOCX parser returns paragraph locators. The job attaches excerpts as pending evidence and emits extracted Markdown, manifest and evidence JSON. It does not perform OCR for scanned PDFs or verify scientific claims.
 
 ## Installation
 
