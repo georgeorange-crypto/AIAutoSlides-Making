@@ -22,6 +22,21 @@ function units(text){const han=[...text].filter(char=>CJK.test(char)).length,lat
 function caveatClauses(text){return String(text||'').split(/[.!?。！？；;\n]+/u).map(clause=>clause.trim()).filter(clause=>CAVEAT_CLAUSE.test(clause));}
 function isTransition(planned){return TRANSITION_ROLE.test(planned?.narrative_role||'');}
 function issue(code,slideId,message,details={}){return{code,slide_id:slideId||'DECK',message,...details};}
+function compositionSignature(slide,qa){
+  const structure=`${slide.type||'unknown'}|${(slide.elements||[]).map(element=>element.kind).sort().join(',')}`;
+  const width=Number(qa?.slideWidthEmu),height=Number(qa?.slideHeightEmu),bounds=qa?.elementBounds;
+  if(!Number.isFinite(width)||!Number.isFinite(height)||width<=0||height<=0||!Array.isArray(bounds))return structure;
+  const slots=new Map();
+  for(const box of bounds){
+    if(box.ok===false||![box.x,box.y,box.w,box.h].every(Number.isFinite))continue;
+    const centerX=(box.x+box.w/2)/width,centerY=(box.y+box.h/2)/height;
+    if(centerY<0.15||centerY>0.9)continue;
+    const slot=`${Math.min(3,Math.floor(centerX*4))}:${Math.min(3,Math.floor(centerY*4))}`;
+    slots.set(slot,(slots.get(slot)||0)+1);
+  }
+  const geometry=[...slots].sort(([a],[b])=>a.localeCompare(b)).map(([slot,count])=>`${slot}=${count}`).join(',');
+  return geometry?`${structure}|body-grid:${geometry}`:structure;
+}
 
 /** Deterministic hard checks for formal decks. This is a screening gate, not an aesthetic or factual judge. */
 export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,contentPlan}){
@@ -105,16 +120,25 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
   const visualCount=content.filter(item=>item.hasVisual).length,visualRatio=content.length?visualCount/content.length:1;
   if(visualRatio<minimumVisualRatio)blockers.push(issue('QUALITY_VISUAL_COVERAGE', 'DECK',`Only ${visualCount}/${content.length} content slides (${visualRatio.toFixed(2)}) contain a structured visual; the plan requires ${minimumVisualRatio.toFixed(2)}.`,{visual_slides:visualCount,content_slides:content.length,actual_ratio:Number(visualRatio.toFixed(3)),minimum_ratio:minimumVisualRatio}));
   for(const item of content)if(VISUAL_WORDS.test(item.planned?.visual_type||'')&&!item.hasVisual)blockers.push(issue('QUALITY_PLANNED_VISUAL_MISSING',item.slide.slide_id,'The approved slide plan calls for a figure, image, chart, diagram, or table, but the rendered IR has no structured visual.'));
+  const layoutGroups=new Map();
+  for(const item of content){const qa=renderedQa?.slides?.[item.index],signature=compositionSignature(item.slide,qa),slidesInLayout=layoutGroups.get(signature)||[];slidesInLayout.push(item.slide.slide_id);layoutGroups.set(signature,slidesInLayout);}
+  const layoutVariantCount=layoutGroups.size,uniqueLayoutShare=content.length?layoutVariantCount/content.length:1,largestLayout=Math.max(0,...[...layoutGroups.values()].map(ids=>ids.length)),largestLayoutShare=content.length?largestLayout/content.length:0,layoutDistribution=[...layoutGroups].map(([signature,slideIds])=>({signature,slide_ids:slideIds,count:slideIds.length,share:Number((slideIds.length/Math.max(1,content.length)).toFixed(3))})).sort((a,b)=>b.count-a.count||a.signature.localeCompare(b.signature));
+  let layoutDiversity={status:'deferred',content_slide_count:content.length,distinct_signature_count:layoutVariantCount,unique_signature_share:Number(uniqueLayoutShare.toFixed(3)),largest_signature_share:Number(largestLayoutShare.toFixed(3)),minimum_unique_signature_share:0.4,signature_distribution:layoutDistribution};
+  if(isFullDeck){
+    const lowVariety=content.length>=5&&uniqueLayoutShare<0.4,dominantTemplate=largestLayout>=4&&largestLayoutShare>=0.6;
+    if(lowVariety||dominantTemplate)blockers.push(issue('QUALITY_LAYOUT_DIVERSITY','DECK',`The full deck uses ${layoutVariantCount} composition signatures across ${content.length} content pages; distinct layouts cover ${(uniqueLayoutShare*100).toFixed(1)}% and the most repeated layout covers ${(largestLayoutShare*100).toFixed(1)}%.`,{content_slide_count:content.length,distinct_signature_count:layoutVariantCount,unique_signature_share:Number(uniqueLayoutShare.toFixed(3)),largest_signature_share:Number(largestLayoutShare.toFixed(3)),minimum_unique_signature_share:0.4,signature_distribution:layoutDistribution,recommendation:'Use more than one genuinely different explanatory composition across the full deck; do not rely on changing titles or plan labels while reusing the same page structure.'}));
+    layoutDiversity={...layoutDiversity,status:lowVariety||dominantTemplate?'fail':'pass'};
+  }
   let run=[];
   const flush=()=>{if(run.length>=5)blockers.push(issue('QUALITY_LAYOUT_REPETITION',run[0].slide.slide_id,`${run.length} consecutive content slides use the same composition signature.`,{slide_ids:run.map(item=>item.slide.slide_id),signature:run[0].signature,recommendation:'Vary the explanatory form where the story supports it: figure, diagram, comparison, worked example, or concise text.'}));else if(run.length===4)warnings.push(issue('QUALITY_LAYOUT_REPETITION_WARNING',run[0].slide.slide_id,'Four consecutive content slides share the same composition signature.',{slide_ids:run.map(item=>item.slide.slide_id)}));run=[];};
   for(const item of slides.map((slide,index)=>({slide,planned:byId.get(slide.slide_id)||{},index}))) {
     if(isTransition({narrative_role:item.planned.narrative_role||item.slide.role||''})){flush();continue;}
-    const signature=`${item.planned.layout_intent||''}|${item.slide.type}|${(item.slide.elements||[]).map(element=>element.kind).sort().join(',')}`;
+    const signature=compositionSignature(item.slide,renderedQa?.slides?.[item.index]);
     if(run.length&&run[0].signature!==signature)flush();run.push({...item,signature});
   }
   flush();
   const pageCount=slides.length,screenPages=imageReview?.pages||[];
   if(screenPages.length!==pageCount)blockers.push(issue('QUALITY_RENDER_PAGE_COUNT','DECK',`Rendered image screen covers ${screenPages.length} pages but the deck has ${pageCount}.`));
   const severity=blockers.length?'fail':warnings.length?'review':'pass';
-  return{status:severity,method:'deterministic_ir_and_rendered_qa',blocking_issue_count:blockers.length,warning_count:warnings.length,content_slide_count:content.length,visual_slide_count:visualCount,visual_slide_ratio:Number(visualRatio.toFixed(3)),minimum_visual_slide_ratio:minimumVisualRatio,minimum_explanation_units:minimumUnits,priority_allocation:priorityAllocation,blockers,warnings,limitations:['These checks can identify sparse visible copy, absent structured visuals, repeated composition signatures, long English-only blocks in Chinese decks, assistant-facing copy, repeated or stacked disclaimer-style clauses, disproportionate core-versus-supporting page and time allocation, small text, unmeasured text size, text overlap, and missing renders.','They cannot determine which topics deserve core importance; that priority must be set correctly in the approved plan. They also cannot judge beauty, semantic relevance or correctness of external images, causal reasoning, scientific truth, or whether a single caveat is truly necessary. Human review remains mandatory.','The thresholds are explicit plan constraints and can still be misconfigured; a passing result is not a guarantee of audience satisfaction.']};
+  return{status:severity,method:'deterministic_ir_and_rendered_qa',blocking_issue_count:blockers.length,warning_count:warnings.length,content_slide_count:content.length,visual_slide_count:visualCount,visual_slide_ratio:Number(visualRatio.toFixed(3)),minimum_visual_slide_ratio:minimumVisualRatio,minimum_explanation_units:minimumUnits,priority_allocation:priorityAllocation,layout_diversity:layoutDiversity,blockers,warnings,limitations:['These checks can identify sparse visible copy, absent structured visuals, repeated composition signatures, low full-deck layout diversity, long English-only blocks in Chinese decks, assistant-facing copy, repeated or stacked disclaimer-style clauses, disproportionate core-versus-supporting page and time allocation, small text, unmeasured text size, text overlap, and missing renders.','Composition signatures use slide type, structured element kinds, and coarse rendered body-object distribution when available; they cannot judge aesthetic quality or detect every reused visual theme. Human page review remains necessary. They also cannot determine which topics deserve core importance, verify semantic claim support, judge external-image relevance, causal reasoning, scientific truth, or whether a single caveat is truly necessary.','The thresholds are explicit plan constraints and can still be misconfigured; a passing result is not a guarantee of audience satisfaction.']};
 }

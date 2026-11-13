@@ -39,6 +39,21 @@ test('formal quality audit blocks thin text, low visual coverage, repeated layou
   for(const code of ['QUALITY_CONTENT_TOO_THIN','QUALITY_VISUAL_COVERAGE','QUALITY_LAYOUT_REPETITION','QUALITY_ASSISTANT_VOICE','QUALITY_LONG_ENGLISH_BLOCK','QUALITY_PLANNED_VISUAL_MISSING'])assert.ok(codes.has(code),code);
 });
 
+test('full-deck layout diversity gate catches alternating repeated templates even when plan labels differ',()=>{
+ const alternating=fixture({count:8,visualEvery:2});
+ alternating.plan.slides=alternating.plan.slides.map((slide,index)=>({...slide,narrative_role:slide.slide_id==='AGENDA'?'agenda':slide.slide_id==='DIV-RESULTS'?'section_transition':'result',layout_intent:`supposedly-unique-${index}`}));
+ const result=auditDeckQuality(alternating),finding=result.blockers.find(item=>item.code==='QUALITY_LAYOUT_DIVERSITY');
+ assert.ok(finding,'A/B/A/B repeated composition must not evade the full-deck gate');
+ assert.equal(finding.distinct_signature_count,2);assert.equal(finding.unique_signature_share,0.25);assert.equal(result.layout_diversity.status,'fail');
+
+ const varied=fixture({count:5,visualEvery:2});
+ const kinds=['statement','chart','table','architecture','process'];
+ varied.presentationIR.slides.slice(2).forEach((slide,index)=>{slide.type=kinds[index];});
+ varied.plan.slides.slice(2).forEach((slide,index)=>{slide.layout_intent='same-plan-label';});
+ const variedResult=auditDeckQuality(varied);
+ assert.equal(variedResult.layout_diversity.status,'pass');assert.ok(!variedResult.blockers.some(item=>item.code==='QUALITY_LAYOUT_DIVERSITY'));
+});
+
 test('assistant voice screen catches common Chinese and English user-facing phrases without flagging research narration',()=>{
  for(const phrase of ['如果您愿意，可以先看这张图。','你会发现结果随着样本量增加而变化。','希望这能对您有帮助。','If you would like, please tell me what you think.','I will now show you the main result.','You should review this slide.']){
   const input=fixture();input.presentationIR.slides[3].elements[0].text=`${longText} ${phrase}`;
@@ -108,5 +123,6 @@ test('representative-slide pilot defers whole-deck agenda checks until the plann
   input.imageReview.pages=[{slide_id:input.presentationIR.slides[0].slide_id,page:1,status:'text_detected'}];
   const result=auditDeckQuality(input);
   assert.equal(result.status,'review');assert.deepEqual(result.blockers,[]);
+  assert.equal(result.layout_diversity.status,'deferred');
   assert.ok(result.warnings.some(item=>item.code==='QUALITY_NARRATIVE_STRUCTURE_DEFERRED'));
 });

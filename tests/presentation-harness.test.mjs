@@ -70,6 +70,25 @@ test('formal Harness blocks assistant-facing Chinese copy in the rendered deck p
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('formal Harness blocks a full deck built from two alternating repeated page compositions',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-layout-diversity-workflow-'));
+  try{
+    const ir=structuredClone(fixture),cover=structuredClone(ir.slides[0]),chartTemplate=structuredClone(ir.slides[1]),closing=structuredClone(ir.slides.at(-1));
+    const textSlide=(slide_id,title,text)=>({slide_id,type:'statement',title,evidence_ids:['E_PHASE1_SYN'],speaker_notes:'Synthetic layout diversity test.',elements:[{element_id:`${slide_id}-TEXT`,kind:'text',text,source_ids:['E_PHASE1_SYN']}]});
+    const agenda=textSlide('S02','Contents','Results'),divider=textSlide('S03','Results','This section explains the mechanism, then connects its steps to the observed outcome.');
+    const content=Array.from({length:8},(_,index)=>{
+      const slideId=`S${String(index+4).padStart(2,'0')}`;
+      if(index%2===0){const slide=structuredClone(chartTemplate);slide.slide_id=slideId;slide.title=`Synthetic chart explanation ${index+1}`;slide.elements.forEach((element,n)=>element.element_id=`${slideId}-E${n+1}`);return slide;}
+      return textSlide(slideId,`Synthetic text explanation ${index+1}`,'This page explains one step of the supplied synthetic mechanism and how it connects to the reported outcome.');
+    });
+    closing.slide_id='S12';closing.elements.forEach((element,index)=>element.element_id=`S12-E${index+1}`);ir.slides=[cover,agenda,divider,...content,closing];
+    const plan={task:{target_duration_seconds:600,expected_slide_count:ir.slides.length},quality_contract:{language:'English',visual_slide_ratio_min:0.4,minimum_explanation_units:18,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,narrative_sections:['Results']},slides:ir.slides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening':index===1?'agenda':index===2?'section_transition':index===ir.slides.length-1?'closing':'result',...(index>=3&&index<ir.slides.length-1?{section_name:'Results'}:{}),importance:index>=3&&index<7?'core':index>=7&&index<11?'supporting':'standard',visual_type:slide.type==='chart'?'chart':'text',layout_intent:`unique-label-${index}`}))};
+    const result=await runPresentationWorkflow({jobId:'layout-diversity-workflow-test',presentationIR:ir,qualityPlan:plan,workspace,outputDir:path.join(workspace,'runs','layout-diversity'),preview:false,adapters:[adapter('only',{nativeCharts:true})]});
+    const gate=result.report.critique.quality_gate,finding=gate.blockers.find(item=>item.code==='QUALITY_LAYOUT_DIVERSITY');
+    assert.equal(result.review_context.quality_gate_status,'fail');assert.ok(finding);assert.equal(finding.distinct_signature_count,2);assert.equal(finding.unique_signature_share,0.25);
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('formal Harness reports under-allocated core pages and speaking time',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-priority-workflow-'));
   try{
