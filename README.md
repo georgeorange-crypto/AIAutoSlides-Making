@@ -19,7 +19,7 @@ For a guided setup, run `.\scripts\setup.ps1` on Windows or `bash scripts/setup.
 
 Docker users can run `docker compose build`, `docker compose run --rm slides npm run check`, then `docker compose run --rm slides npm run preview`. This container includes LibreOffice and Poppler for PDF/PNG previews; see [`Dockerfile`](Dockerfile) and [`compose.yaml`](compose.yaml). The container is a local CLI/build environment and does not expose the API.
 
-Contributors: follow [`docs/GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md) for branch, staging, worktree, and release practices. Pull requests use [the repository checklist](.github/PULL_REQUEST_TEMPLATE.md).
+Contributors: follow [`docs/TASK_WORKFLOW.md`](docs/TASK_WORKFLOW.md) to bind each task to the project requirements and keep its inputs, worktree, and outputs isolated. Follow [`docs/GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md) for branch, staging, worktree, and release practices. Pull requests use [the repository checklist](.github/PULL_REQUEST_TEMPLATE.md).
 
 `npm run check` runs unit/negative tests, imports the synthetic CSV, validates both storyboards, builds both PPTX files, and audits the PowerPoint XML. `npm run preview` exports the research demo to PDF and renders every PDF page to PNG. On Windows it uses locally installed PowerPoint through COM; on Linux it uses LibreOffice.
 

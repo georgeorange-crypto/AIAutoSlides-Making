@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0.0",
+  "task_id": "TASK-YYYYMMDD-short-slug",
+  "project": {
+    "name": "AIAutoSlides Making",
+    "revision": "<git commit SHA>",
+    "project_id": null
+  },
+  "objective": "<observable result requested by the user>",
+  "scope": {
+    "in": ["<work included in this task>"],
+    "out": ["<related work explicitly deferred>" ]
+  },
+  "requirements": [
+    {
+      "path": "docs/PROJECT_CAPABILITIES_QA.md",
+      "sha256": "<sha256 of the exact file read>",
+      "sections": ["<Q number or heading>"],
+      "read_status": "not_read"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "<sha256 of the exact file read>",
+      "sections": ["product contract", "scientific integrity", "privacy"],
+      "read_status": "not_read"
+    },
+    {
+      "path": "docs/REQUIREMENTS_TRACEABILITY.md",
+      "sha256": "<sha256 of the exact file read>",
+      "sections": ["<requirement IDs touched by this task>"],
+      "read_status": "not_read"
+    },
+    {
+      "path": "docs/QA_RUBRIC.md",
+      "sha256": "<sha256 of the exact file read>",
+      "sections": ["<acceptance criteria used by this task>"],
+      "read_status": "not_read"
+    },
+    {
+      "path": "docs/SECURITY_MODEL.md",
+      "sha256": "<sha256 of the exact file read>",
+      "sections": ["<relevant trust, path, process, or network boundaries>"],
+      "read_status": "not_read"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "<task-local input path>",
+      "sha256": "<sha256, or null only for an explicitly unhashed text instruction>",
+      "status": "authorized-local-input"
+    }
+  ],
+  "isolation": {
+    "kind": "<git-worktree | api-job | task-directory>",
+    "worktree": "<absolute path, or null>",
+    "branch": "<codex topic branch, or null>",
+    "job_id": "<API job ID, or null>",
+    "output_dir": "<unique task output directory>"
+  },
+  "acceptance": [
+    {
+      "gate": "<checkable acceptance statement>",
+      "verification": "<command, artifact inspection, or reviewer action>",
+      "status": "not_run"
+    }
+  ],
+  "artifacts": [],
+  "external_actions": {
+    "network": false,
+    "paid_api": false,
+    "user_material_upload": false
+  },
+  "handoff": {
+    "unresolved_gates": [],
+    "notes": ""
+  }
+}

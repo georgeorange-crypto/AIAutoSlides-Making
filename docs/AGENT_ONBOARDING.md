@@ -8,12 +8,15 @@
 
 1. [`../AGENTS.md`](../AGENTS.md)：不可违反的项目规则和基本交付门槛。
 2. [`../README.md`](../README.md)：安装、用户工作流、生成物和已知限制；不要把 README 中示例数据误认为真实研究结果。
-3. [`CODEX_TASK.md`](CODEX_TASK.md)：当前任务背景。它可能是历史任务说明；将其与用户本轮目标、当前代码和测试结果核对，不要盲目照搬过时阶段命令。
-4. [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md) 与 [`INTEGRATION_STATUS.md`](INTEGRATION_STATUS.md)：当前实现和集成状态；对关键能力用源码/CLI核实，状态文档不是运行证据。
-5. 与任务直接相关的契约：数据格式读 [`SCHEMA.md`](SCHEMA.md)、[`SLIDE_IR_SCHEMA.md`](SLIDE_IR_SCHEMA.md)；渲染后端读 [`ADAPTER_CONTRACT.md`](ADAPTER_CONTRACT.md)；工作流/API读 [`API_WORKFLOW.md`](API_WORKFLOW.md)、[`WORKFLOW_SPECS.md`](WORKFLOW_SPECS.md)；安全/隐私读 [`SECURITY_MODEL.md`](SECURITY_MODEL.md)；质量验收读 [`QA_RUBRIC.md`](QA_RUBRIC.md)。
-6. 检查一个相邻示例的输入、证据文件、源码入口、测试和输出报告。涉及工具生态时读 [`TOOL_MATRIX.md`](TOOL_MATRIX.md)，并查询实时 catalog/doctor，不把“已登记”说成“可用”。
+3. [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md) 与 [`TASK_CONTRACT_TEMPLATE.json`](TASK_CONTRACT_TEMPLATE.json)：本任务的隔离方式、需求绑定和验收记录规则与模板。
+4. [`PROJECT_CAPABILITIES_QA.md`](PROJECT_CAPABILITIES_QA.md)：项目功能需求基线；与本任务相关的问题必须纳入任务需求引用。
+5. [`REQUIREMENTS_TRACEABILITY.md`](REQUIREMENTS_TRACEABILITY.md)：需求到代码/测试/证据的状态映射。该文档可能落后于当前分支，必须对本任务涉及的能力核实源码与实际测试。
+6. [`CODEX_TASK.md`](CODEX_TASK.md)：历史任务背景。将其与用户本轮目标、项目需求、当前代码和测试结果核对，不盲目照搬过时命令或阶段目标。
+7. [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md) 与 [`INTEGRATION_STATUS.md`](INTEGRATION_STATUS.md)：当前实现和集成状态；状态文档不是运行证据。
+8. 与任务直接相关的契约：数据格式读 [`SCHEMA.md`](SCHEMA.md)、[`SLIDE_IR_SCHEMA.md`](SLIDE_IR_SCHEMA.md)；渲染后端读 [`ADAPTER_CONTRACT.md`](ADAPTER_CONTRACT.md)；工作流/API读 [`API_WORKFLOW.md`](API_WORKFLOW.md)、[`WORKFLOW_SPECS.md`](WORKFLOW_SPECS.md)；安全/隐私读 [`SECURITY_MODEL.md`](SECURITY_MODEL.md)；质量验收读 [`QA_RUBRIC.md`](QA_RUBRIC.md)。
+9. 检查一个相邻示例的输入、证据文件、源码入口、测试和输出报告。涉及工具生态时读 [`TOOL_MATRIX.md`](TOOL_MATRIX.md)，并查询实时 catalog/doctor，不把“已登记”说成“可用”。
 
-读完后，开始修改前在任务计划中简要说明：用户目标、相关入口和契约、目前已验证与未验证的能力、拟修改范围、将执行的验收命令。若文档与代码冲突，以实际代码和可复现证据描述现状，并指出冲突。
+读完后，开始修改前建立本任务自己的任务契约（格式见 [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md)），简要记录：用户目标、引用的项目需求及其哈希、相关入口和契约、目前已验证与未验证的能力、隔离路径、拟修改范围、将执行的验收命令。若文档与代码冲突，以实际代码和可复现证据描述现状，并指出冲突。
 
 ### 必须走哪条路径
 
@@ -52,6 +55,8 @@
 ### A. 任务定义与基线
 
 - 将用户目标拆成可观察的结果和明确不在本轮的范围；如有歧义，先做不依赖该歧义的检查。
+- 每项工作使用唯一 `task_id` 和独立任务目录/输出目录；任务契约必须引用 `PROJECT_CAPABILITIES_QA.md` 中适用的需求，并记录其路径与 SHA-256。需求追踪表用于定位代码与证据，不替代实际核验。
+- 代码任务使用独立 topic branch/worktree；API 工作流使用明确的 `project_id` 与 `job_id`，产物保存在对应 `runs/<job_id>/`。不要让并行任务共用可变输出路径或覆盖对方输入。
 - 记录 branch/upstream、HEAD、已暂存/未暂存 diff、未跟踪文件、全部 worktree；确认不会覆盖他人或既有工作。
 - 选取与修改面相关的现有 fixture、测试、review/QA 报告作为基线。报告可能过时，记录实际重跑的项目。
 - 写出具体实施步骤和通过条件；一次完成一个可检查的垂直切片。
