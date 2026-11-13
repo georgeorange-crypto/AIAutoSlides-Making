@@ -4,7 +4,7 @@ import {MIN_FORMAL_VISUAL_SLIDE_RATIO} from './deck-gate.mjs';
 const VISUAL_KINDS=new Set(['image','chart','table','diagram','mermaid','process','cards']);
 const AGENDA_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i;
 const SECTION_ROLE=/^(section[_ -]?transition|section)$/i;
-const TRANSITION_ROLE=/^(cover|opening(?:[_ -].*)?|agenda|contents|table[_ -]?of[_ -]?contents|目录|section(?:[_ -]?transition)?|transition|closing|conclusion|summary)$/i;
+const TRANSITION_ROLE=/^(cover|opening|agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|closing|conclusion|summary)$/i;
 const ENDING_ROLE=/^(closing|conclusion|summary)$/i;
 const ASSISTANT_VOICE=/(?:\b(?:you(?:'ll| will| can| may| should| need to| might want to)|your (?:task|next step|turn|input)|if you (?:want|would like|need)|please (?:provide|tell|share|upload|choose|review)|let me know|tell me|in this presentation you|I will now|I am going to show you|I hope this helps|feel free to ask)\b|你(?:可以|将会|会发现|需要|可以看到|可以先)|您(?:可以|将会|会发现|需要|可以看到|可以先)|如果(?:你|您)(?:愿意|需要|想要|希望)|(?:请|麻烦)(?:告诉我|提供|上传|选择|检查|查看)|告诉我|我(?:将|会)(?:为你|为您|向你|向您)?(?:展示|介绍|说明|讲解)|下面我(?:将|会)|接下来我(?:将|会)|希望(?:这|本次汇报|以上内容)(?:能)?(?:对你|对您)?(?:有帮助|有所帮助)|如(?:果你|果您|需)|欢迎(?:随时)?(?:提问|告诉我)|供(?:你|您)参考)/iu;
 const CAVEAT_CLAUSE=/(?:\b(?:does not|doesn't|do not|don't|cannot|can't|should not|shouldn't|is not|isn't|are not|aren't)\s+(?:prove|show|mean|imply|establish|demonstrate|represent|indicate|guarantee|confirm|measure|capture|constitute|replace|cover)\b|\bnot\s+(?:necessarily|evidence of|proof of|a measure of|intended to|a guarantee)\b|\b(?:no claim is made|should not be interpreted|cannot be interpreted)\b|不代表|不表明|不意味着|并不意味着|不能证明|无法证明|不能说明|无法说明|不构成|不可据此|不应(?:被)?解读为|不宜解读为)/iu;

@@ -16,8 +16,20 @@ function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
 }
 
 test('formal quality audit passes a deck meeting the declared visual, explanation, language, layout, and render constraints',()=>{
-  const result=auditDeckQuality(fixture());assert.equal(result.status,'pass',JSON.stringify(result.blockers));assert.equal(result.visual_slide_ratio,0.5);assert.deepEqual(result.blockers,[]);
-  assert.equal(result.priority_allocation.priority_slide_share,0.5);assert.equal(result.priority_allocation.priority_time_share,0.75);
+  const result=auditDeckQuality(fixture());assert.equal(result.status,'pass',JSON.stringify(result.blockers));assert.equal(result.visual_slide_ratio,0.6);assert.deepEqual(result.blockers,[]);
+  assert.equal(result.priority_allocation.priority_slide_share,0.6);assert.equal(result.priority_allocation.priority_time_share,0.818);
+});
+
+test('opening-context pages and repeated opening labels cannot bypass content and priority audits',()=>{
+ const input=fixture({count:5,visualEvery:2});input.plan.quality_contract.minimum_priority_slide_share=0.5;
+ for(let index=0;index<3;index++){
+  const id=`HIDDEN-${index+1}`,slide={slide_id:id,type:'statement',title:'Unimportant filler',role:'opening_context',section_name:'Results',elements:[{element_id:`${id}-T`,kind:'text',text:'少量文字。'}]},planned={slide_id:id,narrative_role:'opening_context',section_name:'Results',importance:'supporting',visual_type:'text'};
+  input.presentationIR.slides.push(slide);input.plan.slides.push(planned);input.contentPlan.slides.push({slide_id:id,time_budget_seconds:20});input.renderedQa.slides.push({textBoundsPass:true,textOverlaps:[],smallText:[]});input.imageReview.pages.push({slide_id:id,page:input.imageReview.pages.length+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:2});
+ }
+ const result=auditDeckQuality(input),codes=new Set(result.blockers.map(item=>item.code));
+ assert.equal(result.content_slide_count,8,'opening_context is substantive content, not a transition role');
+ assert.ok(codes.has('QUALITY_PRIORITY_SLIDE_SHARE'),'extra low-priority pages must dilute the actual core-page share');
+ assert.ok(codes.has('QUALITY_CONTENT_TOO_THIN'),'opening_context copy must meet the normal content floor');
 });
 
 test('formal quality audit blocks too few core pages and too little talk time for priority content',()=>{
@@ -44,13 +56,13 @@ test('formal visual coverage ignores Mermaid elements that the renderer preserve
  for(const slide of input.presentationIR.slides.slice(2))for(const element of slide.elements)if(element.kind==='diagram'){element.kind='mermaid';element.source='flowchart LR\\nA -.- B';delete element.groups;delete element.nodes;delete element.edges;}
  const renderWarnings=input.presentationIR.slides.slice(2).map(slide=>`${slide.slide_id}/${slide.elements[1].element_id}: Mermaid source was preserved as text because native conversion was unavailable (unsupported syntax)`);
  const result=auditDeckQuality({...input,renderWarnings}),finding=result.blockers.find(item=>item.code==='QUALITY_VISUAL_COVERAGE');
- assert.ok(finding);assert.equal(result.visual_slide_count,0);assert.equal(finding.unmaterialized_visuals.length,3);assert.ok(finding.unmaterialized_visuals.every(item=>item.kind==='mermaid'));
+ assert.ok(finding);assert.equal(result.visual_slide_count,0);assert.equal(finding.unmaterialized_visuals.length,4);assert.ok(finding.unmaterialized_visuals.every(item=>item.kind==='mermaid'));
 });
 
 test('formal visual coverage has a non-lowerable 50 percent floor',()=>{
- const input=fixture({count:6,visualEvery:2});input.plan.quality_contract.visual_slide_ratio_min=0.3;
+ const input=fixture({count:6,visualEvery:3});input.plan.quality_contract.visual_slide_ratio_min=0.3;
  const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_VISUAL_COVERAGE');
- assert.equal(result.visual_slide_ratio,0.4);assert.equal(result.minimum_visual_slide_ratio,0.5);assert.ok(finding);assert.equal(finding.minimum_ratio,0.5);
+ assert.equal(result.visual_slide_ratio,0.333);assert.equal(result.minimum_visual_slide_ratio,0.5);assert.ok(finding);assert.equal(finding.minimum_ratio,0.5);
 });
 
 test('layout diversity signatures use the rendered text fallback when Mermaid cannot materialize',()=>{

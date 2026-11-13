@@ -119,3 +119,22 @@ test('formal Harness reports under-allocated core pages and speaking time',async
     assert.ok(codes.has('QUALITY_PRIORITY_SLIDE_SHARE'));assert.ok(codes.has('QUALITY_PRIORITY_TIME_SHARE'));
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
+
+test('formal Harness treats opening-context pages as content for density and priority allocation',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-opening-context-workflow-'));
+  try{
+    const ir=structuredClone(fixture),plan=structuredClone(qualityPlan),base=plan.slides.find(slide=>slide.narrative_role==='result');
+    plan.quality_contract.minimum_priority_slide_share=0.5;
+    for(let index=0;index<3;index++){
+      const id=`HIDDEN-${index+1}`;
+      ir.slides.push({slide_id:id,type:'statement',title:'Low-priority filler',evidence_ids:[],elements:[{element_id:`${id}-T`,kind:'text',text:'少量文字。'}]});
+      plan.slides.push({...base,slide_id:id,narrative_role:'opening_context',importance:'supporting',visual_type:'text'});
+    }
+    plan.task.expected_slide_count=ir.slides.length;
+    const result=await runPresentationWorkflow({jobId:'opening-context-workflow-test',presentationIR:ir,qualityPlan:plan,workspace,outputDir:path.join(workspace,'runs','opening-context'),preview:false,adapters:[adapter('only',{nativeCharts:true})]});
+    const gate=result.report.critique.quality_gate,codes=new Set(gate.blockers.map(item=>item.code));
+    assert.equal(gate.content_slide_count,4);
+    assert.ok(codes.has('QUALITY_PRIORITY_SLIDE_SHARE'));
+    assert.ok(codes.has('QUALITY_CONTENT_TOO_THIN'));
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});

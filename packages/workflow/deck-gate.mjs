@@ -2,6 +2,11 @@ import crypto from 'node:crypto';
 import {classifyImportance,importanceLevels} from './importance.mjs';
 
 export const MIN_FORMAL_VISUAL_SLIDE_RATIO=0.5;
+const AGENDA_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i;
+const SECTION_ROLE=/^(section[_ -]?transition|section)$/i;
+const OPENING_ROLE=/^(cover|opening)$/i;
+const ENDING_ROLE=/^(closing|conclusion|summary)$/i;
+const NON_CONTENT_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening|closing|conclusion|summary)$/i;
 
 const hash=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const planBody=plan=>{const body={...plan};delete body.approval;delete body.representative_review;return body;};
@@ -45,17 +50,24 @@ export function validateDeckPlan(plan){
     }
     if(!Array.isArray(plan.representative_slides)||!plan.representative_slides.length||plan.representative_slides.some(id=>!ids.has(id)))errors.push('representative_slides must name one or more planned slide IDs');
     if(Array.isArray(quality?.narrative_sections)&&Array.isArray(slides)){
-      const agenda=slides.filter(slide=>/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i.test(slide.narrative_role||''));
+      const agenda=slides.filter(slide=>AGENDA_ROLE.test(slide.narrative_role||''));
       if(agenda.length!==1)errors.push('slides must contain exactly one agenda slide with narrative_role=agenda');
       else{
         const agendaIndex=slides.indexOf(agenda[0]);
-        if(agendaIndex>1||slides.slice(0,agendaIndex).some(slide=>!/^(cover|opening)$/i.test(slide.narrative_role||'')))errors.push('the agenda must follow at most one cover/opening slide and precede section content');
+        const openings=slides.map((slide,index)=>({slide,index})).filter(({slide})=>OPENING_ROLE.test(slide.narrative_role||''));
+        if(openings.length>1||openings.some(({index})=>index!==0))errors.push('the deck may contain at most one cover/opening slide and it must be the first page');
+        if(agendaIndex>1||slides.slice(0,agendaIndex).some(slide=>!OPENING_ROLE.test(slide.narrative_role||'')))errors.push('the agenda must follow at most one cover/opening slide and precede section content');
+        const endings=slides.map((slide,index)=>({slide,index})).filter(({slide})=>ENDING_ROLE.test(slide.narrative_role||''));
+        if(endings.length>1||endings.some(({index})=>index!==slides.length-1))errors.push('the deck may contain at most one closing/conclusion/summary slide and it must be last');
       }
+      const transitionPages=slides.filter(slide=>SECTION_ROLE.test(slide.narrative_role||''));
+      if(transitionPages.length!==quality.narrative_sections.length)errors.push('the deck must contain exactly one section-transition page for each declared narrative section');
+      for(const slide of transitionPages)if(!quality.narrative_sections.includes(slide.section_name))errors.push(`section-transition slide "${slide.slide_id}" names undeclared section "${slide.section_name||''}"`);
       const sectionOrder=[];
       for(const section of quality.narrative_sections){
-        const transitions=slides.filter(slide=>/^(section[_ -]?transition|section)$/i.test(slide.narrative_role||'')&&slide.section_name===section);
+        const transitions=slides.filter(slide=>SECTION_ROLE.test(slide.narrative_role||'')&&slide.section_name===section);
         if(transitions.length!==1)errors.push(`narrative section "${section}" must have exactly one section-transition slide with matching section_name`);
-        const content=slides.filter(slide=>slide.section_name===section&&!/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening|closing|conclusion|summary)$/i.test(slide.narrative_role||''));
+        const content=slides.filter(slide=>slide.section_name===section&&!NON_CONTENT_ROLE.test(slide.narrative_role||''));
         if(!content.length)errors.push(`narrative section "${section}" must own at least one content slide via section_name`);
         if(transitions.length===1&&content.length){
           const transitionIndex=slides.indexOf(transitions[0]),firstContentIndex=Math.min(...content.map(slide=>slides.indexOf(slide)));
@@ -65,7 +77,7 @@ export function validateDeckPlan(plan){
         }
       }
       if(sectionOrder.some((index,i)=>i>0&&index<=sectionOrder[i-1]))errors.push('section-transition slides must follow quality_contract.narrative_sections order');
-      for(const [i,slide] of slides.entries())if(!/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening|closing|conclusion|summary)$/i.test(slide.narrative_role||'')&&(!slide.section_name||!quality.narrative_sections.includes(slide.section_name)))errors.push(`slides[${i}] content must have section_name matching quality_contract.narrative_sections`);
+      for(const [i,slide] of slides.entries())if(!NON_CONTENT_ROLE.test(slide.narrative_role||'')&&(!slide.section_name||!quality.narrative_sections.includes(slide.section_name)))errors.push(`slides[${i}] content must have section_name matching quality_contract.narrative_sections`);
     }
   }
   if(!plan?.acceptance?.reviewer||!Array.isArray(plan?.acceptance?.gates)||!plan.acceptance.gates.length)errors.push('acceptance requires reviewer and explicit gates');
