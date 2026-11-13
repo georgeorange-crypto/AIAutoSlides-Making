@@ -251,3 +251,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - Full-deck content pages require at least 5.5% rendered OCR body-text occupancy when a structured visual exists and 7% on text-only pages; endings require 7%. Every page needs at least two detected body-text lines. The measure excludes headlines and is derived from OCR word boxes within authored body-text geometry.
 - Statement pages now render two separate explanatory paragraphs in taller boxes to reduce overflow/overlap. Adversarial density fixtures verify the strict numerical boundaries and sparse-copy failure.
 - OCR density does not establish readability, visual balance, semantic sufficiency, or absence of all clipping. Human page inspection is still required. See `docs/AI_PLANNER_VISUALS_REPORT.md`.
+
+## Rendered body-copy overflow screen (2026-11-13)
+
+- OCR word boxes are compared with authored body-text geometry. Two or more recognizable words from the authored copy below the matched body-text bounds produce `QUALITY_RENDERED_TEXT_OVERFLOW`.
+- A synthetic overlong-text Harness run demonstrates the blocker against a real PowerPoint/Poppler render, where PPTX structural bounds alone still pass.
+- This screen checks downward overflow only. OCR can miss text; horizontal overflow and spill into a neighboring body box are not fully covered. Human page review remains required. See `docs/AI_PLANNER_VISUALS_REPORT.md`.

@@ -200,6 +200,7 @@ test('formal quality audit blocks a text-unit-compliant page with sparse rendere
  const legibleTextOnly=fixture({count:2,visualEvery:99});legibleTextOnly.imageReview.pages[3].visible_text_occupancy_ratio=0.07;legibleTextOnly.imageReview.pages[3].visible_text_line_count=2;
  assert.ok(!auditDeckQuality(legibleTextOnly).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW'),'a text-only page at the 7% floor with two explanatory lines should pass');
  legibleTextOnly.imageReview.pages[3].visible_text_occupancy_ratio=0.0699;assert.ok(auditDeckQuality(legibleTextOnly).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW'),'a text-only page just below the 7% floor should fail');
+ legibleTextOnly.imageReview.pages[3].body_text_overflow_word_count=2;assert.ok(auditDeckQuality(legibleTextOnly).blockers.some(item=>item.code==='QUALITY_RENDERED_TEXT_OVERFLOW'),'OCR words outside the body text boxes must block even when the density floor passes');
  delete sparse.imageReview.pages[3].visible_text_occupancy_ratio;delete sparse.imageReview.pages[3].visible_text_line_count;
  assert.ok(auditDeckQuality(sparse).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_UNMEASURED'));
 });
