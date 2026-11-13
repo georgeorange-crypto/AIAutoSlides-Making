@@ -15,7 +15,7 @@ function parse(row){return row?JSON.parse(row):null;}
 
 export async function openProjectStore(workspaceDir){
   const root=path.resolve(workspaceDir);
-  await Promise.all(['','db','source-blobs','runs','incoming'].map(part=>mkdir(path.join(root,part),{recursive:true})));
+  await Promise.all(['','db','source-blobs','runs','incoming','assets/commons'].map(part=>mkdir(path.join(root,part),{recursive:true})));
   let DatabaseSync;
   try{({DatabaseSync}=await import('node:sqlite'));}
   catch{throw new Error('The local REST API requires Node.js 22.5+ with node:sqlite; the legacy CLI still supports its separately declared runtime.');}
@@ -144,6 +144,21 @@ export async function openProjectStore(workspaceDir){
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,irBlob.path,irBlob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE sources SET original_name=?,blob_path=? WHERE project_id=? AND source_id=?').run('page.md',blob,projectId,sourceId);});
     return{project_id:projectId,source_id:sourceId,source_sha256:sourceHash,evidence_ids:added.map(item=>item.evidence_id),evidence_count:added.length,added:true,ir_sha256:irBlob.sha256};
   }
+  function attachCommonsAsset(projectId,candidate,download){
+    const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
+    if(candidate?.provider!=='wikimedia-commons'||typeof candidate.source_id!=='string'||!/^WMC_[A-F0-9]{16}$/.test(candidate.source_id)||!download?.asset||!Buffer.isBuffer(download.bytes))throw new TypeError('Commons candidate or downloaded asset is invalid.');
+    const item=download.asset;if(!/^A_[A-Z0-9][A-Z0-9_-]{1,50}$/.test(item.asset_id)||!['image/png','image/jpeg'].includes(item.mime_type)||item.verified!==false||item.rights_review_status!=='needs_human_review')throw new TypeError('Commons asset must be a supported image with rights pending human review.');
+    const sourceHash=sha256(download.bytes);if(item.sha256!==sourceHash)throw new Error('Commons asset hash does not match downloaded image bytes.');
+    const existingSource=project.presentationIR.source_ir.sources.find(source=>source.source_id===candidate.source_id),existingAsset=(project.presentationIR.assets||[]).find(asset=>asset.asset_id===item.asset_id);
+    if(existingSource||existingAsset){if(existingSource?.commons_asset?.sha256===sourceHash&&existingAsset?.sha256===sourceHash)return{project_id:projectId,source_id:candidate.source_id,asset_id:item.asset_id,asset_sha256:sourceHash,added:false,ir_sha256:project.ir_sha256};throw new Error('Commons source or asset ID already exists with different content.');}
+    const extension=item.mime_type==='image/png'?'png':'jpg',relative=`assets/commons/${item.asset_id}.${extension}`,file=path.join(root,relative),blob=path.join(root,'source-blobs',sourceHash);
+    fs.writeFileSync(file,download.bytes,{flag:'wx'});if(fs.existsSync(blob)){if(sha256(fs.readFileSync(blob))!==sourceHash)throw new Error('Content-addressed Commons image blob failed hash verification.');}else fs.writeFileSync(blob,download.bytes,{flag:'wx'});
+    const asset={asset_id:item.asset_id,uri:relative,sha256:sourceHash,media_type:item.mime_type,source_id:candidate.source_id,license:item.license||'unknown; human review required',rights_status:'pending',author:item.author||null,credit:item.credit||null,license_url:item.license_url||null,attribution_required:item.attribution_required===true,rights_review_status:'needs_human_review',metadata_sha256:item.source_metadata_sha256||null};
+    const source={source_id:candidate.source_id,type:'image_asset',uri:candidate.description_page,sha256:sourceHash,locator:candidate.title||candidate.description_page,verification_status:'unverified',claims:[],assets:[item.asset_id],commons_asset:{provider:'wikimedia-commons',title:candidate.title||null,description_page:candidate.description_page,download_url:item.download_url,retrieved_at:item.retrieved_at,sha256:sourceHash,metadata_sha256:item.source_metadata_sha256,license:asset.license,license_url:asset.license_url,author:asset.author,credit:asset.credit,rights_review_status:'needs_human_review'}};
+    const updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,sources:[...project.presentationIR.source_ir.sources,source]},assets:[...(project.presentationIR.assets||[]),asset]};assertValidPresentationIR(updated);const irBlob=persistIR(updated),at=now();
+    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,irBlob.path,irBlob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE sources SET original_name=?,blob_path=? WHERE project_id=? AND source_id=?').run(`${item.asset_id}.${extension}`,blob,projectId,candidate.source_id);});
+    return{project_id:projectId,source_id:candidate.source_id,asset_id:item.asset_id,asset_sha256:sourceHash,rights_review_status:'needs_human_review',added:true,ir_sha256:irBlob.sha256};
+  }
   function addResearchCandidates(projectId,result){
     const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
     if(!result||!['openalex','crossref','arxiv'].includes(result.provider)||!Array.isArray(result.results))throw new TypeError('Research result must contain a supported provider and results[].');
@@ -186,7 +201,7 @@ export async function openProjectStore(workspaceDir){
   function createJob(projectId,options={},workflow='presentation'){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);
     const jobId=id(),at=now(),events=[];
-    if(!['presentation','research-topic','arxiv-paper-ingest','document-ingest','web-crawl'].includes(workflow))throw new TypeError(`Unsupported workflow '${workflow}'.`);
+    if(!['presentation','research-topic','arxiv-paper-ingest','document-ingest','web-crawl','commons-asset'].includes(workflow))throw new TypeError(`Unsupported workflow '${workflow}'.`);
     db.prepare('INSERT INTO jobs(job_id,project_id,workflow,status,created_at,updated_at,options_json,events_json) VALUES(?,?,?,?,?,?,?,?)').run(jobId,projectId,workflow,'queued',at,at,json(options),json(events));
     return getJob(jobId);
   }
@@ -208,5 +223,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProfile,updateProfile,getProfile,listProfiles,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,readSourceBlob,attachDocumentEvidence,attachCrawledPage,addResearchCandidates,attachArxivPaper,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProfile,updateProfile,getProfile,listProfiles,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,readSourceBlob,attachDocumentEvidence,attachCrawledPage,attachCommonsAsset,addResearchCandidates,attachArxivPaper,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }

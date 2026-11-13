@@ -6,7 +6,7 @@
 npm run api -- --workspace D:\AIAutoSlidesData --port 8787
 ```
 
-The API binds only to `127.0.0.1`. It needs Node.js 22.5+ for the built-in `node:sqlite` module. It uses no network research service, paid API, or credential. The database is `<workspace>/db/aiautoslides.sqlite`; the server creates `incoming/`, `source-blobs/`, and `runs/` beside it.
+The API binds only to `127.0.0.1`. It needs Node.js 22.5+ for the built-in `node:sqlite` module. It uses no network research service, paid API, or credential until an outbound action is explicitly enabled. The database is `<workspace>/db/aiautoslides.sqlite`; the server creates `incoming/`, `source-blobs/`, `runs/`, and `assets/commons/` beside it.
 
 ## Routes
 
@@ -22,6 +22,7 @@ The API binds only to `127.0.0.1`. It needs Node.js 22.5+ for the built-in `node
 | `POST` | `/projects/{id}/research/papers` | Queue download and local extraction of one explicitly selected arXiv candidate (`{source_id, allow_download:true}`) |
 | `POST` | `/projects/{id}/research/documents` | Queue PDF.js, DOCX, Docling, or MarkItDown extraction for one imported source (`{source_id, allow_extract:true, engine?:"pdfjs"|"docling"|"markitdown", allow_model_download?:boolean}`) |
 | `POST` | `/projects/{id}/research/pages` | Queue a one-page Crawl4AI job for an operator-authorized public HTTPS URL (`{source_id, url, allow_network:true, site_authorized:true}`) |
+| `POST` | `/projects/{id}/assets/commons` | Queue one selected Wikimedia Commons image download (`{candidate, asset_id, allow_network:true, allow_download:true}`) |
 | `GET` | `/projects/{id}/slides` | Ordered slide IR rows |
 | `GET`, `PATCH` | `/projects/{id}/slides/{slide_id}` | Read a slide; patch `title`, `assertion_title`, `speaker_notes`, `evidence_ids` or `elements` |
 | `GET`, `POST` | `/projects/{id}/jobs` | List jobs; enqueue a render workflow (optional `{preview:false}`) |
@@ -50,6 +51,8 @@ Scholarly search jobs persist their provider/query parameters, status, stage eve
 For a source already imported into the workspace, `POST /projects/{id}/research/documents` requires `allow_extract:true`. By default it queues local PDF.js selectable-text extraction or DOCX paragraph extraction. Set `engine:"docling"` to run the pinned local Docling worker asynchronously for an imported PDF/DOCX; model downloads stay disabled unless the caller separately sets `allow_model_download:true`. That opt-in may download model weights from their configured host, but the source document remains local. Set `engine:"markitdown"` to use the optional isolated MarkItDown 0.1.9 environment; this conversion is local-only, cancellable and limited to document-level paragraph locators. The API checks the immutable content-addressed source after parsing. All modes create Markdown, manifest and evidence JSON artifacts, with excerpts attached as pending evidence. Unsupported formats, unavailable optional parser runtimes, scanned-only PDFs under PDF.js and malformed documents fail with an actionable job error; extraction never verifies scientific claims.
 
 `POST /projects/{id}/research/pages` requires both `allow_network:true` and `site_authorized:true`, plus a caller-provided `source_id`. It queues one durable Crawl4AI page job. The worker enforces HTTPS, rejects credentials and non-public DNS addresses (except an explicitly configured egress CIDR), rechecks DNS, constrains redirects and requests to the same host, and requires Crawl4AI's robots-policy confirmation. It stores Markdown by content hash and attaches excerpt candidates as pending evidence; Markdown, manifest and evidence JSON are job artifacts. This is an operator assertion of authorization, not an automated terms-of-service or rights check; scientific claims and reuse rights remain pending review. No page was fetched during automated tests.
+
+`POST /projects/{id}/assets/commons` requires `allow_network:true` and `allow_download:true` plus one selected Commons search candidate and a new asset ID. It downloads only HTTPS PNG/JPEG bytes from Wikimedia upload hosts, stores the image locally with its SHA-256, attaches source and asset records to the project IR, and saves an asset/manifest job artifact pair. Candidate metadata is caller-supplied and is retained as unverified; the exact license, attribution wording and intended-use rights remain `needs_human_review`. Automated tests inject a local image result and do not contact Commons.
 
 ## Local preference profiles
 
