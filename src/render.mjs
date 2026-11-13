@@ -107,9 +107,8 @@ function metrics(s,d,t) {
     s.addShape(Shape.rect,{x:px,y:2.93,w:0.075,h:2.74,line:{color:t.accent,transparency:100},fill:{color:i===ms.length-1?t.warning:t.accent},objectName});
     txt(s,m.label,{x:px+0.28,y:3.22,w:w-0.50,h:0.53,fontSize:15.5,fontFace:t.bodyFontFace,color:t.muted,valign:'top',fit:'shrink',objectName});
     txt(s,m.value,{x:px+0.28,y:4.00,w:w-0.51,h:0.93,fontSize:Math.min(37, w*11),fontFace:t.headFontFace,bold:true,color:i===ms.length-1?t.warning:t.accent2,fit:'shrink',objectName});
-    txt(s,m.detail||'',{x:px+0.28,y:5.16,w:w-0.55,h:0.30,fontSize:12.5,fontFace:t.bodyFontFace,color:t.text,fit:'shrink',objectName});
+    txt(s,m.detail||'',{x:px+0.28,y:5.12,w:w-0.55,h:0.38,fontSize:14.5,fontFace:t.bodyFontFace,color:t.text,fit:'shrink',objectName});
   });
-  txt(s,'Metrics must be traceable to the evidence ledger; do not treat unverified values as publication-ready.',{x:0.80,y:6.11,w:11.6,h:0.30,fontSize:12.2,fontFace:t.bodyFontFace,color:t.muted,fit:'shrink',objectName});
 }
 function chart(s,d,t,pptx) {
   addTop(s,d,t);addTitle(s,d,t);
