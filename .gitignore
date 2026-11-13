@@ -13,3 +13,4 @@ content/ai-storyboard.json
 __pycache__/
 workers/markitdown/.venv/
 workers/matplotlib/.venv/
+workers/pymupdf/.venv/
