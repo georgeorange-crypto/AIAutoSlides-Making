@@ -14,6 +14,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
+      - run: npm ci --prefix workers/pptx-automizer --no-audit --no-fund
       - run: npm run check
       - uses: actions/upload-artifact@v4
         with:
