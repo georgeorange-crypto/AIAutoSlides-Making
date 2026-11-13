@@ -114,6 +114,19 @@ export async function openProjectStore(workspaceDir){
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE research_candidates SET imported_at=? WHERE project_id=? AND source_id=?').run(at,projectId,sourceId);});
     return{project_id:projectId,source,ir_sha256:blob.sha256,imported:true,idempotent:false};
   }
+  function addEvidenceRecord(projectId,{evidenceId,sourceId,excerpt,locator=null}={}){
+    const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
+    if(typeof evidenceId!=='string'||evidenceId.length>128||!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(evidenceId))throw Object.assign(new TypeError('evidence_id must be a stable identifier of at most 128 characters.'),{status:400});
+    if(!project.presentationIR.source_ir.sources.some(source=>source.source_id===sourceId))throw new Error(`Unknown source '${sourceId}'`);
+    if(typeof excerpt!=='string'||excerpt.trim().length<1||excerpt.length>10000)throw Object.assign(new TypeError('excerpt must contain 1-10000 characters.'),{status:400});
+    if(locator!==null&&(typeof locator!=='string'||locator.length>1000))throw Object.assign(new TypeError('locator must be null or a string up to 1000 characters.'),{status:400});
+    const previous=project.presentationIR.source_ir.evidence||[];
+    if(previous.some(item=>item.evidence_id===evidenceId)||project.presentationIR.source_ir.sources.some(source=>source.source_id===evidenceId))throw Object.assign(new Error(`Evidence ID '${evidenceId}' is already in use.`),{status:409});
+    const evidence={evidence_id:evidenceId,source_id:sourceId,excerpt,locator,verification_status:'pending',reviewer:null,reviewed_at:null};
+    const updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,evidence:[...previous,evidence]}},blob=persistIR(updated),at=now();
+    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSlides(projectId,updated.slides);});
+    return{project_id:projectId,ir_sha256:blob.sha256,evidence};
+  }
   function createJob(projectId,options={}){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);
     const jobId=id(),at=now(),events=[];
@@ -138,5 +151,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,saveResearchCandidates,listResearchCandidates,importResearchCandidate,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,saveResearchCandidates,listResearchCandidates,importResearchCandidate,addEvidenceRecord,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }

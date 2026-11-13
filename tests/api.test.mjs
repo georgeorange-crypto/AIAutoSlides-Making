@@ -70,3 +70,16 @@ test('project research search saves candidates and imports only a selected unver
     response=await fetch(`${base}/projects/${project.project_id}/research/candidates/SRC_CROSSREF_FFFFFFFFFFFFFFFF/import`,{method:'POST',headers:{'content-type':'application/json'},body:'{}'});assert.equal(response.status,404);
   }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
 });
+
+test('project evidence API records exact user excerpts as pending and refuses unknown sources or reused IDs',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-evidence-api-'));let api;
+  try{
+    api=await createLocalApi({workspaceDir:workspace,preview:false});const address=await api.listen({port:0}),base=`http://127.0.0.1:${address.port}`;
+    let response=await fetch(`${base}/projects`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title:'Evidence fixture',presentation_ir:fixture})});const project=(await response.json()).project,sourceId=fixture.source_ir.sources[0].source_id;
+    response=await fetch(`${base}/projects/${project.project_id}/evidence`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({evidence_id:'E_USER_EXCERPT_1',source_id:sourceId,excerpt:' Exact user-supplied excerpt for review. ',locator:'Page 3, paragraph 2',verification_status:'verified'})});assert.equal(response.status,201);let result=await response.json();assert.equal(result.evidence.verification_status,'pending');assert.equal(result.evidence.excerpt,' Exact user-supplied excerpt for review. ');assert.equal(result.evidence.locator,'Page 3, paragraph 2');
+    response=await fetch(`${base}/projects/${project.project_id}/evidence`);assert.equal((await response.json()).evidence.length,1);
+    response=await fetch(`${base}/projects/${project.project_id}/evidence`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({evidence_id:'E_UNKNOWN_SOURCE',source_id:'SRC_MISSING',excerpt:'No source here.'})});assert.equal(response.status,404);
+    response=await fetch(`${base}/projects/${project.project_id}/evidence`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({evidence_id:sourceId,source_id:sourceId,excerpt:'Source and evidence IDs must not collide.'})});assert.equal(response.status,409);
+    response=await fetch(`${base}/projects/${project.project_id}/evidence`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({evidence_id:'E_TOO_LONG',source_id:sourceId,excerpt:'x'.repeat(10001)})});assert.equal(response.status,400);
+  }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
+});
