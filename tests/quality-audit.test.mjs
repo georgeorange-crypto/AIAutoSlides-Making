@@ -39,6 +39,21 @@ test('formal quality audit blocks thin text, low visual coverage, repeated layou
   for(const code of ['QUALITY_CONTENT_TOO_THIN','QUALITY_VISUAL_COVERAGE','QUALITY_LAYOUT_REPETITION','QUALITY_ASSISTANT_VOICE','QUALITY_LONG_ENGLISH_BLOCK','QUALITY_PLANNED_VISUAL_MISSING'])assert.ok(codes.has(code),code);
 });
 
+test('assistant voice screen catches common Chinese and English user-facing phrases without flagging research narration',()=>{
+ for(const phrase of ['如果您愿意，可以先看这张图。','你会发现结果随着样本量增加而变化。','希望这能对您有帮助。','If you would like, please tell me what you think.','I will now show you the main result.','You should review this slide.']){
+  const input=fixture();input.presentationIR.slides[3].elements[0].text=`${longText} ${phrase}`;
+  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_ASSISTANT_VOICE'),`expected assistant voice blocker for: ${phrase}`);
+ }
+ const researchNarration=fixture();researchNarration.presentationIR.slides[3].elements[0].text='We demonstrate that the measured effect increases consistently across the three reported conditions.';
+ assert.ok(!auditDeckQuality(researchNarration).blockers.some(item=>item.code==='QUALITY_ASSISTANT_VOICE'));
+});
+
+test('assistant voice screen also blocks conversational prompts hidden in speaker notes',()=>{
+ const input=fixture();input.presentationIR.slides[3].speaker_notes='如果您愿意，请告诉我是否要补充其他内容。';
+ const finding=auditDeckQuality(input).blockers.find(item=>item.code==='QUALITY_ASSISTANT_VOICE');
+ assert.equal(finding.location,'speaker_notes');assert.equal(finding.slide_id,'S2');
+});
+
 test('formal quality audit blocks stacked or copy-pasted disclaimer clauses while allowing one specific limitation',()=>{
  const focused=fixture();focused.presentationIR.slides[3].elements[0].text=`${longText} 当前样本不能证明所有场景都适用。`;
  assert.ok(!auditDeckQuality(focused).blockers.some(item=>item.code.startsWith('QUALITY_CAVEAT_')),'one specific limitation should remain allowed');

@@ -59,6 +59,17 @@ test('formal Harness reports stacked disclaimer copy as a blocking content findi
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('formal Harness blocks assistant-facing Chinese copy in the rendered deck path',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-voice-workflow-'));
+  try{
+    const ir=structuredClone(fixture),body=ir.slides[1].elements.find(element=>element.kind==='text');
+    body.text='本页解释测量机制如何影响观察结果，并结合证据说明变化原因。希望这能对您有帮助；如果您愿意，请告诉我还想了解什么。';
+    const result=await runPresentationWorkflow({jobId:'voice-workflow-test',presentationIR:ir,qualityPlan,workspace,outputDir:path.join(workspace,'runs','voice'),preview:false,adapters:[adapter('only',{nativeCharts:true})]});
+    assert.equal(result.review_context.quality_gate_status,'fail');
+    assert.ok(result.report.critique.quality_gate.blockers.some(item=>item.code==='QUALITY_ASSISTANT_VOICE'&&item.slide_id===ir.slides[1].slide_id));
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('formal Harness reports under-allocated core pages and speaking time',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-priority-workflow-'));
   try{

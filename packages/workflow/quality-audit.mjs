@@ -4,7 +4,7 @@ const VISUAL_KINDS=new Set(['image','chart','table','diagram','mermaid','process
 const AGENDA_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i;
 const SECTION_ROLE=/^(section[_ -]?transition|section)$/i;
 const TRANSITION_ROLE=/^(cover|opening(?:[_ -].*)?|agenda|contents|table[_ -]?of[_ -]?contents|目录|section(?:[_ -]?transition)?|transition|closing|conclusion|summary)$/i;
-const ASSISTANT_VOICE=/(?:\b(?:you can|your task|please provide|let me know|tell me|in this presentation you)\b|你可以|您可以|请告诉我|告诉我|如果你|如果您|你需要|您需要|我建议你|我建议您|接下来我将|下面我将)/iu;
+const ASSISTANT_VOICE=/(?:\b(?:you(?:'ll| will| can| may| should| need to| might want to)|your (?:task|next step|turn|input)|if you (?:want|would like|need)|please (?:provide|tell|share|upload|choose|review)|let me know|tell me|in this presentation you|I will now|I am going to show you|I hope this helps|feel free to ask)\b|你(?:可以|将会|会发现|需要|可以看到|可以先)|您(?:可以|将会|会发现|需要|可以看到|可以先)|如果(?:你|您)(?:愿意|需要|想要|希望)|(?:请|麻烦)(?:告诉我|提供|上传|选择|检查|查看)|告诉我|我(?:将|会)(?:为你|为您|向你|向您)?(?:展示|介绍|说明|讲解)|下面我(?:将|会)|接下来我(?:将|会)|希望(?:这|本次汇报|以上内容)(?:能)?(?:对你|对您)?(?:有帮助|有所帮助)|如(?:果你|果您|需)|欢迎(?:随时)?(?:提问|告诉我)|供(?:你|您)参考)/iu;
 const CAVEAT_CLAUSE=/(?:\b(?:does not|doesn't|do not|don't|cannot|can't|should not|shouldn't|is not|isn't|are not|aren't)\s+(?:prove|show|mean|imply|establish|demonstrate|represent|indicate|guarantee|confirm|measure|capture|constitute|replace|cover)\b|\bnot\s+(?:necessarily|evidence of|proof of|a measure of|intended to|a guarantee)\b|\b(?:no claim is made|should not be interpreted|cannot be interpreted)\b|不代表|不表明|不意味着|并不意味着|不能证明|无法证明|不能说明|无法说明|不构成|不可据此|不应(?:被)?解读为|不宜解读为)/iu;
 const VISUAL_WORDS=/(?:image|illustration|photo|figure|chart|diagram|architecture|process|table|图|照片|插图|示意|图表|架构|流程|表格|原图)/iu;
 const CJK=/\p{Script=Han}/u;
@@ -59,14 +59,15 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
     }
   }
   for(const [index,slide] of slides.entries()){
-    const planned=byId.get(slide.slide_id),role=planned?.narrative_role||slide.role||'',elements=slide.elements||[],elementTexts=elements.flatMap(textOfElement),visible=[slide.title,slide.assertion_title,slide.kicker,...elementTexts].filter(value=>typeof value==='string').join('\n'),explanation=elementTexts.join('\n'),slideUnits=units(explanation),hasVisual=elements.some(element=>VISUAL_KINDS.has(element.kind)),id=slide.slide_id;
+    const planned=byId.get(slide.slide_id),role=planned?.narrative_role||slide.role||'',elements=slide.elements||[],elementTexts=elements.flatMap(textOfElement),visible=[slide.title,slide.assertion_title,slide.kicker,...elementTexts].filter(value=>typeof value==='string').join('\n'),speakerNotes=typeof slide.speaker_notes==='string'?slide.speaker_notes:'',explanation=elementTexts.join('\n'),slideUnits=units(explanation),hasVisual=elements.some(element=>VISUAL_KINDS.has(element.kind)),id=slide.slide_id;
     if(!isTransition({narrative_role:role}))content.push({slide,planned,index,visible,elementTexts,slideUnits,hasVisual});
     if(!isTransition({narrative_role:role})){
       const clauses=caveatClauses(visible);
       if(clauses.length>=3)blockers.push(issue('QUALITY_CAVEAT_OVERLOAD',id,`${clauses.length} disclaimer-style clauses appear on one content slide; consolidate them and keep only caveats needed to interpret that page.`,{caveat_clause_count:clauses.length,recommendation:'Keep only caveats needed to interpret this page; state broader study limitations once, concisely, where they best support interpretation.'}));
       for(const clause of clauses){const normalized=clause.normalize('NFC').toLocaleLowerCase().replace(/[\s\p{P}\p{S}]+/gu,'');if(!normalized)continue;const owners=repeatedCaveats.get(normalized)||new Set();owners.add(id);repeatedCaveats.set(normalized,owners);}
     }
-    if(ASSISTANT_VOICE.test(visible))blockers.push(issue('QUALITY_ASSISTANT_VOICE',id,'Visible copy reads like instructions or a conversation with the user.',{recommendation:'Rewrite it as presentation content addressed to the audience without assistant-to-user phrasing.'}));
+    if(ASSISTANT_VOICE.test(visible))blockers.push(issue('QUALITY_ASSISTANT_VOICE',id,'Visible copy reads like instructions or a conversation with the user.',{location:'visible_copy',recommendation:'Rewrite it as presentation content addressed to the audience without assistant-to-user phrasing.'}));
+    if(ASSISTANT_VOICE.test(speakerNotes))blockers.push(issue('QUALITY_ASSISTANT_VOICE',id,'Speaker notes contain assistant-to-user prompts rather than talk content.',{location:'speaker_notes',recommendation:'Replace assistant-facing prompts with concise presenter cues or audience-directed explanation.'}));
     if(CJK.test(contract.language||'')||/chinese|中文|简体|繁體/i.test(contract.language||'')){
       for(const text of [slide.title,slide.assertion_title,...elementTexts].filter(value=>typeof value==='string')){
         const latinWords=(text.match(/[A-Za-z][A-Za-z0-9'’.-]*/g)||[]).length,han=[...text].filter(char=>CJK.test(char)).length;
