@@ -19,6 +19,15 @@ function loadEnv(){
 loadEnv();
 const key=process.env.OPENAI_API_KEY;
 if(!key){console.error('Missing OPENAI_API_KEY. Copy .env.example to .env, configure the key, or use the manual demo.');process.exit(2);}
+function responsesEndpoint(){
+ const official='https://api.openai.com/v1/responses',override=process.env.AIAUTOSLIDES_TEST_RESPONSES_URL;
+ if(!override)return official;
+ if(process.env.NODE_ENV!=='test')throw new Error('AIAUTOSLIDES_TEST_RESPONSES_URL is allowed only when NODE_ENV=test');
+ const url=new URL(override);
+ if(url.protocol!=='http:'||!['127.0.0.1','localhost','[::1]'].includes(url.hostname)||url.username||url.password||url.pathname!=='/v1/responses'||url.search||url.hash)throw new Error('Test Responses endpoint must be plain HTTP on loopback at /v1/responses');
+ return url.href;
+}
+const endpoint=responsesEndpoint();
 const input=path.resolve(arg('input','sources/brief.md'));
 const output=path.resolve(arg('out','content/ai-storyboard.json'));
 const audienceProfile=arg('audience','research_group'),duration=Number(arg('duration','7')),goal=arg('goal','Explain the evidence and agree on the next research step');
@@ -32,7 +41,6 @@ const payload={model:process.env.OPENAI_MODEL||'gpt-6-luna',
   input:[{role:'developer',content:policy},{role:'user',content:`SOURCE BRIEF:\n${brief}\n\nEVIDENCE LEDGER:\n${JSON.stringify(ledger.entries)}`}],
   text:{format:{type:'json_schema',name:'slide_storyboard',schema:slidesSchema,strict:true}}
 };
-const endpoint='https://api.openai.com/v1/responses'; // Fixed endpoint; do not send user keys to arbitrary hosts.
 async function main(){
  const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${key}`},body:JSON.stringify(payload),signal:AbortSignal.timeout(120000)});
  const json=await r.json();
@@ -47,7 +55,7 @@ const planned=createPlannerDraft(response,{audienceProfile,duration,goal,theme:a
  const numberAudit=auditDraftNumbers(deck,brief),critique=critiqueDeck(deck,ledger);
  fs.mkdirSync(path.dirname(output),{recursive:true});
  fs.writeFileSync(output,JSON.stringify(deck,null,2)+'\n');
- fs.writeFileSync(`${output}.review.json`,JSON.stringify({schema_version:1,review_status:'pending',source_brief:{path:input,sha256:crypto.createHash('sha256').update(brief).digest('hex')},schema_errors:errors,validation_warnings:warnings,critic,number_audit:numberAudit,required_human_checks:['Check every factual claim and citation against the source material.','Check all numeric tokens against the original records; literal overlap is not semantic verification.','Review uncertainty, limitations, audience fit, narrative and every rendered slide.','After edits, record approval or rejection with src/review-draft.mjs.']},null,2)+'\n');
+ fs.writeFileSync(`${output}.review.json`,JSON.stringify({schema_version:1,review_status:'pending',source_brief:{path:input,sha256:crypto.createHash('sha256').update(brief).digest('hex')},schema_errors:errors,validation_warnings:warnings,critic:critique,number_audit:numberAudit,required_human_checks:['Check every factual claim and citation against the source material.','Check all numeric tokens against the original records; literal overlap is not semantic verification.','Review uncertainty, limitations, audience fit, narrative and every rendered slide.','After edits, record approval or rejection with src/review-draft.mjs.']},null,2)+'\n');
  fs.writeFileSync(`${output}.review.md`,[`# Human review required: ${deck.meta.title}`,'',`- Status: **pending**`,`- Audience profile: ${audienceProfile}`,`- Target duration: ${duration} minutes`,`- Source brief: \`${input}\``,`- Schema errors: ${errors.length}`,`- Critic findings: ${critique.issues.length}`,`- Possible unsupported numeric tokens: ${numberAudit.findings.length}`,'','## Required review','', '- Compare each claim and evidence ID with the source.','- Confirm every numeric value against original records and check its unit/context.','- Review limitations, audience, pacing and rendered slide layout.','- Edit this JSON freely, then approve a content-hash-bound copy with `src/review-draft.mjs`.' ,'','## Limits','',...numberAudit.limitations.map(x=>`- ${x}`),''].join('\n'));
  console.log(`Wrote editable draft ${output} (${deck.slides.length} slides); review pending, ${warnings.length} validation warning(s), ${numberAudit.findings.length} possible unsupported numeric token(s).`);
 }
