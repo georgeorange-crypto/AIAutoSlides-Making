@@ -154,10 +154,16 @@ test('formal quality audit blocks tiny or unmeasured native diagram shape groups
  assert.ok(auditDeckQuality(mermaid).blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.kind==='mermaid'));
 });
 
-test('formal Chinese deck flags English blocks and leaves OCR recognition failures for a human page review',()=>{
+test('formal Chinese deck flags English-dominant blocks even with token Chinese mixed in',()=>{
   const input=fixture();input.presentationIR.slides[3].elements[0].text='A long English-only paragraph with more than sixteen English words and no Chinese explanation to help the audience understand it.';
   input.imageReview.pages[3].status='ocr_failed';
   const result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_LONG_ENGLISH_BLOCK'));assert.ok(result.warnings.some(item=>item.code==='QUALITY_OCR_INCOMPLETE'));
+
+  const mixed=fixture();mixed.presentationIR.slides[3].elements[0].text='说明：This method uses a cache to reduce repeated computation and improve model response speed across long contexts while preserving output quality under repeated reuse.';
+  const mixedIssue=auditDeckQuality(mixed).blockers.find(item=>item.code==='QUALITY_LONG_ENGLISH_BLOCK');assert.ok(mixedIssue,'a few Chinese characters must not hide a long English block');assert.ok(mixedIssue.chinese_character_share<0.35);
+
+  const explainedTerms=fixture();explainedTerms.presentationIR.slides[3].elements[0].text=`在 GPU 上复用 KV cache 可以减少重复计算并缩短响应时间。${longText}`;
+  assert.ok(!auditDeckQuality(explainedTerms).blockers.some(item=>item.code==='QUALITY_LONG_ENGLISH_BLOCK'),'necessary English technical terms inside substantial Chinese explanation should pass');
 });
 
 test('formal quality audit blocks an omitted agenda, missing section divider, or content with no section mapping',()=>{
