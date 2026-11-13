@@ -12,13 +12,14 @@ import {slidevAdapter} from '../packages/adapters/slidev.mjs';
 import {markitdownAdapter} from '../packages/adapters/markitdown.mjs';
 import {marpAdapter} from '../packages/adapters/marp.mjs';
 import {presentonAdapter} from '../packages/adapters/presenton.mjs';
+import {matplotlibAdapter} from '../packages/adapters/matplotlib.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
 import {createCanvaOAuthServer} from './canva-oauth.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter],[marpAdapter.manifest.id,marpAdapter],[presentonAdapter.manifest.id,presentonAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter],[marpAdapter.manifest.id,marpAdapter],[presentonAdapter.manifest.id,presentonAdapter],[matplotlibAdapter.manifest.id,matplotlibAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
@@ -56,7 +57,7 @@ async function main(){
    gamma:['Hosted design workflow can be a visual alternative when user accepts provider processing.','Requires account/network and terms/cost review; no integration or data upload is enabled.'],
    canva:['Hosted editor is useful for human finishing and brand workflows.','Requires account/network and explicit data sharing; no API integration or upload is enabled.'],
    'vega-lite':['Declarative chart specification enables reproducible figure previews.','Image rendering is not a native PowerPoint chart; a mapping adapter is still needed.'],
-   matplotlib:['Python scientific plotting option for specialized figures.','Raster/vector image embed is less editable than a native chart; no adapter is integrated.'],
+   matplotlib:['Integrated local scientific figure worker for line, bar, scatter, and CDF charts with source-ID checks and SVG/PNG manifests.','PowerPoint embeds the output as an SVG picture, not a native editable chart; Python dependencies use an isolated environment.'],
    echarts:['Browser chart renderer offers interactive visual options.','Rendered charts may become images in PPTX; no native-chart bridge is integrated.'],
    marp:['Simple Markdown-to-slides alternative for lightweight technical talks.','Editable PPTX export has fidelity caveats; not wired into current evidence lineage path.'],
    quarto:['Research document and citation workflows can feed presentation formats.',"Requires separate CLI/format setup and a metadata bridge to retain this project's evidence IDs."]

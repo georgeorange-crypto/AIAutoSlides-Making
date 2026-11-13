@@ -34,6 +34,8 @@
     "deps:markitdown": "node scripts/install-markitdown.mjs",
     "deps:marp": "npm ci --prefix workers/marp --no-audit --no-fund",
     "render:marp": "node scripts/export-marp.mjs",
+    "deps:matplotlib": "node scripts/install-matplotlib-worker.mjs",
+    "render:matplotlib": "node scripts/export-matplotlib.mjs",
     "import:markitdown": "node src/markitdown.mjs",
     "research:search": "node src/research-search.mjs",
     "benchmark:fixtures": "node src/import-csv.mjs examples/benchmark/investment-committee/synthetic-unit-economics.csv outputs/benchmark/investment/storyboard.json && node src/import-csv.mjs examples/benchmark/systems-talk/synthetic-stage-latency.csv outputs/benchmark/systems/storyboard.json && node src/cli.mjs validate --input outputs/benchmark/investment/storyboard.json --evidence outputs/benchmark/investment/storyboard-evidence.json && node src/cli.mjs validate --input outputs/benchmark/systems/storyboard.json --evidence outputs/benchmark/systems/storyboard-evidence.json",

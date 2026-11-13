@@ -27,7 +27,7 @@ Date: 2026-11-12. Current checkout is `dev`; this section supersedes the histori
 
 ## Remaining P1 work
 
-The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, and now Marp have verified executable routes. Remaining named integrations include PyMuPDF, Matplotlib, Graphviz/D2, Quarto, and LibreOffice; template/POTX import and `pptx-automizer` are also outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. See the dated continuation below for the current evidence boundary.
+The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, and Matplotlib have verified executable routes. Remaining named integrations include PyMuPDF, Graphviz/D2, Quarto, and LibreOffice; template/POTX import and `pptx-automizer` are also outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. See the dated continuations below for current evidence boundaries.
 
 ## P1/P2 continuation — 2026-11-12
 
@@ -47,7 +47,14 @@ The P1 ecosystem tranche is not complete. Since this historical status was writt
 ### Checks and next acceptance work
 
 - Focused adapter suite: Marp real HTML+PPTX E2E and Presenton contract tests passed.
-- Continue P1 with isolated Matplotlib / PyMuPDF / Graphviz or D2 / Quarto / LibreOffice routes and stronger existing-template editing. Continue P2 by bringing up an approved local Presenton + model runtime, then evaluate the three host-agent tools in disposable profiles without recursive author-agent calls.
+- Continue P1 with isolated PyMuPDF / Graphviz or D2 / Quarto / LibreOffice routes and stronger existing-template editing. Continue P2 by bringing up an approved local Presenton + model runtime, then evaluate the three host-agent tools in disposable profiles without recursive author-agent calls.
+
+### P1: Matplotlib scientific figure worker
+
+- Added a Python 3.12 virtual-environment installer and pinned Matplotlib 3.10.8 worker. The worker accepts bounded JSON for line/bar/scatter/CDF figures, requires source IDs, checks numeric shapes and CDF monotonicity, and emits deterministic SVG/PNG plus input/evidence/output hashes.
+- Registered `doctor` / `test` and a runnable synthetic example. `npm run render:matplotlib` produced an actual 1-slide PPTX with the SVG as a vector picture object; native title/status text, source IDs and pending verification are retained in notes and sidecar manifests.
+- Windows runtime: Python 3.12.7, Matplotlib 3.10.8. PowerPoint 16.0 + Poppler rendered the PPTX and its page was visually inspected. `src/qa.mjs` reported 1 slide, 1 text-editable slide, 0 native charts. No empirical data or external APIs were used.
+- This does not meet native chart-object editability. The Python transitive dependency and bundled-font license closure remains under review.
 
 ---
 
