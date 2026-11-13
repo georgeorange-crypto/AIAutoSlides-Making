@@ -101,6 +101,11 @@ export function mapPresentationIRToLegacy(ir){
           break;
         }
         case 'process':
+          if(slide.type==='cover'){
+            if(mapped.cover_visual)throw new Error(`${slide.slide_id}: PptxGenJS mapping supports one cover visual`);
+            mapped.cover_visual={kind:'process',steps:structuredClone(element.steps||element.items)};
+            break;
+          }
           if(mapped.steps)throw new Error(`${slide.slide_id}: PptxGenJS mapping supports one process per slide`);
           {
             const steps=element.steps||element.items;

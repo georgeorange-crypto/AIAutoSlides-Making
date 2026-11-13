@@ -39,16 +39,22 @@ test('approved synthetic storyboard compiles to valid IR with editable visuals a
   assert.equal(ir.meta.storyboard_review_status,'approved');
   assert.equal(ir.meta.human_review_record.reviewer,'Synthetic contract-test reviewer');
   assert.equal(ir.source_ir.sources.find(source=>source.source_id==='E_SYN').verification_status,'unverified');
+  const cover=ir.slides[0],coverProcess=cover.elements.find(element=>element.element_id==='S01-CV01');
+  assert.equal(coverProcess.kind,'process');assert.deepEqual(coverProcess.steps,response.slides[1].visual_needs[0].steps.slice(0,3));
+  assert.ok(coverProcess.source_ids.every(id=>cover.evidence_ids.includes(id)));
   assert.equal(ir.slides.find(slide=>slide.type==='process').elements.find(element=>element.kind==='process').steps.length,3);
   const diagram=ir.slides.find(slide=>slide.type==='architecture').elements.find(element=>element.kind==='diagram');
   assert.equal(diagram.nodes.length,5);assert.equal(diagram.edges.length,4);assert.deepEqual(diagram.edges.map(edge=>edge.label),['request','forward','dispatch','lookup']);
   const mapped=mapPresentationIRToLegacy(ir).deck.slides.find(slide=>slide.slide_id==='S04');
   assert.equal(mapped.type,'statement');assert.match(mapped.figure_description,/Map scheduler branches/);assert.equal(mapped.diagram.edges.length,4);
+  const mappedCover=mapPresentationIRToLegacy(ir).deck.slides[0];assert.deepEqual(mappedCover.cover_visual.steps,response.slides[1].visual_needs[0].steps.slice(0,3));
   assert.ok(ir.slides.every(slide=>slide.elements.filter(element=>element.kind==='text').every(element=>element.source_ids.every(id=>slide.evidence_ids.includes(id)))));
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-storyboard-ir-render-'));
   try{
     const rendered=await pptxgenjsIRAdapter.render({presentationIR:ir,workspace:dir,outputDir:dir});
-    const pptx=rendered.artifacts.find(item=>item.format==='pptx').path,files=unzipSync(new Uint8Array(fs.readFileSync(pptx))),processXml=strFromU8(files['ppt/slides/slide2.xml']);
+    const pptx=rendered.artifacts.find(item=>item.format==='pptx').path,files=unzipSync(new Uint8Array(fs.readFileSync(pptx))),coverXml=strFromU8(files['ppt/slides/slide1.xml']),processXml=strFromU8(files['ppt/slides/slide2.xml']);
+    assert.match(coverXml,/THE STORY IN THREE STEPS/);
+    for(const step of response.slides[1].visual_needs[0].steps.slice(0,3))assert.ok(coverXml.includes(step),`cover must show the source-linked story cue: ${step}`);
     assert.match(processXml,/The client sends a hypothetical request containing its task and inputs\./);
     assert.match(processXml,/The gateway receives that request as the first named stage in the synthetic brief\./);
   }finally{fs.rmSync(dir,{recursive:true,force:true});}

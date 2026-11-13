@@ -66,8 +66,21 @@ function cover(s,d,t,meta) {
   // Keep the decorative panel within the slide canvas so geometry QA can
   // distinguish intentional styling from content accidentally clipped off-slide.
   rect(s,{x:9.18,y:0,w:4.15,h:7.5,rectRadius:0,fill:{color:t.surfaceAlt},line:{color:t.surfaceAlt,transparency:100}});
-  s.addShape(Shape.ellipse,{x:10.40,y:1.14,w:2.0,h:2.0,line:{color:t.accent,width:3},fill:{color:t.background,transparency:100}});
-  s.addShape(Shape.ellipse,{x:10.96,y:3.57,w:1.03,h:1.03,line:{color:t.accent2,width:3},fill:{color:t.background,transparency:100}});
+  if(d.cover_visual?.kind==='process'&&Array.isArray(d.cover_visual.steps)){
+    txt(s,'THE STORY IN THREE STEPS',{x:9.55,y:1.12,w:3.30,h:0.36,fontFace:t.bodyFontFace,fontSize:12.5,bold:true,color:t.accent,charSpacing:1.1,fit:'shrink'});
+    const left=9.52,top=1.72,width=3.35,height=1.12,gap=0.42,steps=d.cover_visual.steps.slice(0,3);
+    steps.forEach((step,index)=>{
+      const y=top+index*(height+gap);
+      if(index>0)s.addShape(Shape.line,{x:left+0.24,y:y-gap+0.02,w:0,h:gap-0.04,line:{color:t.accent2,width:1.8,endArrowType:'triangle'}});
+      panel(s,left,y,width,height,t,index===1);
+      s.addShape(Shape.ellipse,{x:left+0.17,y:y+0.31,w:0.48,h:0.48,fill:{color:index===1?t.surface:t.background},line:{color:index===1?t.accent2:t.accent,width:1.4}});
+      txt(s,String(index+1).padStart(2,'0'),{x:left+0.17,y:y+0.39,w:0.48,h:0.24,fontFace:t.headFontFace,fontSize:12.5,bold:true,color:index===1?t.accent2:t.accent,align:'center',fit:'shrink'});
+      txt(s,step,{x:left+0.82,y:y+0.17,w:2.32,h:0.78,fontFace:t.bodyFontFace,fontSize:15,bold:true,color:t.text,valign:'mid',fit:'shrink'});
+    });
+  }else{
+    s.addShape(Shape.ellipse,{x:10.40,y:1.14,w:2.0,h:2.0,line:{color:t.accent,width:3},fill:{color:t.background,transparency:100}});
+    s.addShape(Shape.ellipse,{x:10.96,y:3.57,w:1.03,h:1.03,line:{color:t.accent2,width:3},fill:{color:t.background,transparency:100}});
+  }
   txt(s,(d.kicker||'RESEARCH PRESENTATION').toUpperCase(),{x:0.85,y:0.71,w:8.0,h:0.34,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,charSpacing:1.5,fit:'shrink'});
   txt(s,d.title,{x:0.85,y:1.66,w:8.0,h:2.43,fontFace:t.headFontFace,fontSize:52,bold:true,color:t.title,valign:'top',fit:'shrink'});
   (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.89,y:4.54+i*0.55,w:7.95,h:0.49,fontFace:t.bodyFontFace,fontSize:20-i*3,color:i===0?t.text:t.muted,fit:'shrink'}));

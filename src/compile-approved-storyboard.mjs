@@ -26,10 +26,14 @@ export function compileApprovedStoryboard(storyboard,evidence,{sourcePath='story
   if(quality.status!=='pass')throw new Error(`Planner quality gate blocked compilation: ${quality.findings.map(item=>`${item.rule_id}${item.slide?` slide ${item.slide}`:''}: ${item.message}`).join('; ')}`);
   const sourceIR=migrateLegacyEvidence(evidence,{sourcePath:evidencePath});
   const review=storyboard.meta.human_review;
+  const coverIndex=storyboard.slides.findIndex(slide=>slide.type==='cover');
+  const coverProcess=storyboard.slides.find(slide=>!['cover','closing'].includes(slide.type)&&Array.isArray(slide.steps)&&slide.steps.length>=3);
   const slides=storyboard.slides.map((slide,index)=>{
     const slideId=slide.slide_id||`S${String(index+1).padStart(2,'0')}`;
-    const sources=[...new Set(slide.evidence_ids||[])];
+    const coverVisual=index===coverIndex&&coverProcess?{kind:'process',steps:coverProcess.steps.slice(0,3),source_ids:[...new Set(coverProcess.visual_needs?.find(item=>item.kind==='process')?.evidence_ids||coverProcess.evidence_ids||[])]}:null;
+    const sources=[...new Set([...(slide.evidence_ids||[]),...(coverVisual?.source_ids||[])])];
     const elements=(slide.body||[]).map((text,n)=>({element_id:`${slideId}-T${String(n+1).padStart(2,'0')}`,kind:'text',text,source_ids:sources}));
+    if(coverVisual)elements.push({element_id:`${slideId}-CV01`,kind:'process',steps:coverVisual.steps,source_ids:coverVisual.source_ids});
     let type=slide.type;
     if(slide.diagram){type='architecture';elements.push({element_id:`${slideId}-D01`,kind:'diagram',...structuredClone(slide.diagram),source_ids:sources});}
     if(slide.steps){type='process';elements.push({element_id:`${slideId}-P01`,kind:'process',steps:structuredClone(slide.steps),source_ids:sources});}
@@ -37,7 +41,7 @@ export function compileApprovedStoryboard(storyboard,evidence,{sourcePath='story
       slide_id:slideId,type,title:slide.title,assertion_title:slide.assertion_title||slide.title,
       role:slide.kicker||slide.type,evidence_ids:sources,elements,
       ...(slide.speaker_notes?{speaker_notes:slide.speaker_notes}:{}),
-      design:{legacy_layout:slide.layout||null,visual_description:slide.figure_description||null}
+      design:{legacy_layout:slide.layout||null,visual_description:slide.figure_description||null,...(coverVisual?{cover_visual:coverVisual}:{})}
     };
   });
   const meta={...structuredClone(storyboard.meta),title:storyboard.meta.title,
