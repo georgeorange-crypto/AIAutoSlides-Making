@@ -1,3 +1,5 @@
+import {importanceWeight} from './importance.mjs';
+
 const AUDIENCE={
   research_group:{opening:'research_question',closing:'limitations_and_next_experiment',roles:{chart:'experimental_result',table:'protocol_or_measurements',architecture:'system_setup',process:'method',bullets:'research_context',statement:'research_claim',metrics:'measured_result'}},
   academic_conference:{opening:'research_question',closing:'contribution_and_implications',roles:{chart:'result_supporting_contribution',table:'evidence_summary',architecture:'technical_approach',process:'method',bullets:'related_context',statement:'contribution_claim',metrics:'key_result'}},
@@ -26,15 +28,16 @@ function mediaFor(slide,assetById){
 function seconds(value){return Math.round(value);}
 
 /** Deterministic, inspectable presentation intelligence. This ranks authored IR only; it does not invent or verify content. */
-export function planPresentationIntelligence(presentationIR){
-  const slides=presentationIR.slides||[],meta=presentationIR.meta||{},assetById=new Map((presentationIR.assets||[]).map(asset=>[asset.asset_id,asset])),rawAudience=meta.audience_profile||meta.audience||'general',audience=typeof rawAudience==='string'?rawAudience:(rawAudience?.profile||rawAudience?.type||'general'),duration=Number(meta.duration_seconds??(Number(meta.duration_minutes)*60)),known=slides.map(slide=>Number(slide.time_budget_seconds)).filter(value=>Number.isFinite(value)&&value>0),total=Number.isFinite(duration)&&duration>0?duration:null;
+export function planPresentationIntelligence(presentationIR,{qualityPlan}={}){
+  const slides=presentationIR.slides||[],meta=presentationIR.meta||{},assetById=new Map((presentationIR.assets||[]).map(asset=>[asset.asset_id,asset])),authoredPlanById=new Map((qualityPlan?.slides||[]).map(slide=>[slide.slide_id,slide])),rawAudience=meta.audience_profile||meta.audience||'general',audience=typeof rawAudience==='string'?rawAudience:(rawAudience?.profile||rawAudience?.type||'general'),duration=Number(qualityPlan?.task?.target_duration_seconds??meta.duration_seconds??(Number(meta.duration_minutes)*60)),known=slides.map(slide=>Number(slide.time_budget_seconds)).filter(value=>Number.isFinite(value)&&value>0),total=Number.isFinite(duration)&&duration>0?duration:null;
   const profilePreferences=meta.profile_preferences&&typeof meta.profile_preferences==='object'?meta.profile_preferences:{};
   const authoringPreferences=Object.fromEntries(['language','tone','slide_density'].map(key=>[key,meta[key]??profilePreferences[key]??null]));
   const explicitTotal=known.reduce((sum,value)=>sum+value,0),remaining=total===null?null:Math.max(0,total-explicitTotal),unassigned=slides.filter(slide=>!(Number.isFinite(Number(slide.time_budget_seconds))&&Number(slide.time_budget_seconds)>0));
   const weights=unassigned.map(slide=>{
     const typeWeight={cover:0.6,closing:0.65,chart:1.35,table:1.3,architecture:1.25,process:1.2,metrics:1.15,statement:1.05}[slide.type]||1;
     const complexity=1+Math.min(0.7,(elementsOf(slide).length+((slide.body||[]).length*0.35))/10);
-    return typeWeight*complexity;
+    const importance=importanceWeight(authoredPlanById.get(slide.slide_id)?.importance);
+    return typeWeight*complexity*(importance??1);
   });
   const weightTotal=weights.reduce((sum,value)=>sum+value,0)||1;
   let assignedSoFar=0;
@@ -44,8 +47,9 @@ export function planPresentationIntelligence(presentationIR){
     let budget=hasExplicit?seconds(explicit):null;
     if(!hasExplicit&&remaining!==null){const position=unassigned.findIndex(item=>item===slide);if(position>=0){budget=position===unassigned.length-1?seconds(Math.max(0,remaining-assignedSoFar)):seconds(remaining*weights[position]/weightTotal);assignedSoFar+=budget;}}
     const media=mediaFor(slide,assetById);
-    return{slide_id:slide.slide_id,ordinal:index+1,takeaway:slide.takeaway||slide.assertion_title||slide.title||'',evidence_refs:refs,narrative_role:slide.role||fallbackRole(slide,index,slides.length,audience),media_candidates:media.candidates,selected_media_type:media.selected_media_type,selection_reason:media.selection_reason,time_budget_seconds:budget,time_budget_origin:hasExplicit?'authored':budget===null?'unspecified':'deterministic_estimate'};
+    const importance=authoredPlanById.get(slide.slide_id)?.importance||null;
+    return{slide_id:slide.slide_id,ordinal:index+1,takeaway:slide.takeaway||slide.assertion_title||slide.title||'',evidence_refs:refs,narrative_role:slide.role||fallbackRole(slide,index,slides.length,audience),importance,importance_weight:importanceWeight(importance),media_candidates:media.candidates,selected_media_type:media.selected_media_type,selection_reason:media.selection_reason,time_budget_seconds:budget,time_budget_origin:hasExplicit?'authored':budget===null?'unspecified':'deterministic_estimate'};
   });
   const totalAllocated=planned.every(item=>item.time_budget_seconds!==null)?planned.reduce((sum,item)=>sum+item.time_budget_seconds,0):null;
-  return{schema_version:'1.0.0',method:'deterministic_ir_heuristics',audience_profile:audience,target_duration_seconds:total,total_allocated_seconds:totalAllocated,time_budget_status:total===null||totalAllocated===null?'unspecified':totalAllocated>total?'over_target':totalAllocated<total?'under_target':'allocated',authoring_preferences:authoringPreferences,limitations:['Narrative roles are heuristic defaults; authored narrative_role values take precedence.','Language, tone and density preferences are authoring guidance only; this deterministic planner does not translate or rewrite slide content.','Media suggestions only map existing structured elements and never search for or invent assets.','Time is an allocation estimate, not a rehearsal measurement; explicit slide budgets are preserved.','This planner does not assess factual accuracy, semantic claim support, or visual aesthetics.'],slides:planned};
+  return{schema_version:'1.0.0',method:'deterministic_ir_heuristics',audience_profile:audience,target_duration_seconds:total,total_allocated_seconds:totalAllocated,time_budget_status:total===null||totalAllocated===null?'unspecified':totalAllocated>total?'over_target':totalAllocated<total?'under_target':'allocated',authoring_preferences:authoringPreferences,limitations:['Narrative roles are heuristic defaults; authored narrative_role values take precedence.','Language, tone and density preferences are authoring guidance only; this deterministic planner does not translate or rewrite slide content.','Media suggestions only map existing structured elements and never search for or invent assets.','When an approved deck plan is supplied, its recognized importance levels weight estimated talk time; authored slide budgets remain unchanged. Time is an allocation estimate, not a rehearsal measurement.','This planner does not assess factual accuracy, semantic claim support, whether importance labels are correct, or visual aesthetics.'],slides:planned};
 }

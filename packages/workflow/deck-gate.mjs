@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import {classifyImportance,importanceLevels} from './importance.mjs';
 
 const hash=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const planBody=plan=>{const body={...plan};delete body.approval;delete body.representative_review;return body;};
@@ -10,18 +11,21 @@ export const PAGE_QUALITY_CHECKS=Object.freeze([
 
 export function validateDeckPlan(plan){
   const errors=[];
-  if(!plan||plan.schema_version!=='1.0.0')errors.push('schema_version must be 1.0.0');
+  if(!plan||plan.schema_version!=='1.1.0')errors.push('schema_version must be 1.1.0');
   for(const key of ['task','quality_contract','materials','tools','slides','representative_slides','acceptance'])if(!plan?.[key])errors.push(`missing ${key}`);
   if(!plan?.task?.scope||!Number.isInteger(plan?.task?.expected_slide_count)||plan.task.expected_slide_count<1)errors.push('task.scope and positive task.expected_slide_count are required');
+  if(!Number.isFinite(plan?.task?.target_duration_seconds)||plan.task.target_duration_seconds<60||plan.task.target_duration_seconds>7200)errors.push('task.target_duration_seconds must be between 60 and 7200');
   const quality=plan?.quality_contract;
-  for(const key of ['audience','purpose','language','style_reference','content_priorities','narrative_sections','avoid_patterns','visual_slide_ratio_min','minimum_explanation_units'])if(quality?.[key]===undefined)errors.push(`quality_contract missing ${key}`);
+  for(const key of ['audience','purpose','language','style_reference','content_priorities','narrative_sections','avoid_patterns','visual_slide_ratio_min','minimum_explanation_units','minimum_priority_slide_share','minimum_priority_time_share'])if(quality?.[key]===undefined)errors.push(`quality_contract missing ${key}`);
   if(quality){for(const key of ['audience','purpose','language','style_reference'])if(typeof quality[key]!=='string'||!quality[key].trim())errors.push(`quality_contract.${key} must be a nonempty string`);
     for(const key of ['content_priorities','narrative_sections','avoid_patterns'])if(!Array.isArray(quality[key])||quality[key].some(value=>typeof value!=='string'||!value.trim()))errors.push(`quality_contract.${key} must be an array of nonempty strings`);
     if(Array.isArray(quality.content_priorities)&&!quality.content_priorities.length)errors.push('quality_contract.content_priorities must not be empty');
     if(Array.isArray(quality.narrative_sections)&&!quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must not be empty');
     if(Array.isArray(quality.narrative_sections)&&new Set(quality.narrative_sections).size!==quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must be unique');
     if(!Number.isFinite(quality.visual_slide_ratio_min)||quality.visual_slide_ratio_min<0.3||quality.visual_slide_ratio_min>1)errors.push('quality_contract.visual_slide_ratio_min must be between 0.30 and 1');
-    if(!Number.isInteger(quality.minimum_explanation_units)||quality.minimum_explanation_units<18||quality.minimum_explanation_units>120)errors.push('quality_contract.minimum_explanation_units must be an integer between 18 and 120');}
+    if(!Number.isInteger(quality.minimum_explanation_units)||quality.minimum_explanation_units<18||quality.minimum_explanation_units>120)errors.push('quality_contract.minimum_explanation_units must be an integer between 18 and 120');
+    if(!Number.isFinite(quality.minimum_priority_slide_share)||quality.minimum_priority_slide_share<0.25||quality.minimum_priority_slide_share>0.75)errors.push('quality_contract.minimum_priority_slide_share must be between 0.25 and 0.75');
+    if(!Number.isFinite(quality.minimum_priority_time_share)||quality.minimum_priority_time_share<0.5||quality.minimum_priority_time_share>0.9)errors.push('quality_contract.minimum_priority_time_share must be between 0.50 and 0.90');}
   if(!Array.isArray(plan?.materials)||!plan.materials.length)errors.push('materials must list at least one required project/source material');
   else for(const [i,item] of plan.materials.entries())if(!item.path||!item.sha256||item.read_status!=='read')errors.push(`materials[${i}] requires path, sha256 and read_status=read`);
   if(!Array.isArray(plan?.tools)||!plan.tools.length)errors.push('tools must include actual capability evidence');
@@ -33,6 +37,7 @@ export function validateDeckPlan(plan){
       if(!s.slide_id||ids.has(s.slide_id))errors.push(`slides[${i}] has missing or duplicate slide_id`);ids.add(s.slide_id);
       for(const key of ['assertion','evidence_ids','visual_type','visual_source','tool_id','rights_status','narrative_role','importance','explanation_goal','visual_rationale','layout_intent'])if(s[key]===undefined)errors.push(`slides[${i}] missing ${key}`);
       for(const key of ['assertion','visual_type','visual_source','tool_id','rights_status','narrative_role','importance','explanation_goal','visual_rationale','layout_intent'])if(typeof s[key]!=='string'||!s[key].trim())errors.push(`slides[${i}].${key} must be a nonempty string`);
+      if(s.importance&&classifyImportance(s.importance)===null)errors.push(`slides[${i}].importance must be one of: ${importanceLevels().join(', ')}`);
       if(!Array.isArray(s.evidence_ids))errors.push(`slides[${i}].evidence_ids must be an array`);
       if(s.section_name!==undefined&&typeof s.section_name!=='string')errors.push(`slides[${i}].section_name must be a string when present`);
     }

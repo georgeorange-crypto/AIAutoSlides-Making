@@ -3,18 +3,32 @@ import assert from 'node:assert/strict';
 import {auditDeckQuality} from '../packages/workflow/quality-audit.mjs';
 
 const longText='这一页解释研究方法如何影响测量结果，并结合原始证据说明关键机制、适用范围、比较关系及其对结论的具体影响。读者可以据此理解数据从哪里来、为什么这样分析，以及结果支持到什么程度。';
-const contract={visual_slide_ratio_min:0.4,minimum_explanation_units:28,language:'Chinese',narrative_sections:['Results']};
+const contract={visual_slide_ratio_min:0.4,minimum_explanation_units:28,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,language:'Chinese',narrative_sections:['Results']};
 function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const agenda={slide_id:'AGENDA',type:'bullets',title:'Contents',elements:[{element_id:'A1',kind:'text',text:'Results'}]};
   const divider={slide_id:'DIV-RESULTS',type:'statement',title:'Results',role:'section_transition',section_name:'Results',elements:[{element_id:'DIV-T01',kind:'text',text:'本节先解释关键机制及其作用，再说明这一机制如何连接到观察结果。'}]};
   const contentSlides=Array.from({length:count},(_,index)=>({slide_id:`S${index+1}`,type:'statement',title:`Claim ${index+1}`,role,evidence_ids:['E1'],elements:[{element_id:`T${index+1}`,kind:'text',text:body},...(index%visualEvery===0?[{element_id:`D${index+1}`,kind:'diagram',groups:[{label:'System'}],nodes:[{id:'a',label:'Input'},{id:'b',label:'Output'}],edges:[{from:'a',to:'b',label:'maps'}]}]:[])]}));
   const slides=[agenda,divider,...contentSlides];
-  const plan={quality_contract:contract,slides:[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text'}))]};
-  return{plan,presentationIR:{slides},renderedQa:{slides:slides.map(()=>({textBoundsPass:true,textOverlaps:[],smallText:[]}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}))}};
+  const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text'}))];
+  const contentPlan={slides:plannedSlides.map(slide=>({slide_id:slide.slide_id,time_budget_seconds:slide.importance==='core'?60:slide.importance==='supporting'?20:5}))};
+  const plan={quality_contract:contract,slides:plannedSlides};
+  return{plan,presentationIR:{slides},contentPlan,renderedQa:{slides:slides.map(()=>({textBoundsPass:true,textOverlaps:[],smallText:[]}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}))}};
 }
 
 test('formal quality audit passes a deck meeting the declared visual, explanation, language, layout, and render constraints',()=>{
-  const result=auditDeckQuality(fixture());assert.equal(result.status,'pass');assert.equal(result.visual_slide_ratio,0.5);assert.deepEqual(result.blockers,[]);
+  const result=auditDeckQuality(fixture());assert.equal(result.status,'pass',JSON.stringify(result.blockers));assert.equal(result.visual_slide_ratio,0.5);assert.deepEqual(result.blockers,[]);
+  assert.equal(result.priority_allocation.priority_slide_share,0.5);assert.equal(result.priority_allocation.priority_time_share,0.75);
+});
+
+test('formal quality audit blocks too few core pages and too little talk time for priority content',()=>{
+ const fewPages=fixture();fewPages.plan.quality_contract.minimum_priority_slide_share=0.5;
+ for(const item of fewPages.plan.slides)if(item.narrative_role==='result')item.importance='supporting';
+ fewPages.plan.slides.find(item=>item.narrative_role==='result').importance='core';
+ assert.ok(auditDeckQuality(fewPages).blockers.some(item=>item.code==='QUALITY_PRIORITY_SLIDE_SHARE'));
+
+ const littleTime=fixture();
+ for(const item of littleTime.contentPlan.slides){const planned=littleTime.plan.slides.find(slide=>slide.slide_id===item.slide_id);if(planned?.narrative_role==='result')item.time_budget_seconds=planned.importance==='core'?15:90;}
+ assert.ok(auditDeckQuality(littleTime).blockers.some(item=>item.code==='QUALITY_PRIORITY_TIME_SHARE'));
 });
 
 test('formal quality audit blocks thin text, low visual coverage, repeated layouts, assistant voice, and English blocks',()=>{

@@ -39,6 +39,16 @@ test('authored role and timing are preserved; missing duration stays explicitly 
  assert.equal(plan.total_allocated_seconds,null);
 });
 
+test('approved priority levels steer estimated talk time toward core material',()=>{
+ const input=deck('research_group');
+ const qualityPlan={task:{target_duration_seconds:300},slides:input.slides.map((slide,index)=>({slide_id:slide.slide_id,importance:index===1?'supporting':index===2?'core':'standard'}))};
+ const report=planPresentationIntelligence(input,{qualityPlan});
+ const method=report.slides.find(slide=>slide.slide_id==='S02'),result=report.slides.find(slide=>slide.slide_id==='S03');
+ assert.equal(method.importance,'supporting');assert.equal(result.importance,'core');
+ assert.ok(result.time_budget_seconds>method.time_budget_seconds);
+ assert.equal(report.total_allocated_seconds,300);
+});
+
 test('media plan carries declared asset rights without approving them',()=>{
  const input=deck('academic_conference');input.assets=[{asset_id:'A1',source_id:'SRC1',media_type:'image/png',license:'CC BY 4.0',rights_status:'pending'}];input.slides[1].elements=[{element_id:'I1',kind:'image',asset_id:'A1'}];
  const image=planPresentationIntelligence(input).slides[1].media_candidates[0];
