@@ -27,7 +27,7 @@ Date: 2026-11-12. Current checkout is `dev`; this section supersedes the histori
 
 ## Remaining P1 work
 
-The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, Graphviz, D2, and Quarto have verified local routes. LibreOffice remains outstanding; the PyMuPDF distribution-license decision is also pending. Template/POTX import and `pptx-automizer` are outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. Graphviz, D2, and Quarto are E2E-verified on Windows only; Linux/macOS installation is not verified.
+The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, Graphviz, D2, Quarto, and LibreOffice have verified local routes. The PyMuPDF distribution-license decision is pending. Template/POTX import and `pptx-automizer` are outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. Graphviz, D2, Quarto, and LibreOffice are E2E-verified on Windows only; Linux/macOS are not verified in this phase.
 
 ## P1/P2 continuation — 2026-11-12
 
@@ -87,6 +87,14 @@ The P1 ecosystem tranche is not complete. Since this historical status was writt
 - `npm run tools -- tools doctor quarto`, `npm run tools -- tools test quarto`, `npm run render:quarto`, and the focused tests passed. The PPTX contains 3 slides (Quarto title slide plus two authored slides), 10 editable text runs, and source ID `E_SYN_01` on all three. The 3.48 MB self-contained HTML and artifact hashes are recorded; synthetic evidence remains unverified.
 - PowerPoint 16.0 rendered the three slides to PNG via Poppler 26.07.0. Each page was opened and visually inspected; text, evidence ID, margins and wrapping are legible with no visible clipping. The standalone HTML is not a scientific approval and the PPTX theme/layout remains plain by design.
 - Full repository check passed: 185/185 tests (176 parallel-safe, then Graphviz 2/2, D2 2/2, Quarto 2/2 and Marp 3/3 serial renderer tests). The chain completed critic evaluation, benchmark update, markdown/CSV/repeated-run imports, validation, native PPTX builds and QA. Existing unverified-source and missing-chart-sample-size warnings remain expected.
+
+### P1: LibreOffice headless review renderer
+
+- Added a LibreOffice render adapter around the existing `scripts/preview.mjs` backend, a `doctor`/`test` path, `preview:libreoffice` command, optional `AI4SLIDES_LIBREOFFICE_BIN` configuration, isolated two-slide E2E tests, and page/PDF/artifact hashes. The adapter only consumes local PPTX, creates a new output directory, checks PDF/PNG signatures, enforces input/output bounds and refuses overwrite. Preview is not considered visual approval.
+- The environment already has LibreOffice Impress 26.2.3.2 at `D:\\Program Files\\LibreOffice\\program\\soffice.com` and Poppler `pdftoppm 26.07.0`; no application was installed or changed in this step.
+- `npm run tools -- tools doctor libreoffice`, `npm run tools -- tools test libreoffice`, and `node --test tests/libreoffice-adapter.test.mjs` passed. The real two-slide PPTX rendered to a two-page PDF and two PNGs; all outputs passed signature/manifest checks.
+- The Quarto three-slide deck was also rendered through LibreOffice and visually inspected page by page after its dedicated preview run. PowerPoint 16.0 and LibreOffice do not share layout fidelity; reports retain renderer identity and no claim is made that one renderer substitutes for the other.
+- Full repository check passed: 188/188 tests (177 parallel-safe, then Graphviz 2/2, D2 2/2, Quarto 2/2, LibreOffice 2/2 and Marp 3/3 serial renderer tests). Critic evaluation, benchmark update, source/CSV imports, validation, legacy deck builds, dual deck build, and QA also completed. Existing unverified-source and missing-chart-sample-size warnings remain expected.
 
 ---
 
