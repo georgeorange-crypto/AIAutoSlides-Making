@@ -138,6 +138,19 @@ test('formal quality audit blocks stacked or copy-pasted disclaimer clauses whil
  assert.deepEqual(issue.slide_ids,['S2','S3','S4']);
 });
 
+test('caveat gates include section transitions while ignoring the navigation-only agenda',()=>{
+ const stacked=fixture();stacked.presentationIR.slides[1].elements[0].text+=' 本结论不代表因果关系。不表明适用于所有样本。不能证明其他机制不存在。';
+ assert.ok(auditDeckQuality(stacked).blockers.some(item=>item.code==='QUALITY_CAVEAT_OVERLOAD'&&item.slide_id==='DIV-RESULTS'));
+
+ const repeated=fixture();
+ for(const id of ['DIV-RESULTS','S2','S3'])repeated.presentationIR.slides.find(slide=>slide.slide_id===id).elements[0].text+=' 本结论不代表因果关系。';
+ const finding=auditDeckQuality(repeated).blockers.find(item=>item.code==='QUALITY_CAVEAT_REPETITION');
+ assert.deepEqual(finding?.slide_ids,['DIV-RESULTS','S2','S3']);
+
+ const agenda=fixture();agenda.presentationIR.slides[0].elements[0].text='本结论不代表因果关系。不表明适用于所有样本。不能证明其他机制不存在。';
+ assert.ok(!auditDeckQuality(agenda).blockers.some(item=>item.code.startsWith('QUALITY_CAVEAT_')),'navigation-only agenda copy is outside the caveat content screen');
+});
+
 test('formal quality audit blocks a text-unit-compliant page with sparse rendered body copy and missing density evidence',()=>{
  const sparse=fixture({count:2,visualEvery:99});sparse.imageReview.pages[3].visible_text_occupancy_ratio=0.034;sparse.imageReview.pages[3].visible_text_line_count=3;
  assert.ok(auditDeckQuality(sparse).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW'));

@@ -104,9 +104,9 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
     }
     if(!isTransition({narrative_role:role}))content.push({slide,planned,index,visible,elementTexts,slideUnits,hasVisual});
     if(ENDING_ROLE.test(role))endings.push({slide,index,slideUnits});
-    if(!isTransition({narrative_role:role})){
+    if(!/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i.test(role)){
       const clauses=caveatClauses(visible);
-      if(clauses.length>=3)blockers.push(issue('QUALITY_CAVEAT_OVERLOAD',id,`${clauses.length} disclaimer-style clauses appear on one content slide; consolidate them and keep only caveats needed to interpret that page.`,{caveat_clause_count:clauses.length,recommendation:'Keep only caveats needed to interpret this page; state broader study limitations once, concisely, where they best support interpretation.'}));
+      if(clauses.length>=3)blockers.push(issue('QUALITY_CAVEAT_OVERLOAD',id,`${clauses.length} disclaimer-style clauses appear on one page; consolidate them and keep only caveats needed to interpret that page.`,{caveat_clause_count:clauses.length,recommendation:'Keep only caveats needed to interpret this page; state broader study limitations once, concisely, where they best support interpretation.'}));
       for(const clause of clauses){const normalized=clause.normalize('NFC').toLocaleLowerCase().replace(/[\s\p{P}\p{S}]+/gu,'');if(!normalized)continue;const owners=repeatedCaveats.get(normalized)||new Set();owners.add(id);repeatedCaveats.set(normalized,owners);}
     }
     if(ASSISTANT_VOICE.test(visible))blockers.push(issue('QUALITY_ASSISTANT_VOICE',id,'Visible copy reads like instructions or a conversation with the user.',{location:'visible_copy',recommendation:'Rewrite it as presentation content addressed to the audience without assistant-to-user phrasing.'}));
@@ -141,7 +141,7 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
       }
     }
   }
-  for(const owners of repeatedCaveats.values())if(owners.size>=3)blockers.push(issue('QUALITY_CAVEAT_REPETITION',[...owners][0],`The same disclaimer-style clause is repeated on ${owners.size} content slides.`,{slide_ids:[...owners],repetition_count:owners.size,recommendation:'State a shared limitation once, then use each page for the evidence, mechanism, or implication that matters there.'}));
+  for(const owners of repeatedCaveats.values())if(owners.size>=3)blockers.push(issue('QUALITY_CAVEAT_REPETITION',[...owners][0],`The same disclaimer-style clause is repeated on ${owners.size} pages.`,{slide_ids:[...owners],repetition_count:owners.size,recommendation:'State a shared limitation once, then use each page for the evidence, mechanism, or implication that matters there.'}));
   let priorityAllocation=null;
   if(isFullDeck){
     const ranked=content.map(item=>({...item,importanceBand:classifyImportance(item.planned?.importance)})),unranked=ranked.filter(item=>!item.importanceBand);
