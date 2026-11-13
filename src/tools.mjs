@@ -10,13 +10,15 @@ import {ooxmlTextAdapter} from '../packages/adapters/ooxml-text.mjs';
 import {mermaidAdapter} from '../packages/adapters/mermaid.mjs';
 import {slidevAdapter} from '../packages/adapters/slidev.mjs';
 import {markitdownAdapter} from '../packages/adapters/markitdown.mjs';
+import {marpAdapter} from '../packages/adapters/marp.mjs';
+import {presentonAdapter} from '../packages/adapters/presenton.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
 import {createCanvaOAuthServer} from './canva-oauth.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter],[marpAdapter.manifest.id,marpAdapter],[presentonAdapter.manifest.id,presentonAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
@@ -81,7 +83,7 @@ async function main(){
   else result={ok:false,status:'blocked',reason:tool.needsAuth?'Requires an explicitly configured account, credentials, and user-approved permissions.':'No executable adapter is implemented yet; catalog entry only.',warnings:[]};
   if(command==='test'){
    if(!adapter){result={ok:false,status:'blocked',reason:'No adapter smoke test is implemented. Catalog metadata is not an integration test.',warnings:[]};}
-   else if(result.ok){const smoke=await adapter.smokeTest?.();result=smoke?.ok?{...result,status:'smoke-tested',smoke}:{ok:false,status:'blocked',reason:'Adapter has no runnable artifact smoke test.',warnings:[]};}
+   else {const smoke=await adapter.smokeTest?.();if(smoke?.ok){const runtimeBlocked=!result.ok;result={...result,ok:true,status:runtimeBlocked?'contract-smoke-tested':'smoke-tested',smoke,...(runtimeBlocked?{reason:`Contract smoke passed offline; live runtime remains unavailable: ${result.reason||result.status}.`}:{})};}else result={ok:false,status:'blocked',reason:smoke?.reason||'Adapter has no passing runnable smoke test.',warnings:[]};}
   }
   console.log(`${tool.id}: ${result.status|| (result.ok?'available':'blocked')}${result.version?` (${result.version})`:''}`);
   if(result.smoke)console.log(`  smoke: ${JSON.stringify(result.smoke)}`);

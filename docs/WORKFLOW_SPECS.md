@@ -1,6 +1,6 @@
 # Workflow Specs (routing contract)
 
-These six specs define the intended route and its safe fallback. `research` now has an executable local-first P1 slice described in [`RESEARCH_WORKFLOW_P1.md`](RESEARCH_WORKFLOW_P1.md); the other routes remain specifications, not claims that they are executable. The existing storyboard/evidence → PptxGenJS route remains the usable default.
+These six specs define the intended route and its safe fallback. `research` has an executable local-first P1 slice described in [`RESEARCH_WORKFLOW_P1.md`](RESEARCH_WORKFLOW_P1.md). `technical-html` now has a runnable Marp local-Markdown export adapter (`npm run render:marp`); its default PPTX is rasterized and must not be treated as editable. The other routes remain specifications, not claims that they are executable. The existing storyboard/evidence → PptxGenJS route remains the usable default.
 
 | Workflow | Inputs and route | Outputs | Failure/fallback |
 |---|---|---|---|
