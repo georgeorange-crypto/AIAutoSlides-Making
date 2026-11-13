@@ -47,4 +47,6 @@ The server supports modern MCP `2026-07-28` discovery/per-request metadata and l
 
 The MCP host owns the user confirmation interface. Tool descriptions ask for user approval before project/profile creation or updates, outbound research, source import, slide edits, render jobs and cancellation; a server cannot force a host to display a confirmation prompt. Keep the REST API private and loopback-only; do not expose it through a reverse proxy.
 
+`aiautoslides_enqueue_page_crawl` queues one page from an operator-authorized public HTTPS URL and requires `allow_network:true` and `site_authorized:true`. DNS/public-address and same-host redirect rules are enforced, Crawl4AI must confirm robots policy, and excerpts remain pending human verification with reuse rights unreviewed. This is an outbound network action and mutates the selected project; the MCP host should request user approval.
+
 Protocol references: [MCP stdio transport](https://modelcontextprotocol.io/specification/draft/basic/transports/stdio), [MCP tools](https://modelcontextprotocol.io/specification/draft/server/tools), [MCP discovery](https://modelcontextprotocol.io/specification/draft/server/discover), and [version compatibility](https://modelcontextprotocol.io/specification/draft/basic/versioning).

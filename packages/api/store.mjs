@@ -131,6 +131,19 @@ export async function openProjectStore(workspaceDir){
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);});
     return{project_id:projectId,source_id:sourceId,source_sha256:sourceHash,extracted_text_sha256:textHash,evidence_ids:added.map(item=>item.evidence_id),evidence_count:added.length,added:added.length>0,ir_sha256:blob.sha256};
   }
+  function attachCrawledPage(projectId,sourceId,crawl){
+    const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
+    if(typeof sourceId!=='string'||!/^SRC_[A-Z0-9_]{1,90}$/.test(sourceId)||!crawl?.manifest||crawl.manifest.provider!=='crawl4ai'||typeof crawl.markdown!=='string'||!Array.isArray(crawl.evidenceEntries))throw new TypeError('Crawled-page result or source ID is invalid.');
+    const bytes=Buffer.from(crawl.markdown,'utf8'),sourceHash=sha256(bytes);if(sourceHash!==crawl.sourceHash||sourceHash!==crawl.manifest.markdown_sha256)throw new Error('Crawled Markdown hash does not match its manifest.');
+    const blob=path.join(root,'source-blobs',sourceHash);if(fs.existsSync(blob)){if(sha256(fs.readFileSync(blob))!==sourceHash)throw new Error('Content-addressed web source failed hash verification.');}else fs.writeFileSync(blob,bytes,{flag:'wx'});
+    const currentSources=project.presentationIR.source_ir.sources,existing=currentSources.find(source=>source.source_id===sourceId);if(existing){if(existing.sha256===sourceHash&&existing.crawl_page?.markdown_sha256===sourceHash)return{project_id:projectId,source_id:sourceId,source_sha256:sourceHash,evidence_ids:crawl.evidenceEntries.map(item=>item.evidence_id),evidence_count:0,added:false,ir_sha256:project.ir_sha256};throw new Error(`Source '${sourceId}' already exists with different bytes or type.`);}
+    const prior=project.presentationIR.source_ir.evidence||[],byId=new Map(prior.map(item=>[item.evidence_id,item])),added=[];
+    for(const entry of crawl.evidenceEntries){if(!entry||typeof entry.evidence_id!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(entry.evidence_id)||typeof entry.excerpt!=='string'||!entry.excerpt.trim()||typeof entry.locator!=='string')throw new TypeError('Crawled web evidence entry is invalid.');const evidence={evidence_id:entry.evidence_id,source_id:sourceId,excerpt:entry.excerpt,locator:entry.locator,verification_status:'pending',source_sha256:sourceHash,review_status:'pending_human_review'},old=byId.get(entry.evidence_id);if(old){if(old.source_id!==sourceId||old.excerpt!==evidence.excerpt||old.locator!==evidence.locator)throw new Error(`Evidence '${entry.evidence_id}' already exists with different content.`);continue;}byId.set(entry.evidence_id,evidence);added.push(evidence);}
+    const source={source_id:sourceId,type:'web_page',uri:crawl.manifest.final_url,sha256:sourceHash,locator:crawl.manifest.title||crawl.manifest.final_url,verification_status:'unverified',claims:[],assets:[],crawl_page:{provider:'crawl4ai',requested_url:crawl.manifest.requested_url,final_url:crawl.manifest.final_url,title:crawl.manifest.title,retrieved_at:crawl.manifest.retrieved_at,robots_checked:crawl.manifest.robots_checked,markdown_sha256:sourceHash,reuse_rights:'needs_review'}};
+    const updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,sources:[...currentSources,source],evidence:[...prior,...added]}},irBlob=persistIR(updated),at=now();
+    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,irBlob.path,irBlob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE sources SET original_name=?,blob_path=? WHERE project_id=? AND source_id=?').run('page.md',blob,projectId,sourceId);});
+    return{project_id:projectId,source_id:sourceId,source_sha256:sourceHash,evidence_ids:added.map(item=>item.evidence_id),evidence_count:added.length,added:true,ir_sha256:irBlob.sha256};
+  }
   function addResearchCandidates(projectId,result){
     const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
     if(!result||!['openalex','crossref','arxiv'].includes(result.provider)||!Array.isArray(result.results))throw new TypeError('Research result must contain a supported provider and results[].');
@@ -173,7 +186,7 @@ export async function openProjectStore(workspaceDir){
   function createJob(projectId,options={},workflow='presentation'){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);
     const jobId=id(),at=now(),events=[];
-    if(!['presentation','research-topic','arxiv-paper-ingest','document-ingest'].includes(workflow))throw new TypeError(`Unsupported workflow '${workflow}'.`);
+    if(!['presentation','research-topic','arxiv-paper-ingest','document-ingest','web-crawl'].includes(workflow))throw new TypeError(`Unsupported workflow '${workflow}'.`);
     db.prepare('INSERT INTO jobs(job_id,project_id,workflow,status,created_at,updated_at,options_json,events_json) VALUES(?,?,?,?,?,?,?,?)').run(jobId,projectId,workflow,'queued',at,at,json(options),json(events));
     return getJob(jobId);
   }
@@ -195,5 +208,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProfile,updateProfile,getProfile,listProfiles,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,readSourceBlob,attachDocumentEvidence,addResearchCandidates,attachArxivPaper,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProfile,updateProfile,getProfile,listProfiles,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,readSourceBlob,attachDocumentEvidence,attachCrawledPage,addResearchCandidates,attachArxivPaper,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }

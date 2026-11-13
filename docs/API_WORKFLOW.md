@@ -21,6 +21,7 @@ The API binds only to `127.0.0.1`. It needs Node.js 22.5+ for the built-in `node
 | `POST` | `/projects/{id}/research/jobs` | Queue an opt-in scholarly metadata search as a durable job |
 | `POST` | `/projects/{id}/research/papers` | Queue download and local extraction of one explicitly selected arXiv candidate (`{source_id, allow_download:true}`) |
 | `POST` | `/projects/{id}/research/documents` | Queue local PDF.js or DOCX text extraction for one imported source (`{source_id, allow_extract:true}`) |
+| `POST` | `/projects/{id}/research/pages` | Queue a one-page Crawl4AI job for an operator-authorized public HTTPS URL (`{source_id, url, allow_network:true, site_authorized:true}`) |
 | `GET` | `/projects/{id}/slides` | Ordered slide IR rows |
 | `GET`, `PATCH` | `/projects/{id}/slides/{slide_id}` | Read a slide; patch `title`, `assertion_title`, `speaker_notes`, `evidence_ids` or `elements` |
 | `GET`, `POST` | `/projects/{id}/jobs` | List jobs; enqueue a render workflow (optional `{preview:false}`) |
@@ -47,6 +48,8 @@ The workflow is local-only. Restart recovery marks interrupted `running` jobs fa
 Scholarly search jobs persist their provider/query parameters, status, stage events and normalized unverified source candidates. A queued search resumes after API restart; an interrupted running request is marked failed by the same recovery policy. After selecting one arXiv candidate, `POST /projects/{id}/research/papers` requires `allow_download:true` and queues a durable single-paper job. It downloads at most one 50 MiB PDF from the arXiv host allowlist, extracts text locally with PDF.js, stores the original PDF by SHA-256 and attaches page-located excerpts as `pending` evidence. PDF, extracted Markdown, manifest and evidence JSON are job artifacts. Excerpts remain unverified and paper-specific reuse rights remain `needs_review`. This does not constitute a multi-provider research DAG.
 
 For a source already imported into the workspace, `POST /projects/{id}/research/documents` requires `allow_extract:true` and queues local PDF.js (selectable text) or DOCX paragraph extraction. It verifies the immutable source blob hash, attaches page/paragraph excerpt candidates as pending evidence, and creates Markdown, manifest and evidence JSON artifacts. Unsupported formats, scanned-only PDFs and malformed documents fail with an actionable job error; extraction never verifies scientific claims.
+
+`POST /projects/{id}/research/pages` requires both `allow_network:true` and `site_authorized:true`, plus a caller-provided `source_id`. It queues one durable Crawl4AI page job. The worker enforces HTTPS, rejects credentials and non-public DNS addresses (except an explicitly configured egress CIDR), rechecks DNS, constrains redirects and requests to the same host, and requires Crawl4AI's robots-policy confirmation. It stores Markdown by content hash and attaches excerpt candidates as pending evidence; Markdown, manifest and evidence JSON are job artifacts. This is an operator assertion of authorization, not an automated terms-of-service or rights check; scientific claims and reuse rights remain pending review. No page was fetched during automated tests.
 
 ## Local preference profiles
 

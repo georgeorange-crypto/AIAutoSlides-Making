@@ -82,6 +82,19 @@ test('selected imported DOCX extraction is durable, local, source-hash bound, an
   }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('one explicitly authorized public page is a durable job with unverified project evidence',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-crawl-job-'));let api;const markdown='# Synthetic page\n\nA locally injected crawl result for contract testing.',sourceHash=digest(Buffer.from(markdown));
+  try{
+    api=await createLocalApi({workspaceDir:workspace,preview:false,crawlPage:async({url,signal,onStage})=>{assert.equal(url,'https://example.test/research');assert.equal(signal.aborted,false);onStage('crawl','running',{provider:'fixture'});onStage('crawl','completed',{excerpt_count:1});return{markdown,sourceHash,evidenceEntries:[{evidence_id:'E:WEB:FIXTURE:B0001',excerpt:'A locally injected crawl result for contract testing.',locator:'web page excerpt 1'}],manifest:{schema_version:'1.0.0',provider:'crawl4ai',requested_url:url,final_url:url,title:'Synthetic page',retrieved_at:'2026-11-12T12:00:00.000Z',robots_checked:true,markdown_sha256:sourceHash,reuse_rights:'needs_review',egress_gateway_mapping:false}};}});const address=await api.listen({port:0}),base=`http://127.0.0.1:${address.port}`,created=await fetch(`${base}/projects`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title:'Durable page crawl',presentation_ir:fixture})}),project=(await created.json()).project;
+    const enqueue=()=>fetch(`${base}/projects/${project.project_id}/research/pages`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({source_id:'SRC_TEST_WEB',url:'https://example.test/research',allow_network:true,site_authorized:true})});
+    let response=await fetch(`${base}/projects/${project.project_id}/research/pages`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({source_id:'SRC_TEST_WEB',url:'https://example.test/research',site_authorized:true})});assert.equal(response.status,403);
+    response=await fetch(`${base}/projects/${project.project_id}/research/pages`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({source_id:'SRC_TEST_WEB',url:'https://example.test/research',allow_network:true})});assert.equal(response.status,403);
+    response=await enqueue();assert.equal(response.status,202);const jobId=(await response.json()).job.job_id;let job;for(let i=0;i<100;i++){job=(await (await fetch(`${base}/jobs/${jobId}`)).json()).job;if(['completed','failed','cancelled'].includes(job.status))break;await new Promise(resolve=>setTimeout(resolve,20));}
+    assert.equal(job.status,'completed',job.error);assert.equal(job.workflow,'web-crawl');assert.equal(job.result.ingestion.evidence_count,1);assert.equal(job.result.artifacts.length,3);assert.ok(job.events.some(event=>event.stage==='page-crawl'&&event.status==='completed'));
+    const saved=(await (await fetch(`${base}/projects/${project.project_id}`)).json()).project,page=saved.presentationIR.source_ir.sources.find(item=>item.source_id==='SRC_TEST_WEB'),evidence=saved.presentationIR.source_ir.evidence.find(item=>item.evidence_id==='E:WEB:FIXTURE:B0001');assert.equal(page.type,'web_page');assert.equal(page.sha256,sourceHash);assert.equal(page.verification_status,'unverified');assert.equal(evidence.source_id,page.source_id);assert.equal(evidence.verification_status,'pending');assert.equal(evidence.source_sha256,sourceHash);assert.equal(fs.readFileSync(path.join(workspace,'source-blobs',sourceHash),'utf8'),markdown);
+  }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('local REST API persists projects, source blobs, slide edits, jobs, artifacts, and recovery state',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-api-'));let api;
   try{
