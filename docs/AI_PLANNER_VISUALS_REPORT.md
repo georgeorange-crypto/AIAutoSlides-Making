@@ -25,3 +25,18 @@ The fixture makes no API request and contains no research data. It produces a si
 ## Limits and next work
 
 This proves one synthetic request path for editable process and architecture visuals. It does not prove generated diagrams are semantically correct, aesthetically strong for every topic, or factually supported; source-ID membership is traceability, not claim entailment. The planner deliberately fails closed for image, table, and data-figure requests it cannot materialize. Cover/closing art, section/agenda generation, full-deck composition, Chinese editorial quality, scientific verification, and representative real-user quality remain unproven and require separate implementation and human review.
+
+## Formal Presentation IR bridge (2026-11-13)
+
+The previously disconnected AI storyboard path now has an explicit offline bridge:
+
+```powershell
+node src/review-draft.mjs --input outputs/ai-storyboard.json --out outputs/ai-storyboard-approved.json --decision approve --reviewer "Name" --note "Reviewed the claims, sources, and draft" --ack-findings all
+npm run storyboard:to-ir -- --input outputs/ai-storyboard-approved.json --evidence sources/evidence.json --out outputs/presentation-ir.json
+```
+
+The compiler refuses pending, rejected, stale, malformed, or structurally/visually blocked drafts; maps paragraph text and materialized process/architecture visuals to canonical elements; and retains the evidence IDs and each ledger verification state. Test fixtures label their approval as synthetic. This step does **not** constitute scientific claim verification or Harness visual review. `node src/harness.mjs run --task-type ppt ...` still requires an approved content-bound deck plan, representative-slide render review, and the subsequent workflow review gates.
+
+Adversarial checks in `tests/approved-storyboard-ir.test.mjs` cover pending approval, post-approval edits, malformed evidence metadata, valid IR and lineage, native process/diagram materialization, both explanatory paragraphs reaching the rendered PPTX, the CLI path, and the Harness gate. The six-slide synthetic IR fixture was rendered through the presentation workflow to PowerPoint 16.0 PNG previews and all six pages were inspected. Inspection found relationship labels colliding with architecture nodes in the generic architecture layout. The IR adapter now routes AI planner diagrams carrying a visual description through the panel renderer, which presents labeled relationships in a separate legend; the rerendered architecture page was inspected and those labels no longer overlap the nodes. Inspection also found that the legacy process renderer dropped the second explanatory paragraph; the process layout now renders both paragraphs, and a PPTX XML regression check confirms both are present. The run remains `awaiting_review`, as expected for a synthetic proof without a real deck plan or reviewer.
+
+This is evidence that the approved planner output now reaches the formal IR and rendering path and that one observed diagram collision was repaired. It does not guarantee attractive results for arbitrary content, guarantee semantic correctness of generated relationships, or remove the need to inspect every real deck. The synthetic cover still uses the existing decorative-circle motif; cover-art relevance is not solved by this bridge.

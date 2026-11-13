@@ -141,7 +141,7 @@ function process(s,d,t) {
     txt(s,st,{x:x+0.2,y:3.69,w:w-0.37,h:0.83,fontFace:t.bodyFontFace,fontSize:Math.min(20,st.length>15?16:20),color:t.text,bold:true,fit:'shrink'});
     if(i<steps.length-1) txt(s,'→',{x:x+w-0.01,y:3.65,w:gap+0.11,h:0.4,color:t.accent,fontSize:20,bold:true,align:'center'});
   });
-  txt(s,(d.body||[])[0]||'',{x:0.82,y:5.55,w:11.55,h:0.68,fontFace:t.bodyFontFace,fontSize:17,color:t.muted,valign:'top',fit:'shrink'});
+  (d.body||[]).slice(0,2).forEach((item,index)=>txt(s,item,{x:0.82,y:5.34+index*0.66,w:11.55,h:0.56,fontFace:t.bodyFontFace,fontSize:15.5,color:index===0?t.text:t.muted,valign:'top',fit:'shrink'}));
 }
 function architecture(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);

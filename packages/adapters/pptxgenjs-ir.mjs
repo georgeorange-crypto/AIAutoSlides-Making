@@ -73,7 +73,7 @@ export function mapPresentationIRToLegacy(ir){
   const evidence={entries:[...sourceEntries,...evidenceEntries]};
   const warnings=[...check.warnings];
   const slides=ir.slides.map(slide=>{
-    const body=[],sourceIds=new Set(slide.evidence_ids||[]),mapped={slide_id:slide.slide_id,type:slide.type,title:slide.title,assertion_title:slide.assertion_title||undefined,evidence_ids:[],speaker_notes:slide.speaker_notes||'',kicker:slide.role||slide.kicker||slide.type};
+    const body=[],sourceIds=new Set(slide.evidence_ids||[]),mapped={slide_id:slide.slide_id,type:slide.type,title:slide.title,assertion_title:slide.assertion_title||undefined,evidence_ids:[],speaker_notes:slide.speaker_notes||'',kicker:slide.role||slide.kicker||slide.type,layout:slide.design?.legacy_layout||undefined,figure_description:slide.design?.visual_description||undefined};
     for(const element of slide.elements){
       for(const id of element.source_ids||[])sourceIds.add(id);
       switch(element.kind){
@@ -133,6 +133,10 @@ export function mapPresentationIRToLegacy(ir){
     if(slide.type==='cards')mapped.type='metrics';
     if(slide.type==='architecture'&&slide.elements.some(element=>element.kind==='mermaid')&&!mapped.diagram)mapped.type='statement';
     if(mapped.type==='architecture'&&!mapped.diagram)throw new Error(`${slide.slide_id}: architecture slide requires one structured diagram element`);
+    // AI planner diagrams use a panel with a separate relationship legend.
+    // Midpoint labels on the legacy architecture renderer can collide with nodes
+    // in branching layouts, so route described visuals through that panel renderer.
+    if(slide.type==='architecture'&&mapped.figure_description)mapped.type='statement';
     if(slide.type==='process'&&!mapped.steps?.length)throw new Error(`${slide.slide_id}: process slide requires process.steps or process.items`);
     if(slide.type==='chart'&&!mapped.chart)throw new Error(`${slide.slide_id}: chart slide has no chart element`);
     if(slide.type==='table'&&!mapped.table)throw new Error(`${slide.slide_id}: table slide has no table element`);

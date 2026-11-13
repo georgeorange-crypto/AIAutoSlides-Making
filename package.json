@@ -24,6 +24,7 @@
     "deps:presenton-model": "node scripts/install-presenton-model.mjs",
     "select:design": "node src/select-design.mjs",
     "review:draft": "node src/review-draft.mjs",
+    "storyboard:to-ir": "node src/storyboard-to-ir.mjs",
     "preview": "node scripts/preview.mjs outputs/research-demo.pptx",
     "from:csv": "node src/import-csv.mjs",
     "from:line": "node src/import-csv.mjs examples/from-csv/synthetic-series.csv outputs/synthetic-line/storyboard.json line",
