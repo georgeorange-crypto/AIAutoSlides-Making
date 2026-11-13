@@ -69,12 +69,12 @@ Community posts/videos are anecdotal prompts for failure modes, not evidence of 
 
 ## Reproducibility and licensing
 
-The current codebase is MIT licensed. Only PptxGenJS and fflate are runtime dependencies; their lockfile versions are recorded in `package-lock.json`. External content is summarized as short principles with a link and scope. No proprietary slide designs, visual assets, fonts, or substantial source passages are redistributed.
+The current codebase is MIT licensed. Root JavaScript runtime dependencies, including PptxGenJS, fflate, PDF.js and the local Tesseract engine/data packages, are pinned or bounded in `package.json` and `package-lock.json`; the Python extraction workers use separate isolated environments. External content is summarized as short principles with a link and scope. No proprietary slide designs, visual assets, fonts, or substantial source passages are redistributed.
 # Milestone 3A asset slice
 
-Local PNG/JPEG/SVG input, manifest checks (SHA-256, MIME, source, license, verification), slide association and PPTX picture embedding are implemented in `src/assets.mjs`, `src/cli.mjs`, and `src/render.mjs`. SVG content remains one picture object; native editable architecture diagrams are not implemented by this slice. See `docs/M3A_ASSET_SLICE_REPORT.md`.
+Local PNG/JPEG/SVG input, manifest checks (SHA-256, MIME, source, license, verification), slide association and PPTX picture embedding are implemented in `src/assets.mjs`, `src/cli.mjs`, and `src/render.mjs`. SVG content remains one picture object. Native editable architecture diagrams are implemented separately as structured PowerPoint shapes, text and connectors; they are not produced by converting an SVG. See `docs/M3A_ASSET_SLICE_REPORT.md` for the historical asset-only slice and `docs/SCHEMA.md` for current diagram support.
 
-The follow-on AI Systems fixture adds an `architecture` slide rendered as native editable PowerPoint boxes, text, and directed connectors. Existing `process` and native chart types support the remaining flow and deterministic CSV visualization. See `docs/M3A_MULTIMODAL_DEMO_REPORT.md`; this does not establish performance or prove visual quality while fresh rendered pages remain unavailable.
+The follow-on AI Systems fixture adds an `architecture` slide rendered as native editable PowerPoint boxes, text, and directed connectors. Existing `process` and native chart types support the remaining flow and deterministic CSV visualization. See `docs/M3A_MULTIMODAL_DEMO_REPORT.md`; synthetic values do not establish performance. The latest ten-page rendering was visually inspected during M24, while any later deck revision still requires a fresh page review.
 
 ## Open-source reuse decisions across M1–M4
 

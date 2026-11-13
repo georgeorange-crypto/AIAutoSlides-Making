@@ -171,7 +171,7 @@ Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS �
 ## M21: evidence excerpt review
 
 - **Implemented:** REST and MCP can record a caller-supplied `verified` or `contradicted` review for a pending excerpt. The decision is bound to the stable SHA-256 of evidence ID, source ID, excerpt and locator. The API stores reviewer text, timestamp and reviewed hash; stale hashes and repeat final reviews are rejected.
-- **Boundary:** the API is single-user and does not authenticate reviewer identity, inspect source bytes, or assess whether an excerpt entails a claim. Reviewing an excerpt never changes source verification status. This is a review record, not machine verification.
+- **Boundary:** the API is single-user and does not authenticate reviewer identity or assess whether an excerpt entails a claim. A separate computed `source_match` checks supported local text/PDF/DOCX source content; neither that match nor a caller-supplied review is machine verification, and excerpt review never changes source verification status.
 - **Verification:** focused API/MCP tests passed 9/9; full suite passed 174/174; `npm run check` passed on its retry. The ten-page synthetic acceptance deck was rendered and every page inspected. Details are in `docs/M21_EVIDENCE_REVIEW_REPORT.md`.
 
 ## M22: invalidate reviews after evidence edits
@@ -182,7 +182,7 @@ Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS �
 ## M23: local source excerpt matching
 
 - **Implemented:** evidence list/create/review responses compare exact excerpts against imported UTF-8 text blobs in the local content-addressed source store. Results distinguish exact match, no exact match and unavailable, with source hash and match location/count where applicable.
-- **Boundary:** this does not mark evidence verified or establish entailment; binary/PDF/DOCX/OCR and normalized text are not compared. See `docs/M23_LOCAL_EVIDENCE_SOURCE_MATCH_REPORT.md`.
+- **Boundary at M23:** this did not mark evidence verified or establish entailment; binary/PDF/DOCX/OCR and normalized text were outside that stage. M24 adds selectable-text PDF/DOCX extraction matching; see both stage reports.
 
 ## M24: selectable PDF/DOCX evidence excerpt matching
 

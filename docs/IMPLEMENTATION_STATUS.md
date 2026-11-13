@@ -43,7 +43,7 @@
 ## Remaining beyond Phase 1
 
 - Phase 0 bakeoff is incomplete for some requested engines/task groups; blocked and unrun candidates remain identified in `docs/POC_RESULTS.md`.
-- Phase 2 research integrations are implemented for opt-in OpenAlex/Crossref/arXiv metadata search through CLI, local REST and stdio MCP, including project-scoped candidate persistence, explicit unverified source registration, and user-supplied pending evidence excerpts; local Docling and MarkItDown extraction, single-page Crawl4AI, selected arXiv PDF download, and a Wikimedia Commons workflow for one item or a bounded selection of up to five images remain CLI/local-worker routes. Extracted claims and asset reuse remain pending human review.
+- Phase 2 research integrations are implemented for opt-in OpenAlex/Crossref/arXiv metadata search through CLI, local REST and stdio MCP, including project-scoped candidate persistence, explicit unverified source registration, pending evidence excerpts, and caller-supplied excerpt review records. Local exact-source matching covers supported text, selectable PDF and DOCX content; these matches do not assess entailment. Local Docling and MarkItDown extraction, single-page Crawl4AI, selected arXiv PDF download, and a Wikimedia Commons workflow for one item or a bounded selection of up to five images remain CLI/local-worker routes. Extracted claims and asset reuse remain pending human review.
 - Phase 3 audience/narrative/media intelligence and rendered-image critic remain planned.
 - Phase 4 local stdio MCP server over the loopback API is implemented; full UI, remote auth/scopes and Android remain planned.
 - Full Presentation IR element coverage, native Mermaid shape rendering and unchanged-slide hash preservation remain incomplete.
@@ -56,7 +56,7 @@
 - The existing local document importer also provides offline PDF OCR, DOCX body/header/footer text and image extraction, and PDF inline-image/image-XObject extraction with hashes and source locators. PDF masks/soft masks, uncommon sample formats and DOCX comments/tracked-deletion semantics remain unsupported.
 - Search/download boundaries are explicit: network calls require opt-in; image search does not download files; one selected arXiv paper or a selected Commons batch of at most five images can be downloaded per command; web crawl does not traverse links or fetch media.
 - Docling 2.150.0 and Crawl4AI 0.9.5 are pinned in the isolated Python runtime. Docling model downloads are opt-in. Crawl4AI requires its locally installed Playwright Chromium. MarkItDown 0.1.9 uses its separate isolated worker.
-- Phase 2 is complete for these bounded integration slices. API workflow research beyond metadata search, metadata-source registration and pending excerpt entry; human source verification/reviewer approval in the API, general DOI full-text resolution outside Europe PMC, unbounded media acquisition, MinerU integration/licensing, automated scientific verification and parser-accuracy evaluation remain planned or out of scope.
+- Phase 2 is complete for these bounded integration slices. The API can store caller-supplied human excerpt-review decisions but does not authenticate reviewer identity or assess semantic entailment. General DOI full-text resolution outside Europe PMC, unbounded media acquisition, MinerU integration/licensing, automated scientific verification and parser-accuracy evaluation remain planned or out of scope.
 - The prior combined `npm run check` record on the PDF/DOCX asset and cover-layout update is exit 0 with 153/153 tests and the synthetic import/build/QA sequence. On the M12/PDF-DOCX revision, I separately reran the full suite: `npm run test` passed **157/157**; `npm run validate` and `npm run build` exited 0; `node src/qa.mjs outputs/research-demo.pptx` confirmed 7 editable slides and 1 native chart; `npm run preview` rendered seven pages using PowerPoint 16.0 and Poppler 26.07.0, and each page was visually inspected. One chart sample-size warning and two unverified evidence entries remain. The cover title wraps within the content column without intruding into the decorative panel; human design approval remains pending.
 
 ## Verification record
@@ -150,3 +150,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 - The project evidence API now uses the existing local PDF.js and DOCX extractors to match exact excerpts in selectable PDF page text and DOCX paragraphs, returning the extracted locator. OCR remains opt-in and is not called by this check; missing blobs and parse failures remain `unavailable` instead of inferred matches.
 - See `docs/M24_PDF_DOCX_EVIDENCE_MATCH_REPORT.md` for regression and remaining limits.
+
+## Capability status reconciliation — 2026-11-12
+
+- Corrected current-status statements that had been superseded by later implementation: API excerpt review, local selectable PDF/DOCX matching, and native architecture rendering. Earlier milestone reports remain historical records of their original scope.
+- The source-match/reviewer boundary now consistently distinguishes a verbatim provenance check from a caller-supplied human decision and from semantic scientific verification. Remaining phase-wide gaps are still listed as incomplete rather than implied complete.
+- See `docs/M25_STATUS_DOC_RECONCILIATION_REPORT.md`.
