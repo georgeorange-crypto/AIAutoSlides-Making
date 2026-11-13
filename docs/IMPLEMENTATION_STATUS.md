@@ -135,3 +135,8 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 - Project REST/MCP now records a caller-supplied `verified` or `contradicted` excerpt review bound to the current excerpt SHA-256, with reviewer text and timestamp. Stale content and repeated final decisions are rejected.
 - Reviewer identity is not authenticated; this does not verify source status or claim entailment. See `docs/M21_EVIDENCE_REVIEW_REPORT.md`.
+
+## Stale evidence review invalidation follow-on — 2026-11-12
+
+- General Presentation IR updates now return reviewed evidence to `pending` if its excerpt, source ID or locator changes, while retaining the previous reviewer, decision and content hash as stale audit history. Re-review clears the stale decision marker.
+- See `docs/M22_STALE_EVIDENCE_REVIEW_REPORT.md`.

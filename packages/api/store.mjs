@@ -9,6 +9,16 @@ const now=()=>new Date().toISOString();
 const id=()=>crypto.randomUUID();
 const sha256=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 const evidenceContentHash=evidence=>sha256(Buffer.from(JSON.stringify({evidence_id:evidence.evidence_id,source_id:evidence.source_id,excerpt:evidence.excerpt,locator:evidence.locator??null})));
+function invalidateStaleEvidenceReviews(previousIR,updatedIR){
+  const previous=new Map((previousIR.source_ir.evidence||[]).map(evidence=>[evidence.evidence_id,evidence]));
+  const evidence=(updatedIR.source_ir.evidence||[]).map(current=>{
+    const prior=previous.get(current.evidence_id);if(!prior)return current;
+    const priorReviewedHash=prior.reviewed_content_sha256||(['verified','contradicted'].includes(prior.verification_status)?evidenceContentHash(prior):null);
+    if(!priorReviewedHash||evidenceContentHash(current)===priorReviewedHash)return current;
+    return{...current,verification_status:'pending',review_stale:true,stale_review_decision:prior.stale_review_decision||prior.verification_status};
+  });
+  return{...updatedIR,source_ir:{...updatedIR.source_ir,evidence}};
+}
 const json=value=>JSON.stringify(value);
 function within(root,candidate){const rel=path.relative(root,candidate);return rel===''||(!rel.startsWith(`..${path.sep}`)&&rel!=='..'&&!path.isAbsolute(rel));}
 function parse(row){return row?JSON.parse(row):null;}
@@ -65,8 +75,9 @@ export async function openProjectStore(workspaceDir){
   function listProjects(){return db.prepare('SELECT project_id,title,created_at,updated_at,ir_sha256 FROM projects ORDER BY created_at DESC').all();}
   function savePresentationIR(projectId,updated){
     const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
-    assertValidPresentationIR(updated);const blob=persistIR(updated),at=now();
-    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSlides(projectId,updated.slides);});
+    const safeUpdated=invalidateStaleEvidenceReviews(project.presentationIR,updated);
+    assertValidPresentationIR(safeUpdated);const blob=persistIR(safeUpdated),at=now();
+    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSlides(projectId,safeUpdated.slides);});
     return{project_id:projectId,ir_sha256:blob.sha256};
   }
   function updateSlide(projectId,slideId,patch){
@@ -141,7 +152,8 @@ export async function openProjectStore(workspaceDir){
     const current=evidenceList[index],currentHash=evidenceContentHash(current);
     if(typeof contentSha256!=='string'||!/^[a-f0-9]{64}$/.test(contentSha256)||contentSha256!==currentHash)throw Object.assign(new Error('Evidence content hash does not match the current excerpt.'),{status:409});
     if(!['pending','unverified'].includes(current.verification_status))throw Object.assign(new Error(`Evidence '${evidenceId}' already has a final review state.`),{status:409});
-    const reviewed={...current,verification_status:decision,reviewer:reviewer.trim(),reviewed_at:now(),reviewed_content_sha256:currentHash,...(note===null?{}:{review_note:note})};
+    const {stale_review_decision,...reviewable}=current;
+    const reviewed={...reviewable,verification_status:decision,reviewer:reviewer.trim(),reviewed_at:now(),reviewed_content_sha256:currentHash,review_stale:false,...(note===null?{}:{review_note:note})};
     const next=evidenceList.map((item,itemIndex)=>itemIndex===index?reviewed:item),updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,evidence:next}},blob=persistIR(updated),at=now();
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSlides(projectId,updated.slides);});
     return{project_id:projectId,ir_sha256:blob.sha256,evidence:{...reviewed,content_sha256:evidenceContentHash(reviewed)}};

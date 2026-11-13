@@ -24,3 +24,5 @@ Date: 2026-11-12
 - A `verified` value means a human reports having checked the excerpt. The service does not fetch/check original source bytes, assess source authenticity, or verify claim entailment.
 - This API currently offers no excerpt-specific edit operation. General Presentation IR updates can change evidence; the content hash prevents review of a stale revision but callers must submit a new decision against the new hash.
 - The ten-slide deck is synthetic/hypothetical, not empirical evidence. Its warning states are expected and must not be cleared without source review.
+
+Follow-on: M22 adds automatic stale-review invalidation when Presentation IR edits change the evidence binding; see `docs/M22_STALE_EVIDENCE_REVIEW_REPORT.md`.
