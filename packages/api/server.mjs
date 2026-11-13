@@ -66,7 +66,7 @@ export async function createLocalApi({workspaceDir,adapter=null,preview=true}={}
         const jobId=segments[1],job=store.getJob(jobId);if(!job)throw notFound('Job',jobId);
         if(segments.length===2&&method==='GET')return send(res,200,{job});
         if(segments[2]==='review'&&segments.length===3&&method==='POST'){
-          const input=await bodyJson(req),reviewed=store.reviewJob(jobId,input);return send(res,200,{job:reviewed});
+          const input=await bodyJson(req),reviewed=await store.reviewJob(jobId,input);return send(res,200,{job:reviewed});
         }
         if(segments[2]==='cancel'&&segments.length===3&&method==='POST'){
           const updated=store.requestCancel(jobId);controllers.get(jobId)?.abort();if(updated.status==='queued')setImmediate(()=>void runJob(jobId));return send(res,202,{job:updated,cancellation:'accepted_at_stage_boundary'});

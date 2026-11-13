@@ -52,6 +52,21 @@ npm run harness -- review --workspace D:\AIAutoSlidesData --job-id <job-id> --ca
 
 The CLI and REST/MCP use the same SQLite state and engine. Review APIs record a reviewer attestation; this local single-user API does not authenticate the reviewer's real-world identity. The Harness cannot prevent an agent with arbitrary filesystem access from manually creating files outside its official generation path.
 
+## Deck production gates
+
+The standalone CLI adds a stricter path for research-material intake, slide design, and PPTX delivery. Ordinary engineering work and existing REST/MCP IR jobs retain their current workflow.
+
+Create a plan with `schema_version: "1.0.0"` and fields `task` (`scope`, `expected_slide_count`), `materials` (each `path`, `sha256`, `read_status: "read"`), `tools` (each `id`, `status`, `evidence`; allowed statuses are catalogued/adapter-ready/smoke-tested/e2e-tested/blocked), `slides` (one item per page with `slide_id`, `assertion`, `evidence_ids`, `visual_type`, `visual_source`, `tool_id`, `rights_status`), `representative_slides`, and `acceptance` (`reviewer`, nonempty `gates`). Validate then approve it:
+
+```powershell
+node src/harness.mjs plan validate --plan deck-plan.json
+node src/harness.mjs plan approve --plan deck-plan.json --reviewer "Name" --note "Reviewed scope, evidence, tools and page plan"
+```
+
+Run a prototype IR containing exactly the representative slide IDs with `run --task-type ppt --deck-plan deck-plan.json --input pilot-ir.json --workspace <workspace> --preview true`. Visual approval requires a JSON `--page-reviews` file with one record per rendered slide, each marked `status: "pass"`, a `findings` value (`"none"` if empty), and `rechecked: true`. After review, record the prototype PPTX hash using `plan representative-approve`. Only then will the CLI accept a full Presentation IR whose page count and slide IDs exactly match the plan. Full deck science and visual reviews remain separate and are bound to the final PPTX SHA-256; deck visual approval also requires complete per-page review records.
+
+The Harness treats plan/tool/review entries as attestations, not proof that a person read a source or that a visual is good. Hashes detect content changes; reviewers remain responsible for inspecting the cited material and page images. It cannot prevent direct renderer invocation outside the official Harness path.
+
 ## Source handling
 
 Place files under `<workspace>/incoming/`. Source import resolves symlinks and rejects any file outside that directory. Bytes are copied to `source-blobs/<sha256>` and stored without modifying the input. The source record remains `unverified` unless the caller supplied a different valid state; file hashing is integrity metadata, not scientific verification.

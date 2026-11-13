@@ -103,7 +103,7 @@ export async function openProjectStore(workspaceDir){
     db.exec('BEGIN IMMEDIATE');try{const row=db.prepare('SELECT events_json FROM jobs WHERE job_id=?').get(jobId);if(!row)throw new Error(`Unknown job '${jobId}'`);const events=parse(row.events_json);events.push(entry);db.prepare('UPDATE jobs SET updated_at=?,events_json=? WHERE job_id=?').run(at,json(events),jobId);db.prepare('INSERT INTO job_events(job_id,stage,status,at,detail_json) VALUES(?,?,?,?,?)').run(jobId,stage,status,at,json(detail));db.exec('COMMIT');}catch(error){db.exec('ROLLBACK');throw error;}
   }
   function setJob(jobId,{status,result,error}){db.prepare('UPDATE jobs SET status=?,updated_at=?,result_json=?,error=? WHERE job_id=?').run(status,now(),result===undefined?null:json(result),error||null,jobId);}
-  function reviewJob(jobId,{category,decision,reviewer,note,reviewed_ids=[],artifact_sha256}){
+  async function reviewJob(jobId,{category,decision,reviewer,note,reviewed_ids=[],artifact_sha256,page_reviews}){
     const job=getJob(jobId);if(!job)throw new Error(`Unknown job '${jobId}'`);if(job.status!=='awaiting_review')throw Object.assign(new Error(`Job '${jobId}' is not awaiting review`),{status:409});
     if(!['science','visual'].includes(category))throw new TypeError('category must be science or visual');if(!['approve','changes_requested'].includes(decision))throw new TypeError('decision must be approve or changes_requested');
     if(typeof reviewer!=='string'||!reviewer.trim()||typeof note!=='string'||!note.trim())throw new TypeError('reviewer and note are required');
@@ -112,7 +112,12 @@ export async function openProjectStore(workspaceDir){
     const deckArtifact=listArtifacts({jobId}).find(item=>item.format==='pptx');if(!deckArtifact||sha256(fs.readFileSync(deckArtifact.path))!==context.deck_sha256)throw Object.assign(new Error('The current PPTX is missing or has changed since the review package was created.'),{status:409});
     if(decision==='approve'&&(!Array.isArray(reviewed_ids)||JSON.stringify([...new Set(reviewed_ids)].sort())!==JSON.stringify(required)))throw Object.assign(new Error(`Approval must attest every required ${category} item: ${required.join(', ')||'(none)'}`),{status:400});
     if(category==='visual'&&!required.length)throw Object.assign(new Error('Visual approval is unavailable because the deck was not rendered to preview pages.'),{status:409});
-    const result={...job.result,reviews:{...(job.result.reviews||{}),[category]:{decision,reviewer:reviewer.trim(),note:note.trim(),reviewed_ids:decision==='approve'?[...required]:[],artifact_sha256,reviewed_at:now()}}};
+    if(category==='visual'&&job.options?.deck_task&&decision==='approve'){
+      const {validatePageReviews}=await import('../workflow/deck-gate.mjs');
+      const pageGate=validatePageReviews(page_reviews,required);
+      if(pageGate.status!=='pass')throw Object.assign(new Error(`Page review rejected: ${pageGate.errors.join('; ')}`),{status:400});
+    }
+    const result={...job.result,reviews:{...(job.result.reviews||{}),[category]:{decision,reviewer:reviewer.trim(),note:note.trim(),reviewed_ids:decision==='approve'?[...required]:[],...(page_reviews?{page_reviews}:{}),artifact_sha256,reviewed_at:now()}}};
     const rejected=decision==='changes_requested',complete=['science','visual'].every(key=>result.reviews[key]?.decision==='approve'),status=rejected?'revision_required':complete?'completed':'awaiting_review';
     if(result.report){result.report.status=status;result.report.critique={...result.report.critique,scientific_accuracy:result.reviews.science?.decision==='approve'?'approved':'pending_human',visual_review:result.reviews.visual?.decision==='approve'?'approved':'pending_human'};}
     const reviewPath=path.join(root,'runs',jobId,`human-review-${category}.json`),reviewBytes=Buffer.from(`${JSON.stringify(result.reviews[category],null,2)}\n`);fs.mkdirSync(path.dirname(reviewPath),{recursive:true});fs.writeFileSync(reviewPath,reviewBytes);const reviewHash=sha256(reviewBytes),artifactId=id();
