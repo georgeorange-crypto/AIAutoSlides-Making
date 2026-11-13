@@ -103,6 +103,16 @@ test('formal quality audit requires per-topic core pages to match declared stand
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNMEASURED'));
 });
 
+test('formal quality audit blocks deep priorities whose core pages repeat one explanation stage',()=>{
+ const input=fixture({count:13,visualEvery:2});input.plan.quality_contract.priority_depth=[{priority_id:'Results',depth_level:'deep',minimum_core_slides:7}];
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_STAGE_MISSING'),'deep pages without stage declarations must fail the independent final audit');
+ for(const planned of input.plan.slides.filter(item=>item.importance==='core'))planned.explanation_stage='mechanism';
+ const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_PRIORITY_STAGE_DIVERSITY');
+ assert.ok(finding,'seven core pages with one declared stage must not count as a progressive deep explanation');assert.equal(finding.stages.length,1);assert.equal(finding.minimum_distinct_stages,4);
+ for(const [index,planned] of input.plan.slides.filter(item=>item.importance==='core').entries())planned.explanation_stage=['question','mechanism','evidence','comparison','result','implication','synthesis'][index];
+ assert.ok(!auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_STAGE_DIVERSITY'));
+});
+
 test('formal quality audit blocks exact and near-verbatim repeated explanations across core pages',()=>{
  const input=fixture({count:5,visualEvery:2}),first=input.presentationIR.slides.find(slide=>slide.slide_id==='S1'),duplicate=input.presentationIR.slides.find(slide=>slide.slide_id==='S3');
  duplicate.elements[0].text=first.elements[0].text;

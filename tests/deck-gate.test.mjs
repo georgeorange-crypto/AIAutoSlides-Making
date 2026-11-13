@@ -22,6 +22,9 @@ test('deck plan maps every declared focus topic to enough distinct core/high pag
  assert.match(validateDeckPlan(duplicate).errors.join('\n'),/priority_ids must not contain duplicate labels/);
  const deep=plan();deep.quality_contract.priority_depth[0]={priority_id:'result',depth_level:'deep',minimum_core_slides:7};
  assert.match(validateDeckPlan(deep).errors.join('\n'),/has 3 core\/high pages; its deep depth requires 7/);
+ const deepEnough=plan();deepEnough.task.expected_slide_count=9;for(let index=0;index<4;index++)deepEnough.slides.push(slide(`S0${index+6}`,`Additional result step ${index+4}`,'result',{section_name:'Finding',evidence_ids:['E1']}));deepEnough.quality_contract.priority_depth[0]={priority_id:'result',depth_level:'deep',minimum_core_slides:7};
+ const stages=['question','mechanism','evidence','comparison','result','implication','synthesis'];deepEnough.slides.filter(item=>item.narrative_role==='result').forEach((item,index)=>{item.explanation_stage=stages[index];});assert.equal(validateDeckPlan(deepEnough).status,'pass');
+ for(const item of deepEnough.slides.filter(item=>item.narrative_role==='result'))item.explanation_stage='mechanism';assert.match(validateDeckPlan(deepEnough).errors.join('\n'),/must cover at least 4 different explanation stages/);
  const invalidDepth=plan();invalidDepth.quality_contract.priority_depth[0].minimum_core_slides=1;
  assert.match(validateDeckPlan(invalidDepth).errors.join('\n'),/at least 2 distinct core\/high slides/);
  const malformed=plan();malformed.quality_contract.priority_depth=[null];

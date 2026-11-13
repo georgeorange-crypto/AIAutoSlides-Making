@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import {classifyImportance,importanceLevels} from './importance.mjs';
 
 export const MIN_FORMAL_VISUAL_SLIDE_RATIO=0.5;
+export const DEEP_EXPLANATION_STAGES=Object.freeze(['question','mechanism','evidence','comparison','result','implication','boundary','synthesis']);
 const AGENDA_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i;
 const SECTION_ROLE=/^(section[_ -]?transition|section)$/i;
 const OPENING_ROLE=/^(cover|opening)$/i;
@@ -103,6 +104,12 @@ export function validateDeckPlan(plan){
       if(!owners.some(slide=>classifyImportance(slide.importance)==='priority'))errors.push(`content priority "${priority}" must map to at least one core/high slide`);
       const depth=quality.priority_depth?.find(item=>item?.priority_id===priority),coreOwners=owners.filter(slide=>classifyImportance(slide.importance)==='priority');
       if(depth&&coreOwners.length<depth.minimum_core_slides)errors.push(`content priority "${priority}" has ${coreOwners.length} core/high pages; its ${depth.depth_level} depth requires ${depth.minimum_core_slides}`);
+      if(depth?.depth_level==='deep'){
+        const invalid=coreOwners.filter(slide=>!DEEP_EXPLANATION_STAGES.includes(slide.explanation_stage));
+        if(invalid.length)errors.push(`deep content priority "${priority}" requires every mapped core/high slide to declare explanation_stage from: ${DEEP_EXPLANATION_STAGES.join(', ')} (missing/invalid: ${invalid.map(slide=>slide.slide_id).join(', ')})`);
+        const stages=new Set(coreOwners.map(slide=>slide.explanation_stage).filter(stage=>DEEP_EXPLANATION_STAGES.includes(stage)));
+        if(stages.size<4)errors.push(`deep content priority "${priority}" must cover at least 4 different explanation stages; found ${stages.size}`);
+      }
     }
   }
   if(!plan?.acceptance?.reviewer||!Array.isArray(plan?.acceptance?.gates)||!plan.acceptance.gates.length)errors.push('acceptance requires reviewer and explicit gates');
