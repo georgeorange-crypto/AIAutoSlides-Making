@@ -240,3 +240,8 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 - Scanned-PDF OCR can now be enabled for the local project API through an explicit CLI flag. It remains off by default, runs with local Tesseract/rasterization, and reports distinct `ocr_match` / `ocr_no_match` outcomes with confidence rather than claiming a verbatim source match.
 - See `docs/M26_API_LOCAL_OCR_REPORT.md`.
+
+## Exact repeated core explanation gate — 2026-11-13
+
+- The formal full-deck quality audit now blocks identical substantial text repeated across core/high pages for the same declared priority (`QUALITY_PRIORITY_EXPLANATION_DUPLICATED`). Exact-match deduplication is a narrow safeguard against copied filler; semantic repetition and mislabeled priorities still require human page review.
+- Adversarial evidence and verification are recorded in `docs/AI_PLANNER_VISUALS_REPORT.md`.

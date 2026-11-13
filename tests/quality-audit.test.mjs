@@ -7,7 +7,7 @@ const contract={content_priorities:['Results'],priority_depth:[{priority_id:'Res
 function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const agenda={slide_id:'AGENDA',type:'bullets',title:'Contents',elements:[{element_id:'A1',kind:'text',text:'Results'}]};
   const divider={slide_id:'DIV-RESULTS',type:'statement',title:'Results',role:'section_transition',section_name:'Results',elements:[{element_id:'DIV-T01',kind:'text',text:'本节先解释关键机制及其作用，再说明这一机制如何连接到观察结果。'}]};
-  const contentSlides=Array.from({length:count},(_,index)=>({slide_id:`S${index+1}`,type:'statement',title:`Claim ${index+1}`,role,evidence_ids:['E1'],elements:[{element_id:`T${index+1}`,kind:'text',text:body},...(index%visualEvery===0?[{element_id:`D${index+1}`,kind:'diagram',groups:[{label:'System'}],nodes:[{id:'a',label:'Input'},{id:'b',label:'Output'}],edges:[{from:'a',to:'b',label:'maps'}]}]:[])]}));
+  const contentSlides=Array.from({length:count},(_,index)=>({slide_id:`S${index+1}`,type:'statement',title:`Claim ${index+1}`,role,evidence_ids:['E1'],elements:[{element_id:`T${index+1}`,kind:'text',text:body===longText?`${body} 本页聚焦样例观察编号${index+1}及其具体作用。`:body},...(index%visualEvery===0?[{element_id:`D${index+1}`,kind:'diagram',groups:[{label:'System'}],nodes:[{id:'a',label:'Input'},{id:'b',label:'Output'}],edges:[{from:'a',to:'b',label:'maps'}]}]:[])]}));
   const slides=[agenda,divider,...contentSlides];
   const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',priority_ids:index%2===0?['Results']:[],visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text',evidence_ids:['E1']}))];
   const contentPlan={slides:plannedSlides.map(slide=>({slide_id:slide.slide_id,time_budget_seconds:slide.importance==='core'?60:slide.importance==='supporting'?20:5}))};
@@ -93,6 +93,13 @@ test('formal quality audit requires per-topic core pages to match declared stand
  assert.ok(!auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNDERALLOCATED'));
  input.plan.quality_contract.priority_depth=[null];
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNMEASURED'));
+});
+
+test('formal quality audit blocks exact repeated explanations across core pages of the same priority',()=>{
+ const input=fixture({count:5,visualEvery:2}),first=input.presentationIR.slides.find(slide=>slide.slide_id==='S1'),duplicate=input.presentationIR.slides.find(slide=>slide.slide_id==='S3');
+ duplicate.elements[0].text=first.elements[0].text;
+ const finding=auditDeckQuality(input).blockers.find(item=>item.code==='QUALITY_PRIORITY_EXPLANATION_DUPLICATED');
+ assert.ok(finding);assert.equal(finding.priority,'Results');assert.deepEqual(finding.slide_ids,['S1','S3']);
 });
 
 test('formal quality audit blocks thin text, low visual coverage, repeated layouts, assistant voice, and English blocks',()=>{
