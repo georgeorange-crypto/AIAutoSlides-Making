@@ -111,7 +111,7 @@ The importer is deterministic and does not invent citations or metric values. Us
 
 ## Build a custom storyboard
 
-Copy `examples/research-demo.json`, update the slide text and `evidence_ids`, then add entries to `sources/evidence.json`. Chart slides require categories, finite nonnegative values, a unit, and a y-axis label. Include `sample_size` when known; otherwise the validator emits a warning. A bar chart with a nonzero minimum axis is rejected. Unknown IDs and malformed evidence entries fail validation.
+Copy `examples/research-demo.json`, update the slide text and `evidence_ids`, then add entries to `sources/evidence.json`. Storyboards support 1–200 slides. Chart slides require categories, finite nonnegative values, a unit, and a y-axis label. Include `sample_size` when known; otherwise the validator emits a warning. A bar chart with a nonzero minimum axis is rejected. Unknown IDs and malformed evidence entries fail validation.
 
 ```powershell
 node src/cli.mjs validate --input examples/my-talk.json --evidence sources/evidence.json
@@ -163,7 +163,7 @@ Windows rendering uses Microsoft PowerPoint if installed. If COM export is unava
 
 ## Optional AI storyboard
 
-`npm run plan:ai` is opt-in and may incur API charges. It sends the local brief and evidence ledger to the configured OpenAI API. Do not use it with confidential research unless specifically authorized. Local build, validation, tests, and CSV import never call an AI service.
+`npm run plan:ai` is opt-in and may incur API charges. It sends the local brief and evidence ledger to the configured OpenAI API and plans 6–20 slides. Do not use it with confidential research unless specifically authorized. Local build, validation, tests, and CSV import never call an AI service.
 
 ### Slide Critic and human review gate (M3)
 
@@ -398,6 +398,21 @@ npm run api -- --workspace D:\AIAutoSlidesData --port 8787
 ```
 
 The service stores projects, slide IR revisions, source metadata, job transitions, artifacts and hashes in SQLite. Place input files in `<workspace>\incoming`; `POST /projects/{id}/sources` imports only from that directory and copies raw bytes to immutable `source-blobs/<sha256>`. Create a project with `POST /projects` and a JSON body containing `title` and `presentation_ir`; start a generation job with `POST /projects/{id}/jobs`. The local generation workflow inventories supplied evidence without web search, plans slide takeaways and adapter capabilities, generates PPTX, renders PDF/PNG previews, runs structural QA, and records artifacts and stage logs. Set `{"preview":false}` on job creation to skip PowerPoint/Poppler previews.
+
+The service stores projects, slide IR revisions, source metadata, job transitions, artifacts and hashes in SQLite. Place input files in `<workspace>\incoming`; `POST /projects/{id}/sources` imports only from that directory and copies raw bytes to immutable `source-blobs/<sha256>`. Create a project with `POST /projects` and a JSON body containing `title` and `presentation_ir`; start a generation job with `POST /projects/{id}/jobs`. Jobs stop at `awaiting_review` and become `completed` only after separate science and every-slide visual approvals bound to the current PPTX SHA-256. Set `{"preview":false}` on job creation to skip previews and leave the visual gate unavailable.
+
+### Presentation Harness for Codex and Claude
+
+Both repository Skills route agent-generated decks through the same local Harness. It validates Presentation IR and evidence lineage, inventories verification states, chooses an available backend, records adapter attempts and capability downgrades, runs structural QA, renders previews, and pauses for human review. It prefers PptxGenJS IR; Slidev is attempted as a lower-capability fallback only when installed and its output passes lineage and structural QA. `allow_degraded_fallback:false` blocks reduced native-chart capability. The optional AI planner remains a separate external request and requires explicit authorization for each use.
+
+```powershell
+npm run harness -- run --input outputs\my-deck\presentation-ir.json --workspace D:\AIAutoSlidesData --preview true
+npm run harness -- status --workspace D:\AIAutoSlidesData --job-id <job-id>
+npm run harness -- review --workspace D:\AIAutoSlidesData --job-id <job-id> --category science --decision approve --reviewer "Name" --note "Reviewed evidence support" --artifact-sha256 <pptx-sha256> --reviewed-ids SRC01,E1
+npm run harness -- review --workspace D:\AIAutoSlidesData --job-id <job-id> --category visual --decision approve --reviewer "Name" --note "Inspected every page" --artifact-sha256 <pptx-sha256> --reviewed-ids S01,S02
+```
+
+Codex and Claude must not record approvals on their own authority; use the review command only after the user has completed and explicitly approved that review. REST/MCP expose the same gate. The local API records a reviewer attestation but does not authenticate identity, and the Harness cannot prevent agents with arbitrary filesystem access from manually creating files outside its official generation path. Full stage/job and API details are in [`docs/API_WORKFLOW.md`](docs/API_WORKFLOW.md).
 
 An optional `POST /research/search` route accepts `{ "provider":"openalex|crossref|arxiv", "query":"...", "limit":5, "allow_network":true }`. The explicit flag is required before the selected provider receives the query. Results remain unverified metadata candidates; the route does not fetch full text or add evidence to a project. The MCP tool `aiautoslides_research_search` exposes this same opt-in action and is marked as an external service operation.
 

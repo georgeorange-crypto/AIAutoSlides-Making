@@ -42,7 +42,7 @@ async function main(){
 const planned=createPlannerDraft(response,{audienceProfile,duration,goal,theme:arg('theme','keynote-minimal')});
  const {deck,errors,warnings}=validateDeck(planned,ledger);
  if(errors.length)throw new Error(`Model output failed validation: ${errors.join('; ')}`);
- if(deck.slides.length<6||deck.slides.length>9)throw new Error('AI must create 6–9 slides; regenerate or edit manually');
+ if(deck.slides.length<6||deck.slides.length>20)throw new Error('AI must create 6–20 slides; regenerate or edit manually');
  const numberAudit=auditDraftNumbers(deck,brief),critique=critiqueDeck(deck,ledger);
  fs.mkdirSync(path.dirname(output),{recursive:true});
  fs.writeFileSync(output,JSON.stringify(deck,null,2)+'\n');

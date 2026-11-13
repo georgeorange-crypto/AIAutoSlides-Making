@@ -33,12 +33,12 @@ Implement and maintain a **scientifically reliable, beautiful, editable and repr
 - Prefer modular patches and tests over an unreviewable rewrite.
 
 ## Development workflow
-1. Read README, `docs/CODEX_TASK.md`, examples, current review JSON, and source files.
-2. Identify current baseline, produce a specific edit plan, and implement *one checkable phase*.
+1. Follow [`docs/AGENT_ONBOARDING.md`](docs/AGENT_ONBOARDING.md) to read required project materials, inspect tools, establish a protected baseline, and define acceptance criteria before editing. Any task involving research-material intake, slide design, or PPTX delivery must use the Harness deck-plan, representative-review and final page-review gates; pure engineering tasks use the ordinary path.
+2. Implement *one checkable phase* and add tests/fixtures for changed behavior.
 3. Execute `npm run test`, `npm run validate`, `npm run build`; inspect outputs.
-4. If LibreOffice is available, execute `npm run preview` and visually inspect every page of the PDF/PNG (do not claim inspection from mere file existence).
-5. Run negative tests for source IDs, malformed charts, long text and missing dependencies.
-6. Summarize changes, commands/results, discovered defects, unresolved risks, exact paths and next-phase objective.
+4. If LibreOffice/PowerPoint preview is available, render and visually inspect every page. Record blocked/not-run with the reason otherwise.
+5. Run risk-appropriate negative/integration checks and complete the onboarding guide's acceptance record; do not report unrun checks as passed. A PPT task is complete only when its Harness job is `completed` against the final artifact hash.
+6. Summarize changes, exact command results, artifacts, inspection evidence, defects, unresolved risks, and next-phase objective.
 
 ## Scope of allowed edits
 - Can change source, tests, docs, themes and CI; keep demo numbers accurately attributed to source file.
