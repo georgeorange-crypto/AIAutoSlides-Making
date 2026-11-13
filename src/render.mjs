@@ -21,13 +21,9 @@ function addTitle(s,d,t,options={}) {
   const f=titleSize(d.title);
   txt(s,d.title,{x:0.74,y:1.08,w:11.83,h:options.height??1.24,fontFace:t.headFontFace,fontSize:f,bold:true,color:t.title,breakLine:false,valign:'top',fit:'shrink'});
 }
-function addFooter(s,index,total,d,ledger,t,meta) {
+function addFooter(s,index,total,t) {
   line(s,0.74,7.02,12.58,7.02,t.line);
-  const e=(d.evidence_ids||[]).map(id=>ledger.get(id)?.label||id).join(' · ');
-  const foot=e?`Evidence: ${e}`:'No source IDs on this slide';
-  txt(s,foot,{x:0.74,y:7.09,w:9.1,h:0.20,fontFace:t.bodyFontFace,fontSize:7.9,color:t.muted,fit:'shrink'});
-  txt(s,String(meta.status||'DRAFT'),{x:10.05,y:7.09,w:1.72,h:0.20,fontFace:t.bodyFontFace,fontSize:7.8,color:t.muted,align:'right',fit:'shrink'});
-  txt(s,`${String(index+1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`,{x:11.98,y:7.08,w:0.60,h:0.22,fontFace:t.bodyFontFace,fontSize:8.1,bold:true,color:t.muted,align:'right'});
+  txt(s,`${String(index+1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`,{x:11.88,y:7.06,w:0.70,h:0.28,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.muted,align:'right'});
 }
 function panel(s,x,y,w,h,t,alt=false) {
   rect(s,{x,y,w,h,rectRadius:0.16,radius:0.15,fill:{color:alt?t.surfaceAlt:t.surface},line:{color:t.line,width:0.6}});
@@ -128,7 +124,7 @@ function chart(s,d,t,pptx) {
   s.addChart(chartType,data,{
     x:1.03,y:2.86,w:11.20,h:2.91,
     catAxisLabelFontFace:t.bodyFontFace,catAxisLabelFontSize:13.5,
-    valAxisLabelFontFace:t.bodyFontFace,valAxisLabelFontSize:11.5,
+    valAxisLabelFontFace:t.bodyFontFace,valAxisLabelFontSize:12,
     catAxisLabelColor:t.text,valAxisLabelColor:t.text,
     catAxisLineColor:t.muted,valAxisLineColor:t.muted,
     showLegend:series.length>1,legendPos:'b',legendColor:t.text,showValue:!scatter,showTitle:false,showBorder:false,
@@ -139,10 +135,10 @@ function chart(s,d,t,pptx) {
     valAxisMinVal:c.kind==='cdf'?0:undefined,valAxisMaxVal:c.kind==='cdf'?1:undefined,
     lineDataSymbol:c.kind==='line'||c.kind==='scatter'?'circle':'none',lineDataSymbolSize:6,lineSize:c.kind==='cdf'?2.5:c.kind==='scatter'?0:2.5
   });
-  txt(s,c.y_axis_label||c.unit,{x:0.91,y:2.43,w:4.0,h:0.22,fontFace:t.bodyFontFace,fontSize:10.5,color:t.muted,fit:'shrink'});
-  if(scatter&&c.x_axis_label)txt(s,c.x_axis_label,{x:4.10,y:5.83,w:4.8,h:0.21,fontFace:t.bodyFontFace,fontSize:9.5,color:t.muted,align:'center',fit:'shrink'});
+  txt(s,c.y_axis_label||c.unit,{x:0.91,y:2.40,w:4.0,h:0.30,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,fit:'shrink'});
+  if(scatter&&c.x_axis_label)txt(s,c.x_axis_label,{x:4.10,y:5.83,w:4.8,h:0.24,fontFace:t.bodyFontFace,fontSize:12,color:t.muted,align:'center',fit:'shrink'});
   if(d.assertion_title&&d.assertion_title!==d.title)txt(s,d.assertion_title,{x:0.86,y:6.18,w:11.5,h:0.30,fontFace:t.bodyFontFace,fontSize:13.4,bold:true,color:t.text,fit:'shrink'});
-  if((d.body||[])[0])txt(s,d.body[0],{x:0.86,y:d.assertion_title&&d.assertion_title!==d.title?6.51:6.24,w:11.5,h:0.28,fontFace:t.bodyFontFace,fontSize:11.4,color:t.muted,fit:'shrink'});
+  if((d.body||[])[0])txt(s,d.body[0],{x:0.86,y:d.assertion_title&&d.assertion_title!==d.title?6.48:6.24,w:11.5,h:0.40,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,fit:'shrink'});
 }
 function process(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
@@ -161,26 +157,26 @@ function architecture(s,d,t) {
   const g=d.diagram;
   for(const group of g.groups){
     rect(s,{x:group.x,y:group.y,w:group.w,h:group.h,rectRadius:0.14,fill:{color:t.surfaceAlt,transparency:24},line:{color:t.line,width:0.8,dash:'dash'}});
-    txt(s,group.label,{x:group.x+0.16,y:group.y+0.10,w:group.w-0.32,h:0.26,fontFace:t.bodyFontFace,fontSize:11,bold:true,color:t.muted,fit:'shrink'});
+    txt(s,group.label,{x:group.x+0.16,y:group.y+0.10,w:group.w-0.32,h:0.28,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.muted,fit:'shrink'});
   }
   const byId=new Map(g.nodes.map(n=>[n.id,n]));
   for(const edge of g.edges){
     const a=byId.get(edge.from),b=byId.get(edge.to),x1=a.x+a.w/2,y1=a.y+a.h/2,x2=b.x+b.w/2,y2=b.y+b.h/2;
     const dx=x2-x1,dy=y2-y1;
       s.addShape(Shape.line,{x:Math.min(x1,x2),y:Math.min(y1,y2),w:Math.max(Math.abs(dx),0.001),h:Math.max(Math.abs(dy),0.001),flipH:dx<0,flipV:dy<0,line:{color:t.accent,width:1.8,endArrowType:'triangle'}});
-    if(edge.label)txt(s,edge.label,{x:(x1+x2)/2-0.55,y:(y1+y2)/2-0.25,w:1.1,h:0.22,fontFace:t.bodyFontFace,fontSize:9.5,color:t.muted,align:'center',fit:'shrink'});
+    if(edge.label)txt(s,edge.label,{x:(x1+x2)/2-0.72,y:(y1+y2)/2-0.25,w:1.44,h:0.25,fontFace:t.bodyFontFace,fontSize:12,color:t.muted,align:'center',fit:'shrink'});
   }
   g.nodes.forEach((node,i)=>{
     const shape=node.shape==='rect'?Shape.rect:node.shape==='diamond'?Shape.diamond:Shape.roundRect;
       s.addShape(shape,{x:node.x,y:node.y,w:node.w,h:node.h,...(node.shape==='roundRect'?{rectRadius:0.12}:{}),fill:{color:i%2?t.surface:t.background},line:{color:t.accent,width:1.4}});
     const inset=node.shape==='diamond'?0.42:0.14;
-    txt(s,node.label,{x:node.x+inset,y:node.y+0.13,w:node.w-inset*2,h:node.h-0.26,fontFace:t.bodyFontFace,fontSize:Math.min(16,node.label.length>28?10:16),bold:true,color:t.title,align:'center',fit:'shrink'});
+    txt(s,node.label,{x:node.x+inset,y:node.y+0.13,w:node.w-inset*2,h:node.h-0.26,fontFace:t.bodyFontFace,fontSize:Math.min(16,node.label.length>28?12:16),bold:true,color:t.title,align:'center',fit:'shrink'});
   });
 }
 function editableTable(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
   const table=d.table,columns=table.headers.length,totalRows=table.rows.length+1,x=0.82,y=2.64,w=11.70;
-  const rowH=Math.max(0.34,Math.min(0.72,3.75/totalRows)),fontSize=Math.max(9.5,Math.min(14.5,15.5-Math.max(0,columns-3)*1.1-Math.max(0,table.rows.length-6)*0.45));
+  const rowH=Math.max(0.34,Math.min(0.72,3.75/totalRows)),fontSize=Math.max(12,Math.min(14.5,15.5-Math.max(0,columns-3)*1.1-Math.max(0,table.rows.length-6)*0.45));
   const cell=(value,options)=>({text:String(value),options});
   const rows=[
     table.headers.map(header=>cell(header,{bold:true,color:'FFFFFF',fill:{color:t.accent},align:'left'})),
@@ -193,8 +189,8 @@ function editableCode(s,d,t,slideNumber){
   addTop(s,d,t);addTitle(s,d,t);
   const code=d.code,segments=codeSegments(code.lines),x=0.82,y=2.43,w=11.70,h=4.22;
   rect(s,{x,y,w,h,rectRadius:0.10,fill:{color:t.surface},line:{color:t.line,width:0.8}});
-  txt(s,code.filename,{x:x+0.22,y:y+0.13,w:8.9,h:0.24,fontFace:t.bodyFontFace,fontSize:11.5,bold:true,color:t.text,fit:'shrink'});
-  txt(s,code.language.toUpperCase(),{x:x+w-2.1,y:y+0.13,w:1.85,h:0.24,fontFace:t.bodyFontFace,fontSize:9.5,bold:true,color:t.accent,align:'right'});
+  txt(s,code.filename,{x:x+0.22,y:y+0.13,w:8.9,h:0.26,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.text,fit:'shrink'});
+  txt(s,code.language.toUpperCase(),{x:x+w-2.1,y:y+0.13,w:1.85,h:0.26,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,align:'right'});
   const rowH=Math.min(0.225,3.62/segments.length),startY=y+0.52;
   segments.forEach((segment,index)=>txt(s,segment.text,{x:x+0.22,y:startY+index*rowH,w:w-0.44,h:rowH,fontFace:'Consolas',fontSize:12.3,color:t.text,valign:'mid',fit:'shrink',objectName:`Code_S${String(d.slide_id||`S${String(slideNumber).padStart(2,'0')}`).replace(/^S/,'')}_L${String(segment.line).padStart(2,'0')}_P${String(segment.part).padStart(2,'0')}`}));
 }
@@ -208,7 +204,7 @@ function timeline(s,d,t,slideNumber){
     txt(s,event.when,{x:x-colW/2,y:3.20,w:colW,h:0.35,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,align:'center',valign:'mid',fit:'shrink',objectName:`${id}_When`});
     line(s,x,y+0.14,x,4.40,t.line);
     txt(s,event.label,{x:x-colW/2,y:4.52,w:colW,h:0.58,fontFace:t.bodyFontFace,fontSize:15,bold:true,color:t.title,align:'center',valign:'top',fit:'shrink',objectName:`${id}_Label`});
-    if(event.detail)txt(s,event.detail,{x:x-colW/2,y:5.18,w:colW,h:0.80,fontFace:t.bodyFontFace,fontSize:11.2,color:t.muted,align:'center',valign:'top',fit:'shrink',objectName:`${id}_Detail`});
+    if(event.detail)txt(s,event.detail,{x:x-colW/2,y:5.18,w:colW,h:0.80,fontFace:t.bodyFontFace,fontSize:12,color:t.muted,align:'center',valign:'top',fit:'shrink',objectName:`${id}_Detail`});
   });
 }
 function bullets(s,d,t) {
@@ -256,8 +252,10 @@ export async function generatePresentation(deck,evidence,theme,outputPath,assets
       const asset=assets.get(visual.asset_id);
       if(asset) s.addImage({path:asset.resolved_path,x:visual.x,y:visual.y,w:visual.w,h:visual.h,sizingContain:true});
     }
-    addFooter(s,i,deck.slides.length,d,ledger,theme,deck.meta);
-    const notes=d.speaker_notes||d.notes,accessibleNotes=d.figure_description?`Figure description: ${d.figure_description}${notes?`\n\n${notes}`:''}`:notes;
+    addFooter(s,i,deck.slides.length,theme);
+    const notes=d.speaker_notes||d.notes,description=d.figure_description?`Figure description: ${d.figure_description}`:null;
+    const evidenceNotes=(d.evidence_ids||[]).map(id=>{const item=ledger.get(id);return item?`Evidence record ${id}: ${item.label}. Source: ${item.source}. Locator: ${item.locator}. Verification: ${item.verified?'verified':'unverified'}. ${item.note||''}`:`Evidence record ${id}: ledger entry unavailable.`;});
+    const accessibleNotes=[description,notes,...evidenceNotes].filter(value=>typeof value==='string'&&value.trim()).join('\n\n');
     if(typeof accessibleNotes==='string' && accessibleNotes.trim()) s.addNotes(accessibleNotes);
   }
   fs.mkdirSync(path.dirname(outputPath),{recursive:true});

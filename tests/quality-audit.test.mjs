@@ -25,10 +25,10 @@ test('formal quality audit blocks thin text, low visual coverage, repeated layou
   for(const code of ['QUALITY_CONTENT_TOO_THIN','QUALITY_VISUAL_COVERAGE','QUALITY_LAYOUT_REPETITION','QUALITY_ASSISTANT_VOICE','QUALITY_LONG_ENGLISH_BLOCK','QUALITY_PLANNED_VISUAL_MISSING'])assert.ok(codes.has(code),code);
 });
 
-test('formal quality audit blocks actual rendered overlap, out-of-bounds text, unreadable type, and absent pages',()=>{
-  const input=fixture();input.renderedQa.slides[3]={textBoundsPass:false,textOverlaps:[{shape_a:1,shape_b:2,text_a:'one',text_b:'two'}],smallText:[{shape:3,min_font_size_pt:11}]};input.imageReview.pages.pop();
+test('formal quality audit blocks rendered overlap, out-of-bounds text, unreadable type, unknown font size, and absent pages',()=>{
+  const input=fixture();input.renderedQa.slides[3]={textBoundsPass:false,textOverlaps:[{shape_a:1,shape_b:2,text_a:'one',text_b:'two'}],smallText:[{shape:3,min_font_size_pt:11,text:'tiny body in footer area',x:0,y:950000,w:100,h:100}],unmeasuredText:[{shape:4,text:'inherits unknown font',x:0,y:10,w:100,h:100}]};input.imageReview.pages.pop();
   const result=auditDeckQuality(input),codes=new Set(result.blockers.map(item=>item.code));
-  for(const code of ['QUALITY_TEXT_OUT_OF_BOUNDS','QUALITY_TEXT_OVERLAP','QUALITY_TEXT_TOO_SMALL','QUALITY_RENDER_PAGE_COUNT'])assert.ok(codes.has(code),code);
+  for(const code of ['QUALITY_TEXT_OUT_OF_BOUNDS','QUALITY_TEXT_OVERLAP','QUALITY_TEXT_TOO_SMALL','QUALITY_TEXT_SIZE_UNMEASURED','QUALITY_RENDER_PAGE_COUNT'])assert.ok(codes.has(code),code);
   assert.equal(auditDeckQuality({...input,renderedQa:null}).status,'fail');
 });
 

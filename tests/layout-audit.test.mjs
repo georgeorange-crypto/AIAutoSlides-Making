@@ -3,11 +3,17 @@ import assert from 'node:assert/strict';
 import {auditTextLayout} from '../src/layout-audit.mjs';
 
 const shape=(x,y,w,h,size=1200,text='Label')=>`<p:sp><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${w}" cy="${h}"/></a:xfrm></p:spPr><p:txBody><a:p><a:r><a:rPr sz="${size}"/><a:t>${text}</a:t></a:r></a:p></p:txBody></p:sp>`;
-test('text layout audit identifies bounds, overlaps, and small non-footer fonts',()=>{
+test('text layout audit identifies bounds, overlaps, and small fonts even in the footer area',()=>{
  const xml=shape(0,0,100000,100000,800)+shape(50000,50000,100000,100000,1200)+shape(200000,0,100000,100000,900)+shape(0,950000,100000,40000,700);
  const report=auditTextLayout(xml,250000,1000000);
  assert.equal(report.textBounds[0].ok,true);assert.equal(report.textBounds[2].ok,false);
- assert.equal(report.overlaps.length,1);assert.deepEqual(report.smallText.map(x=>x.min_font_size_pt),[8]);
+ assert.equal(report.overlaps.length,1);assert.deepEqual(report.smallText.map(x=>x.min_font_size_pt),[8,9,7]);assert.equal(report.smallText[2].text,'Label');
+});
+
+test('text with inherited or absent explicit font size is reported as unmeasured, regardless of vertical position',()=>{
+ const xml='<p:sp><p:spPr><a:xfrm><a:off x="0" y="950000"/><a:ext cx="100000" cy="40000"/></a:xfrm></p:spPr><p:txBody><a:p><a:r><a:t>Long footer-like body content</a:t></a:r></a:p></p:txBody></p:sp>';
+ const report=auditTextLayout(xml,250000,1000000);
+ assert.deepEqual(report.smallText,[]);assert.equal(report.unmeasuredText.length,1);assert.match(report.unmeasuredText[0].text,/Long footer/);
 });
 
 test('slide bounds audit covers pictures, chart frames, connectors, and negative coordinates',()=>{

@@ -30,6 +30,6 @@ test('Canva callback rejects state mismatch without exchanging code',async()=>{
   let exchanges=0;
   const app=createCanvaOAuthServer({clientId:'test-client',clientSecret:'test-secret',port:53684,fetchImpl:async()=>{exchanges++;throw new Error('must not call');}});
   const address=await app.listen();const base=`http://127.0.0.1:${address.port}`;
-  try{await fetch(`${base}/auth`);const response=await fetch(`${base}/callback?code=x&state=bad`);assert.equal(response.status,400);assert.equal(exchanges,0);}
+  try{await fetch(`${base}/auth`,{redirect:'manual'});const response=await fetch(`${base}/callback?code=x&state=bad`);assert.equal(response.status,400);assert.equal(exchanges,0);}
   finally{await app.close();}
 });

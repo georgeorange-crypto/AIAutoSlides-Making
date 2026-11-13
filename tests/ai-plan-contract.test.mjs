@@ -77,7 +77,8 @@ test('planner-generated process and architecture visuals render as native editab
     assert.ok((xml.match(/<p:sp>/g)||[]).length>=12,'process visual should be native shapes and editable text');
     assert.ok(archXml.includes('Client')&&archXml.includes('Gateway')&&archXml.includes('Scheduler')&&archXml.includes('Worker')&&archXml.includes('Cache'));
     assert.ok((archXml.match(/<p:sp>/g)||[]).length>=8,'architecture visual should use native shapes and editable text');
-    for(const pageXml of [xml,archXml]){const audit=auditTextLayout(pageXml,13.333*914400,7.5*914400);assert.ok(audit.textBounds.every(item=>item.ok),'planner visuals must stay inside slide bounds');assert.deepEqual(audit.overlaps,[],'planner visual text must not overlap');assert.deepEqual(audit.smallText,[],'non-footer planner visual text must be at least 12 pt');}
+    for(const pageXml of [xml,archXml]){const audit=auditTextLayout(pageXml,13.333*914400,7.5*914400);assert.ok(audit.textBounds.every(item=>item.ok),'planner visuals must stay inside slide bounds');assert.deepEqual(audit.overlaps,[],'planner visual text must not overlap');assert.deepEqual(audit.smallText,[],'all authored planner visual text must be at least 12 pt');}
+    const notes=new TextDecoder().decode(files['ppt/notesSlides/notesSlide2.xml']);assert.match(notes,/Evidence record E1/);assert.match(notes,/Verification: unverified/);
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
 
