@@ -140,3 +140,8 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 - General Presentation IR updates now return reviewed evidence to `pending` if its excerpt, source ID or locator changes, while retaining the previous reviewer, decision and content hash as stale audit history. Re-review clears the stale decision marker.
 - See `docs/M22_STALE_EVIDENCE_REVIEW_REPORT.md`.
+
+## Local source excerpt matching follow-on — 2026-11-12
+
+- Evidence responses now compare excerpts verbatim against bounded, imported UTF-8 text source blobs and return a source hash, match count/offset, no-match, or a specific unavailable reason. The evidence and parent source remain pending/unverified.
+- Binary sources, PDF/DOCX extraction alignment, OCR and semantic claim support remain outside this exact-text check. See `docs/M23_LOCAL_EVIDENCE_SOURCE_MATCH_REPORT.md`.

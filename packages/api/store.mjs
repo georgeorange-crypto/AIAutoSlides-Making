@@ -9,6 +9,7 @@ const now=()=>new Date().toISOString();
 const id=()=>crypto.randomUUID();
 const sha256=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
 const evidenceContentHash=evidence=>sha256(Buffer.from(JSON.stringify({evidence_id:evidence.evidence_id,source_id:evidence.source_id,excerpt:evidence.excerpt,locator:evidence.locator??null})));
+const exactMatchTextExtensions=new Set(['.txt','.md','.markdown','.csv','.json','.yaml','.yml','.xml','.html','.htm','.log']);
 function invalidateStaleEvidenceReviews(previousIR,updatedIR){
   const previous=new Map((previousIR.source_ir.evidence||[]).map(evidence=>[evidence.evidence_id,evidence]));
   const evidence=(updatedIR.source_ir.evidence||[]).map(current=>{
@@ -126,6 +127,20 @@ export async function openProjectStore(workspaceDir){
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE research_candidates SET imported_at=? WHERE project_id=? AND source_id=?').run(at,projectId,sourceId);});
     return{project_id:projectId,source,ir_sha256:blob.sha256,imported:true,idempotent:false};
   }
+  function sourceExcerptMatch(projectId,sourceId,excerpt){
+    const row=db.prepare('SELECT sha256,original_name,blob_path FROM sources WHERE project_id=? AND source_id=?').get(projectId,sourceId);
+    if(!row)return{status:'unavailable',reason:'source_not_registered',source_sha256:null};
+    if(!row.blob_path)return{status:'unavailable',reason:'source_bytes_not_imported',source_sha256:row.sha256||null};
+    const blobRoot=path.join(root,'source-blobs'),blobPath=path.resolve(row.blob_path);
+    if(!within(blobRoot,blobPath))throw new Error('Imported source blob escaped the content-addressed source directory.');
+    if(!exactMatchTextExtensions.has(path.extname(row.original_name||'').toLowerCase()))return{status:'unavailable',reason:'unsupported_local_format',source_sha256:row.sha256||null};
+    const stat=fs.statSync(blobPath);if(stat.size>20*1024*1024)return{status:'unavailable',reason:'source_too_large_for_exact_text_match',source_sha256:row.sha256||null};
+    const bytes=fs.readFileSync(blobPath);if(sha256(bytes)!==row.sha256)throw new Error('Content-addressed source blob failed hash verification.');
+    let text;try{text=new TextDecoder('utf-8',{fatal:true}).decode(bytes);}catch{return{status:'unavailable',reason:'source_is_not_utf8_text',source_sha256:row.sha256};}
+    const first=text.indexOf(excerpt);if(first<0)return{status:'no_exact_match',reason:'excerpt_not_found_verbatim',source_sha256:row.sha256,match_count:0,character_offset:null};
+    let matchCount=0,offset=first;while(offset>=0){matchCount++;offset=text.indexOf(excerpt,offset+1);}
+    return{status:'exact_match',reason:null,source_sha256:row.sha256,match_count:matchCount,character_offset:first};
+  }
   function addEvidenceRecord(projectId,{evidenceId,sourceId,excerpt,locator=null}={}){
     const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
     if(typeof evidenceId!=='string'||evidenceId.length>128||!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(evidenceId))throw Object.assign(new TypeError('evidence_id must be a stable identifier of at most 128 characters.'),{status:400});
@@ -137,11 +152,11 @@ export async function openProjectStore(workspaceDir){
     const evidence={evidence_id:evidenceId,source_id:sourceId,excerpt,locator,verification_status:'pending',reviewer:null,reviewed_at:null};
     const updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,evidence:[...previous,evidence]}},blob=persistIR(updated),at=now();
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSlides(projectId,updated.slides);});
-    return{project_id:projectId,ir_sha256:blob.sha256,evidence:{...evidence,content_sha256:evidenceContentHash(evidence)}};
+    return{project_id:projectId,ir_sha256:blob.sha256,evidence:{...evidence,content_sha256:evidenceContentHash(evidence),source_match:sourceExcerptMatch(projectId,sourceId,excerpt)}};
   }
   function listEvidence(projectId){
     const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
-    return(project.presentationIR.source_ir.evidence||[]).map(evidence=>({...evidence,content_sha256:evidenceContentHash(evidence)}));
+    return(project.presentationIR.source_ir.evidence||[]).map(evidence=>({...evidence,content_sha256:evidenceContentHash(evidence),source_match:sourceExcerptMatch(projectId,evidence.source_id,evidence.excerpt)}));
   }
   function reviewEvidence(projectId,evidenceId,{reviewer,decision,contentSha256,note=null}={}){
     const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
@@ -156,7 +171,7 @@ export async function openProjectStore(workspaceDir){
     const reviewed={...reviewable,verification_status:decision,reviewer:reviewer.trim(),reviewed_at:now(),reviewed_content_sha256:currentHash,review_stale:false,...(note===null?{}:{review_note:note})};
     const next=evidenceList.map((item,itemIndex)=>itemIndex===index?reviewed:item),updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,evidence:next}},blob=persistIR(updated),at=now();
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSlides(projectId,updated.slides);});
-    return{project_id:projectId,ir_sha256:blob.sha256,evidence:{...reviewed,content_sha256:evidenceContentHash(reviewed)}};
+    return{project_id:projectId,ir_sha256:blob.sha256,evidence:{...reviewed,content_sha256:evidenceContentHash(reviewed),source_match:sourceExcerptMatch(projectId,reviewed.source_id,reviewed.excerpt)}};
   }
   function createJob(projectId,options={}){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);

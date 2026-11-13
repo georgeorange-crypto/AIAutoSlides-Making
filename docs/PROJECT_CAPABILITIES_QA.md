@@ -178,3 +178,8 @@ Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS �
 
 - **Implemented:** when a Presentation IR update changes the content bound by a prior evidence review, the active state returns to `pending`; old reviewer, decision and reviewed hash remain available as stale audit history. A fresh decision must match the new content hash.
 - **Verification:** API regression changes an already verified excerpt, confirms stale/pending state, then re-reviews the changed excerpt. Details and commands are recorded in `docs/M22_STALE_EVIDENCE_REVIEW_REPORT.md`.
+
+## M23: local source excerpt matching
+
+- **Implemented:** evidence list/create/review responses compare exact excerpts against imported UTF-8 text blobs in the local content-addressed source store. Results distinguish exact match, no exact match and unavailable, with source hash and match location/count where applicable.
+- **Boundary:** this does not mark evidence verified or establish entailment; binary/PDF/DOCX/OCR and normalized text are not compared. See `docs/M23_LOCAL_EVIDENCE_SOURCE_MATCH_REPORT.md`.
