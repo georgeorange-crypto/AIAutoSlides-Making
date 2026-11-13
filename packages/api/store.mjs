@@ -129,10 +129,11 @@ export async function openProjectStore(workspaceDir){
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);});
     return{project_id:projectId,ir_sha256:blob.sha256,added_source_ids:added,added_count:added.length,total_sources:sources.length};
   }
-  function createJob(projectId,options={}){
+  function createJob(projectId,options={},workflow='presentation'){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);
     const jobId=id(),at=now(),events=[];
-    db.prepare('INSERT INTO jobs(job_id,project_id,workflow,status,created_at,updated_at,options_json,events_json) VALUES(?,?,?,?,?,?,?,?)').run(jobId,projectId,'presentation', 'queued',at,at,json(options),json(events));
+    if(!['presentation','research-topic'].includes(workflow))throw new TypeError(`Unsupported workflow '${workflow}'.`);
+    db.prepare('INSERT INTO jobs(job_id,project_id,workflow,status,created_at,updated_at,options_json,events_json) VALUES(?,?,?,?,?,?,?,?)').run(jobId,projectId,workflow,'queued',at,at,json(options),json(events));
     return getJob(jobId);
   }
   function getJob(jobId){const row=db.prepare('SELECT * FROM jobs WHERE job_id=?').get(jobId);return row?{job_id:row.job_id,project_id:row.project_id,workflow:row.workflow,status:row.status,created_at:row.created_at,updated_at:row.updated_at,options:parse(row.options_json),events:parse(row.events_json),result:parse(row.result_json),error:row.error,cancel_requested:Boolean(row.cancel_requested)}:null;}

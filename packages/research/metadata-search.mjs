@@ -14,12 +14,12 @@ async function boundedText(response){
  finally{reader.releaseLock();}
 }
 
-function requestOptions(timeoutMs){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);return{controller,timer,init:{method:'GET',headers:{accept:'application/json, application/atom+xml, application/xml','user-agent':'AIAutoSlides/0.1 (opt-in scholarly metadata search)'},signal:controller.signal,redirect:'error'}};}
-async function fetchBody(fetchImpl,url,timeoutMs,headers={}){
- const {controller,timer,init}=requestOptions(timeoutMs);
+function requestOptions(timeoutMs,signal){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs),abort=()=>controller.abort();if(signal?.aborted)abort();else signal?.addEventListener('abort',abort,{once:true});return{controller,timer,signal,abort,init:{method:'GET',headers:{accept:'application/json, application/atom+xml, application/xml','user-agent':'AIAutoSlides/0.1 (opt-in scholarly metadata search)'},signal:controller.signal,redirect:'error'}};}
+async function fetchBody(fetchImpl,url,timeoutMs,headers={},signal){
+ const {controller,timer,signal:externalSignal,abort,init}=requestOptions(timeoutMs,signal);
  try{init.headers={...init.headers,...headers};const response=await fetchImpl(url,init);if(!response.ok)throw new Error(`Research API returned HTTP ${response.status}.`);return await boundedText(response);}
- catch(error){if(error.name==='AbortError')throw new Error(`Research API timed out after ${timeoutMs} ms.`);throw error;}
- finally{clearTimeout(timer);}
+ catch(error){if(error.name==='AbortError'&&externalSignal?.aborted)throw Object.assign(new Error('Research API request was cancelled.'),{name:'AbortError'});if(error.name==='AbortError')throw new Error(`Research API timed out after ${timeoutMs} ms.`);throw error;}
+ finally{clearTimeout(timer);externalSignal?.removeEventListener('abort',abort);}
 }
 
 function baseRecord({provider,query,url,retrievedAt,raw,item,index}){
@@ -47,7 +47,7 @@ function arxivRecords(xml,context){
 
 export function createMetadataSearch({fetchImpl=globalThis.fetch,clock=()=>new Date().toISOString()}={}){
  if(typeof fetchImpl!=='function')throw new TypeError('Metadata search requires a Fetch-compatible implementation');
- async function search({provider,query,limit=5,timeoutMs=10000}={}){
+ async function search({provider,query,limit=5,timeoutMs=10000,signal}={}){
   if(!['openalex','crossref','arxiv'].includes(provider))throw new Error('provider must be openalex, crossref, or arxiv');
   if(typeof query!=='string'||query.trim().length<2||query.trim().length>500)throw new Error('query must contain 2-500 characters');
   if(!Number.isInteger(limit)||limit<1||limit>10)throw new Error('limit must be an integer from 1 to 10');
@@ -56,7 +56,7 @@ export function createMetadataSearch({fetchImpl=globalThis.fetch,clock=()=>new D
   if(provider==='openalex'){url.searchParams.set('search',q);url.searchParams.set('per-page',String(limit));url.searchParams.set('select','id,doi,title,publication_year,authorships,primary_location,open_access');}
   if(provider==='crossref'){url.searchParams.set('query.bibliographic',q);url.searchParams.set('rows',String(limit));url.searchParams.set('select','DOI,title,author,published,published-print,URL,container-title,type');}
   if(provider==='arxiv'){url.searchParams.set('search_query',`all:${q.replace(/[\r\n]/g,' ').slice(0,200)}`);url.searchParams.set('start','0');url.searchParams.set('max_results',String(limit));url.searchParams.set('sortBy','relevance');}
-  const retrievedAt=clock(),headers=provider==='openalex'&&process.env.OPENALEX_API_KEY?{authorization:`Bearer ${process.env.OPENALEX_API_KEY}`}:{},raw=await fetchBody(fetchImpl,url.toString(),timeoutMs,headers),context={provider,query:q,url:url.toString(),retrievedAt,raw};let payload,records;
+  const retrievedAt=clock(),headers=provider==='openalex'&&process.env.OPENALEX_API_KEY?{authorization:`Bearer ${process.env.OPENALEX_API_KEY}`}:{},raw=await fetchBody(fetchImpl,url.toString(),timeoutMs,headers,signal),context={provider,query:q,url:url.toString(),retrievedAt,raw};let payload,records;
   if(provider==='openalex'){try{payload=JSON.parse(raw);}catch{throw new Error('OpenAlex returned malformed JSON.');}records=openAlexRecords(payload,context);}
   else if(provider==='crossref'){try{payload=JSON.parse(raw);}catch{throw new Error('Crossref returned malformed JSON.');}records=crossrefRecords(payload,context);}
   else records=arxivRecords(raw,context);

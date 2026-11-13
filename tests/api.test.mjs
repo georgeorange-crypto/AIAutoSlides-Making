@@ -37,6 +37,18 @@ test('local profiles persist privacy-safe preferences and seed project defaults 
   }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('durable scholarly search jobs persist status, events and unverified project sources',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-research-job-'));let api;
+  try{
+    api=await createLocalApi({workspaceDir:workspace,preview:false,research:{search:async({provider,query})=>({provider,query,retrieved_at:'2026-11-12T12:00:00.000Z',results:[{source_id:'SRC_JOB',record_sha256:'c'.repeat(64),provider_record_id:'fixture-job',title:'Durable job fixture',authors:[],publication_year:2026,landing_url:'https://example.test/job-paper',evidence_status:'metadata_candidate_only',verification_status:'unverified'}]})}});const address=await api.listen({port:0}),base=`http://127.0.0.1:${address.port}`;
+    const created=await fetch(`${base}/projects`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title:'Durable research job',presentation_ir:fixture})}),project=(await created.json()).project;
+    let response=await fetch(`${base}/projects/${project.project_id}/research/jobs`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:'openalex',query:'cache recovery',allow_network:true})});assert.equal(response.status,202);const jobId=(await response.json()).job.job_id;
+    let job;for(let i=0;i<100;i++){job=(await (await fetch(`${base}/jobs/${jobId}`)).json()).job;if(['completed','failed','cancelled'].includes(job.status))break;await new Promise(resolve=>setTimeout(resolve,20));}
+    assert.equal(job.status,'completed',job.error);assert.equal(job.workflow,'research-topic');assert.ok(job.events.some(event=>event.stage==='scholarly-metadata-search'&&event.status==='completed'));assert.equal(job.result.ingestion.added_count,1);const saved=(await (await fetch(`${base}/projects/${project.project_id}`)).json()).project;assert.equal(saved.presentationIR.source_ir.sources.find(source=>source.source_id==='SRC_JOB').verification_status,'unverified');
+    response=await fetch(`${base}/projects/${project.project_id}/research/jobs`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:'openalex',query:'cache recovery'})});assert.equal(response.status,403);
+  }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('local REST API persists projects, source blobs, slide edits, jobs, artifacts, and recovery state',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-api-'));let api;
   try{

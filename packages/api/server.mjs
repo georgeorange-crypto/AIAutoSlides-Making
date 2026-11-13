@@ -31,11 +31,18 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
         if(job.cancel_requested){store.setJob(jobId,{status:'cancelled'});store.event(jobId,'job','cancelled',{reason:'cancel requested before worker start'});return;}
         const project=store.getProject(job.project_id);if(!project)throw notFound('Project',job.project_id);
         store.setJob(jobId,{status:'running'});store.event(jobId,'job','running',{workflow:job.workflow});
+        if(job.workflow==='research-topic'){
+          const request=job.options.research;store.event(jobId,'scholarly-metadata-search','running',{provider:request.provider,query:request.query});
+          const result=await research.search({...request,timeoutMs:request.timeout_ms,signal:controller.signal});
+          if(controller.signal.aborted){store.setJob(jobId,{status:'cancelled'});store.event(jobId,'job','cancelled',{reason:'cancel accepted after provider request'});return;}
+          const ingestion=store.addResearchCandidates(job.project_id,result),payload={project_id:job.project_id,provider:result.provider,query:result.query,retrieved_at:result.retrieved_at,results:result.results,ingestion};
+          store.setJob(jobId,{status:'completed',result:payload});store.event(jobId,'scholarly-metadata-search','completed',{candidate_count:result.results.length,added_count:ingestion.added_count});store.event(jobId,'job','completed',{candidate_count:result.results.length,added_count:ingestion.added_count});return;
+        }
         const outputDir=path.join(store.root,'runs',jobId);
         const result=await runPresentationWorkflow({jobId,project,presentationIR:project.presentationIR,workspace:store.root,outputDir,preview:job.options.preview??preview,signal:controller.signal,adapter,onEvent:(stage,status,detail)=>store.event(jobId,stage,status,detail)});
         if(controller.signal.aborted){store.setJob(jobId,{status:'cancelled'});store.event(jobId,'job','cancelled',{reason:'cancel accepted at stage boundary'});return;}
         store.addArtifacts(job,result.artifacts);store.setJob(jobId,{status:'completed',result:{...result,artifacts:store.listArtifacts({jobId})}});store.event(jobId,'job','completed',{artifact_count:result.artifacts.length,adapter:result.adapter});
-      }catch(error){const cancelled=error.name==='AbortError'||controller.signal.aborted;store.setJob(jobId,{status:cancelled?'cancelled':'failed',error:cancelled?null:error.message});store.event(jobId,'job',cancelled?'cancelled':'failed',{message:error.message});}
+      }catch(error){const cancelled=error.name==='AbortError'||controller.signal.aborted;if(store.getJob(jobId)?.workflow==='research-topic')store.event(jobId,'scholarly-metadata-search',cancelled?'cancelled':'failed',{message:error.message});store.setJob(jobId,{status:cancelled?'cancelled':'failed',error:cancelled?null:error.message});store.event(jobId,'job',cancelled?'cancelled':'failed',{message:error.message});}
       finally{controllers.delete(jobId);running.delete(jobId);}
     })();running.set(jobId,task);return task;
   }
@@ -59,6 +66,11 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
           const input=await bodyJson(req);if(input.allow_network!==true)throw Object.assign(new Error('External scholarly search is disabled unless allow_network is true.'),{status:403});
           const result=await research.search({provider:input.provider,query:input.query,limit:input.limit,timeoutMs:input.timeout_ms}),ingestion=store.addResearchCandidates(projectId,result);
           return send(res,201,{...ingestion,result,notice:'Metadata candidates were attached to this project as unverified sources. No full text was downloaded, no evidence excerpt was created, and no claim was verified.'});
+        }
+        if(segments[2]==='research'&&segments[3]==='jobs'&&segments.length===4&&method==='POST'){
+          const input=await bodyJson(req);if(input.allow_network!==true)throw Object.assign(new Error('External scholarly search is disabled unless allow_network is true.'),{status:403});
+          if(!['openalex','crossref','arxiv'].includes(input.provider)||typeof input.query!=='string'||input.query.trim().length<2||input.query.length>500||input.limit!==undefined&&(!Number.isInteger(input.limit)||input.limit<1||input.limit>10)||input.timeout_ms!==undefined&&(!Number.isInteger(input.timeout_ms)||input.timeout_ms<500||input.timeout_ms>30000))throw Object.assign(new Error('provider, query, limit or timeout_ms is invalid.'),{status:400});
+          const job=store.createJob(projectId,{research:{provider:input.provider,query:input.query.trim(),limit:input.limit,timeout_ms:input.timeout_ms}},'research-topic');setImmediate(()=>void runJob(job.job_id));return send(res,202,{job,notice:'Durable scholarly metadata search queued. Results remain unverified candidates.'});
         }
         if(segments.length===3&&segments[2]==='plan'&&method==='GET')return send(res,200,{project_id:projectId,plan:planPresentationIntelligence(project.presentationIR)});
         if(segments.length===3&&segments[2]==='critique'&&method==='GET'){const mapped=mapPresentationIRToLegacy(project.presentationIR);return send(res,200,{project_id:projectId,critique:critiqueDeck(mapped.deck,mapped.evidence),content_plan:planPresentationIntelligence(project.presentationIR)});}
