@@ -25,3 +25,10 @@ export function createPlannerContract({audienceProfile,duration,goal,evidenceIds
 export function createPlannerDraft(response,{audienceProfile,duration,goal,theme='keynote-minimal'}){
   return {meta:{title:response.title,subtitle:response.subtitle,audience:audienceProfile,audience_profile:audienceProfile,goal,duration_minutes:duration,narrative_structure:response.narrative_structure,structure_rationale:response.structure_rationale,theme,status:'AI-GENERATED DRAFT — HUMAN REVIEW REQUIRED',draft_origin:'OpenAI Responses API',requires_human_review:true},slides:response.slides};
 }
+import crypto from 'node:crypto';
+
+
+export function createPlannerReviewRecord({inputPath,brief,schemaErrors=[],validationWarnings=[],critique,numberAudit}){
+  if(!critique||!numberAudit)throw new TypeError('critique and numberAudit are required');
+  return{schema_version:1,review_status:'pending',source_brief:{path:inputPath,sha256:crypto.createHash('sha256').update(brief).digest('hex')},schema_errors:schemaErrors,validation_warnings:validationWarnings,critic:critique,number_audit:numberAudit,required_human_checks:['Check every factual claim and citation against the source material.','Check all numeric tokens against the original records; literal overlap is not semantic verification.','Review uncertainty, limitations, audience fit, narrative and every rendered slide.','After edits, record approval or rejection with src/review-draft.mjs.']};
+}

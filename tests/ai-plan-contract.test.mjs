@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {loadEvidence,validateDeck} from '../src/validate.mjs';
-import {createPlannerContract,createPlannerDraft} from '../src/ai-plan-contract.mjs';
+import {createPlannerContract,createPlannerDraft,createPlannerReviewRecord} from '../src/ai-plan-contract.mjs';
 
 const ledger=loadEvidence('sources/evidence.json');
 const slide=(type,title,evidence_ids=[])=>({type,title,kicker:'Synthetic draft',assertion_title:`Draft assertion: ${title}`,body:type==='bullets'?['A source-grounded point']:[],evidence_ids,layout:'assertion-evidence',visual_needs:[],speaker_notes:`Draft speaker notes for ${title}.`});
@@ -25,4 +25,13 @@ test('AI planner output with fabricated evidence IDs fails local validation',()=
   const draft=createPlannerDraft({...response,slides:response.slides.map((item,index)=>index===1?{...item,evidence_ids:['FABRICATED']}:item)},{audienceProfile:'research_group',duration:7,goal:'Agree on the next experiment'});
   assert.match(validateDeck(draft,ledger).errors.join(' '),/FABRICATED.*absent from ledger/);
   assert.equal(ledger.entries.find(item=>item.id==='E1').verified,false);
+});
+
+test('AI planner review record serializes the critic report and binds it to the brief hash',()=>{
+  const report=createPlannerReviewRecord({inputPath:'brief.md',brief:'source brief',critique:{status:'review',issues:[{rule_id:'NARR-001'}]},numberAudit:{status:'literal-match-only',findings:[]}});
+  assert.equal(report.review_status,'pending');
+  assert.equal(report.critic.status,'review');
+  assert.equal(report.critic.issues[0].rule_id,'NARR-001');
+  assert.match(report.source_brief.sha256,/^[a-f0-9]{64}$/);
+  assert.throws(()=>createPlannerReviewRecord({inputPath:'brief.md',brief:'x',critique:null,numberAudit:{}}),/critique and numberAudit/);
 });

@@ -41,7 +41,7 @@ Replace the example repository path with the real absolute path. Configure the M
 
 ## Exposed tools
 
-The server exposes deterministic, schema-described tools for API health, project listing/creation/reading, slide listing/editing, incoming-source import, render-job enqueue/status/cancel and artifact metadata. It does not return artifact bytes, search the web, call a model API, or change evidence verification state. The API enforces that imported source paths resolve inside its workspace `incoming/` directory. Source text and imported files remain untrusted data.
+The server exposes deterministic, schema-described tools for API health, project listing/creation/reading, audience-aware planning, deterministic Critic, slide listing/editing, incoming-source import, render-job enqueue/status/cancel and artifact metadata. It does not return artifact bytes, search the web, call a model API, or change evidence verification state. Planning and critique are local deterministic checks; Critic never marks facts verified or visual review approved. The API enforces that imported source paths resolve inside its workspace `incoming/` directory. Source text and imported files remain untrusted data.
 
 The server supports modern MCP `2026-07-28` discovery/per-request metadata and legacy initialization for `2025-11-25`, `2025-06-18`, `2025-03-26` and `2024-11-05`. It uses newline-delimited UTF-8 JSON-RPC over stdio, caps inbound frames at 4 MiB, API request payloads at 12 MiB and API responses at 8 MiB, and writes logs only to stderr. It intentionally does not implement Streamable HTTP or authentication.
 

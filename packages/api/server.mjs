@@ -4,7 +4,9 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {openProjectStore} from './store.mjs';
 import {runPresentationWorkflow} from '../workflow/index.mjs';
-import {pptxgenjsIRAdapter} from '../adapters/pptxgenjs-ir.mjs';
+import {pptxgenjsIRAdapter,mapPresentationIRToLegacy} from '../adapters/pptxgenjs-ir.mjs';
+import {planPresentationIntelligence} from '../workflow/intelligence.mjs';
+import {critiqueDeck} from '../../src/critic.mjs';
 
 const loopback=new Set(['127.0.0.1','::1','localhost']);
 const mime={'pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation','pdf':'application/pdf','png':'image/png','json':'application/json','svg':'image/svg+xml'};
@@ -48,6 +50,8 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
       if(segments[0]==='projects'&&segments[1]){
         const projectId=segments[1],project=store.getProject(projectId);if(!project)throw notFound('Project',projectId);
         if(segments.length===2&&method==='GET')return send(res,200,{project});
+        if(segments.length===3&&segments[2]==='plan'&&method==='GET')return send(res,200,{project_id:projectId,plan:planPresentationIntelligence(project.presentationIR)});
+        if(segments.length===3&&segments[2]==='critique'&&method==='GET'){const mapped=mapPresentationIRToLegacy(project.presentationIR);return send(res,200,{project_id:projectId,critique:critiqueDeck(mapped.deck,mapped.evidence),content_plan:planPresentationIntelligence(project.presentationIR)});}
         if(segments[2]==='slides'&&segments.length===3&&method==='GET')return send(res,200,{slides:store.getSlides(projectId)});
         if(segments[2]==='slides'&&segments.length===4&&method==='GET'){const slide=store.getSlides(projectId).find(item=>item.slide_id===segments[3]);if(!slide)throw notFound('Slide',segments[3]);return send(res,200,slide);}
         if(segments[2]==='slides'&&segments.length===4&&method==='PATCH'){

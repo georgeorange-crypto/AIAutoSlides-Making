@@ -1,4 +1,29 @@
-# Implementation status — Phase 1 complete
+# Implementation status — current roadmap snapshot (2026-11-12)
+
+This top-level section supersedes older phase summaries below where they describe current work as planned or absent. Historical dated sections are retained as records of earlier verification snapshots.
+
+## Current phase status
+
+| Phase / item | Status | Evidence and remaining gate |
+|---|---|---|
+| Phase 0 — baseline and candidate bakeoff | **partial / blocked** | PptxGenJS baseline and Slidev synthetic export are locally rendered. Presenton and PPTAgent/DeepPresenter are blocked by unavailable Docker/WSL/toolchain; slide-maker and SlidePoise were inspected but not run. The required academic, commercial and six-slide recreation groups have not been run across candidates. See `docs/POC_RESULTS.md`. |
+| Phase 1 — IR, adapters, workflow and local API | **implemented / tested** | Versioned IR, PptxGenJS and Slidev paths, SQLite-backed loopback API, durable jobs, edits, artifacts and review state are present. Single-user, single-process limitations remain. |
+| Phase 2 — research/document/media | **bounded slice implemented / tested** | Opt-in metadata search, local extraction, one-page crawl, selected arXiv PDF and selected Commons image are implemented. No automatic scientific verification, bulk acquisition, or unified API research job. |
+| Phase 3 — Presentation Intelligence + Critic | **bounded deterministic slice implemented in this revision** | Audience-aware narrative roles, per-slide evidence/media candidates/time allocation are produced from IR. The workflow Critic combines OOXML layout/editability/chart QA with local OCR coverage when preview pages exist. Semantic support, aesthetic judgment, verified facts and human approval remain outside automation. |
+| Phase 4 — App + MCP + QA | **local API/MCP slice implemented; desktop UI blocked behind Phase 0 decision** | Loopback REST + stdio MCP expose project, source, slide, plan, critique, render, job and artifact metadata operations. No Windows GUI/installer, authenticated remote API or Android client. Do not select/fork a UI backend until the required Phase 0 evaluation supports that decision. |
+| Cross-cutting IR/editability | **partial** | Supported element subset fails closed; Mermaid is preserved as source text or backend-specific rendering, not native PowerPoint shapes. Re-render still rebuilds the full deck; unchanged-slide output hash preservation is not guaranteed. |
+| Cross-cutting license audit | **partial / release gate** | Direct licenses and integration postures are recorded. Full transitive dependency, model, font, template and media notices have not been audited for distribution. |
+
+## This revision's evidence
+
+- Added deterministic audience-specific narrative roles and per-slide takeaway, evidence references, media candidates/selection reason, and duration allocation to the Presentation IR workflow and local API.
+- Added local rendered-page OCR coverage screening for Critic output, together with OOXML per-slide bounds, overlap, text-size, editability, table/chart and chart-value results. Preview-disabled jobs explicitly report `not_rendered`; OCR initialization/page failures degrade to `unavailable`/`partial` without discarding a successful deck; image checks do not imply visual approval or scientific verification.
+- Added read-only REST/MCP `plan_deck` and `critique_deck` operations. MCP remains stdio and requires the local API to be started separately.
+- Fixed the optional AI planner's review sidecar to serialize the computed Critic report, and extracted record construction into a unit-testable helper. The network-backed AI planner was not invoked.
+- Added regression coverage for same-IR audience differentiation, evidence/media/time planning, rendered-image OCR screen behavior, API/MCP planning and critique, and AI review record serialization.
+- Verification on this revision: `npm run test` **166/166 passed**; `npm run validate` exited 0 with 3 disclosed warnings; `npm run build` exited 0; `node src/qa.mjs outputs/research-demo.pptx` exited 0 with 7/7 editable-text slides and 1 native chart; `npm run preview` exited 0 using PowerPoint 16.0 and Poppler 26.07.0, rendering 7 PNG pages. All 7 pages were opened and inspected; no obvious clipping or overlap was found. A local OCR pass ran on those seven real PNGs: 6 pages had adequate detected text coverage and slide S02 was flagged for review at 0.50 coverage. This is a screening result, not a visual sign-off.
+- Workflow integration smoke: Presentation IR fixture completed all workflow stages with preview enabled, produced 3 PNGs, and wrote `workflow.critique.json`. OCR screen status was `review` (one page low text coverage); `scientific_accuracy=not_assessed` and `visual_review=pending_human` remained intact. The temporary smoke artifacts were removed after inspecting the report.
+- See the final verification record below for commands actually run on this revision. No external candidate installation, paid call, user-source upload, remote authentication, legal approval, or human visual sign-off is claimed.
 
 ## Phase 1 deliverables
 
@@ -40,12 +65,12 @@
 - REST project/job/artifact/slides/edit endpoints and SQLite persistence: implemented locally.
 - Native editable PPTX, source lineage, QA, hashes, screenshots and human-review state: generated as local reproducible artifacts; scientific verification remains separate.
 
-## Remaining beyond Phase 1
+## Remaining work after this revision
 
-- Phase 0 bakeoff is incomplete for some requested engines/task groups; blocked and unrun candidates remain identified in `docs/POC_RESULTS.md`.
+- Phase 0 bakeoff remains incomplete for some requested engines/task groups; blocked and unrun candidates remain identified in `docs/POC_RESULTS.md`.
 - Phase 2 research integrations are implemented for opt-in OpenAlex/Crossref/arXiv metadata search, local Docling and MarkItDown extraction, single-page Crawl4AI, selected arXiv PDF download, and a one-item Wikimedia Commons asset workflow. These are CLI/local-worker routes, not API workflow actions; extracted claims and asset reuse remain pending human review.
-- Phase 3 audience/narrative/media intelligence and rendered-image critic remain planned.
-- Phase 4 local stdio MCP server over the loopback API is implemented; full UI, remote auth/scopes and Android remain planned.
+- Phase 3 deterministic planning and OCR/OOXML screening are implemented; content value selection, argument entailment, aesthetic review, media search and real-time presentation timing remain unimplemented.
+- Phase 4 local stdio MCP server over the loopback API is implemented; Windows UI/installer, remote auth/scopes and Android remain planned and are gated on the Phase 0 product decision.
 - Full Presentation IR element coverage, native Mermaid shape rendering and unchanged-slide hash preservation remain incomplete.
 - Transitive dependency, model and media-license audit remains incomplete.
 

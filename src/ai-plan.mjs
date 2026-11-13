@@ -2,10 +2,9 @@
 // Optional AI planning only. Numeric charts are created separately from verified input.
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import {loadEvidence,validateDeck} from './validate.mjs';
 import {auditDraftNumbers,critiqueDeck} from './critic.mjs';
-import {createPlannerContract,createPlannerDraft} from './ai-plan-contract.mjs';
+import {createPlannerContract,createPlannerDraft,createPlannerReviewRecord} from './ai-plan-contract.mjs';
 
 const argv=process.argv.slice(2);
 function arg(name,fallback){const i=argv.indexOf(`--${name}`);return i>=0?argv[i+1]:fallback;}
@@ -47,7 +46,7 @@ const planned=createPlannerDraft(response,{audienceProfile,duration,goal,theme:a
  const numberAudit=auditDraftNumbers(deck,brief),critique=critiqueDeck(deck,ledger);
  fs.mkdirSync(path.dirname(output),{recursive:true});
  fs.writeFileSync(output,JSON.stringify(deck,null,2)+'\n');
- fs.writeFileSync(`${output}.review.json`,JSON.stringify({schema_version:1,review_status:'pending',source_brief:{path:input,sha256:crypto.createHash('sha256').update(brief).digest('hex')},schema_errors:errors,validation_warnings:warnings,critic,number_audit:numberAudit,required_human_checks:['Check every factual claim and citation against the source material.','Check all numeric tokens against the original records; literal overlap is not semantic verification.','Review uncertainty, limitations, audience fit, narrative and every rendered slide.','After edits, record approval or rejection with src/review-draft.mjs.']},null,2)+'\n');
+ fs.writeFileSync(`${output}.review.json`,JSON.stringify(createPlannerReviewRecord({inputPath:input,brief,schemaErrors:errors,validationWarnings:warnings,critique,numberAudit}),null,2)+'\n');
  fs.writeFileSync(`${output}.review.md`,[`# Human review required: ${deck.meta.title}`,'',`- Status: **pending**`,`- Audience profile: ${audienceProfile}`,`- Target duration: ${duration} minutes`,`- Source brief: \`${input}\``,`- Schema errors: ${errors.length}`,`- Critic findings: ${critique.issues.length}`,`- Possible unsupported numeric tokens: ${numberAudit.findings.length}`,'','## Required review','', '- Compare each claim and evidence ID with the source.','- Confirm every numeric value against original records and check its unit/context.','- Review limitations, audience, pacing and rendered slide layout.','- Edit this JSON freely, then approve a content-hash-bound copy with `src/review-draft.mjs`.' ,'','## Limits','',...numberAudit.limitations.map(x=>`- ${x}`),''].join('\n'));
  console.log(`Wrote editable draft ${output} (${deck.slides.length} slides); review pending, ${warnings.length} validation warning(s), ${numberAudit.findings.length} possible unsupported numeric token(s).`);
 }
