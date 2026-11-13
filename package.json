@@ -21,6 +21,7 @@
     "template:import": "node scripts/import-template.mjs",
     "template:edit": "node scripts/edit-template-automizer.mjs",
     "deps:pptx-automizer": "npm ci --prefix workers/pptx-automizer --no-audit --no-fund",
+    "deps:presenton-model": "node scripts/install-presenton-model.mjs",
     "select:design": "node src/select-design.mjs",
     "review:draft": "node src/review-draft.mjs",
     "preview": "node scripts/preview.mjs outputs/research-demo.pptx",
