@@ -14,7 +14,7 @@ function line(slide, x1,y1,x2,y2,color) { slide.addShape(Shape.line,{x:x1,y:y1,w
 function titleSize(text) { const n=[...text].length; return n>85?25:n>60?29:n>39?34:40; }
 function addBackground(s,t) {s.background={color:t.background};}
 function addTop(s,d,t) {
-  txt(s, (d.kicker||'AI AUTO SLIDES').toUpperCase(), {x:0.74,y:0.37,w:10.5,h:0.30,fontFace:t.bodyFontFace,fontSize:10.2,bold:true,color:t.accent,charSpacing:1.5});
+  txt(s, (d.kicker||'AI AUTO SLIDES').toUpperCase(), {x:0.74,y:0.37,w:10.5,h:0.30,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,charSpacing:1.2});
   line(s,0.74,0.84,12.58,0.84,t.line);
 }
 function addTitle(s,d,t,options={}) {
@@ -31,6 +31,32 @@ function addFooter(s,index,total,d,ledger,t,meta) {
 }
 function panel(s,x,y,w,h,t,alt=false) {
   rect(s,{x,y,w,h,rectRadius:0.16,radius:0.15,fill:{color:alt?t.surfaceAlt:t.surface},line:{color:t.line,width:0.6}});
+}
+function plannerVisual(s,d,t){
+  const x=7.02,y=1.92,w=5.55,h=4.78;
+  panel(s,x,y,w,h,t,true);
+  txt(s,d.figure_description||'EXPLANATORY VISUAL',{x:x+0.25,y:y+0.18,w:w-0.5,h:0.48,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.accent,valign:'top',fit:'shrink'});
+  if(Array.isArray(d.steps)){
+    const steps=d.steps,stepTop=y+0.90,stepGap=0.10,stepH=Math.min(0.56,(h-1.22-(steps.length-1)*stepGap)/steps.length),cx=x+0.50;
+    steps.forEach((step,index)=>{
+      const sy=stepTop+index*(stepH+stepGap);
+      s.addShape(Shape.ellipse,{x:cx,y:sy+0.04,w:0.40,h:0.40,fill:{color:index%2?t.surface:t.background},line:{color:t.accent,width:1.2}});
+      txt(s,String(index+1),{x:cx,y:sy+0.08,w:0.40,h:0.28,fontFace:t.headFontFace,fontSize:13,bold:true,color:t.accent,align:'center'});
+      txt(s,step,{x:cx+0.62,y:sy+0.01,w:w-1.50,h:stepH-0.02,fontFace:t.bodyFontFace,fontSize:14.5,bold:true,color:t.text,valign:'mid',fit:'shrink'});
+      if(index<steps.length-1)line(s,cx+0.20,sy+0.45,cx+0.20,sy+stepH+stepGap-0.04,t.line);
+    });
+    return;
+  }
+  const diagram=d.diagram;if(!diagram)return;
+  const source=diagram.groups[0],figureTop=y+0.80,figureHeight=1.95,sx=(w-0.40)/source.w,sy=figureHeight/source.h,ox=x+0.20-source.x*sx,oy=figureTop-source.y*sy;
+  const nodes=new Map(diagram.nodes.map(node=>[node.id,{...node,x:ox+node.x*sx,y:oy+node.y*sy,w:node.w*sx,h:node.h*sy}]));
+  for(const edge of diagram.edges){
+    const a=nodes.get(edge.from),b=nodes.get(edge.to),x1=a.x+a.w/2,y1=a.y+a.h/2,x2=b.x+b.w/2,y2=b.y+b.h/2,dx=x2-x1,dy=y2-y1;
+    s.addShape(Shape.line,{x:Math.min(x1,x2),y:Math.min(y1,y2),w:Math.max(Math.abs(dx),0.001),h:Math.max(Math.abs(dy),0.001),flipH:dx<0,flipV:dy<0,line:{color:t.accent,width:1.4,endArrowType:'triangle'}});
+  }
+  diagram.nodes.forEach((node,index)=>{const box=nodes.get(node.id),shape=node.shape==='rect'?Shape.rect:node.shape==='diamond'?Shape.diamond:Shape.roundRect;s.addShape(shape,{x:box.x,y:box.y,w:box.w,h:box.h,fill:{color:index%2?t.surface:t.background},line:{color:t.accent,width:1.2}});txt(s,node.label,{x:box.x+0.05,y:box.y+0.04,w:box.w-0.10,h:box.h-0.08,fontFace:t.bodyFontFace,fontSize:13,bold:true,color:t.title,align:'center',fit:'shrink'});});
+  const columns=diagram.edges.length>3?2:1,rows=Math.ceil(diagram.edges.length/columns),legendTop=y+2.88,legendHeight=Math.min(0.68,(h-3.00)/rows),legendGap=0.08,legendWidth=(w-0.50-(columns-1)*0.16)/columns;
+  diagram.edges.forEach((edge,index)=>{const row=index%rows,column=Math.floor(index/rows),a=nodes.get(edge.from),b=nodes.get(edge.to),rx=x+0.25+column*(legendWidth+0.16),ry=legendTop+row*(legendHeight+legendGap);panel(s,rx,ry,legendWidth,legendHeight,t);txt(s,edge.label,{x:rx+0.10,y:ry+0.05,w:legendWidth-0.20,h:0.22,fontFace:t.bodyFontFace,fontSize:12.5,bold:true,color:t.accent,valign:'mid',fit:'shrink'});txt(s,`${a.label} → ${b.label}`,{x:rx+0.10,y:ry+0.31,w:legendWidth-0.20,h:0.27,fontFace:t.bodyFontFace,fontSize:13,bold:true,color:t.text,valign:'mid',fit:'shrink'});});
 }
 function body(s,d,t,y=2.60,fs=20) {
   (d.body||[]).slice(0,4).forEach((b,i)=>txt(s,b,{x:0.83,y:y+i*0.84,w:11.4,h:0.69,fontFace:t.bodyFontFace,fontSize:fs,color:t.text,valign:'top',fit:'shrink'}));
@@ -51,16 +77,17 @@ function cover(s,d,t,meta) {
 function statement(s,d,t) {
   addTop(s,d,t);
   // The claim itself takes the stage; short supporting evidence below.
-  const hasVisual=(d.visuals||[]).length>0;
+  const hasVisual=(d.visuals||[]).length>0||Array.isArray(d.steps)||!!d.diagram;
   const fs=hasVisual?37:d.title.length>90?35:d.title.length>65?42:49;
   txt(s,d.title,{x:0.77,y:1.45,w:hasVisual?6.0:11.4,h:2.36,fontFace:t.headFontFace,fontSize:fs,bold:true,color:t.title,valign:'mid',fit:'shrink'});
   line(s,0.80,4.24,4.50,4.24,t.accent);
-  if(d.layout==='two-column-contrast' && (d.body||[]).length>=2){
+  if(d.layout==='two-column-contrast' && !hasVisual && (d.body||[]).length>=2){
     panel(s,0.80,4.52,5.55,1.70,t);panel(s,6.70,4.52,5.55,1.70,t,true);
     (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:1.04+i*5.9,y:4.83,w:5.05,h:1.10,fontFace:t.bodyFontFace,fontSize:19,color:t.text,valign:'mid',fit:'shrink'}));
     return;
   }
   (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.80,y:4.65+i*0.89,w:hasVisual?5.9:11.35,h:0.74,fontFace:t.bodyFontFace,fontSize:20,color:i===0?t.text:t.muted,valign:'top',fit:'shrink'}));
+  if(Array.isArray(d.steps)||d.diagram)plannerVisual(s,d,t);
 }
 function metrics(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
@@ -186,7 +213,7 @@ function closing(s,d,t) {
   txt(s,d.title,{x:0.83,y:1.63,w:11.41,h:2.26,fontFace:t.headFontFace,fontSize:50,bold:true,color:t.title,fit:'shrink'});
   line(s,0.83,4.22,6.8,4.22,t.accent);
   body(s,d,t,4.60,21);
-  txt(s,'DISCUSS / DECIDE / ACT',{x:0.86,y:6.50,w:9.2,h:0.22,fontFace:t.bodyFontFace,fontSize:11.5,bold:true,charSpacing:1.3,color:t.accent});
+  txt(s,'DISCUSS / DECIDE / ACT',{x:0.86,y:6.50,w:9.2,h:0.22,fontFace:t.bodyFontFace,fontSize:12,bold:true,charSpacing:1.2,color:t.accent});
 }
 
 export async function generatePresentation(deck,evidence,theme,outputPath,assets=new Map()) {

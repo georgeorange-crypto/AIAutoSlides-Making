@@ -47,12 +47,12 @@ async function main(){
  const text=json.output_text||json.output?.flatMap(o=>o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text).join('');
  if(!text)throw new Error('Response did not contain output_text; inspect API response manually');
  const response=JSON.parse(text);
-const planned=createPlannerDraft(response,{audienceProfile,duration,goal,theme:arg('theme','keynote-minimal')});
+ const qualityAudit=auditPlannerQuality(response);
+ if(qualityAudit.status!=='pass')throw new Error(`Planner quality gate blocked output: ${qualityAudit.findings.map(x=>`${x.rule_id}${x.slide?` slide ${x.slide}`:''}: ${x.message}`).join('; ')}`);
+ const planned=createPlannerDraft(response,{audienceProfile,duration,goal,theme:arg('theme','keynote-minimal')});
  const {deck,errors,warnings}=validateDeck(planned,ledger);
  if(errors.length)throw new Error(`Model output failed validation: ${errors.join('; ')}`);
  if(deck.slides.length<6||deck.slides.length>20)throw new Error('AI must create 6–20 slides; regenerate or edit manually');
- const qualityAudit=auditPlannerQuality(response);
- if(qualityAudit.status!=='pass')throw new Error(`Planner quality gate blocked output: ${qualityAudit.findings.map(x=>`${x.rule_id}${x.slide?` slide ${x.slide}`:''}: ${x.message}`).join('; ')}`);
  const numberAudit=auditDraftNumbers(deck,brief),critique=critiqueDeck(deck,ledger);
  fs.mkdirSync(path.dirname(output),{recursive:true});
  fs.writeFileSync(output,JSON.stringify(deck,null,2)+'\n');

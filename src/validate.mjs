@@ -54,7 +54,7 @@ export function validateDeck(input, ledger) {
     if(s.layout && !['assertion-evidence','two-column-contrast','metric-focus','chart-and-takeaway'].includes(s.layout)) errors.push(`${where}: unsupported layout ${s.layout}`);
     if(s.speaker_notes!==undefined && !boundedText(s.speaker_notes,2000)) errors.push(`${where}: speaker_notes must contain 1–2000 characters`);
     if(s.figure_description!==undefined&&(!isString(s.figure_description)||s.figure_description.length>550))errors.push(`${where}: figure_description must contain 1–550 characters`);
-    if(s.figure_description!==undefined&&s.type!=='chart')errors.push(`${where}: figure_description is only supported on chart slides`);
+    if(s.figure_description!==undefined&&s.type!=='chart'&&!s.diagram&&!s.steps)errors.push(`${where}: figure_description requires a chart or a materialized diagram/process visual`);
     if(s.visuals!==undefined){
       if(!Array.isArray(s.visuals))errors.push(`${where}: visuals must be an array`);
       else for(const [j,v] of s.visuals.entries()){
