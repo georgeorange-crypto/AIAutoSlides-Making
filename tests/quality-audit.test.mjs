@@ -123,6 +123,16 @@ test('formal quality audit blocks rendered overlap, out-of-bounds text, unreadab
   assert.equal(auditDeckQuality({...input,renderedQa:null}).status,'fail');
 });
 
+test('formal quality audit blocks postage-stamp images and charts using rendered OOXML bounds',()=>{
+ const input=fixture();input.presentationIR.slides[3].elements.push({element_id:'IMG-SMALL',kind:'image',asset_id:'synthetic-photo',alt:'Synthetic fixture image',x:0,y:0,w:1,h:1});
+ input.renderedQa.slides[3]={...input.renderedQa.slides[3],slideWidthEmu:12192000,slideHeightEmu:6858000,elementBounds:[{element:'pic',ok:true,x:100,y:100,w:300000,h:300000}]};
+ let result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.kind==='image'));
+ input.presentationIR.slides[3].elements=input.presentationIR.slides[3].elements.filter(element=>element.kind!=='image');input.presentationIR.slides[3].type='chart';input.presentationIR.slides[3].elements.push({element_id:'CHART-SMALL',kind:'chart',chart_kind:'bar',series:[]});
+ input.renderedQa.slides[3].elementBounds=[{element:'graphicFrame',ok:true,x:100,y:100,w:2000000,h:1000000}];
+ result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.kind==='chart'));
+ input.renderedQa.slides[3].elementBounds=[];result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_SIZE_UNMEASURED'&&item.kind==='chart'));
+});
+
 test('formal Chinese deck flags English blocks and leaves OCR recognition failures for a human page review',()=>{
   const input=fixture();input.presentationIR.slides[3].elements[0].text='A long English-only paragraph with more than sixteen English words and no Chinese explanation to help the audience understand it.';
   input.imageReview.pages[3].status='ocr_failed';
