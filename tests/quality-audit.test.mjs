@@ -85,6 +85,10 @@ test('formal quality audit blocks stacked or copy-pasted disclaimer clauses whil
 test('formal quality audit blocks a text-unit-compliant page with sparse rendered body copy and missing density evidence',()=>{
  const sparse=fixture({count:2,visualEvery:99});sparse.imageReview.pages[3].visible_text_occupancy_ratio=0.034;sparse.imageReview.pages[3].visible_text_line_count=3;
  assert.ok(auditDeckQuality(sparse).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW'));
+ const sparseWithDiagram=fixture({count:2,visualEvery:1});sparseWithDiagram.imageReview.pages[3].visible_text_occupancy_ratio=0.02;sparseWithDiagram.imageReview.pages[3].visible_text_line_count=1;
+ assert.ok(auditDeckQuality(sparseWithDiagram).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW'),'a small amount of copy must not pass merely because a diagram is present');
+ const legibleWithDiagram=fixture({count:2,visualEvery:1});legibleWithDiagram.imageReview.pages[3].visible_text_occupancy_ratio=0.05;legibleWithDiagram.imageReview.pages[3].visible_text_line_count=2;
+ assert.ok(!auditDeckQuality(legibleWithDiagram).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW'),'a visual page with two explanatory lines and sufficient occupied area should pass');
  delete sparse.imageReview.pages[3].visible_text_occupancy_ratio;delete sparse.imageReview.pages[3].visible_text_line_count;
  assert.ok(auditDeckQuality(sparse).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_UNMEASURED'));
 });

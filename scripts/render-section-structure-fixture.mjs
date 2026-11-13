@@ -9,6 +9,7 @@ const workspace=path.resolve(root,'outputs/quality-section-structure','run-'+run
 const out=path.join(workspace,'runs','synthetic-sections');
 const assistantVoiceStress=process.argv.includes('--assistant-voice-stress');
 const layoutRepetitionStress=process.argv.includes('--layout-repetition-stress');
+const sparseDensityStress=process.argv.includes('--sparse-density-stress');
 const source={source_id:'E_SYN_SECTION',type:'synthetic_fixture',uri:'fixture://section-structure',locator:'synthetic fixture only',verification_status:'unverified'};
 const text=(id,value)=>({element_id:id,kind:'text',text:value});
 const bullets=(id,items)=>({element_id:id,kind:'bullets',items});
@@ -29,6 +30,7 @@ if(layoutRepetitionStress){
  const closing={slide_id:'S12',type:'closing',title:'合成版式压力测试结束',evidence_ids:[source.source_id],elements:[text('S12-T01','以上页面只用于验证正式质量门禁能否识别交替复用的版式。')]};
  slides.splice(0,slides.length,agenda,mechanismDivider,mechanismProcess,mechanismStatement,duplicate(mechanismProcess,'S08'),duplicate(mechanismStatement,'S09'),impactDivider,impactProcess,impactStatement,duplicate(impactProcess,'S10'),duplicate(impactStatement,'S11'),closing);
 }
+if(sparseDensityStress){const target=slides.find(slide=>slide.slide_id==='S04');target.elements[0].text='请求进入系统后，调度策略选择执行路径，并影响资源等待、计算过程与最终响应变化。';}
 for(const slide of slides)slide.speaker_notes=assistantVoiceStress&&slide.slide_id==='S03'?'如果您愿意，请告诉我还希望补充什么内容。':'仅供软件验收的合成说明，不包含研究结论。';
 const presentationIR={schema_version:'1.0.0',meta:{title:'合成章节结构验收',audience:'QA reader',goal:'验证目录与章节映射',status:'SYNTHETIC QA FIXTURE — NOT RESEARCH DATA'},source_ir:{schema_version:'1.0.0',sources:[source]},slides};
 const roles=layoutRepetitionStress?['agenda','section_transition','mechanism','mechanism','mechanism','mechanism','section_transition','implications','implications','implications','implications','closing']:['agenda','section_transition','mechanism','mechanism','section_transition','implications','implications'];
@@ -39,6 +41,7 @@ const result=await runPresentationWorkflow({jobId:'synthetic-section-structure-p
 const gate=result.report.critique.quality_gate;
 const voiceBlockers=gate.blockers.filter(item=>item.code==='QUALITY_ASSISTANT_VOICE');
 const layoutBlockers=gate.blockers.filter(item=>item.code==='QUALITY_LAYOUT_DIVERSITY');
-const expectedBlockers=[...(assistantVoiceStress?['QUALITY_ASSISTANT_VOICE']:[]),...(layoutRepetitionStress?['QUALITY_LAYOUT_DIVERSITY']:[])];
+const densityBlockers=gate.blockers.filter(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW');
+const expectedBlockers=[...(assistantVoiceStress?['QUALITY_ASSISTANT_VOICE']:[]),...(layoutRepetitionStress?['QUALITY_LAYOUT_DIVERSITY']:[]),...(sparseDensityStress?['QUALITY_VISIBLE_DENSITY_LOW']:[])];
 if(expectedBlockers.length?expectedBlockers.some(code=>!gate.blockers.some(item=>item.code===code)):gate.blockers.length)throw new Error(`Synthetic section fixture did not meet the expected ${expectedBlockers.length?'stress-blocked':'pass'} result: ${gate.blockers.map(item=>item.code).join(', ')}`);
-console.log(JSON.stringify({status:result.status,slides:slides.length,assistant_voice_stress:assistantVoiceStress,layout_repetition_stress:layoutRepetitionStress,layout_diversity:gate.layout_diversity,quality_gate:{status:gate.status,blockers:gate.blockers.map(item=>({code:item.code,slide_id:item.slide_id,location:item.location})),warnings:gate.warnings.map(item=>item.code)},preview:result.preview,artifacts:result.artifacts.filter(item=>item.format==='pptx').map(({path,format,sha256})=>({path,format,sha256}))},null,2));
+console.log(JSON.stringify({status:result.status,slides:slides.length,assistant_voice_stress:assistantVoiceStress,layout_repetition_stress:layoutRepetitionStress,sparse_density_stress:sparseDensityStress,density_findings:densityBlockers.map(item=>({slide_id:item.slide_id,occupancy:item.visible_text_occupancy_ratio,line_count:item.visible_text_line_count,minimum_ratio:item.minimum_ratio,minimum_line_count:item.minimum_line_count})),layout_diversity:gate.layout_diversity,quality_gate:{status:gate.status,blockers:gate.blockers.map(item=>({code:item.code,slide_id:item.slide_id,location:item.location})),warnings:gate.warnings.map(item=>item.code)},preview:result.preview,artifacts:result.artifacts.filter(item=>item.format==='pptx').map(({path,format,sha256})=>({path,format,sha256}))},null,2));
