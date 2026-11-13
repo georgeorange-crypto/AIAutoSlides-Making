@@ -59,7 +59,9 @@
     "render:slidev-ir": "node src/render-slidev-ir.mjs",
     "assets:research": "node src/asset-research.mjs",
     "arxiv:ingest": "node src/arxiv-ingest.mjs",
-    "research:ingest": "node src/research-ingest.mjs"
+    "research:ingest": "node src/research-ingest.mjs",
+    "assets:suggest": "node src/asset-suggest.mjs",
+    "research:ingest:europepmc": "node src/europepmc-ingest.mjs"
   },
   "dependencies": {
     "@tesseract.js-data/chi_sim": "1.0.0",

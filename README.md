@@ -196,7 +196,11 @@ The command writes `.md`, `.manifest.json`, and `.evidence.json` files under the
 
 For PDF or DOCX files, add `--extract-images` to create `<out-prefix>.assets/` and `<out-prefix>.assets.json`. DOCX imports copy referenced body, header, and footer PNG/JPEG/SVG parts with package-part and relationship locators. PDF imports decode supported image XObjects and inline images to PNG with page and operator locators; these are decoded images, not page screenshots or original compressed PDF streams. Both manifest types retain the source-document SHA-256, image SHA-256, and `verified:false`; duplicate bytes are deduplicated. Rights inherit from the source document and remain unreviewed. Pass the generated JSON to `--assets` after adding its asset IDs to the storyboard. PDF masks/soft masks and uncommon sample formats, text extraction from DOCX headers/footers, OCR-driven figure association, and semantic placement are not supported.
 
-See [`docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md`](docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md), [`docs/M10_PDF_ASSET_EXTRACTION_REPORT.md`](docs/M10_PDF_ASSET_EXTRACTION_REPORT.md), [`docs/M11_DOCX_HEADER_FOOTER_ASSETS_REPORT.md`](docs/M11_DOCX_HEADER_FOOTER_ASSETS_REPORT.md), and [`docs/M12_COVER_LAYOUT_CORRECTION_REPORT.md`](docs/M12_COVER_LAYOUT_CORRECTION_REPORT.md) for test results and current limits.
+The command writes `.md`, `.manifest.json`, and `.evidence.json` files under the selected output prefix. When an existing ledger is supplied, its entries are copied and the new unverified entry is appended to the generated ledger; the original ledger is not modified. DOCX body paragraphs and referenced header/footer paragraphs are extracted with distinct locators; tables are linearized, while comments and tracked-deletion semantics are not extracted. Use the generated evidence ID in a storyboard and cite the exact excerpt/locator in `claim_support`.
+
+For PDF or DOCX files, add `--extract-images` to create `<out-prefix>.assets/` and `<out-prefix>.assets.json`. DOCX imports copy referenced body, header, and footer PNG/JPEG/SVG parts with package-part and relationship locators. PDF imports decode supported inline images and image XObjects to PNG with page and operator locators; inline image groups retain their placement count. These are decoded images, not page screenshots or original compressed PDF streams. Both manifest types retain the source-document SHA-256, image SHA-256, and `verified:false`; duplicate bytes are deduplicated. Rights inherit from the source document and remain unreviewed. Pass the generated JSON to `--assets` after adding its asset IDs to the storyboard. PDF image masks/soft masks, uncommon sample formats, vector drawing extraction, OCR-driven figure association, and semantic placement are not supported.
+
+See [`docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md`](docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md), [`docs/M10_PDF_ASSET_EXTRACTION_REPORT.md`](docs/M10_PDF_ASSET_EXTRACTION_REPORT.md), [`docs/M11_DOCX_HEADER_FOOTER_ASSETS_REPORT.md`](docs/M11_DOCX_HEADER_FOOTER_ASSETS_REPORT.md), [`docs/M12_COVER_LAYOUT_CORRECTION_REPORT.md`](docs/M12_COVER_LAYOUT_CORRECTION_REPORT.md), [`docs/M13_PDF_INLINE_IMAGE_EXTRACTION_REPORT.md`](docs/M13_PDF_INLINE_IMAGE_EXTRACTION_REPORT.md), and [`docs/M14_DOCX_HEADER_FOOTER_TEXT_REPORT.md`](docs/M14_DOCX_HEADER_FOOTER_TEXT_REPORT.md) for test results and current limits.
 
 For a scanned PDF, install Poppler locally and explicitly opt into OCR. Tesseract.js and its `eng`/`chi_sim` models are installed with the project dependencies; a separate Tesseract binary or language-pack installation is not needed:
 
@@ -250,17 +254,38 @@ The selection command writes the confirmed theme profile to `docs/design.md` and
 
 ### Local image assets (Milestone 3A first vertical slice)
 
-Reference local PNG, JPEG, or SVG images in an asset manifest. Paths are relative to the manifest. Every asset records its MIME/type, SHA-256, source, license, and human verification state; duplicate bytes, missing files, mismatched hashes, missing provenance, and unknown slide references fail the build. Slides use `visuals` placements with slide-relative inch coordinates. Embedded SVGs are PowerPoint image objects; their internal paths are not individually editable shapes. No asset is uploaded.
+Reference local PNG, JPEG, or SVG images in an asset manifest. Paths are relative to the manifest. Every asset records its MIME/type, SHA-256, source, license, and human verification state; duplicate bytes, missing files, mismatched hashes, missing provenance, and unknown slide references fail the build. Slides use `visuals` placements with slide-relative inch coordinates. Embedded SVGs are PowerPoint image objects; their internal paths are not individually editable shapes. `assets:suggest` ranks candidate assets with deterministic lexical overlap against slide assertions and optional asset description, alt text, and keywords; it reports matched terms and rights/provenance review flags without editing the storyboard. This is a review aid, not semantic image recognition, legal review, or claim verification. No asset is uploaded.
 
 ```powershell
 node scripts/build-multimodal-demo.mjs
 node src/assets-cli.mjs examples/multimodal/assets.json
+npm run assets:suggest -- --storyboard examples/multimodal/storyboard.json --assets examples/multimodal/assets.json --out outputs/multimodal/asset-suggestions.json
 node src/cli.mjs validate --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json
 node src/cli.mjs build --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json --out outputs/multimodal/ai-systems-synthetic.pptx
 node src/qa.mjs outputs/multimodal/ai-systems-synthetic.pptx
 ```
 
 `node scripts/build-multimodal-demo.mjs` deterministically rebuilds the explicitly synthetic/hypothetical 10-slide AI Systems storyboard and evidence ledger from the technical Markdown, architecture JSON, and synthetic CSV. It includes two original local SVG illustrations, a native editable architecture diagram, a native CSV-derived chart, notes, and evidence IDs. SVGs are image objects; architecture nodes and connectors are native PowerPoint objects. All source records remain `verified:false`. Build to `outputs/multimodal/ai-systems-synthetic.pptx`; use `node scripts/preview.mjs outputs/multimodal/ai-systems-synthetic.pptx` for local PDF/PNG rendering. PowerPoint 16.0 and Poppler rendered all 10 pages in the current environment; the assistant inspected each PNG, and human slide sign-off remains pending.
+
+## Selected DOI full-text import (Europe PMC)
+
+For a known DOI in biomedical literature, the optional importer sends only that DOI to the public [Europe PMC REST API](https://dev.europepmc.org/RestfulWebService) after network opt-in. It downloads one JATS XML article only when Europe PMC returns one exact DOI match marked open access and with a PMC ID. The original XML, source hashes, DOI/PMCID metadata, paragraph locators, and unverified evidence candidates are written locally. This adapter does not download publisher PDFs or follow external URLs; open-access status is not a determination of redistribution rights.
+
+```powershell
+npm run research:ingest:europepmc -- --doi 10.1000/example --allow-network --allow-download --out-dir outputs/papers/example
+```
+
+See `docs/M16_DOI_FULLTEXT_EUROPEPMC_REPORT.md` for verified scope and limits.
+
+## Selected Wikimedia Commons batch import
+
+Search and download stay separate. After reviewing candidates in the Commons result manifest, prepare a selection file with `items:[{source_id,asset_id}]` and run the explicitly opted-in batch command below. It downloads only those chosen results, at most five images and 50 MiB total, into a new directory with an `assets.json` manifest. Each asset keeps its source page, declared license/artist metadata, download URL and SHA-256; duplicate bytes fail the batch. The files stay local. Rights and actual attribution requirements still need human review.
+
+```powershell
+node src/asset-research.mjs download-batch --results outputs/research/commons.json --selection outputs/research/commons-selection.json --out-dir outputs/research/commons-selected --allow-download
+```
+
+This is a bounded selected batch, not general website scraping or unbounded media acquisition. See `docs/M17_COMMONS_BATCH_IMPORT_REPORT.md`.
 
 ## Research and design rules
 
@@ -366,9 +391,17 @@ Start the loopback-only REST service with a durable workspace:
 npm run api -- --workspace D:\AIAutoSlidesData --port 8787
 ```
 
-The service stores projects, slide IR revisions, source metadata, job transitions, artifacts and hashes in SQLite. Place input files in `<workspace>\incoming`; `POST /projects/{id}/sources` imports only from that directory and copies raw bytes to immutable `source-blobs/<sha256>`. Create a project with `POST /projects` and a JSON body containing `title` and `presentation_ir`; start a generation job with `POST /projects/{id}/jobs`. The local workflow inventories evidence without searching the web, plans slide takeaways and adapter capabilities, generates PPTX, renders PDF/PNG previews, runs structural QA, and records artifacts and stage logs. Set `{"preview":false}` on job creation to skip PowerPoint/Poppler previews.
+The service stores projects, slide IR revisions, source metadata, job transitions, artifacts and hashes in SQLite. Place input files in `<workspace>\incoming`; `POST /projects/{id}/sources` imports only from that directory and copies raw bytes to immutable `source-blobs/<sha256>`. Create a project with `POST /projects` and a JSON body containing `title` and `presentation_ir`; start a generation job with `POST /projects/{id}/jobs`. The local generation workflow inventories supplied evidence without web search, plans slide takeaways and adapter capabilities, generates PPTX, renders PDF/PNG previews, runs structural QA, and records artifacts and stage logs. Set `{"preview":false}` on job creation to skip PowerPoint/Poppler previews.
 
-Available routes are documented in [`docs/API_WORKFLOW.md`](docs/API_WORKFLOW.md). The API binds only to loopback and is intended for one local user; it has no remote authentication or OS-level sandbox. Node 22.5 or newer is required for the API's built-in SQLite runtime. The legacy slide CLI remains available on the package's existing minimum Node version. A slide PATCH updates the validated IR revision; a later job rebuilds the whole deck, so unchanged-slide hash preservation is not promised.
+An optional `POST /research/search` route accepts `{ "provider":"openalex|crossref|arxiv", "query":"...", "limit":5, "allow_network":true }`. The explicit flag is required before the selected provider receives the query. Results remain unverified metadata candidates; the route does not fetch full text or add evidence to a project. The MCP tool `aiautoslides_research_search` exposes this same opt-in action and is marked as an external service operation.
+
+For a project workflow, use `POST /projects/{id}/research/search` with the same body, inspect `GET /projects/{id}/research/candidates`, then explicitly register one selected `source_id` with `POST /projects/{id}/research/candidates/{source_id}/import`. Search candidates are stored locally with their provider IDs, record hashes, query and retrieval timestamp. Import adds an unverified source record only; it does not create evidence excerpts or claims. MCP exposes corresponding project search, list and import tools; project search writes local candidate metadata and contacts the provider only with `allow_network:true`.
+
+After checking an original source, a caller can submit an exact excerpt and source locator to `POST /projects/{id}/evidence`; `GET /projects/{id}/evidence` lists entries with a content SHA-256. A reviewer can submit `POST /projects/{id}/evidence/{evidence_id}/review` with `reviewer`, `decision` (`verified` or `contradicted`) and the matching `content_sha256`. The API records that caller-supplied human decision and time, rejects stale content hashes and repeated final reviews, and never upgrades the parent source. Later edits to reviewed evidence return its current state to pending while keeping the previous decision as stale audit history. Reviewer identity is not authenticated; a decision remains the caller's assertion, and exact local excerpt matching only checks whether text occurs in supported imported bytes or extracted text. Neither action determines whether a claim follows from the excerpt. See [`docs/M21_EVIDENCE_REVIEW_REPORT.md`](docs/M21_EVIDENCE_REVIEW_REPORT.md), [`docs/M22_STALE_EVIDENCE_REVIEW_REPORT.md`](docs/M22_STALE_EVIDENCE_REVIEW_REPORT.md), and [`docs/M24_PDF_DOCX_EVIDENCE_MATCH_REPORT.md`](docs/M24_PDF_DOCX_EVIDENCE_MATCH_REPORT.md).
+
+For supported UTF-8 text files and selectable-text PDF/DOCX files imported through the local API, evidence responses also report exact excerpt matches, no matches, or why checking is unavailable. Scanned PDF OCR is disabled by default. To enable the existing local Tesseract path explicitly, start the service with `npm run api -- --enable-local-pdf-ocr --pdf-ocr-lang eng`; OCR results are labeled `ocr_match`/`ocr_no_match` with confidence and are never represented as verbatim source matches or verified evidence. The OCR engine and page rasterizer run locally. See [`docs/M24_PDF_DOCX_EVIDENCE_MATCH_REPORT.md`](docs/M24_PDF_DOCX_EVIDENCE_MATCH_REPORT.md) and [`docs/M26_API_LOCAL_OCR_REPORT.md`](docs/M26_API_LOCAL_OCR_REPORT.md).
+
+Available routes and their network/data boundaries are documented in [`docs/API_WORKFLOW.md`](docs/API_WORKFLOW.md). The API binds only to loopback and is intended for one local user; it has no remote authentication or OS-level sandbox. Node 22.5 or newer is required for the API's built-in SQLite runtime. The legacy slide CLI remains available on the package's existing minimum Node version. A slide PATCH updates the validated IR revision; a later job rebuilds the whole deck, so unchanged-slide hash preservation is not promised.
 
 ## Verified in this checkout
 
@@ -420,6 +453,8 @@ PPTX, PDF, ten page PNGs, preview, evidence manifest and QA reports are written 
 ## Local MCP server
 
 The stdio MCP server exposes the local project API to MCP clients. Start the API in one terminal, then configure the MCP client to run `node src/mcp.mjs`; see [`docs/MCP_SERVER.md`](docs/MCP_SERVER.md) for Codex and Claude Code examples. The server accepts only a loopback API URL. Its scholarly metadata search sends a query to a selected public provider only when the caller explicitly sets `allow_network: true`; it does not download full text or call a model API. The MCP host should request user approval for outbound research and project edits, source import and render jobs.
+
+The stdio MCP server exposes the local project API to MCP clients. Start the API in one terminal, then configure the MCP client to run `node src/mcp.mjs`; see [`docs/MCP_SERVER.md`](docs/MCP_SERVER.md) for Codex and Claude Code examples. The server accepts only a loopback API URL. Its scholarly metadata search tool contacts OpenAlex, Crossref or arXiv only when explicitly called with `allow_network:true`; no model or full-text download is invoked. The MCP host handles approval for project edits, source import and render jobs.
 
 ## Codex and Claude Code Skills
 

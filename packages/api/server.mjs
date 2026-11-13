@@ -14,12 +14,20 @@ import {runResearchWorkerAsync} from '../research/python-sidecar.mjs';
 import {markitdownAdapter} from '../adapters/markitdown.mjs';
 import {wikimediaCommons} from '../research/wikimedia-commons.mjs';
 import {buildSourceBundle,extractDocxParagraphs,extractPdfPages} from '../../src/document-extractors.mjs';
+import {metadataSearch as defaultMetadataSearch} from '../research/metadata-search.mjs';
 
 const loopback=new Set(['127.0.0.1','::1','localhost']);
 const mime={'pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation','pdf':'application/pdf','png':'image/png','json':'application/json','svg':'image/svg+xml'};
 const jsonBytes=value=>Buffer.from(JSON.stringify(value));
 const contentHash=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const bytesHash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
+function researchSearchInput(input){
+  if(input.allow_network!==true)throw Object.assign(new Error('Research search is disabled unless allow_network is explicitly true.'),{status:400});
+  if(!['openalex','crossref','arxiv'].includes(input.provider))throw Object.assign(new Error('provider must be openalex, crossref, or arxiv.'),{status:400});
+  if(typeof input.query!=='string'||input.query.trim().length<2||input.query.trim().length>500)throw Object.assign(new Error('query must contain 2-500 characters.'),{status:400});
+  if(input.limit!==undefined&&(!Number.isInteger(input.limit)||input.limit<1||input.limit>10))throw Object.assign(new Error('limit must be an integer from 1 to 10.'),{status:400});
+  return{provider:input.provider,query:input.query,limit:input.limit??5};
+}
 
 function send(res,status,value){const body=JSON.stringify(value);res.writeHead(status,{'content-type':'application/json; charset=utf-8','content-length':Buffer.byteLength(body),'cache-control':'no-store'});res.end(body);}
 async function bodyJson(req,limit=24*1024*1024){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw Object.assign(new Error(`Request exceeds ${limit} byte limit.`),{status:413});chunks.push(chunk);}if(!chunks.length)return{};try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw Object.assign(new Error('Request body must be valid JSON.'),{status:400});}}
@@ -35,9 +43,9 @@ function normalizeCommonsCandidate(input){
   return{schema_version:'1.0.0',provider:'wikimedia-commons',source_id:input.source_id,title:string(input.title,500),description_page:description.toString().slice(0,4096),thumbnail_url:thumbnail.toString().slice(0,4096),thumbnail_mime:string(input.thumbnail_mime,100),original_mime:string(input.original_mime,100),license_short_name:string(input.license_short_name,200),license_url:string(input.license_url,1000),usage_terms:string(input.usage_terms,500),artist:string(input.artist,1000),credit:string(input.credit,1000),attribution_required:input.attribution_required===true,width:Number.isInteger(input.width)?input.width:null,height:Number.isInteger(input.height)?input.height:null,metadata_sha256:input.metadata_sha256.toLowerCase(),retrieved_at:string(input.retrieved_at,80),rights_review_status:'needs_human_review',verification_status:'unverified'};
 }
 
-export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true,research=metadataSearch,arxivIngest=ingestArxivPaper,crawlPage=crawlAuthorizedPage,commonsDownload=wikimediaCommons.download,doclingExtract=async({inputPath,signal,allowModelDownload})=>runResearchWorkerAsync({action:'extract',engine:'docling',input:inputPath},{timeoutMs:900000,maxBuffer:15*1024*1024,signal,allowModelDownload}),markitdownExtract=async({inputPath,allowedRoot,signal})=>markitdownAdapter.runAsync({inputFile:inputPath,allowedRoot,signal})}={}){
+export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true,research=metadataSearch,researchSearch=defaultMetadataSearch,enableLocalPdfOcr=false,pdfOcrLanguage='eng',pdfOcrExtractor,arxivIngest=ingestArxivPaper,crawlPage=crawlAuthorizedPage,commonsDownload=wikimediaCommons.download,doclingExtract=async({inputPath,signal,allowModelDownload})=>runResearchWorkerAsync({action:'extract',engine:'docling',input:inputPath},{timeoutMs:900000,maxBuffer:15*1024*1024,signal,allowModelDownload}),markitdownExtract=async({inputPath,allowedRoot,signal})=>markitdownAdapter.runAsync({inputFile:inputPath,allowedRoot,signal})}={}){
   if(!workspaceDir)throw new TypeError('workspaceDir is required');
-  const store=await openProjectStore(workspaceDir),controllers=new Map(),running=new Map();
+  const store=await openProjectStore(workspaceDir,{enableLocalPdfOcr,pdfOcrLanguage,pdfOcrExtractor}),controllers=new Map(),running=new Map();
   store.recoverInterruptedJobs();
   async function runJob(jobId){
     if(running.has(jobId))return running.get(jobId);
@@ -96,6 +104,10 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
       if(segments[0]==='profiles'&&segments.length===1&&method==='POST'){const input=await bodyJson(req),profile=store.createProfile({profile_id:input.profile_id,preferences:input.preferences,privacy:input.privacy});return send(res,201,{profile});}
       if(segments[0]==='profiles'&&segments[1]&&segments.length===2&&method==='GET'){const profile=store.getProfile(segments[1]);if(!profile)throw notFound('Profile',segments[1]);return send(res,200,{profile});}
       if(segments[0]==='profiles'&&segments[1]&&segments.length===2&&method==='PATCH'){const input=await bodyJson(req),profile=store.updateProfile(segments[1],input);return send(res,200,{profile});}
+      if(segments[0]==='research'&&segments[1]==='search'&&segments.length===2&&method==='POST'){
+        const input=researchSearchInput(await bodyJson(req,16*1024));
+        const result=await researchSearch.search(input);return send(res,200,result);
+      }
       if(segments[0]==='projects'&&segments.length===1&&method==='GET')return send(res,200,{projects:store.listProjects()});
       if(segments[0]==='projects'&&segments.length===1&&method==='POST'){
         const input=await bodyJson(req);const project=store.createProject({title:input.title,presentationIR:input.presentation_ir,profileId:input.profile_id||null});return send(res,201,{project});
@@ -142,6 +154,20 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
         if(segments[2]==='sources'&&segments.length===3&&method==='POST'){
           const input=await bodyJson(req);const source=store.importSource(projectId,{sourceId:input.source_id,filePath:input.file_path,type:input.type,locator:input.locator,verificationStatus:input.verification_status||'unverified'});return send(res,201,{source});
         }
+        if(segments[2]==='research'&&segments[3]==='search'&&segments.length===4&&method==='POST'){
+          const input=researchSearchInput(await bodyJson(req,16*1024)),result=await researchSearch.search(input);store.saveResearchCandidates(projectId,result);return send(res,200,{...result,saved_candidate_count:result.results.length});
+        }
+        if(segments[2]==='research'&&segments[3]==='candidates'&&segments.length===4&&method==='GET')return send(res,200,{candidates:store.listResearchCandidates(projectId)});
+        if(segments[2]==='research'&&segments[3]==='candidates'&&segments.length===6&&segments[5]==='import'&&method==='POST'){
+          const result=store.importResearchCandidate(projectId,segments[4]);return send(res,200,result);
+        }
+        if(segments[2]==='evidence'&&segments.length===3&&method==='GET')return send(res,200,{evidence:await store.listEvidence(projectId)});
+        if(segments[2]==='evidence'&&segments.length===3&&method==='POST'){
+          const input=await bodyJson(req,16*1024),result=await store.addEvidenceRecord(projectId,{evidenceId:input.evidence_id,sourceId:input.source_id,excerpt:input.excerpt,locator:input.locator??null});return send(res,201,result);
+        }
+        if(segments[2]==='evidence'&&segments.length===5&&segments[4]==='review'&&method==='POST'){
+          const input=await bodyJson(req,16*1024),result=await store.reviewEvidence(projectId,segments[3],{reviewer:input.reviewer,decision:input.decision,contentSha256:input.content_sha256,note:input.note??null});return send(res,200,result);
+        }
         if(segments[2]==='jobs'&&segments.length===3&&method==='GET')return send(res,200,{jobs:store.listJobs(projectId)});
         if(segments[2]==='jobs'&&segments.length===3&&method==='POST'){
           const options=await bodyJson(req);if(options.preview!==undefined&&typeof options.preview!=='boolean')throw Object.assign(new Error('preview must be boolean.'),{status:400});const job=store.createJob(projectId,options);setImmediate(()=>void runJob(job.job_id));return send(res,202,{job});
@@ -160,7 +186,7 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
         const artifact=store.getArtifact(segments[1]);if(!artifact)throw notFound('Artifact',segments[1]);const bytes=fs.readFileSync(artifact.path);if(contentHash(artifact.path)!==artifact.sha256)throw new Error('Artifact hash check failed.');res.writeHead(200,{'content-type':mime[artifact.format]||'application/octet-stream','content-length':bytes.length,'content-disposition':`attachment; filename="${path.basename(artifact.path).replace(/["\r\n]/g,'_')}"`,'x-content-sha256':artifact.sha256,'cache-control':'no-store'});return res.end(bytes);
       }
       return send(res,404,{error:'route_not_found'});
-    }catch(error){return send(res,error.status||(error instanceof TypeError?400:/Unknown (project|profile|slide|source|job)|Unknown slide_id/.test(error.message)?404:/outside|incoming|symlink|travers/i.test(error.message)?403:/required|Unsupported|must be|must remain|valid Presentation|validation failed|Unknown slide_id/.test(error.message)?400:500),{error:error.message});}
+    }catch(error){return send(res,error.status||(error instanceof TypeError?400:/Unknown (project|profile|slide|source|job|research candidate)|Unknown slide_id/.test(error.message)?404:/outside|incoming|symlink|travers/i.test(error.message)?403:/required|Unsupported|must be|must remain|valid Presentation|validation failed|Unknown slide_id/.test(error.message)?400:500),{error:error.message});}
   });
   async function listen({port=8787,host='127.0.0.1'}={}){if(!loopback.has(host))throw new Error('The API only binds to loopback addresses.');await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,host,resolve);});for(const job of store.listQueuedJobs())setImmediate(()=>void runJob(job.job_id));return server.address();}
   async function waitForIdle(){while(running.size)await Promise.allSettled([...running.values()]);}
