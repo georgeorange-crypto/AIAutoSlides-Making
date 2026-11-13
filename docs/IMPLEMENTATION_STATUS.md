@@ -145,3 +145,8 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 - Evidence responses now compare excerpts verbatim against bounded, imported UTF-8 text source blobs and return a source hash, match count/offset, no-match, or a specific unavailable reason. The evidence and parent source remain pending/unverified.
 - Binary sources, PDF/DOCX extraction alignment, OCR and semantic claim support remain outside this exact-text check. See `docs/M23_LOCAL_EVIDENCE_SOURCE_MATCH_REPORT.md`.
+
+## Selectable PDF/DOCX source matching follow-on — 2026-11-12
+
+- The project evidence API now uses the existing local PDF.js and DOCX extractors to match exact excerpts in selectable PDF page text and DOCX paragraphs, returning the extracted locator. OCR remains opt-in and is not called by this check; missing blobs and parse failures remain `unavailable` instead of inferred matches.
+- See `docs/M24_PDF_DOCX_EVIDENCE_MATCH_REPORT.md` for regression and remaining limits.

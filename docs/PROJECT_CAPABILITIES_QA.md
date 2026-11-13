@@ -183,3 +183,8 @@ Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS �
 
 - **Implemented:** evidence list/create/review responses compare exact excerpts against imported UTF-8 text blobs in the local content-addressed source store. Results distinguish exact match, no exact match and unavailable, with source hash and match location/count where applicable.
 - **Boundary:** this does not mark evidence verified or establish entailment; binary/PDF/DOCX/OCR and normalized text are not compared. See `docs/M23_LOCAL_EVIDENCE_SOURCE_MATCH_REPORT.md`.
+
+## M24: selectable PDF/DOCX evidence excerpt matching
+
+- **Implemented:** project evidence list/create/review now compare excerpts against selectable PDF.js page text and extracted DOCX paragraph text from immutable local source bytes. A match returns the source SHA-256 and page/paragraph locator.
+- **Boundary:** extraction is a text provenance check, not source authenticity or claim entailment; OCR and text normalization are not applied. See `docs/M24_PDF_DOCX_EVIDENCE_MATCH_REPORT.md`.
