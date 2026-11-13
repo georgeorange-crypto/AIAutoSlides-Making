@@ -3,12 +3,22 @@ import crypto from 'node:crypto';
 const hash=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const planBody=plan=>{const body={...plan};delete body.approval;delete body.representative_review;return body;};
 const fail=errors=>({status:errors.length?'fail':'pass',errors});
+export const PAGE_QUALITY_CHECKS=Object.freeze([
+  'content_density','typography','visual_support','diagram_logic','narrative_role',
+  'presentation_voice','language_clarity','layout_variety','caveat_relevance','emphasis_depth','rendered_fit'
+]);
 
 export function validateDeckPlan(plan){
   const errors=[];
   if(!plan||plan.schema_version!=='1.0.0')errors.push('schema_version must be 1.0.0');
-  for(const key of ['task','materials','tools','slides','representative_slides','acceptance'])if(!plan?.[key])errors.push(`missing ${key}`);
+  for(const key of ['task','quality_contract','materials','tools','slides','representative_slides','acceptance'])if(!plan?.[key])errors.push(`missing ${key}`);
   if(!plan?.task?.scope||!Number.isInteger(plan?.task?.expected_slide_count)||plan.task.expected_slide_count<1)errors.push('task.scope and positive task.expected_slide_count are required');
+  const quality=plan?.quality_contract;
+  for(const key of ['audience','purpose','language','style_reference','content_priorities','narrative_sections','avoid_patterns'])if(quality?.[key]===undefined)errors.push(`quality_contract missing ${key}`);
+  if(quality){for(const key of ['audience','purpose','language','style_reference'])if(typeof quality[key]!=='string'||!quality[key].trim())errors.push(`quality_contract.${key} must be a nonempty string`);
+    for(const key of ['content_priorities','narrative_sections','avoid_patterns'])if(!Array.isArray(quality[key])||quality[key].some(value=>typeof value!=='string'||!value.trim()))errors.push(`quality_contract.${key} must be an array of nonempty strings`);
+    if(Array.isArray(quality.content_priorities)&&!quality.content_priorities.length)errors.push('quality_contract.content_priorities must not be empty');
+    if(Array.isArray(quality.narrative_sections)&&!quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must not be empty');}
   if(!Array.isArray(plan?.materials)||!plan.materials.length)errors.push('materials must list at least one required project/source material');
   else for(const [i,item] of plan.materials.entries())if(!item.path||!item.sha256||item.read_status!=='read')errors.push(`materials[${i}] requires path, sha256 and read_status=read`);
   if(!Array.isArray(plan?.tools)||!plan.tools.length)errors.push('tools must include actual capability evidence');
@@ -18,7 +28,9 @@ export function validateDeckPlan(plan){
   else{
     const ids=new Set();for(const [i,s] of slides.entries()){
       if(!s.slide_id||ids.has(s.slide_id))errors.push(`slides[${i}] has missing or duplicate slide_id`);ids.add(s.slide_id);
-      for(const key of ['assertion','evidence_ids','visual_type','visual_source','tool_id','rights_status'])if(s[key]===undefined)errors.push(`slides[${i}] missing ${key}`);
+      for(const key of ['assertion','evidence_ids','visual_type','visual_source','tool_id','rights_status','narrative_role','importance','explanation_goal','visual_rationale','layout_intent'])if(s[key]===undefined)errors.push(`slides[${i}] missing ${key}`);
+      for(const key of ['assertion','visual_type','visual_source','tool_id','rights_status','narrative_role','importance','explanation_goal','visual_rationale','layout_intent'])if(typeof s[key]!=='string'||!s[key].trim())errors.push(`slides[${i}].${key} must be a nonempty string`);
+      if(!Array.isArray(s.evidence_ids))errors.push(`slides[${i}].evidence_ids must be an array`);
     }
     if(!Array.isArray(plan.representative_slides)||!plan.representative_slides.length||plan.representative_slides.some(id=>!ids.has(id)))errors.push('representative_slides must name one or more planned slide IDs');
   }
@@ -58,6 +70,13 @@ export function validatePageReviews(pageReviews,requiredSlideIds){
   const errors=[];if(!Array.isArray(pageReviews))return fail(['page_reviews must be an array']);
   const byId=new Map();for(const item of pageReviews){if(!item?.slide_id||byId.has(item.slide_id))errors.push('page_reviews contain missing or duplicate slide_id');else byId.set(item.slide_id,item);}
   const required=[...requiredSlideIds].sort(),provided=[...byId.keys()].sort();if(JSON.stringify(required)!==JSON.stringify(provided))errors.push('page_reviews must cover every required slide exactly once');
-  for(const id of required){const item=byId.get(id);if(item&&(item.status!=='pass'||!item.findings||!item.rechecked))errors.push(`${id} requires status=pass, findings (use "none" when empty), and rechecked=true`);}
+  for(const id of required){const item=byId.get(id);if(!item)continue;
+    if(item.status!=='pass'||!item.findings||!item.rechecked)errors.push(`${id} requires status=pass, findings (use "none" when empty), and rechecked=true`);
+    if(item.status==='pass'&&!/^(?:none|resolved:\s*\S)/i.test(String(item.findings||'').trim()))errors.push(`${id} cannot pass with unresolved findings; use "none" or "resolved: ..." after rechecking`);
+    const checks=item.quality_checks;
+    if(!checks||typeof checks!=='object'||Array.isArray(checks)){errors.push(`${id} requires quality_checks for every required quality dimension`);continue;}
+    for(const check of PAGE_QUALITY_CHECKS){const value=checks[check];if(!value||!['pass','not_applicable'].includes(value.status)||typeof value.note!=='string'||!value.note.trim())errors.push(`${id}.${check} requires status=pass or not_applicable and a nonempty note`);else if(value.status==='not_applicable'&&!/^(?:n\/?a|not applicable):\s*\S/i.test(value.note.trim()))errors.push(`${id}.${check} not_applicable requires a reason after "N/A:"`);}
+    for(const check of Object.keys(checks))if(!PAGE_QUALITY_CHECKS.includes(check))errors.push(`${id}.${check} is not a recognized quality check`);
+  }
   return fail(errors);
 }

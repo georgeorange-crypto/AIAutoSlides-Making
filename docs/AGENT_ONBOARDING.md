@@ -26,7 +26,7 @@
 2. 指定审阅者批准计划：`node src/harness.mjs plan approve --plan deck-plan.json --reviewer "Name" --note "Reviewed scope, sources, page map and gates"`。批准绑定计划内容哈希。
 3. 用仅含代表页的 Presentation IR 先做试制：`node src/harness.mjs run --task-type ppt --deck-plan deck-plan.json --input pilot-ir.json --workspace <workspace> --preview true`。在 Harness 产物中检查代表页，并按页提交 visual review 与 `--page-reviews`。
 4. 将代表页审核的产物 SHA-256 记录进计划：`node src/harness.mjs plan representative-approve --plan deck-plan.json --reviewer "Name" --note "Reviewed representative slides" --artifact-sha256 <sha256>`。此后全稿 IR 必须精确匹配计划全部 slide ID 和页数，否则 Harness 拒绝运行。
-5. 全稿运行后分别提交 science、visual review。Deck visual approve 必须带 JSON 数组 `--page-reviews pages.json`，每页恰好一条 `{ "slide_id": "S01", "status": "pass", "findings": "none", "rechecked": true }`；有问题先修复重建并复查，不能把未解决页标成 pass。审核绑定最终 PPTX 哈希。
+5. 全稿运行后分别提交 science、visual review。Deck visual approve 必须带 JSON 数组 `--page-reviews pages.json`，每页有 `status=pass`、`findings`、`rechecked=true`，以及完整 `quality_checks`：`content_density`、`typography`、`visual_support`、`diagram_logic`、`narrative_role`、`presentation_voice`、`language_clarity`、`layout_variety`、`caveat_relevance`、`emphasis_depth`、`rendered_fit`。每项须写 `{ "status": "pass", "note": "..." }`；仅适用性确实不成立时才可用 `{ "status": "not_applicable", "note": "N/A: reason" }`。缺项、无理由 N/A 或发现未修复都会阻止批准。审核绑定最终 PPTX 哈希。
 6. 只有 Harness job 到达 `completed` 才能报告 deck 验收完成。计划批准、代表页批准或文件生成都不等于全稿完成。
 
 工具命令、JSON 字段和失败条件详见 [`API_WORKFLOW.md`](API_WORKFLOW.md)。Harness 记录的是审阅者声明，不验证身份，也无法阻止有任意文件权限的 agent 在 Harness 外另行生成文件；项目交付声明必须引用 Harness run。
