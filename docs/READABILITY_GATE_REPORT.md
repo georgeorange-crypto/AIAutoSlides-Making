@@ -29,6 +29,16 @@ Synthetic `examples/research-demo.json` was built to `outputs/readability-gate/r
 
 The preview exists and has been visually inspected, but no human approval record was created; QA status remains `warning` and human review remains `pending`. Existing synthetic-data warnings about unverified evidence and missing chart sample size remain.
 
+## Rendered density gate (2026-11-13)
+
+This follow-up addresses defect 2 for formal content pages. Text-unit counts alone allowed a long single sentence to pass even when most of the page was empty. Local Tesseract now returns OCR word boxes and image dimensions; PPTX QA supplies each authored text shape's text and slide geometry. The critic measures the union of OCR word-box pixels inside text boxes mapped to visible slide-body fields, excluding titles and unrelated labels. Missing OCR geometry or a missing body-text mapping is an explicit blocking `QUALITY_VISIBLE_DENSITY_UNMEASURED` result.
+
+Content pages without a planned structured visual must have at least 4.5% visible body-text coverage of the content region and at least two OCR body-text lines. Pages with structured visuals use a 1.2% visible body-text floor, while existing plan checks still require sufficient explanatory text and visual coverage. Cover, agenda, section-transition, and closing roles are excluded from content density thresholds. These deterministic floors catch sparse layouts; they do not judge whether the text is useful or a diagram is meaningful.
+
+Adversarial evidence: an existing seven-page synthetic PPTX was modified so S02 contained a single Chinese sentence long enough to satisfy the prior text-unit threshold. Local OCR measured its body-text box union at 3.46%, below the 4.5% no-visual floor; this is now a blocking density result. A regression test also proves that a text-unit-compliant page with OCR coverage of 3.4% is blocked, while absent density measurements fail closed. OCR line detection is noisy and remains a screening signal, not an aesthetic judgment.
+
+Verification for this phase: full `npm test` completed with 283 passed, 0 failed, 11 optional skips; focused layout/OCR/quality/document-import tests completed with 32 passed, 0 failed. `npm run validate` passed with the existing 3 synthetic-data warnings. A seven-slide synthetic deck was built to `outputs/visible-density-phase/research-demo.pptx`, passed structural QA with 7 editable-text slides and 1 native chart, and rendered with PowerPoint 16.0 + Poppler 26.07.0. All seven final PNGs were opened and inspected. No human approval record was created; QA remains warning/pending. The original `outputs/research-demo.pptx` was not overwritten. Generated PPTX/PDF/PNGs and the adversarial fixture remain untracked/ignored and are not part of this change.
+
 ## Limits
 
 The 12 pt floor does not guarantee comfortable projection readability; some slides need larger text based on audience, room and content. OOXML run sizes do not detect font substitution, rasterized text inside images, or all chart-internal style inheritance. Geometry overlap is a bounding-box screen and may flag intentional intersections or miss visual collisions caused by rendered glyphs. Page-by-page visual review remains mandatory. This phase does not solve the other presentation defects or certify narrative quality, aesthetic quality, source correctness or scientific truth.

@@ -10,7 +10,7 @@ function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const contentSlides=Array.from({length:count},(_,index)=>({slide_id:`S${index+1}`,type:'statement',title:`Claim ${index+1}`,role,evidence_ids:['E1'],elements:[{element_id:`T${index+1}`,kind:'text',text:body},...(index%visualEvery===0?[{element_id:`D${index+1}`,kind:'diagram',groups:[{label:'System'}],nodes:[{id:'a',label:'Input'},{id:'b',label:'Output'}],edges:[{from:'a',to:'b',label:'maps'}]}]:[])]}));
   const slides=[agenda,divider,...contentSlides];
   const plan={quality_contract:contract,slides:[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text'}))]};
-  return{plan,presentationIR:{slides},renderedQa:{slides:slides.map(()=>({textBoundsPass:true,textOverlaps:[],smallText:[]}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected'}))}};
+  return{plan,presentationIR:{slides},renderedQa:{slides:slides.map(()=>({textBoundsPass:true,textOverlaps:[],smallText:[]}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}))}};
 }
 
 test('formal quality audit passes a deck meeting the declared visual, explanation, language, layout, and render constraints',()=>{
@@ -23,6 +23,13 @@ test('formal quality audit blocks thin text, low visual coverage, repeated layou
   input.plan.slides=input.presentationIR.slides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'agenda':index===1?'section_transition':'result',section_name:index===1?'Results':'Results',visual_type:'image or diagram',layout_intent:'same-grid'}));
   const result=auditDeckQuality(input),codes=new Set(result.blockers.map(item=>item.code));
   for(const code of ['QUALITY_CONTENT_TOO_THIN','QUALITY_VISUAL_COVERAGE','QUALITY_LAYOUT_REPETITION','QUALITY_ASSISTANT_VOICE','QUALITY_LONG_ENGLISH_BLOCK','QUALITY_PLANNED_VISUAL_MISSING'])assert.ok(codes.has(code),code);
+});
+
+test('formal quality audit blocks a text-unit-compliant page with sparse rendered body copy and missing density evidence',()=>{
+ const sparse=fixture({count:2,visualEvery:99});sparse.imageReview.pages[3].visible_text_occupancy_ratio=0.034;sparse.imageReview.pages[3].visible_text_line_count=3;
+ assert.ok(auditDeckQuality(sparse).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW'));
+ delete sparse.imageReview.pages[3].visible_text_occupancy_ratio;delete sparse.imageReview.pages[3].visible_text_line_count;
+ assert.ok(auditDeckQuality(sparse).blockers.some(item=>item.code==='QUALITY_VISIBLE_DENSITY_UNMEASURED'));
 });
 
 test('formal quality audit blocks rendered overlap, out-of-bounds text, unreadable type, unknown font size, and absent pages',()=>{

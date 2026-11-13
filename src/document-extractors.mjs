@@ -60,7 +60,7 @@ export async function createTesseractRecognizer(language='eng'){
   try{
     for(const code of codes){const data=require(`@tesseract.js-data/${code}`),source=path.join(data.langPath,`${code}.traineddata.gz`);if(!fs.existsSync(source))throw new Error(`Bundled OCR traineddata is missing for ${code}`);fs.copyFileSync(source,path.join(langDir,`${code}.traineddata.gz`));}
     const worker=await createWorker(codes.join('+'),1,{langPath:langDir,gzip:true,cachePath:langDir,cacheMethod:'refresh'});
-    return{recognize:async imagePath=>{const result=await worker.recognize(imagePath);return{text:result.data.text,confidence:result.data.confidence};},close:async()=>{try{await worker.terminate();}finally{fs.rmSync(langDir,{recursive:true,force:true});}}};
+    return{recognize:async imagePath=>{const result=await worker.recognize(imagePath,{}, {blocks:true}),words=(result.data.blocks||[]).flatMap(block=>block.paragraphs||[]).flatMap(paragraph=>paragraph.lines||[]).flatMap(line=>line.words||[]).map(word=>({text:word.text,confidence:word.confidence,bbox:word.bbox}));const header=fs.readFileSync(imagePath).subarray(0,24),validPng=header.toString('ascii',12,16)==='IHDR';return{text:result.data.text,confidence:result.data.confidence,words,image_width:validPng?header.readUInt32BE(16):null,image_height:validPng?header.readUInt32BE(20):null};},close:async()=>{try{await worker.terminate();}finally{fs.rmSync(langDir,{recursive:true,force:true});}}};
   }catch(error){fs.rmSync(langDir,{recursive:true,force:true});throw new Error(`Local Tesseract.js initialization failed (${codes.join('+')}): ${error.message}`);}
 }
 

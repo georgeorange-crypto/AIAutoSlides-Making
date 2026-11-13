@@ -20,6 +20,11 @@ test('rendered-page Critic reports missing and low-coverage pages without invent
  assert.equal(report.pages[1].status,'missing_page_image');
 });
 
+test('rendered-page Critic measures OCR word-box union after excluding the authored title box',async()=>{
+ const report=await critiqueRenderedPages({presentationIR:deck,renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,textBounds:[{text:'研究结果',x:100,y:50,w:800,h:100},{text:'Request rate',x:100,y:300,w:800,h:300}]}]},pages:[{format:'png',path:'fixture-page-1.png'}],recognizerFactory:async()=>({recognize:async()=>({text:'研究结果 Latency improved',confidence:90,image_width:1000,image_height:1000,words:[{text:'研究结果',bbox:{x0:200,y0:60,x1:700,y1:120}},{text:'Latency',bbox:{x0:200,y0:400,x1:500,y1:450}},{text:'improved',bbox:{x0:510,y0:400,x1:800,y1:450}}]}),close:async()=>{}})});
+ assert.ok(report.pages[0].visible_text_occupancy_ratio>0.04);
+});
+
 test('rendered-page Critic records when no preview exists',async()=>{
  const report=await critiqueRenderedPages({presentationIR:deck,pages:[]});
  assert.equal(report.status,'not_rendered');

@@ -11,7 +11,7 @@ export function auditTextLayout(xml,slideWidth,slideHeight,smallTextThresholdPt=
   const elements=[...xml.matchAll(/<p:(sp|pic|graphicFrame|cxnSp)>([\s\S]*?)<\/p:\1>/g)].map((match,index)=>({index:index+1,type:match[1],xml:match[2]}));
   const elementBounds=elements.map(item=>{const g=geometry(item.xml);return g?{ok:g.x>=0&&g.y>=0&&g.x+g.w<=slideWidth&&g.y+g.h<=slideHeight,element:item.type,index:item.index,...g}:{ok:false,element:item.type,index:item.index,reason:'missing geometry'};});
   const shapes=[...xml.matchAll(/<p:sp>([\s\S]*?)<\/p:sp>/g)].map((match,index)=>({index:index+1,xml:match[1]})).filter(item=>/<a:t>/.test(item.xml));
-  const textBounds=shapes.map(item=>{const g=geometry(item.xml);return g?{ok:g.x>=0&&g.y>=0&&g.x+g.w<=slideWidth&&g.y+g.h<=slideHeight,...g}: {ok:false,reason:'missing geometry'};});
+  const textBounds=shapes.map(item=>{const g=geometry(item.xml);return g?{ok:g.x>=0&&g.y>=0&&g.x+g.w<=slideWidth&&g.y+g.h<=slideHeight,text:textContent(item.xml),...g}: {ok:false,text:textContent(item.xml),reason:'missing geometry'};});
   const overlaps=[];
   for(let i=0;i<shapes.length;i++)for(let j=i+1;j<shapes.length;j++){
     const a=geometry(shapes[i].xml),b=geometry(shapes[j].xml);
