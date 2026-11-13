@@ -98,3 +98,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - Detailed stage results: `docs/M14_DOCX_HEADER_FOOTER_TEXT_REPORT.md`.
 
 - M14 full validation: `npm test` passed 158/158; `npm run validate`, `npm run build`, `npm run preview`, and `node src/qa.mjs outputs/research-demo.pptx` all completed successfully. PowerPoint 16.0 and Poppler 26.07 rendered the 7-slide demo to PDF and seven PNGs; each page was inspected. QA reported 7 editable-text slides and one native chart. Existing evidence/sample-size warnings remain, and human approval is still pending.
+
+## Asset usage suggestion follow-on — 2026-11-12
+
+- Added `npm run assets:suggest` for deterministic, explainable lexical candidate ranking between slide copy and optional asset metadata. It reports matched terms, current associations, and source/license/verification review flags without changing slides or verification state.
+- This is not image-semantic matching, license review, or evidence entailment. Audio/video management, semantic matching, rights validation, DOI full-text workflows beyond arXiv, bulk media acquisition, and MinerU evaluation remain incomplete.
+- Detailed implementation and limitations: `docs/M15_ASSET_USAGE_SUGGESTION_REPORT.md`.

@@ -250,11 +250,12 @@ The selection command writes the confirmed theme profile to `docs/design.md` and
 
 ### Local image assets (Milestone 3A first vertical slice)
 
-Reference local PNG, JPEG, or SVG images in an asset manifest. Paths are relative to the manifest. Every asset records its MIME/type, SHA-256, source, license, and human verification state; duplicate bytes, missing files, mismatched hashes, missing provenance, and unknown slide references fail the build. Slides use `visuals` placements with slide-relative inch coordinates. Embedded SVGs are PowerPoint image objects; their internal paths are not individually editable shapes. No asset is uploaded.
+Reference local PNG, JPEG, or SVG images in an asset manifest. Paths are relative to the manifest. Every asset records its MIME/type, SHA-256, source, license, and human verification state; duplicate bytes, missing files, mismatched hashes, missing provenance, and unknown slide references fail the build. Slides use `visuals` placements with slide-relative inch coordinates. Embedded SVGs are PowerPoint image objects; their internal paths are not individually editable shapes. `assets:suggest` ranks candidate assets with deterministic lexical overlap against slide assertions and optional asset description, alt text, and keywords; it reports matched terms and rights/provenance review flags without editing the storyboard. This is a review aid, not semantic image recognition, legal review, or claim verification. No asset is uploaded.
 
 ```powershell
 node scripts/build-multimodal-demo.mjs
 node src/assets-cli.mjs examples/multimodal/assets.json
+npm run assets:suggest -- --storyboard examples/multimodal/storyboard.json --assets examples/multimodal/assets.json --out outputs/multimodal/asset-suggestions.json
 node src/cli.mjs validate --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json
 node src/cli.mjs build --input examples/multimodal/storyboard.json --evidence examples/multimodal/evidence.json --assets examples/multimodal/assets.json --out outputs/multimodal/ai-systems-synthetic.pptx
 node src/qa.mjs outputs/multimodal/ai-systems-synthetic.pptx
