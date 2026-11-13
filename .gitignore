@@ -12,3 +12,4 @@ docs/template/local-assets/**
 content/ai-storyboard.json
 __pycache__/
 workers/markitdown/.venv/
+workers/matplotlib/.venv/

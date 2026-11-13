@@ -1,6 +1,6 @@
 # Tool Matrix
 
-The machine-readable catalog is in [`registry/catalog/`](../registry/catalog/). It currently contains 55 candidate entries. Every `.yaml` file is JSON syntax, which is valid YAML 1.2; the CLI uses Node's built-in JSON parser, so the base install gains no YAML dependency.
+The machine-readable catalog is in [`registry/catalog/`](../registry/catalog/). It currently contains 56 candidate entries. Every `.yaml` file is JSON syntax, which is valid YAML 1.2; the CLI uses Node's built-in JSON parser, so the base install gains no YAML dependency.
 
 Each entry records official URL, kind, interface, platforms, capabilities, inputs/outputs, dependencies, network/auth/cost, editability, license review state, adapter state, and limitations. `version: not-pinned` means upstream version was not checked; `license.review_status: needs-review` is deliberately conservative and does not assert incompatibility.
 
@@ -28,8 +28,11 @@ Update each entry only when its executable, version, runtime, and test evidence 
 |---|---|---|
 | Marp CLI 4.5.1 | Isolated lockfile, local adapter, `doctor` / `test`, and a real synthetic HTML+PPTX export; PowerPoint rendered both pages. | Default PPTX contains rendered page images (2 slides, 0 text runs in the test fixture). Do not claim native editability. Experimental editable export is not tested. |
 | Presenton self-hosted v1 API | Loopback-only adapter and mocked contract tests; `doctor` reports missing credentials/service without contacting anything. | Adapter-ready only. No live service, model/provider invocation, deck export, cost, or editability has been verified. |
+| Matplotlib 3.10.8 | Pinned isolated Python worker, source-ID check, line/bar/scatter/CDF mapping, SVG/PNG hashes, and a real synthetic PPTX+preview run. | The figure is an SVG picture, not a native PowerPoint chart. Source record remains unverified; transitive license closure is pending. |
 
 Marp setup: `npm run deps:marp`; export the checked-in fixture with `npm run render:marp`. Presenton may run only when explicitly configured for a loopback instance and invoked with `allowProviderUsage: true`; no model call occurs during `tools doctor` or its mock contract test.
+
+Matplotlib setup: `npm run deps:matplotlib`; export the synthetic fixture with `npm run render:matplotlib`. The worker uses the isolated Python environment under `workers/matplotlib/.venv/`.
 
 ## Phase-0 candidate evaluation snapshot (2026-11-12)
 

@@ -3,8 +3,8 @@
   "name": "Matplotlib",
   "kind": "figure",
   "official_url": "https://github.com/matplotlib/matplotlib",
-  "version": "not-pinned",
-  "interface": "Python/JS library or CLI",
+  "version": "3.10.8",
+  "interface": "isolated Python worker",
   "platforms": [
     "windows",
     "linux",
@@ -20,24 +20,23 @@
   "outputs": [
     "svg",
     "png",
-    "html",
     "figure-manifest"
   ],
   "dependencies": [
-    "isolated runtime required"
+    "isolated Python virtual environment; pinned dependency lock"
   ],
   "needs_network": false,
   "needs_auth": false,
   "expected_cost": "unknown",
   "editable": "partial",
   "license": {
-    "identifier": "unreviewed",
+    "identifier": "Matplotlib License 1.3.0+ (PSF-based, BSD-compatible)",
     "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "note": "Upstream Matplotlib license was reviewed; review the complete pinned dependency and bundled-font license closure before production use."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/matplotlib.mjs",
   "probe": null,
   "limitations": "Image/vector output is not a native PowerPoint chart by default; data lineage must be retained.",
-  "status": "catalogued"
+  "status": "e2e-tested"
 }

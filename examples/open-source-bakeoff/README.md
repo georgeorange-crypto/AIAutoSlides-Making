@@ -28,6 +28,19 @@ $env:PRESENTON_API_KEY = '<local instance API key>'
 
 Do not put API keys into request JSON or commit shell history containing secrets. This environment's Docker Engine was unavailable, so these commands were not passed off as a completed run.
 
+## Matplotlib
+
+The isolated Matplotlib worker uses pinned Python dependencies. Its example data are explicitly fictional and linked to the existing unverified `E_SYN_01` fixture source.
+
+```powershell
+npm run deps:matplotlib
+npm run render:matplotlib
+node src/qa.mjs outputs/matplotlib-synthetic/matplotlib-synthetic.pptx
+node scripts/preview.mjs outputs/matplotlib-synthetic/matplotlib-synthetic.pptx
+```
+
+The `.pptx` contains native warning/lineage text and an SVG picture. The chart is not a native editable PowerPoint chart. Inspect the fixture values before reuse; they are not measurements.
+
 ## PPTAgent
 
 Current upstream Skill checkout and `pptagent-task.json` are used for an offline/manual authoring attempt. Upstream supports a fixed task folder with nine HTML slides, local rendering/review and editable PPTX export. The generation Skill itself can use the host coding agent; a model-based visual-review configuration may make an external API call. No such call was made.
