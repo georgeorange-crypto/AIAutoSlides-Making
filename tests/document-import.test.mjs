@@ -34,8 +34,8 @@ function syntheticPdf(text='SYNTHETIC PDF source text'){
  const xrefOffset=Buffer.byteLength(pdf,'binary'),xref=['xref','0 6','0000000000 65535 f ',...offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n `)].join('\n');return Buffer.from(`${pdf}${xref}\ntrailer << /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`,'binary');
 }
 
-function inlineImagePdf(){
- const content=Buffer.concat([Buffer.from('q\nBI /W 1 /H 1 /CS /RGB /BPC 8 ID '),Buffer.from([255,0,0]),Buffer.from(' \nEI\nQ\n')]),objects=[Buffer.from('<< /Type /Catalog /Pages 2 0 R >>'),Buffer.from('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'),Buffer.from('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] /Contents 4 0 R >>'),Buffer.concat([Buffer.from(`<< /Length ${content.length} >>\nstream\n`),content,Buffer.from('\nendstream')])],parts=[Buffer.from('%PDF-1.4\n')],offsets=[0];let length=parts[0].length;
+function inlineImagePdf(count=1){
+ const image=Buffer.concat([Buffer.from('BI /W 1 /H 1 /CS /RGB /BPC 8 ID '),Buffer.from([255,0,0]),Buffer.from(' \nEI')]),content=Buffer.concat(Array.from({length:count},(_,index)=>Buffer.concat([Buffer.from(`q\n1 0 0 1 ${index*2} 0 cm\n`),image,Buffer.from('\nQ\n')]))),objects=[Buffer.from('<< /Type /Catalog /Pages 2 0 R >>'),Buffer.from('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'),Buffer.from('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] /Contents 4 0 R >>'),Buffer.concat([Buffer.from(`<< /Length ${content.length} >>\nstream\n`),content,Buffer.from('\nendstream')])],parts=[Buffer.from('%PDF-1.4\n')],offsets=[0];let length=parts[0].length;
  for(let index=0;index<objects.length;index++){offsets.push(length);const part=Buffer.concat([Buffer.from(`${index+1} 0 obj\n`),objects[index],Buffer.from('\nendobj\n')]);parts.push(part);length+=part.length;}const xrefOffset=length,xref=['xref','0 5','0000000000 65535 f ',...offsets.slice(1).map(value=>`${String(value).padStart(10,'0')} 00000 n `)].join('\n');parts.push(Buffer.from(`${xref}\ntrailer << /Size 5 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`));return Buffer.concat(parts);
 }
 
@@ -119,8 +119,14 @@ test('PDF image extraction does not mistake page renders for embedded images',as
 test('PDF image extraction decodes inline images with page and operator provenance',async()=>{
  const pdfBytes=inlineImagePdf(),result=await extractPdfAssets(pdfBytes,{filename:'inline-only.pdf'}),asset=result.assets[0];
  assert.equal(result.assets.length,1);assert.equal(asset.mime_type,'image/png');assert.deepEqual(asset.bytes.subarray(0,8),Buffer.from([137,80,78,71,13,10,26,10]));assert.equal(asset.verified,false);
- assert.deepEqual(asset.source_parts,[{page:1,operator_index:1,operator:'paintInlineImageXObject',inline_image:true,placement_index:0,source_image_sha256:crypto.createHash('sha256').update(Buffer.from([255,0,0,255])).digest('hex')}]);
+ assert.deepEqual(asset.source_parts,[{page:1,operator_index:2,operator:'paintInlineImageXObject',inline_image:true,placement_index:0,source_image_sha256:crypto.createHash('sha256').update(Buffer.from([255,0,0,255])).digest('hex')}]);
  assert.match(asset.source,/inline image from inline-only\.pdf/);
+});
+
+test('PDF image extraction deduplicates repeated inline images while preserving each placement',async()=>{
+ const result=await extractPdfAssets(inlineImagePdf(10),{filename:'inline-group.pdf'}),asset=result.assets[0];
+ assert.equal(result.assets.length,1);assert.equal(asset.source_parts.length,10);assert.ok(asset.source_parts.every(source=>source.operator==='paintInlineImageXObject'&&source.inline_image));
+ assert.deepEqual(asset.source_parts.map(source=>source.placement_index),Array(10).fill(0));
 });
 
 test('optional bundled Tesseract fallback renders PDF pages and keeps OCR output explicitly unverified',async()=>{

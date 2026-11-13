@@ -138,6 +138,6 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 ## PDF inline-image extraction follow-on — 2026-11-12
 
 - `src/pdf-assets.mjs` now decodes supported PDF.js inline-image operators as bounded PNG assets alongside image XObjects. Provenance includes source PDF hash, page, operator index/name, inline-image flag, placement index, and a hash of PDF.js decoded source bytes; output rights remain inherited and `verified:false`.
-- Added a generated inline-image PDF regression test. `node --test --test-concurrency=1 tests/document-import.test.mjs` passed **14/14**, and `npm run test` passed **181/181**.
+- Added generated inline-image PDF regression tests, including ten repeated placements and deduplication with retained locators. The document-import tests passed in the full suite; `npm run test` passed **182/182**.
 - `npm run validate` and `npm run build` exited 0 with the existing 3 warnings (chart sample size missing; E1 and E2 unverified). Deck QA confirmed 7 editable slides and 1 native chart. PowerPoint 16.0/Poppler 26.07.0 previewed all 7 pages; each was opened and visually reviewed with no apparent clipping. Human visual approval and source verification remain pending.
 - Remaining PDF asset-extraction gaps: masks/soft masks, uncommon sample formats, vector drawing extraction, semantic matching, OCR-to-figure association, and human rights review.

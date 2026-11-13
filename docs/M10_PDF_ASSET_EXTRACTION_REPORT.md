@@ -28,5 +28,6 @@ All processing is local. Limits: 100 MB source, 500 pages, 100 image placements,
 ## Inline image follow-on — 2026-11-12
 
 - Added bounded decoding for PDF.js `paintInlineImageXObject` and grouped inline-image operators. The extractor writes PNG pixels and preserves page, operator index/name, inline-image marker, placement index, and a hash of PDF.js decoded source bytes; output assets remain `verified:false`.
-- `node --test --test-concurrency=1 tests/document-import.test.mjs`: **14/14 passed**. `npm run test`: **181/181 passed**. The suite includes a generated one-pixel RGB inline-image PDF fixture that verifies PNG output and provenance.
+- `npm run test`: **182/182 passed**, including generated one-pixel RGB inline-image and ten repeated-placement PDF fixtures that verify PNG output, deduplication, and source locators.
+- PDF.js's grouped-inline-image operator branch is handled in the extractor but was not triggered by these fixtures; it does not have an independent regression fixture yet.
 - `npm run validate`, `npm run build`, `node src/qa.mjs outputs/research-demo.pptx`, and `npm run preview`: all exited 0. QA found seven editable slides and one native chart. PowerPoint 16.0 and Poppler 26.07.0 rendered seven PNG pages; all seven were opened and visually reviewed with no apparent text clipping. The existing sample-size and unverified-source warnings remain. No human design sign-off was recorded.
