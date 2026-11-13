@@ -27,7 +27,7 @@ Date: 2026-11-12. Current checkout is `dev`; this section supersedes the histori
 
 ## Remaining P1 work
 
-The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, and Graphviz have verified local routes. D2, Quarto, and LibreOffice remain outstanding; the PyMuPDF distribution-license decision is also pending. Template/POTX import and `pptx-automizer` are outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. Graphviz is E2E-verified on Windows only; Linux/macOS packaging is not verified.
+The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, Graphviz, and D2 have verified local routes. Quarto and LibreOffice remain outstanding; the PyMuPDF distribution-license decision is also pending. Template/POTX import and `pptx-automizer` are outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. Graphviz and D2 are E2E-verified on Windows only; Linux/macOS packaging is not verified.
 
 ## P1/P2 continuation — 2026-11-12
 
@@ -72,6 +72,13 @@ The P1 ecosystem tranche is not complete. Since this historical status was writt
 - Graphviz's official site lists the current stable Windows x64 ZIP and describes the project license as EPL-2.0. The binary ZIP SHA-256 is pinned to `72b1f3a9a1fd3f6e726478c1e044a95483a8fbddec13ba2fb395438d75d001b4`; it is installed under an ignored local worker directory and not committed. Linux/macOS currently use a configured system executable rather than a bundled installer.
 - Verification: `npm run deps:graphviz`, `npm run tools -- tools doctor graphviz`, `npm run render:graphviz`, and `npm run tools -- tools test graphviz` pass on the installed Windows Graphviz 16.1.1. The three-node/two-edge synthetic fixture produced `.dot` (610 bytes), `.svg` (2,925 bytes), `.png` (10,959 bytes), and a manifest with SHA-256 hashes. The PNG was opened and visually inspected; all three labeled nodes and both edges are visible. Evidence `E_SYN_01` remains unverified, and no network render or external data was used.
 - Final repository gate: `npm run check` passed with 179/179 tests (174 parallel-safe, 2 isolated Graphviz, 3 isolated Marp), then completed validation, native deck builds, QA and benchmark tasks. Existing example evidence remains unverified as expected.
+
+### P1: D2 diagram worker
+
+- Added D2 0.9.0 CLI integration, a Windows x64 installer for the official standalone archive with its published SHA-256 pinned, doctor/test registration, and a runnable synthetic architecture example. The bounded JSON input carries D2 DSL and evidence IDs; the adapter rejects imports, external URLs and image/icon directives, requires known unique IDs, caps source size/line count, and records source/evidence/output hashes.
+- `npm run deps:d2`, `npm run tools -- tools doctor d2`, `npm run tools -- tools test d2`, and `npm run render:d2` passed on Windows with D2 0.9.0. The three-node/two-edge synthetic example emitted D2 source, SVG, PNG and manifest; evidence remains unverified. SVG/PNG are images in PPTX rather than native shapes.
+- The synthetic render was opened and visually inspected; node labels and connectors are legible. No private input or network diagram render was used. The upstream binary is locally installed under ignored `workers/d2/.tools/` and not committed.
+- Full repository check passed with 182/182 tests (175 parallel-safe, then Graphviz 2/2, D2 2/2 and Marp 3/3 isolated renderer tests); validation/build/QA/benchmark stages completed. Existing unverified evidence and missing sample-size warnings remain expected.
 
 ---
 
