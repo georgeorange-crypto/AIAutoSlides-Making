@@ -115,7 +115,7 @@ export async function openProjectStore(workspaceDir){
     const row=db.prepare('SELECT blob_path,sha256,original_name FROM sources WHERE project_id=? AND source_id=?').get(projectId,sourceId);if(!row)throw new Error(`Source '${sourceId}' has no imported local file.`);
     const realBlob=fs.realpathSync(row.blob_path);if(!within(path.join(root,'source-blobs'),realBlob))throw new Error('Imported source blob is outside the workspace source-blobs directory.');
     const bytes=fs.readFileSync(realBlob);if(sha256(bytes)!==row.sha256)throw new Error('Imported source blob failed SHA-256 verification.');
-    return{bytes,sha256:row.sha256,filename:row.original_name};
+    return{bytes,sha256:row.sha256,filename:row.original_name,path:realBlob};
   }
   function attachDocumentEvidence(projectId,sourceId,{sourceHash,textHash,format,extractionMethod,evidenceEntries}){
     const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
