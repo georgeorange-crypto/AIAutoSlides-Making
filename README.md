@@ -6,7 +6,7 @@ Evidence-first, offline-by-default generation of editable PowerPoint research ta
 
 ## Quick start — Windows PowerShell
 
-Requirements: Node.js 20.16+, npm, and PowerPoint or LibreOffice for PDF export. Poppler (`pdftoppm`) is needed for page PNGs. Local PDF text import uses Mozilla PDF.js; Poppler `pdftotext` is optional and preferred when installed for its layout-preserving extraction.
+Requirements for the complete project and test suite: Node.js 22.5+ and npm. The core PPTX build does not need Office. PDF preview needs Microsoft PowerPoint on Windows or LibreOffice on Linux/macOS; page PNGs need Poppler (`pdftoppm` or `pdftocairo`). PDF text extraction uses bundled PDF.js; Poppler `pdftotext` is optional and preferred for layout-preserving extraction. Use the Docker workflow below for a preconfigured Linux renderer, or the native setup scripts for Windows/Linux.
 
 ```powershell
 # Run these commands from the repository root.
@@ -14,6 +14,12 @@ npm ci
 npm run check
 npm run preview
 ```
+
+For a guided setup, run `.\scripts\setup.ps1` on Windows or `bash scripts/setup.sh` on Linux/macOS. Add `-Profile all` / `all` to install optional local MarkItDown, Mermaid, and research runtimes. See [`docs/DEVELOPMENT_SETUP.md`](docs/DEVELOPMENT_SETUP.md) for platform requirements, offline/network behavior, Docker usage, and troubleshooting.
+
+Docker users can run `docker compose build`, `docker compose run --rm slides npm run check`, then `docker compose run --rm slides npm run preview`. This container includes LibreOffice and Poppler for PDF/PNG previews; see [`Dockerfile`](Dockerfile) and [`compose.yaml`](compose.yaml). The container is a local CLI/build environment and does not expose the API.
+
+Contributors: follow [`docs/GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md) for branch, staging, worktree, and release practices. Pull requests use [the repository checklist](.github/PULL_REQUEST_TEMPLATE.md).
 
 `npm run check` runs unit/negative tests, imports the synthetic CSV, validates both storyboards, builds both PPTX files, and audits the PowerPoint XML. `npm run preview` exports the research demo to PDF and renders every PDF page to PNG. On Windows it uses locally installed PowerPoint through COM; on Linux it uses LibreOffice.
 
@@ -306,7 +312,7 @@ GitHub Actions runs `npm ci` and `npm run check`, then uploads both PPTX outputs
 
 ## Tool Matrix and Workflow V2 (P0 registry tranche)
 
-The V2 architecture and original task briefs are preserved in `docs/ARCHITECTURE_V2.md` and `docs/AI4Slides_*.md`. The current local registry contains 55 candidate/integrated manifests, a versioned adapter contract and versioned Source/Evidence IR, Presentation IR and Run Manifest schemas. Cataloguing does not mean a tool is integrated or tested; see `docs/INTEGRATION_STATUS.md` for the audited boundary and next phase.
+The V2 architecture and original task briefs are preserved in `docs/ARCHITECTURE_V2.md` and `docs/AI4Slides_*.md`. The tool registry currently contains 55 candidate/integrated manifests, a versioned adapter contract and versioned Source/Evidence IR, Presentation IR and Run Manifest schemas. Cataloguing does not mean a tool is integrated or tested; see `docs/INTEGRATION_STATUS.md` for the audited boundary and next phase.
 
 ```powershell
 npm exec ai4slides -- tools list
@@ -364,7 +370,7 @@ Recommendations include a primary and alternatives per stage plus implementation
 
 ### Presentation IR → native PptxGenJS (Phase 1 slice)
 
-The versioned Presentation IR is semantically validated before rendering. The local PptxGenJS adapter maps supported text, bullets, tables, cards, process, positioned local images and chart elements into the evidence-first renderer. It writes a PPTX, mapped inputs, per-element lineage, structural QA and a run manifest. Local images require source/hash/license/rights metadata; restricted rights and external URLs are rejected. Source verification is never upgraded.
+The versioned Presentation IR is semantically validated before rendering. The local PptxGenJS adapter maps supported text, bullets, tables, cards, process, positioned local images and chart elements into the existing evidence-first renderer. It writes a PPTX, mapped storyboard/evidence inputs, per-element lineage, structural QA and a run manifest. Local images require source/hash/license/rights metadata; restricted rights and external asset URLs are rejected. Source verification is never upgraded.
 
 ```powershell
 npm run render:ir -- --input examples/phase1/pptxgenjs-ir.json --out outputs/phase1/my-deck
@@ -373,9 +379,9 @@ npm run tools -- tools doctor pptxgenjs-ir
 npm run tools -- tools test pptxgenjs-ir
 ```
 
-The checked-in input is synthetic QA data. The PptxGenJS adapter emits native PowerPoint charts; source verification warnings remain in the report. The mapping covers a documented element subset. Mermaid source is preserved as text, not converted to editable diagram geometry.
+The checked-in input is synthetic QA data. The PptxGenJS adapter emits native PowerPoint charts; source verification warnings remain in the report. Mermaid source is preserved as text, not converted to editable diagram geometry.
 
-Slidev is an optional local PDF/PNG backend and editable-PPTX comparison. It compiles Presentation IR, stages hash-checked local assets and preserves lineage:
+Slidev is available as an optional local PDF/PNG backend and editable-PPTX comparison. It compiles Presentation IR, stages hash-checked local assets and preserves lineage:
 
 ```powershell
 npm run render:slidev-ir -- --input examples/phase1/pptxgenjs-ir.json --out outputs/phase1/slidev-preview --formats pdf,png

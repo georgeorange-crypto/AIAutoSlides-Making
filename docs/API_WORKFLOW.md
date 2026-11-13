@@ -32,7 +32,9 @@ The API binds only to `127.0.0.1`. It needs Node.js 22.5+ for the built-in `node
 | `POST` | `/projects/{id}/assets/commons` | Queue one selected Wikimedia Commons image download (`{candidate, asset_id, allow_network:true, allow_download:true}`) |
 | `GET` | `/projects/{id}/slides` | Ordered slide IR rows |
 | `GET`, `PATCH` | `/projects/{id}/slides/{slide_id}` | Read a slide; patch `title`, `assertion_title`, `speaker_notes`, `evidence_ids` or `elements` |
+| `POST` | `/projects/{id}/assets/{asset_id}` | Authenticated mode: upload bounded PNG/JPEG/SVG bytes with `x-source-id`, `x-media-type`, and `x-license` headers |
 | `GET`, `POST` | `/projects/{id}/jobs` | List jobs; enqueue a render workflow (optional `{preview:false}`) |
+| `POST` | `/projects/{id}/source-files/{source_id}` | Authenticated mode: import bounded raw bytes; optional `x-filename`, `x-source-type`, and `x-source-locator` headers |
 | `GET` | `/jobs/{id}` | Durable status, stage events, result or failure |
 | `POST` | `/jobs/{id}/cancel` | Cancel queued work or request cancellation at the next stage boundary |
 | `GET` | `/projects/{id}/artifacts`, `/jobs/{id}/artifacts` | List project/job artifacts with hashes |

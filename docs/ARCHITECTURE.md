@@ -23,8 +23,9 @@ Presentation IR ─ core validator/mapper ┘
 - Core owns IDs, provenance, source verification state, deterministic data mapping, and policies. A renderer cannot upgrade evidence status.
 - Adapters own format-specific conversion and rendering. Each reports its version, execution boundary, capabilities, warnings, artifacts and hashes.
 - External model/API calls are outside the default build. Any future network adapter needs a separately enabled policy and explicit data disclosure.
-- The Phase 1 runtime includes a loopback REST API, local SQLite project/job metadata, content-addressed source blobs and queued-job recovery. It is single-process/single-user; interrupted running jobs fail closed and are not resumed.
-- User files and renderer inputs are data, not executable instructions. Imported originals are confined to `incoming/`, copied by SHA-256, and never overwritten; adapter workspaces and output directories are explicit.
+- The Phase 1 runtime includes a loopback REST API, local SQLite project/job metadata, content-addressed source blobs, owner-scoped API access when a trusted authenticator is injected, per-user IR/source blob namespaces, per-job input snapshots, a bounded single-process scheduler and queued-job recovery. The CLI/default API principal remains the backward-compatible `local` user.
+- User files and renderer inputs are data, not executable instructions. Imported originals are copied by SHA-256 and never overwritten; authenticated source uploads use bounded request bodies rather than server filesystem paths. Adapter workspaces and output directories are explicit.
+- This is not yet a remote multi-user deployment: no built-in identity provider, OS-level worker sandbox or distributed queue is included, and the service remains loopback-only.
 
 ## Implemented slice
 

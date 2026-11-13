@@ -1,5 +1,19 @@
 # AGENTS.md — Codex instructions for AIAutoSlides Making
 
+## Strict Git management rules
+
+Apply these rules only when working in `D:\OPPitems\HOMEWORK\Liberty\AIAutoSlides` or another worktree of `AIAutoSlides-Making`.
+
+- Before Git mutations, record the current branch/upstream, staged and unstaged diffs, untracked files, and all worktrees. Preserve work that predates the current task.
+- Never work or commit directly on `main` or `dev`. Create a unique `codex/<topic>` branch from freshly fetched `origin/dev`. Never switch to a branch checked out in another worktree.
+- Never use `git add .`, `git add -A`, `git clean`, `git reset --hard`, or force-push to make the worktree appear clean. Stage explicit paths only after reviewing them. Inspect `git diff --cached --check`, staged names and full staged diff before every commit; scan staged files for secrets, private materials, generated outputs, and third-party assets.
+- Make atomic commits with imperative subjects. Commit dependency manifests and lockfiles together. Do not commit private source materials, user research logs, generated decks/previews, local environments, credentials, or downloaded third-party templates.
+- Fetch and inspect divergence before syncing. Do not rewrite shared/published history. Resolve conflicts by understanding both sides, not by blindly taking ours/theirs.
+- Do not push, merge PRs, or alter GitHub settings unless the user explicitly asks. A task is not complete until its changes are committed on a topic branch, checks are run as required by repo `AGENTS.md`, commit identity is verified, and the worktree is clean.
+- Follow the repository `AGENTS.md` and `docs/GIT_WORKFLOW.md`; these local rules add safeguards and do not override scientific-integrity or privacy requirements.
+
+--- project-doc ---
+
 ## Mission
 Implement and maintain a **scientifically reliable, beautiful, editable and reproducible slide generator**, starting with an MVP. The work is not complete until code runs, tests pass, a deck is rendered, and failures/limitations are documented.
 
