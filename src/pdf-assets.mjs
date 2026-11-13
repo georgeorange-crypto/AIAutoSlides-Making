@@ -33,7 +33,14 @@ export async function extractPdfAssets(bytes,{filename='source.pdf'}={}){
       const page=await pdf.getPage(pageNumber),list=await page.getOperatorList();
       for(let index=0;index<list.fnArray.length;index++){
         const op=list.fnArray[index],args=list.argsArray[index];
-        if(op===OPS.paintInlineImageXObject||op===OPS.paintInlineImageXObjectGroup){unsupported.add('inline-image');continue;}
+        if(op===OPS.paintInlineImageXObject||op===OPS.paintInlineImageXObjectGroup){
+          const image=Array.isArray(args)?args[0]:null,placements=op===OPS.paintInlineImageXObjectGroup&&Array.isArray(args?.[1])?args[1]:[null];if(!image||!placements.length)continue;
+          imageCount+=placements.length;if(imageCount>MAX_IMAGES)throw new Error('PDF image extraction is limited to 100 image placements');
+          if(!image.data||!Number.isInteger(image.width)||!Number.isInteger(image.height)){unsupported.add('unsupported-inline-image-data');continue;}if(image.data.byteLength>MAX_IMAGE_BYTES)throw new Error(`Decoded PDF inline image exceeds 25 MB limit on page ${pageNumber}`);
+          const raw=Buffer.from(image.data.buffer,image.data.byteOffset,image.data.byteLength),png=pixelsToPng({width:image.width,height:image.height,kind:image.kind,data:raw});totalBytes+=png.length;if(totalBytes>MAX_TOTAL_BYTES)throw new Error('Extracted PDF images exceed 50 MB total');
+          const digest=hash(png),references=placements.map((_,placementIndex)=>({page:pageNumber,operator_index:index,operator:op===OPS.paintInlineImageXObject?'paintInlineImageXObject':'paintInlineImageXObjectGroup',inline_image:true,placement_index:placementIndex,source_image_sha256:hash(raw)})),previous=assetsByHash.get(digest);if(previous){previous.source_parts.push(...references);continue;}
+          const asset={asset_id:`A_PDF_${digest.slice(0,16).toUpperCase()}`,path:`assets/${digest.slice(0,20)}.png`,type:'image/png',mime_type:'image/png',sha256:digest,source:`Decoded inline image from ${filename} (PDF SHA-256 ${sourceHash}), page ${pageNumber}`,license:'Inherited from source PDF; not independently reviewed',verified:false,source_file_sha256:sourceHash,source_parts:references,bytes:png};assetsByHash.set(digest,asset);assets.push(asset);continue;
+        }
         if(op!==OPS.paintImageXObject&&op!==OPS.paintImageXObjectRepeat)continue;
         const objectId=Array.isArray(args)?args[0]:null;if(typeof objectId!=='string')continue;
         imageCount++;if(imageCount>MAX_IMAGES)throw new Error('PDF image extraction is limited to 100 image placements');
@@ -49,6 +56,6 @@ export async function extractPdfAssets(bytes,{filename='source.pdf'}={}){
       page.cleanup();
     }
   }finally{await pdf.destroy();}
-  if(!assets.length)throw new Error(`No supported PDF image XObjects were extracted${unsupported.size?`; unsupported content: ${[...unsupported].join(', ')}`:''}`);
+  if(!assets.length)throw new Error(`No supported PDF images were extracted${unsupported.size?`; unsupported content: ${[...unsupported].join(', ')}`:''}`);
   return{source_sha256:sourceHash,assets,unsupported_content:[...unsupported].sort()};
 }
