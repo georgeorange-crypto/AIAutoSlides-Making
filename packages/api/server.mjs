@@ -44,9 +44,13 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
       const remote=req.socket.remoteAddress?.replace(/^::ffff:/,'');if(!loopback.has(remote)&&!remote?.startsWith('127.'))return send(res,403,{error:'loopback_only'});
       const url=new URL(req.url,'http://127.0.0.1'),segments=url.pathname.split('/').filter(Boolean).map(decodeURIComponent),method=req.method;
       if(method==='GET'&&segments[0]==='health')return send(res,200,{ok:true,service:'aiautoslides-local-api',network:'loopback-only'});
+      if(segments[0]==='profiles'&&segments.length===1&&method==='GET')return send(res,200,{profiles:store.listProfiles()});
+      if(segments[0]==='profiles'&&segments.length===1&&method==='POST'){const input=await bodyJson(req),profile=store.createProfile({profile_id:input.profile_id,preferences:input.preferences,privacy:input.privacy});return send(res,201,{profile});}
+      if(segments[0]==='profiles'&&segments[1]&&segments.length===2&&method==='GET'){const profile=store.getProfile(segments[1]);if(!profile)throw notFound('Profile',segments[1]);return send(res,200,{profile});}
+      if(segments[0]==='profiles'&&segments[1]&&segments.length===2&&method==='PATCH'){const input=await bodyJson(req),profile=store.updateProfile(segments[1],input);return send(res,200,{profile});}
       if(segments[0]==='projects'&&segments.length===1&&method==='GET')return send(res,200,{projects:store.listProjects()});
       if(segments[0]==='projects'&&segments.length===1&&method==='POST'){
-        const input=await bodyJson(req);const project=store.createProject({title:input.title,presentationIR:input.presentation_ir});return send(res,201,{project});
+        const input=await bodyJson(req);const project=store.createProject({title:input.title,presentationIR:input.presentation_ir,profileId:input.profile_id||null});return send(res,201,{project});
       }
       if(segments[0]==='projects'&&segments[1]){
         const projectId=segments[1],project=store.getProject(projectId);if(!project)throw notFound('Project',projectId);
@@ -84,7 +88,7 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
         const artifact=store.getArtifact(segments[1]);if(!artifact)throw notFound('Artifact',segments[1]);const bytes=fs.readFileSync(artifact.path);if(contentHash(artifact.path)!==artifact.sha256)throw new Error('Artifact hash check failed.');res.writeHead(200,{'content-type':mime[artifact.format]||'application/octet-stream','content-length':bytes.length,'content-disposition':`attachment; filename="${path.basename(artifact.path).replace(/["\r\n]/g,'_')}"`,'x-content-sha256':artifact.sha256,'cache-control':'no-store'});return res.end(bytes);
       }
       return send(res,404,{error:'route_not_found'});
-    }catch(error){return send(res,error.status||(/Unknown (project|slide|source|job)|Unknown slide_id/.test(error.message)?404:/outside|incoming|symlink|travers/i.test(error.message)?403:/required|Unsupported|must be|valid Presentation|validation failed|Unknown slide_id/.test(error.message)?400:500),{error:error.message});}
+    }catch(error){return send(res,error.status||(error instanceof TypeError?400:/Unknown (project|profile|slide|source|job)|Unknown slide_id/.test(error.message)?404:/outside|incoming|symlink|travers/i.test(error.message)?403:/required|Unsupported|must be|must remain|valid Presentation|validation failed|Unknown slide_id/.test(error.message)?400:500),{error:error.message});}
   });
   async function listen({port=8787,host='127.0.0.1'}={}){if(!loopback.has(host))throw new Error('The API only binds to loopback addresses.');await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,host,resolve);});for(const job of store.listQueuedJobs())setImmediate(()=>void runJob(job.job_id));return server.address();}
   async function waitForIdle(){while(running.size)await Promise.allSettled([...running.values()]);}

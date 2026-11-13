@@ -4,6 +4,7 @@ import path from 'node:path';
 import {mkdir} from 'node:fs/promises';
 import {assertValidPresentationIR} from '../core/validate-presentation.mjs';
 import {patchPresentationSlide} from '../core/patch-slide.mjs';
+import {createUserProfile} from '../core/models.mjs';
 
 const now=()=>new Date().toISOString();
 const id=()=>crypto.randomUUID();
@@ -22,6 +23,7 @@ export async function openProjectStore(workspaceDir){
   db.exec(`PRAGMA journal_mode=WAL;
     PRAGMA foreign_keys=ON;
     CREATE TABLE IF NOT EXISTS projects(project_id TEXT PRIMARY KEY,title TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,ir_path TEXT NOT NULL,ir_sha256 TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS profiles(profile_id TEXT PRIMARY KEY,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,profile_json TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS sources(project_id TEXT NOT NULL,source_id TEXT NOT NULL,type TEXT NOT NULL,uri TEXT,sha256 TEXT,locator TEXT,verification_status TEXT NOT NULL,original_name TEXT,blob_path TEXT,PRIMARY KEY(project_id,source_id),FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);
     CREATE TABLE IF NOT EXISTS slides(project_id TEXT NOT NULL,slide_id TEXT NOT NULL,ordinal INTEGER NOT NULL,slide_json TEXT NOT NULL,PRIMARY KEY(project_id,slide_id),FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);
     CREATE TABLE IF NOT EXISTS jobs(job_id TEXT PRIMARY KEY,project_id TEXT NOT NULL,workflow TEXT NOT NULL,status TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,options_json TEXT NOT NULL,events_json TEXT NOT NULL,result_json TEXT,error TEXT,cancel_requested INTEGER NOT NULL DEFAULT 0,FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);
@@ -47,8 +49,27 @@ export async function openProjectStore(workspaceDir){
   }
   function transaction(fn){db.exec('BEGIN IMMEDIATE');try{const result=fn();db.exec('COMMIT');return result;}catch(error){db.exec('ROLLBACK');throw error;}}
 
-  function createProject({title,presentationIR}){
+  function validatedProfile({profile_id,preferences={},privacy={local_only:true,allow_network:false,allow_paid_api:false}}={}){
+    if(!preferences||typeof preferences!=='object'||Array.isArray(preferences))throw new TypeError('Profile preferences must be an object.');
+    const allowed=new Set(['language','audience_profile','duration_seconds','theme','tone','slide_density']);
+    for(const key of Object.keys(preferences))if(!allowed.has(key))throw new TypeError(`Unsupported profile preference '${key}'.`);
+    if(preferences.audience_profile!==undefined&&!['general','research_group','academic_conference','investment_committee'].includes(preferences.audience_profile))throw new TypeError('Unsupported audience_profile preference.');
+    if(preferences.duration_seconds!==undefined&&(!Number.isInteger(preferences.duration_seconds)||preferences.duration_seconds<60||preferences.duration_seconds>7200))throw new TypeError('duration_seconds must be an integer between 60 and 7200.');
+    for(const key of ['language','theme','tone','slide_density'])if(preferences[key]!==undefined&&(typeof preferences[key]!=='string'||preferences[key].length>80))throw new TypeError(`${key} preference must be a string of at most 80 characters.`);
+    if(!privacy||privacy.local_only!==true||privacy.allow_network!==false||privacy.allow_paid_api!==false)throw new TypeError('Stored profiles must remain local-only with network and paid API access disabled.');
+    return createUserProfile({profile_id:profile_id||id(),preferences,privacy});
+  }
+  function createProfile(input={}){
+    const profile=validatedProfile(input),at=now();
+    db.prepare('INSERT INTO profiles(profile_id,created_at,updated_at,profile_json) VALUES(?,?,?,?)').run(profile.profile_id,at,at,json(profile));return{...profile,created_at:at,updated_at:at};
+  }
+  function updateProfile(profileId,input={}){const existing=getProfile(profileId);if(!existing)throw new Error(`Unknown profile '${profileId}'`);const profile=validatedProfile({profile_id:profileId,preferences:input.preferences,privacy:input.privacy??existing.privacy}),at=now();db.prepare('UPDATE profiles SET updated_at=?,profile_json=? WHERE profile_id=?').run(at,json(profile),profileId);return{...profile,created_at:existing.created_at,updated_at:at};}
+  function getProfile(profileId){const row=db.prepare('SELECT profile_json,created_at,updated_at FROM profiles WHERE profile_id=?').get(profileId);return row?{...parse(row.profile_json),created_at:row.created_at,updated_at:row.updated_at}:null;}
+  function listProfiles(){return db.prepare('SELECT profile_id,created_at,updated_at,profile_json FROM profiles ORDER BY created_at DESC').all().map(row=>({...parse(row.profile_json),created_at:row.created_at,updated_at:row.updated_at}));}
+
+  function createProject({title,presentationIR,profileId=null}){
     if(typeof title!=='string'||!title.trim())throw new TypeError('title is required');
+    if(profileId){const profile=getProfile(profileId);if(!profile)throw new Error(`Unknown profile '${profileId}'`);const meta={...(presentationIR.meta||{}),profile_id:profile.profile_id,profile_preferences:profile.preferences};for(const key of ['audience_profile','duration_seconds','theme'])if(meta[key]===undefined&&profile.preferences[key]!==undefined)meta[key]=profile.preferences[key];presentationIR={...presentationIR,meta};}
     assertValidPresentationIR(presentationIR);
     const projectId=id(),created=now(),blob=persistIR(presentationIR);
     transaction(()=>{db.prepare('INSERT INTO projects VALUES(?,?,?,?,?,?)').run(projectId,title.trim(),created,created,blob.path,blob.sha256);replaceSources(projectId,presentationIR);replaceSlides(projectId,presentationIR.slides);});
@@ -132,5 +153,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,addResearchCandidates,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProfile,updateProfile,getProfile,listProfiles,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,addResearchCandidates,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }

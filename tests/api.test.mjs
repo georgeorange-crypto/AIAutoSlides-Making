@@ -23,6 +23,20 @@ test('scholarly topic search requires explicit outbound opt-in and labels provid
   }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('local profiles persist privacy-safe preferences and seed project defaults without overriding authored metadata',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-profile-api-'));let api;
+  try{
+    api=await createLocalApi({workspaceDir:workspace,preview:false});const address=await api.listen({port:0}),base=`http://127.0.0.1:${address.port}`;
+    let response=await fetch(`${base}/profiles`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({preferences:{language:'zh-CN',audience_profile:'academic_conference',duration_seconds:480,theme:'academic-light',tone:'precise',slide_density:'low'}})});assert.equal(response.status,201);const profile=(await response.json()).profile;assert.ok(profile.profile_id);assert.equal(profile.privacy.local_only,true);assert.equal(profile.privacy.allow_network,false);
+    response=await fetch(`${base}/profiles/${profile.profile_id}`);assert.equal(response.status,200);assert.deepEqual((await response.json()).profile.preferences,profile.preferences);
+    response=await fetch(`${base}/profiles/${profile.profile_id}`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({preferences:{language:'zh-CN',audience_profile:'research_group',duration_seconds:600,theme:'academic-light'}})});assert.equal(response.status,200);assert.equal((await response.json()).profile.preferences.audience_profile,'research_group');
+    const ir=structuredClone(fixture);delete ir.meta.audience_profile;delete ir.meta.duration_seconds;const projectResponse=await fetch(`${base}/projects`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title:'Profile defaults',presentation_ir:ir,profile_id:profile.profile_id})});assert.equal(projectResponse.status,201);const project=(await projectResponse.json()).project;assert.equal(project.presentationIR.meta.audience_profile,'research_group');assert.equal(project.presentationIR.meta.duration_seconds,600);assert.equal(project.presentationIR.meta.profile_id,profile.profile_id);
+    const authored=structuredClone(fixture);authored.meta.audience_profile='investment_committee';const preserved=await fetch(`${base}/projects`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title:'Authored metadata wins',presentation_ir:authored,profile_id:profile.profile_id})});assert.equal((await preserved.json()).project.presentationIR.meta.audience_profile,'investment_committee');
+    const unsafe=await fetch(`${base}/profiles`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({preferences:{audience_profile:'unknown'}})});assert.equal(unsafe.status,400);
+    const network=await fetch(`${base}/profiles`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({preferences:{language:'en'},privacy:{local_only:true,allow_network:true,allow_paid_api:false}})});assert.equal(network.status,400);
+  }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('local REST API persists projects, source blobs, slide edits, jobs, artifacts, and recovery state',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-api-'));let api;
   try{
