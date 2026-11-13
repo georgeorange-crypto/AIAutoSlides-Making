@@ -11,7 +11,7 @@ function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const slides=[agenda,divider,...contentSlides];
   const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text'}))];
   const contentPlan={slides:plannedSlides.map(slide=>({slide_id:slide.slide_id,time_budget_seconds:slide.importance==='core'?60:slide.importance==='supporting'?20:5}))};
-  const plan={quality_contract:contract,slides:plannedSlides};
+  const plan={quality_contract:{...contract},slides:plannedSlides};
   return{plan,presentationIR:{slides},contentPlan,renderedQa:{slides:slides.map(()=>({textBoundsPass:true,textOverlaps:[],smallText:[]}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}))}};
 }
 
@@ -45,6 +45,12 @@ test('formal visual coverage ignores Mermaid elements that the renderer preserve
  const renderWarnings=input.presentationIR.slides.slice(2).map(slide=>`${slide.slide_id}/${slide.elements[1].element_id}: Mermaid source was preserved as text because native conversion was unavailable (unsupported syntax)`);
  const result=auditDeckQuality({...input,renderWarnings}),finding=result.blockers.find(item=>item.code==='QUALITY_VISUAL_COVERAGE');
  assert.ok(finding);assert.equal(result.visual_slide_count,0);assert.equal(finding.unmaterialized_visuals.length,3);assert.ok(finding.unmaterialized_visuals.every(item=>item.kind==='mermaid'));
+});
+
+test('formal visual coverage has a non-lowerable 50 percent floor',()=>{
+ const input=fixture({count:6,visualEvery:2});input.plan.quality_contract.visual_slide_ratio_min=0.3;
+ const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_VISUAL_COVERAGE');
+ assert.equal(result.visual_slide_ratio,0.4);assert.equal(result.minimum_visual_slide_ratio,0.5);assert.ok(finding);assert.equal(finding.minimum_ratio,0.5);
 });
 
 test('layout diversity signatures use the rendered text fallback when Mermaid cannot materialize',()=>{
@@ -139,11 +145,12 @@ test('formal quality audit blocks an omitted agenda, missing section divider, or
 test('representative-slide pilot defers whole-deck agenda checks until the planned full deck is rendered',()=>{
   const input=fixture({count:4});
   input.plan.task={expected_slide_count:input.presentationIR.slides.length};
-  input.presentationIR.slides=[input.presentationIR.slides[2]];
-  input.renderedQa.slides=[input.renderedQa.slides[2]];
-  input.imageReview.pages=[{slide_id:input.presentationIR.slides[0].slide_id,page:1,status:'text_detected'}];
+  input.presentationIR.slides=[input.presentationIR.slides[3]];
+  input.renderedQa.slides=[input.renderedQa.slides[3]];
+  input.imageReview.pages=[{slide_id:input.presentationIR.slides[0].slide_id,page:1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}];
   const result=auditDeckQuality(input);
   assert.equal(result.status,'review');assert.deepEqual(result.blockers,[]);
   assert.equal(result.layout_diversity.status,'deferred');
   assert.ok(result.warnings.some(item=>item.code==='QUALITY_NARRATIVE_STRUCTURE_DEFERRED'));
+  assert.equal(result.visual_slide_ratio,0);assert.ok(!result.blockers.some(item=>item.code==='QUALITY_VISUAL_COVERAGE'));assert.ok(result.warnings.some(item=>item.code==='QUALITY_VISUAL_COVERAGE_DEFERRED'));
 });
