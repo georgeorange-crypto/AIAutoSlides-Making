@@ -7,6 +7,7 @@ import crypto from 'node:crypto';
 import {runPresentationWorkflow} from '../packages/workflow/index.mjs';
 
 const fixture=JSON.parse(fs.readFileSync('examples/phase1/pptxgenjs-ir.json','utf8'));
+const qualityPlan={quality_contract:{language:'English',visual_slide_ratio_min:0.4,minimum_explanation_units:28},slides:fixture.slides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening':index===fixture.slides.length-1?'closing':'result',visual_type:'diagram',layout_intent:`layout-${index}`}))};
 const hash=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 function adapter(id,{fail=false,nativeCharts=false}={}){
   return{
@@ -33,5 +34,16 @@ test('Harness does not try a degraded fallback when disabled',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-harness-block-'));
   try{
     await assert.rejects(()=>runPresentationWorkflow({jobId:'harness-block-test',presentationIR:fixture,workspace,outputDir:path.join(workspace,'runs','blocked'),preview:false,allowDegradedFallback:false,adapters:[adapter('preferred',{fail:true,nativeCharts:true}),adapter('fallback',{nativeCharts:false})]}),/All compatible presentation adapters failed/);
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
+test('formal Harness run records a blocking quality gate when render QA or page images are missing',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-quality-workflow-'));
+  try{
+    const result=await runPresentationWorkflow({jobId:'quality-workflow-test',presentationIR:fixture,qualityPlan,workspace,outputDir:path.join(workspace,'runs','quality'),preview:false,adapters:[adapter('only',{nativeCharts:true})]});
+    assert.equal(result.status,'awaiting_review');assert.equal(result.review_context.quality_gate_status,'fail');
+    assert.ok(result.report.critique.quality_gate.blockers.some(item=>item.code==='QUALITY_RENDER_QA_MISSING'));
+    assert.ok(result.report.critique.quality_gate.blockers.some(item=>item.code==='QUALITY_RENDER_SCREEN_BLOCKED'));
+    assert.ok(fs.existsSync(path.join(workspace,'runs','quality','workflow.critique.json')));
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });

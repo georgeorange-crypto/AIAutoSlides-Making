@@ -324,6 +324,8 @@ export async function openProjectStore(workspaceDir,{enableLocalPdfOcr=false,pdf
     if(decision==='approve'&&(!Array.isArray(reviewed_ids)||JSON.stringify([...new Set(reviewed_ids)].sort())!==JSON.stringify(required)))throw Object.assign(new Error(`Approval must attest every required ${category} item: ${required.join(', ')||'(none)'}`),{status:400});
     if(category==='visual'&&!required.length)throw Object.assign(new Error('Visual approval is unavailable because the deck was not rendered to preview pages.'),{status:409});
     if(category==='visual'&&job.options?.deck_task&&decision==='approve'){
+      const qualityGate=job.result?.report?.critique?.quality_gate;
+      if(qualityGate?.status!=='pass')throw Object.assign(new Error(`Automatic quality gate is ${qualityGate?.status||'missing'}; fix blocking findings before visual approval.${qualityGate?.blockers?.length?` ${qualityGate.blockers.map(item=>`${item.code} (${item.slide_id}): ${item.message}`).join('; ')}`:''}`),{status:409});
       const {validatePageReviews}=await import('../workflow/deck-gate.mjs');
       const pageGate=validatePageReviews(page_reviews,required);
       if(pageGate.status!=='pass')throw Object.assign(new Error(`Page review rejected: ${pageGate.errors.join('; ')}`),{status:400});

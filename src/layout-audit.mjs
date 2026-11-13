@@ -6,7 +6,7 @@ function geometry(shapeXml){
 function fontSizes(shapeXml){return [...shapeXml.matchAll(/<a:(?:rPr|defRPr|endParaRPr)\b[^>]*\bsz="(\d+)"/g)].map(m=>Number(m[1])/100);}
 function overlap(a,b){return Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)>6000&&Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)>6000;}
 
-export function auditTextLayout(xml,slideWidth,slideHeight){
+export function auditTextLayout(xml,slideWidth,slideHeight,smallTextThresholdPt=12){
   const elements=[...xml.matchAll(/<p:(sp|pic|graphicFrame|cxnSp)>([\s\S]*?)<\/p:\1>/g)].map((match,index)=>({index:index+1,type:match[1],xml:match[2]}));
   const elementBounds=elements.map(item=>{const g=geometry(item.xml);return g?{ok:g.x>=0&&g.y>=0&&g.x+g.w<=slideWidth&&g.y+g.h<=slideHeight,element:item.type,index:item.index,...g}:{ok:false,element:item.type,index:item.index,reason:'missing geometry'};});
   const shapes=[...xml.matchAll(/<p:sp>([\s\S]*?)<\/p:sp>/g)].map((match,index)=>({index:index+1,xml:match[1]})).filter(item=>/<a:t>/.test(item.xml));
@@ -17,6 +17,7 @@ export function auditTextLayout(xml,slideWidth,slideHeight){
     if(a&&b&&overlap(a,b))overlaps.push({shape_a:shapes[i].index,shape_b:shapes[j].index,text_a:[...shapes[i].xml.matchAll(/<a:t>(.*?)<\/a:t>/g)].map(m=>m[1]).join(''),text_b:[...shapes[j].xml.matchAll(/<a:t>(.*?)<\/a:t>/g)].map(m=>m[1]).join(''),area_emu2:(Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x))*(Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y))});
   }
   const smallText=[];
-  shapes.forEach((item,index)=>{const g=geometry(item.xml);if(!g||g.y>=slideHeight*0.9||g.x<0||g.y<0||g.x+g.w>slideWidth||g.y+g.h>slideHeight)return;const sizes=fontSizes(item.xml);const min=sizes.length?Math.min(...sizes):null;if(min!==null&&min<9.5)smallText.push({shape:index+1,min_font_size_pt:min});});
+  shapes.forEach((item,index)=>{const g=geometry(item.xml);if(!g||g.y>=slideHeight*0.9||g.x<0||g.y<0||g.x+g.w>slideWidth||g.y+g.h>slideHeight)return;const sizes=fontSizes(item.xml);const min=sizes.length?Math.min(...sizes):null;if(min!==null&&min<smallTextThresholdPt)smallText.push({shape:index+1,min_font_size_pt:min});});
+  elements.filter(item=>item.type==='graphicFrame').forEach(item=>{const g=geometry(item.xml);if(!g||g.y>=slideHeight*0.9)return;const sizes=fontSizes(item.xml),min=sizes.length?Math.min(...sizes):null;if(min!==null&&min<smallTextThresholdPt)smallText.push({shape:item.index,element:item.type,min_font_size_pt:min});});
   return{textBounds,elementBounds,overlaps,smallText,editableTextShapes:shapes.length};
 }

@@ -172,6 +172,20 @@ test('science and visual approval gates are hash-bound, complete, and independen
   }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('formal deck review cannot complete while the automatic quality gate has blockers',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-auto-quality-gate-'));let api;
+  try{
+    api=await createLocalApi({workspaceDir:workspace,preview:false});const address=await api.listen({port:0}),base=`http://127.0.0.1:${address.port}`;
+    const response=await fetch(`${base}/projects`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title:'Quality gate fixture',presentation_ir:fixture})}),project=(await response.json()).project;
+    const job=api.store.createJob(project.project_id,{deck_task:true}),deckPath=path.join(workspace,'runs',job.job_id,'presentation.pptx');fs.mkdirSync(path.dirname(deckPath),{recursive:true});fs.writeFileSync(deckPath,'synthetic deck for quality gate');const deckHash=digest(fs.readFileSync(deckPath));api.store.addArtifacts(job,[{path:deckPath,format:'pptx',sha256:deckHash}]);
+    const context={deck_sha256:deckHash,required:{science:['E_PHASE1_SYN'],visual:['S01','S02']}};
+    api.store.setJob(job.job_id,{status:'awaiting_review',result:{status:'awaiting_review',review_context:context,report:{critique:{quality_gate:{status:'fail',blockers:[{code:'QUALITY_TEXT_OVERLAP',slide_id:'S01',message:'Rendered text boxes overlap.'}]}}}}});
+    const blocked=api.store.reviewJob(job.job_id,{category:'visual',decision:'approve',reviewer:'Reviewer',note:'Tried to approve',artifact_sha256:deckHash,reviewed_ids:['S01','S02'],page_reviews:[]});
+    await assert.rejects(blocked,/Automatic quality gate is fail/);
+    assert.equal(api.store.getJob(job.job_id).status,'awaiting_review');
+  }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('source importer rejects paths outside incoming and keeps content-addressed originals immutable',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-source-api-'));let api;
   try{

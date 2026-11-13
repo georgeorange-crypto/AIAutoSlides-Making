@@ -11,8 +11,9 @@ test('text layout audit identifies bounds, overlaps, and small non-footer fonts'
 });
 
 test('slide bounds audit covers pictures, chart frames, connectors, and negative coordinates',()=>{
- const xml='<p:spTree><p:pic><p:spPr><a:xfrm><a:off x="-1" y="10"/><a:ext cx="20" cy="20"/></a:xfrm></p:spPr></p:pic><p:graphicFrame><p:xfrm><a:off x="10" y="10"/><a:ext cx="20" cy="20"/></p:xfrm></p:graphicFrame><p:cxnSp><p:spPr><a:xfrm><a:off x="90" y="40"/><a:ext cx="20" cy="10"/></a:xfrm></p:spPr></p:cxnSp></p:spTree>';
+ const xml='<p:spTree><p:pic><p:spPr><a:xfrm><a:off x="-1" y="10"/><a:ext cx="20" cy="20"/></a:xfrm></p:spPr></p:pic><p:graphicFrame><p:xfrm><a:off x="10" y="10"/><a:ext cx="20" cy="20"/></p:xfrm><c:chart><c:txPr><a:defRPr sz="1050"/></c:txPr></c:chart></p:graphicFrame><p:cxnSp><p:spPr><a:xfrm><a:off x="90" y="40"/><a:ext cx="20" cy="10"/></a:xfrm></p:spPr></p:cxnSp></p:spTree>';
  const result=auditTextLayout(xml,100,100);
  assert.deepEqual(result.elementBounds.map(item=>item.ok),[false,true,false]);
  assert.deepEqual(result.elementBounds.map(item=>item.element),['pic','graphicFrame','cxnSp']);
+ assert.deepEqual(result.smallText.map(item=>item.min_font_size_pt),[10.5]);
 });

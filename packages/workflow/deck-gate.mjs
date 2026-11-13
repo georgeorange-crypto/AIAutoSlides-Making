@@ -14,11 +14,13 @@ export function validateDeckPlan(plan){
   for(const key of ['task','quality_contract','materials','tools','slides','representative_slides','acceptance'])if(!plan?.[key])errors.push(`missing ${key}`);
   if(!plan?.task?.scope||!Number.isInteger(plan?.task?.expected_slide_count)||plan.task.expected_slide_count<1)errors.push('task.scope and positive task.expected_slide_count are required');
   const quality=plan?.quality_contract;
-  for(const key of ['audience','purpose','language','style_reference','content_priorities','narrative_sections','avoid_patterns'])if(quality?.[key]===undefined)errors.push(`quality_contract missing ${key}`);
+  for(const key of ['audience','purpose','language','style_reference','content_priorities','narrative_sections','avoid_patterns','visual_slide_ratio_min','minimum_explanation_units'])if(quality?.[key]===undefined)errors.push(`quality_contract missing ${key}`);
   if(quality){for(const key of ['audience','purpose','language','style_reference'])if(typeof quality[key]!=='string'||!quality[key].trim())errors.push(`quality_contract.${key} must be a nonempty string`);
     for(const key of ['content_priorities','narrative_sections','avoid_patterns'])if(!Array.isArray(quality[key])||quality[key].some(value=>typeof value!=='string'||!value.trim()))errors.push(`quality_contract.${key} must be an array of nonempty strings`);
     if(Array.isArray(quality.content_priorities)&&!quality.content_priorities.length)errors.push('quality_contract.content_priorities must not be empty');
-    if(Array.isArray(quality.narrative_sections)&&!quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must not be empty');}
+    if(Array.isArray(quality.narrative_sections)&&!quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must not be empty');
+    if(!Number.isFinite(quality.visual_slide_ratio_min)||quality.visual_slide_ratio_min<0.3||quality.visual_slide_ratio_min>1)errors.push('quality_contract.visual_slide_ratio_min must be between 0.30 and 1');
+    if(!Number.isInteger(quality.minimum_explanation_units)||quality.minimum_explanation_units<18||quality.minimum_explanation_units>120)errors.push('quality_contract.minimum_explanation_units must be an integer between 18 and 120');}
   if(!Array.isArray(plan?.materials)||!plan.materials.length)errors.push('materials must list at least one required project/source material');
   else for(const [i,item] of plan.materials.entries())if(!item.path||!item.sha256||item.read_status!=='read')errors.push(`materials[${i}] requires path, sha256 and read_status=read`);
   if(!Array.isArray(plan?.tools)||!plan.tools.length)errors.push('tools must include actual capability evidence');
