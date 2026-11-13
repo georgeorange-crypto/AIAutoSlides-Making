@@ -88,13 +88,13 @@ function statement(s,d,t) {
   const hasVisual=(d.visuals||[]).length>0||Array.isArray(d.steps)||!!d.diagram;
   const fs=hasVisual?37:d.title.length>90?35:d.title.length>65?42:49;
   txt(s,d.title,{x:0.77,y:1.45,w:hasVisual?6.0:11.4,h:2.36,fontFace:t.headFontFace,fontSize:fs,bold:true,color:t.title,valign:'mid',fit:'shrink'});
-  line(s,0.80,4.24,4.50,4.24,t.accent);
+  line(s,0.80,4.14,4.50,4.14,t.accent);
   if(d.layout==='two-column-contrast' && !hasVisual && (d.body||[]).length>=2){
     panel(s,0.80,4.52,5.55,1.70,t);panel(s,6.70,4.52,5.55,1.70,t,true);
     (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:1.04+i*5.9,y:4.83,w:5.05,h:1.10,fontFace:t.bodyFontFace,fontSize:19,color:t.text,valign:'mid',fit:'shrink'}));
     return;
   }
-  (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.80,y:4.65+i*0.89,w:hasVisual?5.9:11.35,h:0.74,fontFace:t.bodyFontFace,fontSize:20,color:i===0?t.text:t.muted,valign:'top',fit:'shrink'}));
+  (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.80,y:4.40+i*1.12,w:hasVisual?5.9:11.35,h:1.05,fontFace:t.bodyFontFace,fontSize:18,color:i===0?t.text:t.muted,valign:'top',fit:'shrink'}));
   if(Array.isArray(d.steps)||d.diagram)plannerVisual(s,d,t);
 }
 function metrics(s,d,t) {

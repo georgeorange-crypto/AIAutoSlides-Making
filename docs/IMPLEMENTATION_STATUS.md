@@ -245,3 +245,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 - The formal full-deck quality audit now blocks identical substantial text repeated across core/high pages for the same declared priority (`QUALITY_PRIORITY_EXPLANATION_DUPLICATED`). Exact-match deduplication is a narrow safeguard against copied filler; semantic repetition and mislabeled priorities still require human page review.
 - Adversarial evidence and verification are recorded in `docs/AI_PLANNER_VISUALS_REPORT.md`.
+
+## Visible explanatory copy density gate (2026-11-13)
+
+- Full-deck content pages require at least 5.5% rendered OCR body-text occupancy when a structured visual exists and 7% on text-only pages; endings require 7%. Every page needs at least two detected body-text lines. The measure excludes headlines and is derived from OCR word boxes within authored body-text geometry.
+- Statement pages now render two separate explanatory paragraphs in taller boxes to reduce overflow/overlap. Adversarial density fixtures verify the strict numerical boundaries and sparse-copy failure.
+- OCR density does not establish readability, visual balance, semantic sufficiency, or absence of all clipping. Human page inspection is still required. See `docs/AI_PLANNER_VISUALS_REPORT.md`.

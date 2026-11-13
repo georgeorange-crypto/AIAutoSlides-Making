@@ -31,11 +31,11 @@ const prose='本节以合成示例说明系统如何接收请求、选择执行�
 const slides=[
  {slide_id:'S01',type:'bullets',title:'内容提要',evidence_ids:[source.source_id],elements:[bullets('S01-B01',['机制解析','实际影响'])]},
  {slide_id:'S02',type:'statement',title:'机制解析',evidence_ids:[source.source_id],elements:[text('S02-T01','本节先拆解请求如何进入系统、如何选择执行路径，再说明结果怎样返回调用者。') ]},
- {slide_id:'S03',type:'process',title:'请求经过三个明确阶段',assertion_title:'请求经历入口、调度与返回三个阶段',evidence_ids:[source.source_id],elements:[text('S03-T01',assistantVoiceStress?`${prose} 希望这能对您有帮助；如果您愿意，请告诉我还想了解什么。`:prose),processElement('S03-P01',['接收请求','选择路径','返回结果'])]},
- {slide_id:'S04',type:'statement',title:'调度选择决定执行路径',assertion_title:'调度策略把请求映射到不同执行路径',evidence_ids:[source.source_id],elements:[text('S04-T01','调度器根据请求类型和当前资源状态选定执行路径。路径一旦选定，后续处理顺序随之确定，因而请求路由是连接入口与结果的关键决策点。若请求特征相同但资源状态不同，调度仍可能选择不同路线，因此需要同时分析这两类输入。')]},
+ {slide_id:'S03',type:'process',title:'请求经过三个明确阶段',assertion_title:'请求经历入口、调度与返回三个阶段',evidence_ids:[source.source_id],elements:[text('S03-T01',assistantVoiceStress?`${prose} 希望这能对您有帮助；如果您愿意，请告诉我还想了解什么。`:`${prose} 这一结构决定请求经过的控制边界；应逐步核对每个阶段的输入和输出，才能定位异常发生的位置。`),processElement('S03-P01',['接收请求','选择路径','返回结果'])]},
+ {slide_id:'S04',type:'statement',title:'调度选择决定执行路径',assertion_title:'调度策略把请求映射到不同执行路径',evidence_ids:[source.source_id],elements:[text('S04-T01','调度器根据请求类型和当前资源状态选定执行路径。路径一旦选定，后续处理顺序随之确定，因而请求路由是连接入口与结果的关键决策点。若请求特征相同但资源状态不同，调度仍可能选择不同路线，因此需要同时分析这两类输入。比较不同路径时，还应追踪分支条件及其对后续处理的影响。'),text('S04-T02','对每条路径都应说明选择依据、资源状态与预期行为，才能将策略差异和实际观察对应起来。可按“请求特征—分支条件—执行路径”的顺序讲清决策链，并分别解释各分支可观察到的结果；缺少条件时，听众就无法判断路径差异从何而来。')]},
  {slide_id:'S05',type:'statement',title:'实际影响',evidence_ids:[source.source_id],elements:[text('S05-T01','本节再观察不同路径如何影响资源等待、执行时间与用户看到的最终响应。') ]},
- {slide_id:'S06',type:'process',title:'影响沿着请求链条逐步传递',assertion_title:'路径变化影响等待、执行与最终响应',evidence_ids:[source.source_id],elements:[text('S06-T01',prose),processElement('S06-P01',['路径变化','资源等待','响应变化'])]},
- {slide_id:'S07',type:'statement',title:'结论回到用户可观察的变化',assertion_title:'机制解释可以对应到可观察的结果',evidence_ids:[source.source_id],elements:[text('S07-T01','因此，调度选择先改变请求等待和执行顺序，再影响最终响应。观察响应变化时，应先定位发生变化的阶段，才能解释资源消耗与用户体验之间的联系。')]}
+ {slide_id:'S06',type:'process',title:'影响沿着请求链条逐步传递',assertion_title:'路径变化影响等待、执行与最终响应',evidence_ids:[source.source_id],elements:[text('S06-T01',`${prose} 若等待时间上升，应先区分调度变化与执行负载，再解释其如何传递到响应时延。`),processElement('S06-P01',['路径变化','资源等待','响应变化'])]},
+ {slide_id:'S07',type:'statement',title:'结论回到用户可观察的变化',assertion_title:'机制解释可以对应到可观察的结果',evidence_ids:[source.source_id],elements:[text('S07-T01','因此，调度选择先改变请求等待和执行顺序，再影响最终响应。观察响应变化时，应先定位发生变化的阶段，才能解释资源消耗与用户体验之间的联系。还要对照各阶段的观测指标，确认变化链条与证据一致，再形成结论。这让机制解释可以对应到用户实际观察到的响应变化。')]}
 ];
 if(layoutRepetitionStress){
  const [agenda,mechanismDivider,mechanismProcess,mechanismStatement,impactDivider,impactProcess,impactStatement]=slides;
@@ -43,7 +43,7 @@ if(layoutRepetitionStress){
  const closing={slide_id:'S12',type:'closing',title:'合成版式压力测试结束',evidence_ids:[source.source_id],elements:[text('S12-T01','以上页面只用于验证正式质量门禁能否识别交替复用的版式。')]};
  slides.splice(0,slides.length,agenda,mechanismDivider,mechanismProcess,mechanismStatement,duplicate(mechanismProcess,'S08'),duplicate(mechanismStatement,'S09'),impactDivider,impactProcess,impactStatement,duplicate(impactProcess,'S10'),duplicate(impactStatement,'S11'),closing);
 }
-if(sparseDensityStress){const target=slides.find(slide=>slide.slide_id==='S04');target.elements[0].text='请求进入系统后，调度策略选择执行路径，并影响资源等待、计算过程与最终响应变化。';}
+if(sparseDensityStress){const target=slides.find(slide=>slide.slide_id==='S04');target.elements=target.elements.slice(0,1);target.elements[0].text='调度决定请求的执行路径。';}
 if(duplicatePriorityExplanationStress){slides.find(slide=>slide.slide_id==='S04').elements[0].text=slides.find(slide=>slide.slide_id==='S03').elements[0].text;}
 if(unmaterializedVisualStress){for(const slideId of ['S03','S06']){const target=slides.find(slide=>slide.slide_id===slideId);target.type='statement';target.elements=target.elements.filter(element=>element.kind!=='process');target.elements.push({element_id:`${slideId}-M01`,kind:'mermaid',source:'flowchart LR\nA -.- B',source_ids:[source.source_id]});}}
 if(lowVisualCoverageStress)slides.push({slide_id:'S08',type:'statement',title:'补充的合成解释页',assertion_title:'补充页面不改变视觉覆盖的强制下限',evidence_ids:[source.source_id],elements:[text('S08-T01',prose)]});
