@@ -22,7 +22,7 @@ test('MCP supports modern discovery and per-request metadata with an explicit le
   const server=createMcpProtocol({fetchImpl:async()=>new Response(JSON.stringify({ok:true,service:'aiautoslides-local-api'}),{status:200,headers:{'content-type':'application/json'}})}),meta={'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientInfo':{name:'modern-fixture',version:'1'},'io.modelcontextprotocol/clientCapabilities':{}};
   const discovery=await server.handle({jsonrpc:'2.0',id:'d1',method:'server/discover',params:{_meta:meta}});
   assert.equal(discovery.result.resultType,'complete');assert.ok(discovery.result.supportedVersions.includes('2026-07-28'));assert.ok(discovery.result.supportedVersions.includes('2025-11-25'));
-  const listed=await server.handle({jsonrpc:'2.0',id:'l1',method:'tools/list',params:{_meta:meta}});assert.equal(listed.result.resultType,'complete');assert.equal(listed.result.tools.length,12);const research=listed.result.tools.find(tool=>tool.name==='aiautoslides_research_search');assert.equal(research.annotations.openWorldHint,true);assert.ok(research.inputSchema.required.includes('allow_network'));
+  const listed=await server.handle({jsonrpc:'2.0',id:'l1',method:'tools/list',params:{_meta:meta}});assert.equal(listed.result.resultType,'complete');assert.equal(listed.result.tools.length,15);const research=listed.result.tools.find(tool=>tool.name==='aiautoslides_research_search');assert.equal(research.annotations.openWorldHint,true);assert.ok(research.inputSchema.required.includes('allow_network'));const projectSearch=listed.result.tools.find(tool=>tool.name==='aiautoslides_project_research_search');assert.equal(projectSearch.annotations.openWorldHint,true);assert.equal(projectSearch.annotations.readOnlyHint,false);assert.ok(listed.result.tools.some(tool=>tool.name==='aiautoslides_import_research_candidate'&&tool.annotations.readOnlyHint===false));
   const called=await server.handle({jsonrpc:'2.0',id:'c1',method:'tools/call',params:{_meta:meta,name:'aiautoslides_health',arguments:{}}});assert.equal(called.result.resultType,'complete');assert.equal(JSON.parse(called.result.content[0].text).service,'aiautoslides-local-api');
   const invalid=await server.handle({jsonrpc:'2.0',id:'c2',method:'tools/call',params:{_meta:meta,name:'aiautoslides_list_artifacts',arguments:{project_id:'123e4567-e89b-42d3-a456-426614174000',job_id:'123e4567-e89b-42d3-a456-426614174001'}}});assert.equal(invalid.result.isError,true);assert.match(invalid.result.content[0].text,/exactly one supported input variant/);
   const unsupported=await server.handle({jsonrpc:'2.0',id:'bad',method:'server/discover',params:{_meta:{...meta,'io.modelcontextprotocol/protocolVersion':'1900-01-01'}}});assert.equal(unsupported.error.code,-32022);assert.ok(unsupported.error.data.supported.includes('2026-07-28'));
@@ -58,4 +58,19 @@ test('stdio MCP lists local tools and runs project-to-render workflow through lo
   }finally{
     reader?.close();if(child&&!child.killed)child.kill();if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});
   }
+});
+
+test('MCP project research tools search, list, and explicitly import saved candidates',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-mcp-research-'));let api;
+  const candidate={schema_version:'1.0.0',source_id:'SRC_OPENALEX_0123456789ABCDEF',provider:'openalex',query:'safe systems',retrieved_at:'2026-11-12T00:00:00.000Z',record_url:'https://api.openalex.org/works?search=safe',record_sha256:'b'.repeat(64),provider_record_id:'https://openalex.org/W123',title:'Candidate fixture',authors:['Ada Example'],publication_year:2025,doi:null,landing_url:'https://openalex.org/W123',verification_status:'unverified',evidence_status:'metadata_candidate_only'};
+  try{
+    api=await createLocalApi({workspaceDir:workspace,preview:false,researchSearch:{search:async input=>({schema_version:'1.0.0',provider:input.provider,query:input.query,retrieved_at:candidate.retrieved_at,verification_status:'unverified',result_count:1,results:[candidate],warnings:[]})}});const address=await api.listen({port:0}),client=createMcpProtocol({apiBase:`http://127.0.0.1:${address.port}`});
+    const init=await client.handle({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2025-11-25'}});assert.equal(init.result.protocolVersion,'2025-11-25');
+    const project=api.store.createProject({title:'MCP research fixture',presentationIR:fixture});
+    const call=async(id,name,args)=>client.handle({jsonrpc:'2.0',id,method:'tools/call',params:{name,arguments:args}});
+    let response=await call(2,'aiautoslides_project_research_search',{project_id:project.project_id,provider:'openalex',query:'safe systems',allow_network:true});assert.equal(response.result.isError,false);assert.equal(JSON.parse(response.result.content[0].text).saved_candidate_count,1);
+    response=await call(3,'aiautoslides_list_research_candidates',{project_id:project.project_id});assert.equal(JSON.parse(response.result.content[0].text).candidates.length,1);
+    response=await call(4,'aiautoslides_import_research_candidate',{project_id:project.project_id,source_id:candidate.source_id});assert.equal(response.result.isError,false);assert.equal(JSON.parse(response.result.content[0].text).source.verification_status,'unverified');
+    response=await call(5,'aiautoslides_project_research_search',{project_id:project.project_id,provider:'openalex',query:'safe systems',allow_network:'yes'});assert.equal(response.result.isError,true);assert.match(response.result.content[0].text,/allow_network must be a boolean/);
+  }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
 });

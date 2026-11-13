@@ -391,6 +391,8 @@ The service stores projects, slide IR revisions, source metadata, job transition
 
 An optional `POST /research/search` route accepts `{ "provider":"openalex|crossref|arxiv", "query":"...", "limit":5, "allow_network":true }`. The explicit flag is required before the selected provider receives the query. Results remain unverified metadata candidates; the route does not fetch full text or add evidence to a project. The MCP tool `aiautoslides_research_search` exposes this same opt-in action and is marked as an external service operation.
 
+For a project workflow, use `POST /projects/{id}/research/search` with the same body, inspect `GET /projects/{id}/research/candidates`, then explicitly register one selected `source_id` with `POST /projects/{id}/research/candidates/{source_id}/import`. Search candidates are stored locally with their provider IDs, record hashes, query and retrieval timestamp. Import adds an unverified source record only; it does not create evidence excerpts or claims. MCP exposes corresponding project search, list and import tools; project search writes local candidate metadata and contacts the provider only with `allow_network:true`.
+
 Available routes and their network/data boundaries are documented in [`docs/API_WORKFLOW.md`](docs/API_WORKFLOW.md). The API binds only to loopback and is intended for one local user; it has no remote authentication or OS-level sandbox. Node 22.5 or newer is required for the API's built-in SQLite runtime. The legacy slide CLI remains available on the package's existing minimum Node version. A slide PATCH updates the validated IR revision; a later job rebuilds the whole deck, so unchanged-slide hash preservation is not promised.
 
 ## Verified in this checkout

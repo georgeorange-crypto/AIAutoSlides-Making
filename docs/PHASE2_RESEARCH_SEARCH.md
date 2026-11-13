@@ -7,6 +7,7 @@ Status: **implemented and locally exercised** for the bounded workflows describe
 | Workflow | Entry point | Default boundary | Provenance output |
 |---|---|---|---|
 | Scholarly metadata search | `src/research-search.mjs` | Network off; `--allow-network`; max 10 results | Provider, query, URL, retrieval time, response and record SHA-256; unverified records |
+| Project-scoped REST/MCP research candidates | `POST /projects/{id}/research/search`, `GET /projects/{id}/research/candidates`, explicit candidate import | Requires `allow_network:true` for provider search; candidate source registration is a separate user-selected action | Local saved metadata, provider ID, query, retrieval time and record hash; imported project source remains unverified and creates no evidence excerpt |
 | Local Docling extraction | `src/research-ingest.mjs extract --engine docling` | Local files only; model downloads disabled unless `--allow-model-download` | Source/text SHA-256, engine/version, page/element locator, short excerpt candidates |
 | Local MarkItDown extraction | `src/research-ingest.mjs extract --engine markitdown` | Existing isolated adapter; local files only | Source/text SHA-256, engine/version, paragraph locator (no page coordinates), short excerpt candidates |
 | One-page Crawl4AI | `src/research-ingest.mjs crawl` | Requires `--allow-network --site-authorized`; HTTPS, public DNS by default, same-host requests, robots check, no link traversal or media | Requested/final URL, retrieval time, robots result, extracted Markdown hash, short unverified excerpts |

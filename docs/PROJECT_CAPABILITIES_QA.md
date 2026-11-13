@@ -77,7 +77,7 @@ Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS �
 
 **答：已有本地 REST 项目 API、stdio MCP Server，以及分别放置于 Codex 与 Claude Code 项目目录的 AIAutoSlides Skill；REST/MCP 可显式启用学术元数据搜索，但不提供可远程部署的 MCP/API。**
 
-- `src/ai-plan.mjs` 提供可选 OpenAI Responses API 分镜调用；`src/mcp.mjs` 提供面向 MCP 客户端的本地工具接口，可显式 opt-in 调用 OpenAlex/Crossref/arXiv 元数据搜索，也可查询项目/作业/产物、创建项目、导入 incoming 文件、编辑 slide 和排队生成。搜索发送用户查询到所选公开服务，返回结果仍是未验证元数据候选，不下载全文、不创建证据。`skills/aiautoslides/SKILL.md` 是共享 Skill 正文，并同步到 `.agents/skills/aiautoslides/` 和 `.claude/skills/aiautoslides/`。
+- `src/ai-plan.mjs` 提供可选 OpenAI Responses API 分镜调用；`src/mcp.mjs` 提供面向 MCP 客户端的本地工具接口，可显式 opt-in 调用 OpenAlex/Crossref/arXiv 元数据搜索、将候选保存到项目、列出候选并显式登记单条未验证来源，也可查询项目/作业/产物、创建项目、导入 incoming 文件、编辑 slide 和排队生成。搜索发送用户查询到所选公开服务，结果仍是未验证元数据候选；来源登记不创建 evidence 或 claim，也不下载全文。`skills/aiautoslides/SKILL.md` 是共享 Skill 正文，并同步到 `.agents/skills/aiautoslides/` 和 `.claude/skills/aiautoslides/`。
 - MCP 通过 stdio 连接已运行的 loopback REST API，支持协议 `2026-07-28` 和旧式 `2025-11-25` 系列握手；没有 HTTP MCP transport，也不支持远程 bind、身份认证或多用户授权。
 - 写入型 MCP 操作会在工具描述中要求用户审批；外部元数据搜索会在工具说明中明确网络影响并要求 `allow_network:true`。最终确认界面由宿主 MCP 客户端负责。两个项目 Skill 指引 Agent 使用确定性本地工作流，并要求保留证据、许可、QA 与人工审查边界；它们不安装依赖、不创建凭据，也不隐式调用模型或网络。
 - CI 工作流会运行构建/检查并上传示例产物；它是自动验证流水线，不是交互式制作 Agent。

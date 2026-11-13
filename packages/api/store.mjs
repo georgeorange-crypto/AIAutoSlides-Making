@@ -23,6 +23,7 @@ export async function openProjectStore(workspaceDir){
     PRAGMA foreign_keys=ON;
     CREATE TABLE IF NOT EXISTS projects(project_id TEXT PRIMARY KEY,title TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,ir_path TEXT NOT NULL,ir_sha256 TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS sources(project_id TEXT NOT NULL,source_id TEXT NOT NULL,type TEXT NOT NULL,uri TEXT,sha256 TEXT,locator TEXT,verification_status TEXT NOT NULL,original_name TEXT,blob_path TEXT,PRIMARY KEY(project_id,source_id),FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);
+    CREATE TABLE IF NOT EXISTS research_candidates(project_id TEXT NOT NULL,source_id TEXT NOT NULL,payload_json TEXT NOT NULL,created_at TEXT NOT NULL,imported_at TEXT,PRIMARY KEY(project_id,source_id),FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);
     CREATE TABLE IF NOT EXISTS slides(project_id TEXT NOT NULL,slide_id TEXT NOT NULL,ordinal INTEGER NOT NULL,slide_json TEXT NOT NULL,PRIMARY KEY(project_id,slide_id),FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);
     CREATE TABLE IF NOT EXISTS jobs(job_id TEXT PRIMARY KEY,project_id TEXT NOT NULL,workflow TEXT NOT NULL,status TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,options_json TEXT NOT NULL,events_json TEXT NOT NULL,result_json TEXT,error TEXT,cancel_requested INTEGER NOT NULL DEFAULT 0,FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);
     CREATE INDEX IF NOT EXISTS jobs_project_created ON jobs(project_id,created_at);
@@ -90,6 +91,29 @@ export async function openProjectStore(workspaceDir){
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,irBlob.path,irBlob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE sources SET original_name=?,blob_path=? WHERE project_id=? AND source_id=?').run(originalName,blob,projectId,sourceId);});
     return{...source,original_name:originalName,blob_sha256:hash,bytes:bytes.length};
   }
+  function saveResearchCandidates(projectId,result){
+    if(!getProject(projectId))throw new Error(`Unknown project '${projectId}'`);
+    if(!result||!['openalex','crossref','arxiv'].includes(result.provider)||!Array.isArray(result.results)||result.results.length>10)throw new TypeError('Invalid bounded scholarly metadata search result.');
+    const serialized=JSON.stringify(result);if(Buffer.byteLength(serialized)>2*1024*1024)throw new Error('Research candidate batch exceeds 2 MiB.');
+    const insert=db.prepare('INSERT INTO research_candidates(project_id,source_id,payload_json,created_at,imported_at) VALUES(?,?,?,?,NULL) ON CONFLICT(project_id,source_id) DO NOTHING');
+    const prefix={openalex:'OPENALEX',crossref:'CROSSREF',arxiv:'ARXIV'}[result.provider];
+    transaction(()=>{for(const candidate of result.results){if(candidate?.provider!==result.provider||candidate?.verification_status!=='unverified'||candidate?.evidence_status!=='metadata_candidate_only'||!new RegExp(`^SRC_${prefix}_[A-F0-9]{16}$`).test(candidate?.source_id||''))throw new TypeError('Search results must be unverified metadata candidates from the selected provider.');insert.run(projectId,candidate.source_id,JSON.stringify(candidate),now());}});
+    return listResearchCandidates(projectId);
+  }
+  function listResearchCandidates(projectId){
+    if(!getProject(projectId))throw new Error(`Unknown project '${projectId}'`);
+    return db.prepare('SELECT payload_json,created_at,imported_at FROM research_candidates WHERE project_id=? ORDER BY created_at,source_id').all(projectId).map(row=>({...parse(row.payload_json),saved_at:row.created_at,imported_at:row.imported_at,imported:Boolean(row.imported_at)}));
+  }
+  function importResearchCandidate(projectId,sourceId){
+    const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
+    const row=db.prepare('SELECT payload_json,imported_at FROM research_candidates WHERE project_id=? AND source_id=?').get(projectId,sourceId);if(!row)throw new Error(`Unknown research candidate '${sourceId}'`);
+    const candidate=parse(row.payload_json),existing=project.presentationIR.source_ir.sources.find(item=>item.source_id===sourceId);if(existing){if(existing.research_candidate?.provider_record_id!==candidate.provider_record_id)throw new Error(`Source ID '${sourceId}' is already used by another project source.`);return{project_id:projectId,source:existing,ir_sha256:project.ir_sha256,imported:true,idempotent:true};}
+    const landing=typeof candidate.landing_url==='string'&&candidate.landing_url.startsWith('https://')?candidate.landing_url:candidate.record_url;
+    const source={source_id:sourceId,type:'scholarly-metadata-candidate',uri:landing||null,locator:null,verification_status:'unverified',claims:[],assets:[],research_candidate:{provider:candidate.provider,provider_record_id:candidate.provider_record_id,title:candidate.title,authors:candidate.authors,publication_year:candidate.publication_year,doi:candidate.doi,landing_url:candidate.landing_url,record_url:candidate.record_url,record_sha256:candidate.record_sha256,query:candidate.query,retrieved_at:candidate.retrieved_at,evidence_status:'metadata_candidate_only'}};
+    const updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,sources:[...project.presentationIR.source_ir.sources,source]}},blob=persistIR(updated),at=now();
+    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE research_candidates SET imported_at=? WHERE project_id=? AND source_id=?').run(at,projectId,sourceId);});
+    return{project_id:projectId,source,ir_sha256:blob.sha256,imported:true,idempotent:false};
+  }
   function createJob(projectId,options={}){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);
     const jobId=id(),at=now(),events=[];
@@ -114,5 +138,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,saveResearchCandidates,listResearchCandidates,importResearchCandidate,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }
