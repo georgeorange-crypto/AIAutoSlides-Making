@@ -105,7 +105,7 @@ The importer is deterministic and does not invent citations or metric values. Us
 
 ## Build a custom storyboard
 
-Copy `examples/research-demo.json`, update the slide text and `evidence_ids`, then add entries to `sources/evidence.json`. Chart slides require categories, finite nonnegative values, a unit, and a y-axis label. Include `sample_size` when known; otherwise the validator emits a warning. A bar chart with a nonzero minimum axis is rejected. Unknown IDs and malformed evidence entries fail validation.
+Copy `examples/research-demo.json`, update the slide text and `evidence_ids`, then add entries to `sources/evidence.json`. Storyboards support 1–200 slides. Chart slides require categories, finite nonnegative values, a unit, and a y-axis label. Include `sample_size` when known; otherwise the validator emits a warning. A bar chart with a nonzero minimum axis is rejected. Unknown IDs and malformed evidence entries fail validation.
 
 ```powershell
 node src/cli.mjs validate --input examples/my-talk.json --evidence sources/evidence.json
@@ -157,7 +157,7 @@ Windows rendering uses Microsoft PowerPoint if installed. If COM export is unava
 
 ## Optional AI storyboard
 
-`npm run plan:ai` is opt-in and may incur API charges. It sends the local brief and evidence ledger to the configured OpenAI API. Do not use it with confidential research unless specifically authorized. Local build, validation, tests, and CSV import never call an AI service.
+`npm run plan:ai` is opt-in and may incur API charges. It sends the local brief and evidence ledger to the configured OpenAI API and plans 6–20 slides. Do not use it with confidential research unless specifically authorized. Local build, validation, tests, and CSV import never call an AI service.
 
 ### Slide Critic and human review gate (M3)
 
