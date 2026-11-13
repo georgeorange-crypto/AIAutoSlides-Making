@@ -17,13 +17,14 @@ import {pymupdfAdapter} from '../packages/adapters/pymupdf.mjs';
 import {graphvizAdapter} from '../packages/adapters/graphviz.mjs';
 import {d2Adapter} from '../packages/adapters/d2.mjs';
 import {quartoAdapter} from '../packages/adapters/quarto.mjs';
+import {libreOfficeAdapter} from '../packages/adapters/libreoffice.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
 import {createCanvaOAuthServer} from './canva-oauth.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter],[marpAdapter.manifest.id,marpAdapter],[presentonAdapter.manifest.id,presentonAdapter],[matplotlibAdapter.manifest.id,matplotlibAdapter],[pymupdfAdapter.manifest.id,pymupdfAdapter],[graphvizAdapter.manifest.id,graphvizAdapter],[d2Adapter.manifest.id,d2Adapter],[quartoAdapter.manifest.id,quartoAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter],[marpAdapter.manifest.id,marpAdapter],[presentonAdapter.manifest.id,presentonAdapter],[matplotlibAdapter.manifest.id,matplotlibAdapter],[pymupdfAdapter.manifest.id,pymupdfAdapter],[graphvizAdapter.manifest.id,graphvizAdapter],[d2Adapter.manifest.id,d2Adapter],[quartoAdapter.manifest.id,quartoAdapter],[libreOfficeAdapter.manifest.id,libreOfficeAdapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
