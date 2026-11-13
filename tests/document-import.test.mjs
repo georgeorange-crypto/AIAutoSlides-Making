@@ -7,9 +7,10 @@ import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {unzipSync,zipSync,strToU8} from 'fflate';
+import {ImageKind} from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {buildSourceBundle,createTesseractRecognizer,extractDocxParagraphs,extractPdfPages,extractPdfPagesWithOcr,parsePdfPages} from '../src/document-extractors.mjs';
 import {extractDocxAssets} from '../src/document-assets.mjs';
-import {extractPdfAssets} from '../src/pdf-assets.mjs';
+import {extractPdfAssets,splitInlineImageGroup} from '../src/pdf-assets.mjs';
 import {loadAssetManifest} from '../src/assets.mjs';
 import {generatePresentation} from '../src/render.mjs';
 
@@ -127,6 +128,13 @@ test('PDF image extraction deduplicates repeated inline images while preserving 
  const result=await extractPdfAssets(inlineImagePdf(10),{filename:'inline-group.pdf'}),asset=result.assets[0];
  assert.equal(result.assets.length,1);assert.equal(asset.source_parts.length,10);assert.ok(asset.source_parts.every(source=>source.operator==='paintInlineImageXObject'&&source.inline_image));
  assert.deepEqual(asset.source_parts.map(source=>source.placement_index),Array(10).fill(0));
+});
+
+test('grouped PDF inline-image sprite is split into bounded placement pixels',()=>{
+ const data=Uint8Array.from({length:24},(_,index)=>index+1),image={width:3,height:2,kind:ImageKind.RGBA_32BPP,data},placements=[{x:1,y:0,w:2,h:2}];
+ const split=splitInlineImageGroup(image,placements);assert.equal(split.length,1);assert.equal(split[0].width,2);assert.equal(split[0].height,2);
+ assert.deepEqual([...split[0].data],[5,6,7,8,9,10,11,12,17,18,19,20,21,22,23,24]);
+ assert.throws(()=>splitInlineImageGroup(image,[{x:2,y:0,w:2,h:2}]),/Invalid grouped PDF inline-image placement/);
 });
 
 test('optional bundled Tesseract fallback renders PDF pages and keeps OCR output explicitly unverified',async()=>{

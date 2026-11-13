@@ -27,7 +27,7 @@ All processing is local. Limits: 100 MB source, 500 pages, 100 image placements,
 
 ## Inline image follow-on — 2026-11-12
 
-- Added bounded decoding for PDF.js `paintInlineImageXObject` and grouped inline-image operators. The extractor writes PNG pixels and preserves page, operator index/name, inline-image marker, placement index, and a hash of PDF.js decoded source bytes; output assets remain `verified:false`.
-- `npm run test`: **182/182 passed**, including generated one-pixel RGB inline-image and ten repeated-placement PDF fixtures that verify PNG output, deduplication, and source locators.
-- PDF.js's grouped-inline-image operator branch is handled in the extractor but was not triggered by these fixtures; it does not have an independent regression fixture yet.
+- Added bounded decoding for PDF.js `paintInlineImageXObject` and grouped inline-image operators. Grouped sprite payloads are cropped to their individual placements before PNG encoding and deduplication. Each asset preserves page, operator index/name, inline-image marker, placement index, and a hash of decoded source pixels; output assets remain `verified:false`.
+- `npm run test`: **183/183 passed**, including generated one-pixel RGB inline-image and ten repeated-placement PDF fixtures, plus a grouped-sprite crop unit fixture with exact pixel and invalid-bounds assertions.
+- The grouped-sprite crop helper is tested directly. The PDF.js operator-list optimizer did not emit the grouped operator for the generated repeated-image PDF, so the full parser-to-grouped-operator route still lacks an integration fixture.
 - `npm run validate`, `npm run build`, `node src/qa.mjs outputs/research-demo.pptx`, and `npm run preview`: all exited 0. QA found seven editable slides and one native chart. PowerPoint 16.0 and Poppler 26.07.0 rendered seven PNG pages; all seven were opened and visually reviewed with no apparent text clipping. The existing sample-size and unverified-source warnings remain. No human design sign-off was recorded.
