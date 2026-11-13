@@ -56,6 +56,15 @@ The P1 ecosystem tranche is not complete. Since this historical status was writt
 - Windows runtime: Python 3.12.7, Matplotlib 3.10.8. PowerPoint 16.0 + Poppler rendered the PPTX and its page was visually inspected. `src/qa.mjs` reported 1 slide, 1 text-editable slide, 0 native charts. No empirical data or external APIs were used.
 - This does not meet native chart-object editability. The Python transitive dependency and bundled-font license closure remains under review.
 
+### P1: PyMuPDF local PDF extraction worker
+
+- Added an isolated Python worker pinned to PyMuPDF 2.1, `doctor` / `test` registration, and a synthetic-paper fixture. The adapter checks input scope, task IDs, worker version, source hash, artifact paths and SHA-256 values; output includes page text/locators, selected PNG previews, raster image extraction with bounding boxes, vector drawing bounds, and source/evidence sidecars.
+- Resource bounds: PDF ≤100 MiB and ≤500 pages; text ≤20 million characters total / 1 million per page; previews ≤20 pages and 25 million pixels per page; embedded images ≤100, ≤25 million pixels each and ≤50 MiB total; vector records ≤2,000 per page. OCR is not run.
+- The fixture is synthetic. Extracted evidence remains `verified:false`; the run records source hash and OCR status. Embedded-image extraction does not grant reuse rights.
+- The official PyMuPDF documentation describes PyMuPDF/MuPDF as dual licensed under GNU AGPL and Artifex commercial terms. This repository has not selected a distribution license path; catalog status remains `needs-review`, so the optional worker is not a default dependency. The environment's local installation and fixture run do not resolve that license gate.
+- Verification: `npm run deps:pymupdf` installed PyMuPDF 2.1 in the isolated Python 3.12.7 environment; rerunning it against the generated exact-version dependency lock passed. `npm run tools -- tools doctor pymupdf`, `npm run tools -- tools test pymupdf`, and `npm run import:pymupdf` passed locally. The focused PyMuPDF suite passed 3/3, including path/task rejection and a synthetic raster-image + vector-coordinate extraction. The produced `page-0001.png` was opened and visually inspected; it displays the synthetic PDF text with no apparent render corruption. `npm run check` passed with 176/176 tests and the full legacy build/QA/benchmark chain. Existing unverified-source and sample-size warnings remain expected.
+- Synthetic run output is local and ignored under `outputs/pymupdf-synthetic/`; no research or private files were used. PyMuPDF is now `e2e-tested` for this local extraction capability only; the AGPL/commercial distribution gate remains unresolved.
+
 ---
 
 # Historical P0 registry tranche

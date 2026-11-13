@@ -34,6 +34,8 @@ Marp setup: `npm run deps:marp`; export the checked-in fixture with `npm run ren
 
 Matplotlib setup: `npm run deps:matplotlib`; export the synthetic fixture with `npm run render:matplotlib`. The worker uses the isolated Python environment under `workers/matplotlib/.venv/`.
 
+PyMuPDF setup: `npm run deps:pymupdf`; run the checked-in extraction fixture with `npm run import:pymupdf`. The worker uses `workers/pymupdf/.venv/`, emits page text/locators, bounded embedded-image files and vector drawing bounds, and does not run OCR. Its license state remains `needs-review`; resolve AGPL/commercial terms before redistribution. The fixture is synthetic and its extracted evidence remains unverified. Custom inputs can be passed as `npm run import:pymupdf -- --input <paper.pdf> --out <new-output-directory> --evidence-id E_LOCAL_PAPER --preview-pages 0,1`.
+
 ## Phase-0 candidate evaluation snapshot (2026-11-12)
 
 This table is execution evidence, distinct from the 52-entry discovery catalog. Only PptxGenJS and Slidev completed a generated-deck loop in this environment. Presenton and PPTAgent were attempted but blocked; slide-maker and SlidePoise were inspected at pinned source SHAs but not installed or run end-to-end. Details and rerun requirements are in [`POC_RESULTS.md`](POC_RESULTS.md); license gates are in [`LICENSE_AUDIT.md`](LICENSE_AUDIT.md).
