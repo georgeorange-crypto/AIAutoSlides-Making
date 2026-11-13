@@ -18,15 +18,23 @@ Outputs and manual visual review are documented in [`../../docs/BACKEND_BAKEOFF.
 
 ## Presenton
 
-Start the official self-hosted container, create a local user/API key in the UI, then invoke the fixed-content request. The call does not include a model key; the instance must be configured to use an allowed local provider, otherwise generation remains blocked. The generated deck is not in this repo.
+The API/export loop was completed locally with a deterministic mock OpenAI-compatible endpoint, not a deployed model. The stub sends schema-shaped responses from the synthetic slide text; it does not assess real model inference or content quality. See [`../../docs/PRESENTON_POC.md`](../../docs/PRESENTON_POC.md) for version, exact configuration, Pptx object counts, reproduction, and all-page visual QA. PPTX/PDF/PNG outputs stay in ignored `outputs/open-source-bakeoff/presenton-mock/` and are not committed.
 
 ```powershell
-docker run -d --name presenton-poc -p 5001:80 -v "${PWD}\outputs\open-source-bakeoff\presenton-data:/app_data" ghcr.io/presenton/presenton:v0.9.12-beta
-$env:PRESENTON_API_KEY = '<local instance API key>'
+node .\examples\open-source-bakeoff\presenton-mock-api.mjs # terminal A
+docker run -d --name presenton-mock-poc -p 127.0.0.1:5001:80 `
+  -e LLM=custom -e CUSTOM_LLM_URL=http://host.docker.internal:8008/v1 `
+  -e CUSTOM_LLM_API_KEY=mock-local-only -e CUSTOM_MODEL=synthetic-mock-v1 `
+  -e DISABLE_IMAGE_GENERATION=true -e DISABLE_ANONYMOUS_TRACKING=true `
+  -v presenton-mock-poc-data:/app_data ghcr.io/presenton/presenton:v0.9.12-beta
+# Create an ephemeral local user/key, then keep the key only in process memory.
+$env:PRESENTON_API_KEY = '<temporary local API key>'
 ./examples/open-source-bakeoff/run-presenton.ps1
+docker rm -f presenton-mock-poc
+docker volume rm presenton-mock-poc-data
 ```
 
-Do not put API keys into request JSON or commit shell history containing secrets. This environment's Docker Engine was unavailable, so these commands were not passed off as a completed run.
+No hosted/paid API or private source file was used. Never commit generated decks/previews or local keys.
 
 ## PPTAgent
 

@@ -1,0 +1,187 @@
+{
+  "file": "presenton-synthetic.pptx",
+  "slide_count": 9,
+  "slides": [
+    {
+      "slide": 1,
+      "text_shapes": 2,
+      "native_shapes": 2,
+      "pictures": 5,
+      "graphic_frames": 0,
+      "native_charts": 0,
+      "tables": 0,
+      "external_relationships": 0,
+      "visible_text": [
+        "A hypothetical systems de",
+        "A hypothetical systems design for evidence-preserving technical talks. SYNTHETIC / HYPOTHETICAL TEST MATERIAL. S01 · E",
+        "SYN",
+        "01."
+      ],
+      "speaker_note_text": [
+        "Synthetic/hypothetical note. A hypothetical systems design for evidence-preserving technical talks. SYNTHETIC / HYPOTHETICAL TEST MATERIAL. S01 · E_SYN_01."
+      ]
+    },
+    {
+      "slide": 2,
+      "text_shapes": 2,
+      "native_shapes": 2,
+      "pictures": 5,
+      "graphic_frames": 0,
+      "native_charts": 0,
+      "tables": 0,
+      "external_relationships": 0,
+      "visible_text": [
+        "Problem: tools draft and ",
+        "Problem: tools draft and arrange slides, while scientific review needs exact data mapping, source lineage, and explicit uncertainty. Test: can independent render backends produce the same editable talk without changing evidence meaning? S02 · E",
+        "SYN",
+        "01."
+      ],
+      "speaker_note_text": [
+        "Synthetic/hypothetical note. Problem: tools draft and arrange slides, while scientific review needs exact data mapping, source lineage, and explicit uncertainty. Test: can independent render backends produce the same editable talk without changing evidence meaning? S02 · E_SYN_01."
+      ]
+    },
+    {
+      "slide": 3,
+      "text_shapes": 2,
+      "native_shapes": 2,
+      "pictures": 5,
+      "graphic_frames": 0,
+      "native_charts": 0,
+      "tables": 0,
+      "external_relationships": 0,
+      "visible_text": [
+        "Source files → evidence l",
+        "Source files → evidence ledger → storyboard + figures → backend adapter → PPTX / PDF / HTML. Keep source manifest and QA beside rendered output. S03 · E",
+        "SYN",
+        "01."
+      ],
+      "speaker_note_text": [
+        "Synthetic/hypothetical note. Source files → evidence ledger → storyboard + figures → backend adapter → PPTX / PDF / HTML. Keep source manifest and QA beside rendered output. S03 · E_SYN_01."
+      ]
+    },
+    {
+      "slide": 4,
+      "text_shapes": 2,
+      "native_shapes": 2,
+      "pictures": 5,
+      "graphic_frames": 0,
+      "native_charts": 0,
+      "tables": 0,
+      "external_relationships": 0,
+      "visible_text": [
+        "Synthetic fixture values ",
+        "Synthetic fixture values (not results): load tier A 120 req/s; tier B 240 req/s; tier C 360 req/s. Preserve each value and unit exactly. S04 · E",
+        "SYN",
+        "01."
+      ],
+      "speaker_note_text": [
+        "Synthetic/hypothetical note. Synthetic fixture values (not results): load tier A 120 req/s; tier B 240 req/s; tier C 360 req/s. Preserve each value and unit exactly. S04 · E_SYN_01."
+      ]
+    },
+    {
+      "slide": 5,
+      "text_shapes": 2,
+      "native_shapes": 2,
+      "pictures": 5,
+      "graphic_frames": 0,
+      "native_charts": 0,
+      "tables": 0,
+      "external_relationships": 0,
+      "visible_text": [
+        "Assertion: one claim per ",
+        "Assertion: one claim per slide. Evidence: show source and data. Review: keep caveats visible. Synthetic design example only. S05 · E",
+        "SYN",
+        "01."
+      ],
+      "speaker_note_text": [
+        "Synthetic/hypothetical note. Assertion: one claim per slide. Evidence: show source and data. Review: keep caveats visible. Synthetic design example only. S05 · E_SYN_01."
+      ]
+    },
+    {
+      "slide": 6,
+      "text_shapes": 2,
+      "native_shapes": 2,
+      "pictures": 5,
+      "graphic_frames": 0,
+      "native_charts": 0,
+      "tables": 0,
+      "external_relationships": 0,
+      "visible_text": [
+        "Unsupported chart → warni",
+        "Unsupported chart → warning; raster-only element → editability report; missing source ID → build error; unverified evidence → pending state; provider call → opt-in and cost boundary. S06 · E",
+        "SYN",
+        "01."
+      ],
+      "speaker_note_text": [
+        "Synthetic/hypothetical note. Unsupported chart → warning; raster-only element → editability report; missing source ID → build error; unverified evidence → pending state; provider call → opt-in and cost boundary. S06 · E_SYN_01."
+      ]
+    },
+    {
+      "slide": 7,
+      "text_shapes": 2,
+      "native_shapes": 2,
+      "pictures": 5,
+      "graphic_frames": 0,
+      "native_charts": 0,
+      "tables": 0,
+      "external_relationships": 0,
+      "visible_text": [
+        "Check export via local co",
+        "Check export via local command; inspect text, shapes and charts; visually review every page; preserve source IDs in sidecar; record version, dependencies and services. S07 · E",
+        "SYN",
+        "01."
+      ],
+      "speaker_note_text": [
+        "Synthetic/hypothetical note. Check export via local command; inspect text, shapes and charts; visually review every page; preserve source IDs in sidecar; record version, dependencies and services. S07 · E_SYN_01."
+      ]
+    },
+    {
+      "slide": 8,
+      "text_shapes": 2,
+      "native_shapes": 2,
+      "pictures": 5,
+      "graphic_frames": 0,
+      "native_charts": 0,
+      "tables": 0,
+      "external_relationships": 0,
+      "visible_text": [
+        "Local renderer: repeatabl",
+        "Local renderer: repeatable exports without model calls. AI service: optional drafting with provider and cost disclosed. Scientific QA: outside renderer, checking every output. S08 · E",
+        "SYN",
+        "01."
+      ],
+      "speaker_note_text": [
+        "Synthetic/hypothetical note. Local renderer: repeatable exports without model calls. AI service: optional drafting with provider and cost disclosed. Scientific QA: outside renderer, checking every output. S08 · E_SYN_01."
+      ]
+    },
+    {
+      "slide": 9,
+      "text_shapes": 2,
+      "native_shapes": 2,
+      "pictures": 5,
+      "graphic_frames": 0,
+      "native_charts": 0,
+      "tables": 0,
+      "external_relationships": 0,
+      "visible_text": [
+        "Keep evidence ledger and ",
+        "Keep evidence ledger and chart data in a backend-neutral contract. Use mature renderers through isolated adapters; promote one only after same-input, editable-object, and visual checks pass. This synthetic fixture establishes no research performance. S09 · E",
+        "SYN",
+        "01."
+      ],
+      "speaker_note_text": [
+        "Synthetic/hypothetical note. Keep evidence ledger and chart data in a backend-neutral contract. Use mature renderers through isolated adapters; promote one only after same-input, editable-object, and visual checks pass. This synthetic fixture establishes no research performance. S09 · E_SYN_01."
+      ]
+    }
+  ],
+  "totals": {
+    "text_shapes": 18,
+    "native_shapes": 18,
+    "pictures": 45,
+    "graphic_frames": 0,
+    "native_charts": 0,
+    "tables": 0,
+    "notes_pages": 9,
+    "external_relationships": 0
+  }
+}
