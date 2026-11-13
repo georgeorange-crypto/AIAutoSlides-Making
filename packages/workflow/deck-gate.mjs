@@ -19,16 +19,23 @@ export const PAGE_QUALITY_CHECKS=Object.freeze([
 
 export function validateDeckPlan(plan){
   const errors=[];
-  if(!plan||plan.schema_version!=='1.1.0')errors.push('schema_version must be 1.1.0');
+  if(!plan||plan.schema_version!=='1.2.0')errors.push('schema_version must be 1.2.0');
   for(const key of ['task','quality_contract','materials','tools','slides','representative_slides','acceptance'])if(!plan?.[key])errors.push(`missing ${key}`);
   if(!plan?.task?.scope||!Number.isInteger(plan?.task?.expected_slide_count)||plan.task.expected_slide_count<1)errors.push('task.scope and positive task.expected_slide_count are required');
   if(!Number.isFinite(plan?.task?.target_duration_seconds)||plan.task.target_duration_seconds<60||plan.task.target_duration_seconds>7200)errors.push('task.target_duration_seconds must be between 60 and 7200');
   const quality=plan?.quality_contract;
-  for(const key of ['audience','purpose','language','style_reference','content_priorities','narrative_sections','avoid_patterns','visual_slide_ratio_min','minimum_explanation_units','minimum_priority_slide_share','minimum_priority_time_share'])if(quality?.[key]===undefined)errors.push(`quality_contract missing ${key}`);
+  for(const key of ['audience','purpose','language','style_reference','content_priorities','priority_depth','narrative_sections','avoid_patterns','visual_slide_ratio_min','minimum_explanation_units','minimum_priority_slide_share','minimum_priority_time_share'])if(quality?.[key]===undefined)errors.push(`quality_contract missing ${key}`);
   if(quality){for(const key of ['audience','purpose','language','style_reference'])if(typeof quality[key]!=='string'||!quality[key].trim())errors.push(`quality_contract.${key} must be a nonempty string`);
     for(const key of ['content_priorities','narrative_sections','avoid_patterns'])if(!Array.isArray(quality[key])||quality[key].some(value=>typeof value!=='string'||!value.trim()))errors.push(`quality_contract.${key} must be an array of nonempty strings`);
     if(Array.isArray(quality.content_priorities)&&!quality.content_priorities.length)errors.push('quality_contract.content_priorities must not be empty');
     if(Array.isArray(quality.content_priorities)&&new Set(quality.content_priorities).size!==quality.content_priorities.length)errors.push('quality_contract.content_priorities must be unique');
+    if(!Array.isArray(quality.priority_depth))errors.push('quality_contract.priority_depth must define the required explanation depth for every content priority');
+    else{
+      const ids=quality.priority_depth.map(item=>item?.priority_id);
+      if(ids.some(id=>typeof id!=='string'||!id.trim())||new Set(ids).size!==ids.length)errors.push('quality_contract.priority_depth must have unique nonempty priority_id values');
+      if(Array.isArray(quality.content_priorities)&&JSON.stringify([...ids].sort())!==JSON.stringify([...quality.content_priorities].sort()))errors.push('quality_contract.priority_depth must cover every content priority exactly once');
+      for(const item of quality.priority_depth){const minimum=item?.depth_level==='deep'?7:item?.depth_level==='standard'?2:null;if(minimum===null)errors.push(`priority_depth "${item?.priority_id||''}" depth_level must be standard or deep`);else if(!Number.isInteger(item.minimum_core_slides)||item.minimum_core_slides<minimum)errors.push(`priority_depth "${item.priority_id}" must allocate at least ${minimum} distinct core/high slides for ${item.depth_level} explanation depth`);else if(item.minimum_core_slides> (plan?.task?.expected_slide_count||0))errors.push(`priority_depth "${item.priority_id}" minimum_core_slides cannot exceed the deck page count`);}
+    }
     if(Array.isArray(quality.narrative_sections)&&!quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must not be empty');
     if(Array.isArray(quality.narrative_sections)&&new Set(quality.narrative_sections).size!==quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must be unique');
     if(!Number.isFinite(quality.visual_slide_ratio_min)||quality.visual_slide_ratio_min<MIN_FORMAL_VISUAL_SLIDE_RATIO||quality.visual_slide_ratio_min>1)errors.push(`quality_contract.visual_slide_ratio_min must be between ${MIN_FORMAL_VISUAL_SLIDE_RATIO.toFixed(2)} and 1`);
@@ -94,6 +101,8 @@ export function validateDeckPlan(plan){
     if(Array.isArray(quality?.content_priorities)&&Array.isArray(slides))for(const priority of quality.content_priorities){
       const owners=slides.filter(slide=>Array.isArray(slide.priority_ids)&&slide.priority_ids.includes(priority));
       if(!owners.some(slide=>classifyImportance(slide.importance)==='priority'))errors.push(`content priority "${priority}" must map to at least one core/high slide`);
+      const depth=quality.priority_depth?.find(item=>item?.priority_id===priority),coreOwners=owners.filter(slide=>classifyImportance(slide.importance)==='priority');
+      if(depth&&coreOwners.length<depth.minimum_core_slides)errors.push(`content priority "${priority}" has ${coreOwners.length} core/high pages; its ${depth.depth_level} depth requires ${depth.minimum_core_slides}`);
     }
   }
   if(!plan?.acceptance?.reviewer||!Array.isArray(plan?.acceptance?.gates)||!plan.acceptance.gates.length)errors.push('acceptance requires reviewer and explicit gates');

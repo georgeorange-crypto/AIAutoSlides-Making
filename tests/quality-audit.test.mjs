@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {auditDeckQuality} from '../packages/workflow/quality-audit.mjs';
 
 const longText='这一页解释研究方法如何影响测量结果，并结合原始证据说明关键机制、适用范围、比较关系及其对结论的具体影响。读者可以据此理解数据从哪里来、为什么这样分析，以及结果支持到什么程度。';
-const contract={content_priorities:['Results'],visual_slide_ratio_min:0.4,minimum_explanation_units:28,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,language:'Chinese',narrative_sections:['Results']};
+const contract={content_priorities:['Results'],priority_depth:[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2}],visual_slide_ratio_min:0.4,minimum_explanation_units:28,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,language:'Chinese',narrative_sections:['Results']};
 function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const agenda={slide_id:'AGENDA',type:'bullets',title:'Contents',elements:[{element_id:'A1',kind:'text',text:'Results'}]};
   const divider={slide_id:'DIV-RESULTS',type:'statement',title:'Results',role:'section_transition',section_name:'Results',elements:[{element_id:'DIV-T01',kind:'text',text:'本节先解释关键机制及其作用，再说明这一机制如何连接到观察结果。'}]};
@@ -73,7 +73,7 @@ test('formal quality audit blocks too few core pages and too little talk time fo
 });
 
 test('formal quality audit requires every declared focus topic to have a core/high owner',()=>{
- const input=fixture({count:6,visualEvery:2});input.plan.quality_contract.content_priorities=['Mechanism','Result'];
+ const input=fixture({count:6,visualEvery:2});input.plan.quality_contract.content_priorities=['Mechanism','Result'];input.plan.quality_contract.priority_depth=[{priority_id:'Mechanism',depth_level:'standard',minimum_core_slides:2},{priority_id:'Result',depth_level:'standard',minimum_core_slides:2}];
  for(const slide of input.plan.slides.filter(item=>item.slide_id.startsWith('S'))){
   slide.priority_ids=slide.importance==='core'?['Mechanism']:slide.slide_id==='S2'?['Result']:[];
  }
@@ -83,6 +83,16 @@ test('formal quality audit requires every declared focus topic to have a core/hi
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_TAGS_DUPLICATE'));
  input.plan.slides.find(item=>item.slide_id==='S1').priority_ids=['Mechanism'];input.plan.quality_contract.content_priorities=['Mechanism','Mechanism'];
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_MAP_INVALID'));
+});
+
+test('formal quality audit requires per-topic core pages to match declared standard or deep explanation depth',()=>{
+ const input=fixture({count:5,visualEvery:2});input.plan.quality_contract.priority_depth=[{priority_id:'Results',depth_level:'deep',minimum_core_slides:7}];
+ const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNDERALLOCATED'&&item.priority==='Results');
+ assert.ok(finding);assert.equal(finding.actual_core_slide_count,3);assert.equal(finding.minimum_core_slides,7);
+ input.plan.quality_contract.priority_depth=[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2}];
+ assert.ok(!auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNDERALLOCATED'));
+ input.plan.quality_contract.priority_depth=[null];
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNMEASURED'));
 });
 
 test('formal quality audit blocks thin text, low visual coverage, repeated layouts, assistant voice, and English blocks',()=>{
