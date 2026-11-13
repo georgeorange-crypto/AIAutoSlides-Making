@@ -8,6 +8,7 @@ import {patchPresentationSlide} from '../core/patch-slide.mjs';
 const now=()=>new Date().toISOString();
 const id=()=>crypto.randomUUID();
 const sha256=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
+const evidenceContentHash=evidence=>sha256(Buffer.from(JSON.stringify({evidence_id:evidence.evidence_id,source_id:evidence.source_id,excerpt:evidence.excerpt,locator:evidence.locator??null})));
 const json=value=>JSON.stringify(value);
 function within(root,candidate){const rel=path.relative(root,candidate);return rel===''||(!rel.startsWith(`..${path.sep}`)&&rel!=='..'&&!path.isAbsolute(rel));}
 function parse(row){return row?JSON.parse(row):null;}
@@ -125,7 +126,25 @@ export async function openProjectStore(workspaceDir){
     const evidence={evidence_id:evidenceId,source_id:sourceId,excerpt,locator,verification_status:'pending',reviewer:null,reviewed_at:null};
     const updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,evidence:[...previous,evidence]}},blob=persistIR(updated),at=now();
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSlides(projectId,updated.slides);});
-    return{project_id:projectId,ir_sha256:blob.sha256,evidence};
+    return{project_id:projectId,ir_sha256:blob.sha256,evidence:{...evidence,content_sha256:evidenceContentHash(evidence)}};
+  }
+  function listEvidence(projectId){
+    const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
+    return(project.presentationIR.source_ir.evidence||[]).map(evidence=>({...evidence,content_sha256:evidenceContentHash(evidence)}));
+  }
+  function reviewEvidence(projectId,evidenceId,{reviewer,decision,contentSha256,note=null}={}){
+    const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
+    const evidenceList=project.presentationIR.source_ir.evidence||[],index=evidenceList.findIndex(item=>item.evidence_id===evidenceId);if(index<0)throw new Error(`Unknown evidence '${evidenceId}'`);
+    if(!['verified','contradicted'].includes(decision))throw Object.assign(new TypeError('decision must be verified or contradicted.'),{status:400});
+    if(typeof reviewer!=='string'||!reviewer.trim()||reviewer.trim().length>180)throw Object.assign(new TypeError('reviewer must contain 1-180 characters.'),{status:400});
+    if(note!==null&&(typeof note!=='string'||note.length>1000))throw Object.assign(new TypeError('note must be null or a string up to 1000 characters.'),{status:400});
+    const current=evidenceList[index],currentHash=evidenceContentHash(current);
+    if(typeof contentSha256!=='string'||!/^[a-f0-9]{64}$/.test(contentSha256)||contentSha256!==currentHash)throw Object.assign(new Error('Evidence content hash does not match the current excerpt.'),{status:409});
+    if(!['pending','unverified'].includes(current.verification_status))throw Object.assign(new Error(`Evidence '${evidenceId}' already has a final review state.`),{status:409});
+    const reviewed={...current,verification_status:decision,reviewer:reviewer.trim(),reviewed_at:now(),reviewed_content_sha256:currentHash,...(note===null?{}:{review_note:note})};
+    const next=evidenceList.map((item,itemIndex)=>itemIndex===index?reviewed:item),updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,evidence:next}},blob=persistIR(updated),at=now();
+    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSlides(projectId,updated.slides);});
+    return{project_id:projectId,ir_sha256:blob.sha256,evidence:{...reviewed,content_sha256:evidenceContentHash(reviewed)}};
   }
   function createJob(projectId,options={}){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);
@@ -151,5 +170,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,saveResearchCandidates,listResearchCandidates,importResearchCandidate,addEvidenceRecord,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,saveResearchCandidates,listResearchCandidates,importResearchCandidate,addEvidenceRecord,listEvidence,reviewEvidence,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }

@@ -75,9 +75,12 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
         if(segments[2]==='research'&&segments[3]==='candidates'&&segments.length===6&&segments[5]==='import'&&method==='POST'){
           const result=store.importResearchCandidate(projectId,segments[4]);return send(res,200,result);
         }
-        if(segments[2]==='evidence'&&segments.length===3&&method==='GET')return send(res,200,{evidence:project.presentationIR.source_ir.evidence||[]});
+        if(segments[2]==='evidence'&&segments.length===3&&method==='GET')return send(res,200,{evidence:store.listEvidence(projectId)});
         if(segments[2]==='evidence'&&segments.length===3&&method==='POST'){
           const input=await bodyJson(req,16*1024),result=store.addEvidenceRecord(projectId,{evidenceId:input.evidence_id,sourceId:input.source_id,excerpt:input.excerpt,locator:input.locator??null});return send(res,201,result);
+        }
+        if(segments[2]==='evidence'&&segments.length===5&&segments[4]==='review'&&method==='POST'){
+          const input=await bodyJson(req,16*1024),result=store.reviewEvidence(projectId,segments[3],{reviewer:input.reviewer,decision:input.decision,contentSha256:input.content_sha256,note:input.note??null});return send(res,200,result);
         }
         if(segments[2]==='jobs'&&segments.length===3&&method==='GET')return send(res,200,{jobs:store.listJobs(projectId)});
         if(segments[2]==='jobs'&&segments.length===3&&method==='POST'){

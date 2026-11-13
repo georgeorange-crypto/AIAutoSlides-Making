@@ -130,3 +130,8 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 - Project REST/MCP can list evidence records and accept a user-supplied exact excerpt tied to a known source ID and locator. New entries are always `pending`; supplied verification status is ignored, unknown source IDs and duplicate evidence IDs fail.
 - The API does not inspect source bytes or verify excerpt fidelity/claim entailment. See `docs/M20_PENDING_EVIDENCE_EXCERPTS_REPORT.md`.
+
+## Human evidence excerpt review follow-on — 2026-11-12
+
+- Project REST/MCP now records a caller-supplied `verified` or `contradicted` excerpt review bound to the current excerpt SHA-256, with reviewer text and timestamp. Stale content and repeated final decisions are rejected.
+- Reviewer identity is not authenticated; this does not verify source status or claim entailment. See `docs/M21_EVIDENCE_REVIEW_REPORT.md`.

@@ -167,3 +167,9 @@ Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS �
 `type:"timeline"` 为每个事件显示时间标签、标题和可选说明，使用原生连接线、圆形标记和文本框。QA 核对事件标记数量、顺序及文字与分镜一致。时间标签只是作者提供的显示文字，不会解析日期或验证计划是否已获批准、是否已经执行。
 
 参考：`src/render.mjs`、`src/validate.mjs`、`src/qa.mjs`、`src/cli.mjs`、`docs/SCHEMA.md`。
+
+## M21: evidence excerpt review
+
+- **Implemented:** REST and MCP can record a caller-supplied `verified` or `contradicted` review for a pending excerpt. The decision is bound to the stable SHA-256 of evidence ID, source ID, excerpt and locator. The API stores reviewer text, timestamp and reviewed hash; stale hashes and repeat final reviews are rejected.
+- **Boundary:** the API is single-user and does not authenticate reviewer identity, inspect source bytes, or assess whether an excerpt entails a claim. Reviewing an excerpt never changes source verification status. This is a review record, not machine verification.
+- **Verification:** focused API/MCP tests passed 9/9; full suite passed 174/174; `npm run check` passed on its retry. The ten-page synthetic acceptance deck was rendered and every page inspected. Details are in `docs/M21_EVIDENCE_REVIEW_REPORT.md`.
