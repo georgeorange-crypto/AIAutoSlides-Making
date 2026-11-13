@@ -6,6 +6,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
+import {inflateSync} from 'node:zlib';
 import {unzipSync,zipSync,strToU8} from 'fflate';
 import {buildSourceBundle,createTesseractRecognizer,extractDocxParagraphs,extractPdfPages,extractPdfPagesWithOcr,parsePdfPages} from '../src/document-extractors.mjs';
 import {extractDocxAssets} from '../src/document-assets.mjs';
@@ -46,6 +47,12 @@ function imageOnlyPdfFromPng(pngBytes,{repeat=false}={}){
  const parts=[Buffer.from('%PDF-1.4\n')],offsets=[0];let length=parts[0].length;
  for(let i=0;i<objects.length;i++){offsets.push(length);const part=Buffer.concat([Buffer.from(`${i+1} 0 obj\n`),objects[i],Buffer.from('\nendobj\n')]);parts.push(part);length+=part.length;}
  const xrefOffset=length,xref=['xref','0 6','0000000000 65535 f ',...offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n `)].join('\n');parts.push(Buffer.from(`${xref}\ntrailer << /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`));return Buffer.concat(parts);
+}
+
+function inlineImagePdf({repeat=false}={}){
+ const image=String.fromCharCode(0xf1,0x64,0x2a),draw=`q\n10 0 0 10 0 0 cm\nBI /W 1 /H 1 /CS /RGB /BPC 8 ID ${image} EI\nQ\n`,content=repeat?draw+draw:draw,stream=Buffer.from(content,'binary'),objects=[Buffer.from('<< /Type /Catalog /Pages 2 0 R >>'),Buffer.from('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'),Buffer.from('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << >> /Contents 4 0 R >>'),Buffer.concat([Buffer.from(`<< /Length ${stream.length} >>\nstream\n`),stream,Buffer.from('\nendstream')])],parts=[Buffer.from('%PDF-1.4\n')],offsets=[0];let length=parts[0].length;
+ for(let i=0;i<objects.length;i++){offsets.push(length);const part=Buffer.concat([Buffer.from(`${i+1} 0 obj\n`),objects[i],Buffer.from('\nendobj\n')]);parts.push(part);length+=part.length;}
+ const xrefOffset=length,xref=['xref','0 5','0000000000 65535 f ',...offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n `)].join('\n');parts.push(Buffer.from(`${xref}\ntrailer << /Size 5 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`));return Buffer.concat(parts);
 }
 
 test('DOCX import preserves ordered paragraphs, decoded text, locators, hashes, and pending verification through deck build',()=>{
@@ -103,7 +110,15 @@ test('optional PDF image extraction decodes bounded XObjects and imports them in
 });
 
 test('PDF image extraction does not mistake page renders for embedded images',async()=>{
- await assert.rejects(()=>extractPdfAssets(syntheticPdf('Selectable text only')),/No supported PDF image XObjects/);
+ await assert.rejects(()=>extractPdfAssets(syntheticPdf('Selectable text only')),/No supported PDF inline images or image XObjects/);
+});
+
+test('PDF.js extracts repeated inline image operators as source-linked PNG assets',async()=>{
+ const pdfBytes=inlineImagePdf({repeat:true}),result=await extractPdfAssets(pdfBytes,{filename:'inline-synthetic.pdf'});assert.equal(result.assets.length,1,'identical inline image bytes should be deduplicated');const asset=result.assets[0];assert.match(asset.source,/Decoded inline image/);assert.equal(asset.verified,false);assert.equal(asset.source_file_sha256,crypto.createHash('sha256').update(pdfBytes).digest('hex'));
+ const references=asset.source_parts.reduce((count,ref)=>count+(ref.placement_count||1),0);assert.equal(references,2,'both inline image placements must remain locatable');assert.ok(asset.source_parts.every(ref=>ref.page===1&&/^paintInlineImage/.test(ref.operator)));
+ assert.deepEqual([...asset.bytes.subarray(0,8)],[137,80,78,71,13,10,26,10]);const chunks=[];for(let i=8;i<asset.bytes.length;){const size=asset.bytes.readUInt32BE(i),type=asset.bytes.toString('ascii',i+4,i+8);if(type==='IDAT')chunks.push(asset.bytes.subarray(i+8,i+8+size));i+=size+12;}const rgba=inflateSync(Buffer.concat(chunks));assert.deepEqual([...rgba],[0,0xf1,0x64,0x2a,255]);
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-pdf-inline-')),source=path.join(dir,'inline.pdf'),prefix=path.join(dir,'imported'),pptx=path.join(dir,'inline.pptx');
+ try{fs.writeFileSync(source,pdfBytes);const imported=spawnSync(process.execPath,['src/import-document.mjs','--input',source,'--id','E_INLINE_PDF','--extract-images','--out-prefix',prefix],{cwd:root,encoding:'utf8'});assert.equal(imported.status,0,imported.stderr);const manifest=JSON.parse(fs.readFileSync(`${prefix}.assets.json`,'utf8'));assert.equal(manifest.assets.length,1);const deck={slides:[{slide_id:'S01',visuals:[{asset_id:asset.asset_id,x:1,y:1,w:1,h:1}]}]},mapped=loadAssetManifest(`${prefix}.assets.json`,deck),renderDeck={meta:{title:'Inline image',status:'SYNTHETIC'},slides:[{slide_id:'S01',type:'cover',title:'Inline image',body:[],evidence_ids:[],visuals:[{asset_id:manifest.assets[0].asset_id,x:1,y:1,w:1,h:1}]}]},theme=JSON.parse(fs.readFileSync('themes/academic-light.json','utf8'));await generatePresentation(renderDeck,{entries:[]},theme,pptx,mapped);const files=unzipSync(new Uint8Array(fs.readFileSync(pptx)));assert.equal((new TextDecoder().decode(files['ppt/slides/slide1.xml']).match(/<p:pic>/g)||[]).length,1);assert.ok(Object.keys(files).some(file=>/^ppt\/media\/.*\.png$/i.test(file)));}finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
 
 test('optional bundled Tesseract fallback renders PDF pages and keeps OCR output explicitly unverified',async()=>{

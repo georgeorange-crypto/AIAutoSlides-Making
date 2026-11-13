@@ -21,6 +21,6 @@ All processing is local. Limits: 100 MB source, 500 pages, 100 image placements,
 
 ## Not implemented
 
-- PDF inline images, masks/soft masks, uncommon sample formats, vector drawing extraction, semantic matching, and OCR-to-figure association.
+- At the M10 stage PDF inline images were unsupported; inline image and image-group operators were implemented later in M13. Masks/soft masks, uncommon sample formats, vector drawing extraction, semantic matching, and OCR-to-figure association remain unsupported.
 - DOCX header/footer images, external asset harvesting, license verification, or image content classification.
 - The extracted image remains a replaceable/croppable PPTX picture, not converted into editable native shapes. Extraction alone never marks evidence verified.

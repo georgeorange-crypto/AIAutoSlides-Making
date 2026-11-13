@@ -53,7 +53,7 @@
 
 - Implemented: opt-in OpenAlex/Crossref/arXiv metadata search; local Docling and MarkItDown extraction; single-page Crawl4AI with robots check, same-host requests and URL/IP safeguards; selected single-paper arXiv PDF download; and separately selected one-item Wikimedia Commons media retrieval. Commands and safety boundaries are documented in `docs/PHASE2_RESEARCH_SEARCH.md`.
 - Retrieval and extraction artifacts include source identifiers, URLs or local locators, retrieval time, source/response/content hashes where applicable, and short excerpt candidates. Candidates remain unverified and asset rights remain pending human review.
-- The existing local document importer also provides offline PDF OCR, DOCX body/header/footer image extraction, and PDF image-XObject extraction with hashes and source locators. PDF inline-image extraction and DOCX header/footer text extraction remain unsupported.
+- The existing local document importer also provides offline PDF OCR, DOCX body/header/footer image extraction, and PDF inline-image/image-XObject extraction with hashes and source locators. PDF masks/soft masks, uncommon sample formats and DOCX header/footer text extraction remain unsupported.
 - Search/download boundaries are explicit: network calls require opt-in; image search does not download files; only one selected arXiv paper or Commons image can be downloaded per command; web crawl does not traverse links or fetch media.
 - Docling 2.150.0 and Crawl4AI 0.9.5 are pinned in the isolated Python runtime. Docling model downloads are opt-in. Crawl4AI requires its locally installed Playwright Chromium. MarkItDown 0.1.9 uses its separate isolated worker.
 - Phase 2 is complete for this bounded integration slice. API workflow research actions, DOI full-text resolution beyond arXiv, bulk media acquisition, MinerU integration/licensing, automated scientific verification and parser-accuracy evaluation remain planned or out of scope.
@@ -81,5 +81,12 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 - `src/document-assets.mjs` optionally extracts PNG/JPEG/SVG image parts referenced by DOCX body/header/footer; `src/pdf-assets.mjs` decodes PDF image XObjects to PNG. External DOCX relationships and paths outside `word/media/` are ignored; images are deduplicated by SHA-256 and bounded by per-image, aggregate-size, image-count and page-count limits.
 - `node src/import-document.mjs --extract-images` writes copied assets and an `--assets`-compatible JSON manifest with document SHA-256, source part, relationship IDs, alt text when available, MIME type, and `verified:false` inherited rights state.
-- Unit/integration coverage checks DOCX body/header/footer PNG/JPEG/SVG and PDF XObject extraction, duplicate handling, exact hashes, manifest loading/slide association, embedded PPTX objects, and external/path-traversal rejection. PDF inline-image extraction and DOCX header/footer text extraction remain unimplemented.
+- Unit/integration coverage checks DOCX body/header/footer PNG/JPEG/SVG and PDF inline image/XObject extraction, duplicate handling, exact hashes, manifest loading/slide association, embedded PPTX objects, and external/path-traversal rejection. PDF masks/soft masks, uncommon sample formats and DOCX header/footer text extraction remain unimplemented.
 - Detailed stage results: `docs/M9_DOCX_ASSET_EXTRACTION_REPORT.md`, `docs/M10_PDF_ASSET_EXTRACTION_REPORT.md`, `docs/M11_DOCX_HEADER_FOOTER_ASSETS_REPORT.md`, and `docs/M12_COVER_LAYOUT_CORRECTION_REPORT.md`.
+
+## PDF inline image extraction follow-on — 2026-11-12
+
+- `src/pdf-assets.mjs` extracts supported PDF.js inline-image and inline-image-group operators to bounded PNG assets alongside image XObjects. Group placement counts, page/operator locators, PDF SHA-256 and pending rights/verification state are retained.
+- Synthetic repeated-inline-image integration verifies deterministic pixel decoding, content deduplication, CLI manifest output, and PPTX picture embedding. Masks/soft masks, uncommon sample formats, and semantic figure association remain unsupported.
+- `npm test` passed 158/158; `npm run validate` and `npm run build` exited 0. Preview did not pass: PowerPoint COM timed out and LibreOffice was absent, so fresh PDF/PNG rendering and visual acceptance remain blocked for this revision.
+- Detailed stage results: `docs/M13_PDF_INLINE_IMAGE_EXTRACTION_REPORT.md`.

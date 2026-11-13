@@ -21,7 +21,7 @@ function pixelsToPng({width,height,kind,data}){
   return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),pngChunk('IHDR',header),pngChunk('IDAT',deflateSync(rowBytes)),pngChunk('IEND',Buffer.alloc(0))]);
 }
 
-/** Extract bounded PDF image XObjects as PNGs; this is decoded image content, not page screenshots or original encoded streams. */
+/** Extract bounded PDF inline images and image XObjects as PNGs; these are decoded image samples, not page screenshots or original encoded streams. */
 export async function extractPdfAssets(bytes,{filename='source.pdf'}={}){
   if(bytes.byteLength>MAX_SOURCE_BYTES)throw new Error('PDF source exceeds 100 MB limit');
   const standardFontDataUrl=fileURLToPath(new URL('../../standard_fonts/',import.meta.resolve('pdfjs-dist/legacy/build/pdf.mjs'))).replaceAll('\\','/');
@@ -33,22 +33,30 @@ export async function extractPdfAssets(bytes,{filename='source.pdf'}={}){
       const page=await pdf.getPage(pageNumber),list=await page.getOperatorList();
       for(let index=0;index<list.fnArray.length;index++){
         const op=list.fnArray[index],args=list.argsArray[index];
-        if(op===OPS.paintInlineImageXObject||op===OPS.paintInlineImageXObjectGroup){unsupported.add('inline-image');continue;}
-        if(op!==OPS.paintImageXObject&&op!==OPS.paintImageXObjectRepeat)continue;
-        const objectId=Array.isArray(args)?args[0]:null;if(typeof objectId!=='string')continue;
-        imageCount++;if(imageCount>MAX_IMAGES)throw new Error('PDF image extraction is limited to 100 image placements');
-        let image;try{image=page.objs.get(objectId);}catch{try{image=page.commonObjs.get(objectId);}catch{unsupported.add('unresolved-image-object');continue;}}
+        const inline=op===OPS.paintInlineImageXObject||op===OPS.paintInlineImageXObjectGroup;
+        const xobject=op===OPS.paintImageXObject||op===OPS.paintImageXObjectRepeat;
+        if(!inline&&!xobject)continue;
+        const objectId=inline?null:(Array.isArray(args)?args[0]:null);
+        let image;
+        if(inline)image=Array.isArray(args)?args[0]:null;
+        else{
+          if(typeof objectId!=='string')continue;
+          try{image=page.objs.get(objectId);}catch{try{image=page.commonObjs.get(objectId);}catch{unsupported.add('unresolved-image-object');continue;}}
+        }
+        const group=op===OPS.paintInlineImageXObjectGroup,placementCount=group&&Array.isArray(args?.[1])?args[1].length:1;
+        imageCount+=Math.max(1,placementCount);if(imageCount>MAX_IMAGES)throw new Error('PDF image extraction is limited to 100 image placements');
         if(!image?.data||!Number.isInteger(image.width)||!Number.isInteger(image.height)){unsupported.add('unrecognized-image-object');continue;}
         const raw=Buffer.from(image.data.buffer,image.data.byteOffset,image.data.byteLength);if(raw.length>MAX_IMAGE_BYTES)throw new Error(`Decoded PDF image exceeds 25 MB limit on page ${pageNumber}`);
         const png=pixelsToPng({width:image.width,height:image.height,kind:image.kind,data:raw});totalBytes+=png.length;if(totalBytes>MAX_TOTAL_BYTES)throw new Error('Extracted PDF images exceed 50 MB total');
-        const digest=hash(png),reference={page:pageNumber,operator_index:index,operator:op===OPS.paintImageXObject?'paintImageXObject':'paintImageXObjectRepeat',object_id:objectId,source_image_sha256:hash(raw)};
+        const operator=op===OPS.paintInlineImageXObject?'paintInlineImageXObject':group?'paintInlineImageXObjectGroup':op===OPS.paintImageXObject?'paintImageXObject':'paintImageXObjectRepeat';
+        const digest=hash(png),reference={page:pageNumber,operator_index:index,operator,...(objectId?{object_id:objectId}:{}),...(group?{placement_count:placementCount}:{}),source_image_sha256:hash(raw)};
         const previous=assetsByHash.get(digest);if(previous){previous.source_parts.push(reference);continue;}
-        const asset={asset_id:`A_PDF_${digest.slice(0,16).toUpperCase()}`,path:`assets/${digest.slice(0,20)}.png`,type:'image/png',mime_type:'image/png',sha256:digest,source:`Decoded image XObject from ${filename} (PDF SHA-256 ${sourceHash}), page ${pageNumber}`,license:'Inherited from source PDF; not independently reviewed',verified:false,source_file_sha256:sourceHash,source_parts:[reference],bytes:png};
+        const imageKind=inline?'inline image':'image XObject',asset={asset_id:`A_PDF_${digest.slice(0,16).toUpperCase()}`,path:`assets/${digest.slice(0,20)}.png`,type:'image/png',mime_type:'image/png',sha256:digest,source:`Decoded ${imageKind} from ${filename} (PDF SHA-256 ${sourceHash}), page ${pageNumber}`,license:'Inherited from source PDF; not independently reviewed',verified:false,source_file_sha256:sourceHash,source_parts:[reference],bytes:png};
         assetsByHash.set(digest,asset);assets.push(asset);
       }
       page.cleanup();
     }
   }finally{await pdf.destroy();}
-  if(!assets.length)throw new Error(`No supported PDF image XObjects were extracted${unsupported.size?`; unsupported content: ${[...unsupported].join(', ')}`:''}`);
+  if(!assets.length)throw new Error(`No supported PDF inline images or image XObjects were extracted${unsupported.size?`; unsupported content: ${[...unsupported].join(', ')}`:''}`);
   return{source_sha256:sourceHash,assets,unsupported_content:[...unsupported].sort()};
 }
