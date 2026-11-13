@@ -1,0 +1,10 @@
+{
+  "name": "@aiautoslides/marp-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated optional Marp CLI worker for local presentation export",
+  "dependencies": {
+    "@marp-team/marp-cli": "4.5.1"
+  }
+}

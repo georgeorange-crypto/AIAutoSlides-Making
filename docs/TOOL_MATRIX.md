@@ -22,6 +22,15 @@ The original PptxGenJS tool adapter remains a dependency/smoke-test wrapper. The
 
 Update each entry only when its executable, version, runtime, and test evidence are recorded. Use `npm run catalog:generate` to regenerate the catalog from its checked-in source.
 
+## P1/P2 continuation — 2026-11-12
+
+| Tool | Current evidence | Boundary |
+|---|---|---|
+| Marp CLI 4.5.1 | Isolated lockfile, local adapter, `doctor` / `test`, and a real synthetic HTML+PPTX export; PowerPoint rendered both pages. | Default PPTX contains rendered page images (2 slides, 0 text runs in the test fixture). Do not claim native editability. Experimental editable export is not tested. |
+| Presenton self-hosted v1 API | Loopback-only adapter and mocked contract tests; `doctor` reports missing credentials/service without contacting anything. | Adapter-ready only. No live service, model/provider invocation, deck export, cost, or editability has been verified. |
+
+Marp setup: `npm run deps:marp`; export the checked-in fixture with `npm run render:marp`. Presenton may run only when explicitly configured for a loopback instance and invoked with `allowProviderUsage: true`; no model call occurs during `tools doctor` or its mock contract test.
+
 ## Phase-0 candidate evaluation snapshot (2026-11-12)
 
 This table is execution evidence, distinct from the 52-entry discovery catalog. Only PptxGenJS and Slidev completed a generated-deck loop in this environment. Presenton and PPTAgent were attempted but blocked; slide-maker and SlidePoise were inspected at pinned source SHAs but not installed or run end-to-end. Details and rerun requirements are in [`POC_RESULTS.md`](POC_RESULTS.md); license gates are in [`LICENSE_AUDIT.md`](LICENSE_AUDIT.md).

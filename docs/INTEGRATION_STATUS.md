@@ -27,7 +27,27 @@ Date: 2026-11-12. Current checkout is `dev`; this section supersedes the histori
 
 ## Remaining P1 work
 
-The P1 ecosystem tranche is not complete: Docling, MarkItDown, PyMuPDF, Matplotlib, Mermaid, Graphviz/D2, Quarto, Marp and LibreOffice adapters/routes are not verified by these slices. Existing-deck editing is limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain outstanding. Do not describe these as tested. Next continue isolated parser/figure/backend adapters and expand existing-PPTX editing only with object-specific fixtures and fidelity checks.
+The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, and now Marp have verified executable routes. Remaining named integrations include PyMuPDF, Matplotlib, Graphviz/D2, Quarto, and LibreOffice; template/POTX import and `pptx-automizer` are also outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. See the dated continuation below for the current evidence boundary.
+
+## P1/P2 continuation — 2026-11-12
+
+### P1: Marp CLI adapter
+
+- Added isolated `workers/marp/` package, pinned to `@marp-team/marp-cli@4.5.1`, a local adapter, `doctor` / `test` registration, a runnable synthetic fixture, and `npm run render:marp`.
+- The adapter exports HTML/PDF/PPTX from local Markdown, rejects remote/data/file media references and active HTML, prevents output overwrite, hashes inputs/outputs, and can carry a provided source-lineage sidecar. It does not enable Marp's unsafe local-file mode.
+- Real Windows smoke and fixture export passed. The Marp PPTX had 2 slides, 0 editable text runs, and 3 media objects; the manifest correctly marks its default pages as rasterized. PowerPoint 16.0 + Poppler rendered the two pages, both visually inspected.
+- Marp's experimental `--pptx-editable` path is not enabled here because LibreOffice is absent; it has known output-fidelity tradeoffs and is not claimed as tested.
+
+### P2: Presenton self-hosted API contract
+
+- Added a Presenton v1 adapter path with offline doctor, mocked request-contract smoke test, loopback-only service URL, bearer-key handling without logging, bounded slide/output sizes, explicit `allowProviderUsage` per run, disabled web search, and same-origin PPTX download validation.
+- The adapter contract tests pass without contacting a service. This is **adapter-ready / contract-tested**, not service E2E: no Presenton service is running, Docker is unavailable on PATH, and local Ollama has no installed models in this environment. A generated deck, actual provider cost, and editability have not been verified.
+- slide-maker, PPT Master, and PPTAgent still have no executable end-to-end route in this phase. Their upstream Skill/CLI flows need supported host/runtime and model-provider readiness. No external or paid model call was made.
+
+### Checks and next acceptance work
+
+- Focused adapter suite: Marp real HTML+PPTX E2E and Presenton contract tests passed.
+- Continue P1 with isolated Matplotlib / PyMuPDF / Graphviz or D2 / Quarto / LibreOffice routes and stronger existing-template editing. Continue P2 by bringing up an approved local Presenton + model runtime, then evaluate the three host-agent tools in disposable profiles without recursive author-agent calls.
 
 ---
 
