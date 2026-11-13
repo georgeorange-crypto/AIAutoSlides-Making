@@ -15,7 +15,7 @@ function send(res,status,value){const body=JSON.stringify(value);res.writeHead(s
 async function bodyJson(req,limit=24*1024*1024){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw Object.assign(new Error(`Request exceeds ${limit} byte limit.`),{status:413});chunks.push(chunk);}if(!chunks.length)return{};try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw Object.assign(new Error('Request body must be valid JSON.'),{status:400});}}
 const notFound=(kind,id)=>Object.assign(new Error(`${kind} '${id}' was not found.`),{status:404});
 
-export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true}={}){
+export async function createLocalApi({workspaceDir,adapter=null,preview=true}={}){
   if(!workspaceDir)throw new TypeError('workspaceDir is required');
   const store=await openProjectStore(workspaceDir),controllers=new Map(),running=new Map();
   store.recoverInterruptedJobs();
@@ -29,9 +29,9 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
         const project=store.getProject(job.project_id);if(!project)throw notFound('Project',job.project_id);
         store.setJob(jobId,{status:'running'});store.event(jobId,'job','running',{workflow:job.workflow});
         const outputDir=path.join(store.root,'runs',jobId);
-        const result=await runPresentationWorkflow({jobId,project,presentationIR:project.presentationIR,workspace:store.root,outputDir,preview:job.options.preview??preview,signal:controller.signal,adapter,onEvent:(stage,status,detail)=>store.event(jobId,stage,status,detail)});
+        const result=await runPresentationWorkflow({jobId,project,presentationIR:project.presentationIR,workspace:store.root,outputDir,preview:job.options.preview??preview,allowDegradedFallback:job.options.allow_degraded_fallback??true,signal:controller.signal,adapter,onEvent:(stage,status,detail)=>store.event(jobId,stage,status,detail)});
         if(controller.signal.aborted){store.setJob(jobId,{status:'cancelled'});store.event(jobId,'job','cancelled',{reason:'cancel accepted at stage boundary'});return;}
-        store.addArtifacts(job,result.artifacts);store.setJob(jobId,{status:'completed',result:{...result,artifacts:store.listArtifacts({jobId})}});store.event(jobId,'job','completed',{artifact_count:result.artifacts.length,adapter:result.adapter});
+        store.addArtifacts(job,result.artifacts);const status=result.status==='awaiting_review'?'awaiting_review':'completed';store.setJob(jobId,{status,result:{...result,artifacts:store.listArtifacts({jobId})}});store.event(jobId,'job',status,{artifact_count:result.artifacts.length,adapter:result.adapter});
       }catch(error){const cancelled=error.name==='AbortError'||controller.signal.aborted;store.setJob(jobId,{status:cancelled?'cancelled':'failed',error:cancelled?null:error.message});store.event(jobId,'job',cancelled?'cancelled':'failed',{message:error.message});}
       finally{controllers.delete(jobId);running.delete(jobId);}
     })();running.set(jobId,task);return task;
@@ -51,20 +51,23 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
         if(segments[2]==='slides'&&segments.length===3&&method==='GET')return send(res,200,{slides:store.getSlides(projectId)});
         if(segments[2]==='slides'&&segments.length===4&&method==='GET'){const slide=store.getSlides(projectId).find(item=>item.slide_id===segments[3]);if(!slide)throw notFound('Slide',segments[3]);return send(res,200,slide);}
         if(segments[2]==='slides'&&segments.length===4&&method==='PATCH'){
-          const patch=await bodyJson(req),edited=await adapter.edit({presentationIR:project.presentationIR,slideId:segments[3],patch}),saved=store.savePresentationIR(projectId,edited.presentationIR);return send(res,200,{...saved,slide:edited.presentationIR.slides.find(slide=>slide.slide_id===segments[3]),render_required:true,edit_scope:edited.scope,limitations:edited.limitations});
+          const patch=await bodyJson(req),edited=await (adapter||pptxgenjsIRAdapter).edit({presentationIR:project.presentationIR,slideId:segments[3],patch}),saved=store.savePresentationIR(projectId,edited.presentationIR);return send(res,200,{...saved,slide:edited.presentationIR.slides.find(slide=>slide.slide_id===segments[3]),render_required:true,edit_scope:edited.scope,limitations:edited.limitations});
         }
         if(segments[2]==='sources'&&segments.length===3&&method==='POST'){
           const input=await bodyJson(req);const source=store.importSource(projectId,{sourceId:input.source_id,filePath:input.file_path,type:input.type,locator:input.locator,verificationStatus:input.verification_status||'unverified'});return send(res,201,{source});
         }
         if(segments[2]==='jobs'&&segments.length===3&&method==='GET')return send(res,200,{jobs:store.listJobs(projectId)});
         if(segments[2]==='jobs'&&segments.length===3&&method==='POST'){
-          const options=await bodyJson(req);if(options.preview!==undefined&&typeof options.preview!=='boolean')throw Object.assign(new Error('preview must be boolean.'),{status:400});const job=store.createJob(projectId,options);setImmediate(()=>void runJob(job.job_id));return send(res,202,{job});
+          const options=await bodyJson(req);if(options.preview!==undefined&&typeof options.preview!=='boolean')throw Object.assign(new Error('preview must be boolean.'),{status:400});if(options.allow_degraded_fallback!==undefined&&typeof options.allow_degraded_fallback!=='boolean')throw Object.assign(new Error('allow_degraded_fallback must be boolean.'),{status:400});const job=store.createJob(projectId,options);setImmediate(()=>void runJob(job.job_id));return send(res,202,{job});
         }
         if(segments[2]==='artifacts'&&segments.length===3&&method==='GET')return send(res,200,{artifacts:store.listArtifacts({projectId})});
       }
       if(segments[0]==='jobs'&&segments[1]){
         const jobId=segments[1],job=store.getJob(jobId);if(!job)throw notFound('Job',jobId);
         if(segments.length===2&&method==='GET')return send(res,200,{job});
+        if(segments[2]==='review'&&segments.length===3&&method==='POST'){
+          const input=await bodyJson(req),reviewed=store.reviewJob(jobId,input);return send(res,200,{job:reviewed});
+        }
         if(segments[2]==='cancel'&&segments.length===3&&method==='POST'){
           const updated=store.requestCancel(jobId);controllers.get(jobId)?.abort();if(updated.status==='queued')setImmediate(()=>void runJob(jobId));return send(res,202,{job:updated,cancellation:'accepted_at_stage_boundary'});
         }

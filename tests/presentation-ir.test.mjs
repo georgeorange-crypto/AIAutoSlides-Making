@@ -126,6 +126,6 @@ test('core domain factories preserve versioned project, profile, evidence, claim
  assert.equal(project.profile.profile_id,'U1');assert.equal(source.verification_status,'pending');assert.equal(evidence.verification_status,'pending');assert.equal(asset.rights_status,'pending');assert.deepEqual(claim.evidence_ids,['EV1']);
  const deck=createDeckIR({meta:{title:'Model fixture'},source_ir:{schema_version:'1.0.0',sources:[source]},slides:[createSlideIR({slide_id:'S1',type:'cover',title:'Cover',elements:[]})]});
  assert.equal(deck.schema_version,'1.0.0');
- const job=createJobState({job_id:'J1',project_id:'P1',workflow:'render'}),running=transitionJob(job,'running',{at:'2026-11-12T12:00:00.000Z'}),done=transitionJob(running,'completed',{at:'2026-11-12T12:00:01.000Z'});
- assert.equal(done.status,'completed');assert.equal(done.events.length,2);assert.throws(()=>transitionJob(done,'running'),/Invalid job transition/);
+ const job=createJobState({job_id:'J1',project_id:'P1',workflow:'render'}),running=transitionJob(job,'running',{at:'2026-11-12T12:00:00.000Z'}),review=transitionJob(running,'awaiting_review',{at:'2026-11-12T12:00:01.000Z'}),done=transitionJob(review,'completed',{at:'2026-11-12T12:00:02.000Z'});
+ assert.equal(done.status,'completed');assert.equal(done.events.length,3);assert.throws(()=>transitionJob(done,'running'),/Invalid job transition/);
 });

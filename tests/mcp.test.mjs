@@ -22,7 +22,7 @@ test('MCP supports modern discovery and per-request metadata with an explicit le
   const server=createMcpProtocol({fetchImpl:async()=>new Response(JSON.stringify({ok:true,service:'aiautoslides-local-api'}),{status:200,headers:{'content-type':'application/json'}})}),meta={'io.modelcontextprotocol/protocolVersion':'2026-07-28','io.modelcontextprotocol/clientInfo':{name:'modern-fixture',version:'1'},'io.modelcontextprotocol/clientCapabilities':{}};
   const discovery=await server.handle({jsonrpc:'2.0',id:'d1',method:'server/discover',params:{_meta:meta}});
   assert.equal(discovery.result.resultType,'complete');assert.ok(discovery.result.supportedVersions.includes('2026-07-28'));assert.ok(discovery.result.supportedVersions.includes('2025-11-25'));
-  const listed=await server.handle({jsonrpc:'2.0',id:'l1',method:'tools/list',params:{_meta:meta}});assert.equal(listed.result.resultType,'complete');assert.equal(listed.result.tools.length,11);
+  const listed=await server.handle({jsonrpc:'2.0',id:'l1',method:'tools/list',params:{_meta:meta}});assert.equal(listed.result.resultType,'complete');assert.equal(listed.result.tools.length,12);assert.ok(listed.result.tools.some(tool=>tool.name==='aiautoslides_review_job'));
   const called=await server.handle({jsonrpc:'2.0',id:'c1',method:'tools/call',params:{_meta:meta,name:'aiautoslides_health',arguments:{}}});assert.equal(called.result.resultType,'complete');assert.equal(JSON.parse(called.result.content[0].text).service,'aiautoslides-local-api');
   const invalid=await server.handle({jsonrpc:'2.0',id:'c2',method:'tools/call',params:{_meta:meta,name:'aiautoslides_list_artifacts',arguments:{project_id:'123e4567-e89b-42d3-a456-426614174000',job_id:'123e4567-e89b-42d3-a456-426614174001'}}});assert.equal(invalid.result.isError,true);assert.match(invalid.result.content[0].text,/exactly one supported input variant/);
   const unsupported=await server.handle({jsonrpc:'2.0',id:'bad',method:'server/discover',params:{_meta:{...meta,'io.modelcontextprotocol/protocolVersion':'1900-01-01'}}});assert.equal(unsupported.error.code,-32022);assert.ok(unsupported.error.data.supported.includes('2026-07-28'));
@@ -38,7 +38,7 @@ test('stdio MCP lists local tools and runs project-to-render workflow through lo
     const initialized=await next();assert.equal(initialized.result.protocolVersion,'2025-11-25');assert.ok(initialized.result.capabilities.tools);
     send({jsonrpc:'2.0',method:'notifications/initialized'});
     send({jsonrpc:'2.0',id:2,method:'tools/list',params:{}});const listed=await next(),names=listed.result.tools.map(tool=>tool.name);
-    assert.ok(names.includes('aiautoslides_create_project'));assert.ok(names.includes('aiautoslides_enqueue_render'));assert.ok(names.includes('aiautoslides_import_source'));
+    assert.ok(names.includes('aiautoslides_create_project'));assert.ok(names.includes('aiautoslides_enqueue_render'));assert.ok(names.includes('aiautoslides_import_source'));assert.ok(names.includes('aiautoslides_review_job'));
     send({jsonrpc:'2.0',id:3,method:'tools/call',params:{name:'aiautoslides_health',arguments:{}}});
     const health=JSON.parse((await next()).result.content[0].text);assert.equal(health.service,'aiautoslides-local-api');
     send({jsonrpc:'2.0',id:4,method:'tools/call',params:{name:'aiautoslides_health',arguments:{project_id:'bad'}}});
@@ -49,10 +49,14 @@ test('stdio MCP lists local tools and runs project-to-render workflow through lo
     const enqueued=JSON.parse((await next()).result.content[0].text),jobId=enqueued.job.job_id;assert.ok(jobId);
     let job;for(let attempt=0;attempt<160;attempt++){
       send({jsonrpc:'2.0',id:7+attempt,method:'tools/call',params:{name:'aiautoslides_get_job',arguments:{job_id:jobId}}});
-      const response=await next();job=JSON.parse(response.result.content[0].text).job;if(['completed','failed','cancelled'].includes(job.status))break;
+      const response=await next();job=JSON.parse(response.result.content[0].text).job;if(['awaiting_review','failed','cancelled'].includes(job.status))break;
       await new Promise(resolve=>setTimeout(resolve,50));
     }
-    assert.equal(job.status,'completed',job.error);
+    assert.equal(job.status,'awaiting_review',job.error);assert.deepEqual(job.result.review_context.required.visual,[]);
+    send({jsonrpc:'2.0',id:180,method:'tools/call',params:{name:'aiautoslides_review_job',arguments:{job_id:jobId,category:'science',decision:'approve',reviewer:'Fixture Reviewer',note:'Reviewed the supplied source inventory',artifact_sha256:job.result.review_context.deck_sha256,reviewed_ids:job.result.review_context.required.science}}});
+    const approved=JSON.parse((await next()).result.content[0].text).job;assert.equal(approved.status,'awaiting_review');
+    send({jsonrpc:'2.0',id:181,method:'tools/call',params:{name:'aiautoslides_review_job',arguments:{job_id:jobId,category:'visual',decision:'approve',reviewer:'Fixture Reviewer',note:'No preview was generated',artifact_sha256:job.result.review_context.deck_sha256,reviewed_ids:[]}}});
+    assert.equal((await next()).result.isError,true);
     send({jsonrpc:'2.0',id:200,method:'tools/call',params:{name:'aiautoslides_list_artifacts',arguments:{job_id:jobId}}});
     const artifacts=JSON.parse((await next()).result.content[0].text).artifacts;assert.ok(artifacts.some(item=>item.format==='pptx'));
   }finally{

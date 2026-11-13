@@ -366,7 +366,20 @@ Start the loopback-only REST service with a durable workspace:
 npm run api -- --workspace D:\AIAutoSlidesData --port 8787
 ```
 
-The service stores projects, slide IR revisions, source metadata, job transitions, artifacts and hashes in SQLite. Place input files in `<workspace>\incoming`; `POST /projects/{id}/sources` imports only from that directory and copies raw bytes to immutable `source-blobs/<sha256>`. Create a project with `POST /projects` and a JSON body containing `title` and `presentation_ir`; start a generation job with `POST /projects/{id}/jobs`. The local workflow inventories evidence without searching the web, plans slide takeaways and adapter capabilities, generates PPTX, renders PDF/PNG previews, runs structural QA, and records artifacts and stage logs. Set `{"preview":false}` on job creation to skip PowerPoint/Poppler previews.
+The service stores projects, slide IR revisions, source metadata, job transitions, artifacts and hashes in SQLite. Place input files in `<workspace>\incoming`; `POST /projects/{id}/sources` imports only from that directory and copies raw bytes to immutable `source-blobs/<sha256>`. Create a project with `POST /projects` and a JSON body containing `title` and `presentation_ir`; start a generation job with `POST /projects/{id}/jobs`. Jobs stop at `awaiting_review` and become `completed` only after separate science and every-slide visual approvals bound to the current PPTX SHA-256. Set `{"preview":false}` on job creation to skip previews and leave the visual gate unavailable.
+
+### Presentation Harness for Codex and Claude
+
+Both repository Skills route agent-generated decks through the same local Harness. It validates Presentation IR and evidence lineage, inventories verification states, chooses an available backend, records adapter attempts and capability downgrades, runs structural QA, renders previews, and pauses for human review. It prefers PptxGenJS IR; Slidev is attempted as a lower-capability fallback only when installed and its output passes lineage and structural QA. `allow_degraded_fallback:false` blocks reduced native-chart capability. The optional AI planner remains a separate external request and requires explicit authorization for each use.
+
+```powershell
+npm run harness -- run --input outputs\my-deck\presentation-ir.json --workspace D:\AIAutoSlidesData --preview true
+npm run harness -- status --workspace D:\AIAutoSlidesData --job-id <job-id>
+npm run harness -- review --workspace D:\AIAutoSlidesData --job-id <job-id> --category science --decision approve --reviewer "Name" --note "Reviewed evidence support" --artifact-sha256 <pptx-sha256> --reviewed-ids SRC01,E1
+npm run harness -- review --workspace D:\AIAutoSlidesData --job-id <job-id> --category visual --decision approve --reviewer "Name" --note "Inspected every page" --artifact-sha256 <pptx-sha256> --reviewed-ids S01,S02
+```
+
+Codex and Claude must not record approvals on their own authority; use the review command only after the user has completed and explicitly approved that review. REST/MCP expose the same gate. The local API records a reviewer attestation but does not authenticate identity, and the Harness cannot prevent agents with arbitrary filesystem access from manually creating files outside its official generation path. Full stage/job and API details are in [`docs/API_WORKFLOW.md`](docs/API_WORKFLOW.md).
 
 Available routes are documented in [`docs/API_WORKFLOW.md`](docs/API_WORKFLOW.md). The API binds only to loopback and is intended for one local user; it has no remote authentication or OS-level sandbox. Node 22.5 or newer is required for the API's built-in SQLite runtime. The legacy slide CLI remains available on the package's existing minimum Node version. A slide PATCH updates the validated IR revision; a later job rebuilds the whole deck, so unchanged-slide hash preservation is not promised.
 

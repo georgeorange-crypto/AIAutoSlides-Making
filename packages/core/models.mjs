@@ -35,7 +35,7 @@ export function createDeckIR({deck_id=null,meta,source_ir,slides,assets, ...rest
   return deck;
 }
 
-const TRANSITIONS={queued:['running','cancelled'],running:['completed','failed','cancelled'],completed:[],failed:[],cancelled:[]};
+const TRANSITIONS={queued:['running','cancelled'],running:['awaiting_review','completed','failed','cancelled'],awaiting_review:['completed','revision_required'],revision_required:[],completed:[],failed:[],cancelled:[]};
 export function createJobState({job_id,project_id,workflow,status='queued',created_at=isoNow(),updated_at=created_at,events=[]}){
   if(!Object.hasOwn(TRANSITIONS,status))throw new TypeError(`Invalid job status '${status}'`);
   return{schema_version:'1.0.0',job_id:id(job_id,'job_id'),project_id:id(project_id,'project_id'),workflow:id(workflow,'workflow'),status,created_at,updated_at,events:[...events]};

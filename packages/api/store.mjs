@@ -103,6 +103,26 @@ export async function openProjectStore(workspaceDir){
     db.exec('BEGIN IMMEDIATE');try{const row=db.prepare('SELECT events_json FROM jobs WHERE job_id=?').get(jobId);if(!row)throw new Error(`Unknown job '${jobId}'`);const events=parse(row.events_json);events.push(entry);db.prepare('UPDATE jobs SET updated_at=?,events_json=? WHERE job_id=?').run(at,json(events),jobId);db.prepare('INSERT INTO job_events(job_id,stage,status,at,detail_json) VALUES(?,?,?,?,?)').run(jobId,stage,status,at,json(detail));db.exec('COMMIT');}catch(error){db.exec('ROLLBACK');throw error;}
   }
   function setJob(jobId,{status,result,error}){db.prepare('UPDATE jobs SET status=?,updated_at=?,result_json=?,error=? WHERE job_id=?').run(status,now(),result===undefined?null:json(result),error||null,jobId);}
+  function reviewJob(jobId,{category,decision,reviewer,note,reviewed_ids=[],artifact_sha256}){
+    const job=getJob(jobId);if(!job)throw new Error(`Unknown job '${jobId}'`);if(job.status!=='awaiting_review')throw Object.assign(new Error(`Job '${jobId}' is not awaiting review`),{status:409});
+    if(!['science','visual'].includes(category))throw new TypeError('category must be science or visual');if(!['approve','changes_requested'].includes(decision))throw new TypeError('decision must be approve or changes_requested');
+    if(typeof reviewer!=='string'||!reviewer.trim()||typeof note!=='string'||!note.trim())throw new TypeError('reviewer and note are required');
+    const context=job.result?.review_context,required=context?.required?.[category];if(!Array.isArray(required))throw new Error(`The ${category} review gate is unavailable for this job.`);
+    if(artifact_sha256!==context.deck_sha256)throw Object.assign(new Error('Review must be bound to the current PPTX SHA-256.'),{status:409});
+    const deckArtifact=listArtifacts({jobId}).find(item=>item.format==='pptx');if(!deckArtifact||sha256(fs.readFileSync(deckArtifact.path))!==context.deck_sha256)throw Object.assign(new Error('The current PPTX is missing or has changed since the review package was created.'),{status:409});
+    if(decision==='approve'&&(!Array.isArray(reviewed_ids)||JSON.stringify([...new Set(reviewed_ids)].sort())!==JSON.stringify(required)))throw Object.assign(new Error(`Approval must attest every required ${category} item: ${required.join(', ')||'(none)'}`),{status:400});
+    if(category==='visual'&&!required.length)throw Object.assign(new Error('Visual approval is unavailable because the deck was not rendered to preview pages.'),{status:409});
+    const result={...job.result,reviews:{...(job.result.reviews||{}),[category]:{decision,reviewer:reviewer.trim(),note:note.trim(),reviewed_ids:decision==='approve'?[...required]:[],artifact_sha256,reviewed_at:now()}}};
+    const rejected=decision==='changes_requested',complete=['science','visual'].every(key=>result.reviews[key]?.decision==='approve'),status=rejected?'revision_required':complete?'completed':'awaiting_review';
+    if(result.report){result.report.status=status;result.report.critique={...result.report.critique,scientific_accuracy:result.reviews.science?.decision==='approve'?'approved':'pending_human',visual_review:result.reviews.visual?.decision==='approve'?'approved':'pending_human'};}
+    const reviewPath=path.join(root,'runs',jobId,`human-review-${category}.json`),reviewBytes=Buffer.from(`${JSON.stringify(result.reviews[category],null,2)}\n`);fs.mkdirSync(path.dirname(reviewPath),{recursive:true});fs.writeFileSync(reviewPath,reviewBytes);const reviewHash=sha256(reviewBytes),artifactId=id();
+    db.prepare('INSERT INTO artifacts(artifact_id,project_id,job_id,path,format,sha256,created_at,metadata_json) VALUES(?,?,?,?,?,?,?,?)').run(artifactId,job.project_id,jobId,reviewPath,'json',reviewHash,now(),json({format:'json',sha256:reviewHash,review_category:category}));
+    result.artifacts=[...(result.artifacts||[]),{artifact_id:artifactId,project_id:job.project_id,job_id:jobId,path:reviewPath,format:'json',sha256:reviewHash,metadata:{review_category:category}}];
+    db.prepare('UPDATE jobs SET status=?,updated_at=?,result_json=?,error=? WHERE job_id=?').run(status,now(),json(result),null,jobId);
+    event(jobId,`human-review-${category}`,decision==='approve'?'approved':'changes_requested',{reviewer:reviewer.trim(),note:note.trim(),reviewed_count:result.reviews[category].reviewed_ids.length,artifact_sha256});
+    if(status==='completed')event(jobId,'job','completed',{reason:'scientific and visual review gates approved'});
+    return getJob(jobId);
+  }
   function requestCancel(jobId){const job=getJob(jobId);if(!job)return null;if(!['queued','running'].includes(job.status))return job;db.prepare('UPDATE jobs SET cancel_requested=1,updated_at=? WHERE job_id=?').run(now(),jobId);return getJob(jobId);}
   function listQueuedJobs(){return db.prepare("SELECT job_id FROM jobs WHERE status='queued' ORDER BY created_at").all().map(row=>getJob(row.job_id));}
   function recoverInterruptedJobs(){const rows=db.prepare("SELECT job_id FROM jobs WHERE status='running'").all();for(const row of rows){setJob(row.job_id,{status:'failed',error:'API process restarted while the job was running; the interrupted job was not resumed automatically.'});event(row.job_id,'recovery','failed',{reason:'process restart'});}return rows.length;}
@@ -114,5 +134,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,createJob,getJob,listJobs,event,setJob,reviewJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }
