@@ -7,6 +7,7 @@ import {runPresentationWorkflow} from '../workflow/index.mjs';
 import {pptxgenjsIRAdapter,mapPresentationIRToLegacy} from '../adapters/pptxgenjs-ir.mjs';
 import {planPresentationIntelligence} from '../workflow/intelligence.mjs';
 import {critiqueDeck} from '../../src/critic.mjs';
+import {metadataSearch} from '../research/metadata-search.mjs';
 
 const loopback=new Set(['127.0.0.1','::1','localhost']);
 const mime={'pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation','pdf':'application/pdf','png':'image/png','json':'application/json','svg':'image/svg+xml'};
@@ -17,7 +18,7 @@ function send(res,status,value){const body=JSON.stringify(value);res.writeHead(s
 async function bodyJson(req,limit=24*1024*1024){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw Object.assign(new Error(`Request exceeds ${limit} byte limit.`),{status:413});chunks.push(chunk);}if(!chunks.length)return{};try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw Object.assign(new Error('Request body must be valid JSON.'),{status:400});}}
 const notFound=(kind,id)=>Object.assign(new Error(`${kind} '${id}' was not found.`),{status:404});
 
-export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true}={}){
+export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true,research=metadataSearch}={}){
   if(!workspaceDir)throw new TypeError('workspaceDir is required');
   const store=await openProjectStore(workspaceDir),controllers=new Map(),running=new Map();
   store.recoverInterruptedJobs();
@@ -43,6 +44,7 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
       const remote=req.socket.remoteAddress?.replace(/^::ffff:/,'');if(!loopback.has(remote)&&!remote?.startsWith('127.'))return send(res,403,{error:'loopback_only'});
       const url=new URL(req.url,'http://127.0.0.1'),segments=url.pathname.split('/').filter(Boolean).map(decodeURIComponent),method=req.method;
       if(method==='GET'&&segments[0]==='health')return send(res,200,{ok:true,service:'aiautoslides-local-api',network:'loopback-only'});
+      if(method==='POST'&&segments[0]==='research'&&segments[1]==='topic'&&segments.length===2){const input=await bodyJson(req);if(input.allow_network!==true)throw Object.assign(new Error('External scholarly search is disabled unless allow_network is true.'),{status:403});const result=await research.search({provider:input.provider,query:input.query,limit:input.limit,timeoutMs:input.timeout_ms});return send(res,200,{result,notice:'Search metadata is an unverified candidate; no full text was downloaded and no claim was verified.'});}
       if(segments[0]==='projects'&&segments.length===1&&method==='GET')return send(res,200,{projects:store.listProjects()});
       if(segments[0]==='projects'&&segments.length===1&&method==='POST'){
         const input=await bodyJson(req);const project=store.createProject({title:input.title,presentationIR:input.presentation_ir});return send(res,201,{project});

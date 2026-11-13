@@ -11,6 +11,15 @@ const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const fixture=JSON.parse(fs.readFileSync(path.join(root,'examples/phase1/pptxgenjs-ir.json'),'utf8'));
 const digest=value=>crypto.createHash('sha256').update(value).digest('hex');
 
+test('scholarly topic search requires explicit outbound opt-in and labels provider results unverified',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-research-api-'));let api;const calls=[];
+  try{
+    api=await createLocalApi({workspaceDir:workspace,research:{search:async input=>{calls.push(input);return{provider:input.provider,query:input.query,verification_status:'unverified',results:[{source_id:'SRC_TEST',verification_status:'unverified'}]};}}});const address=await api.listen({port:0}),base=`http://127.0.0.1:${address.port}`;
+    let response=await fetch(`${base}/research/topic`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:'arxiv',query:'retrieval systems'})});assert.equal(response.status,403);assert.equal(calls.length,0);
+    response=await fetch(`${base}/research/topic`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:'arxiv',query:'retrieval systems',limit:2,allow_network:true})});assert.equal(response.status,200);const body=await response.json();assert.equal(calls.length,1);assert.equal(calls[0].limit,2);assert.equal(body.result.results[0].verification_status,'unverified');assert.match(body.notice,/no full text was downloaded/);
+  }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('local REST API persists projects, source blobs, slide edits, jobs, artifacts, and recovery state',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-api-'));let api;
   try{

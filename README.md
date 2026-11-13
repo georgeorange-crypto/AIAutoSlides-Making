@@ -419,7 +419,7 @@ PPTX, PDF, ten page PNGs, preview, evidence manifest and QA reports are written 
 
 ## Local MCP server
 
-The stdio MCP server exposes the local project API to MCP clients. Start the API in one terminal, then configure the MCP client to run `node src/mcp.mjs`; see [`docs/MCP_SERVER.md`](docs/MCP_SERVER.md) for Codex and Claude Code examples. The server accepts only a loopback API URL, performs no web research or model calls, and expects the MCP host to request user approval for project edits, source import and render jobs.
+The stdio MCP server exposes the local project API to MCP clients. Start the API in one terminal, then configure the MCP client to run `node src/mcp.mjs`; see [`docs/MCP_SERVER.md`](docs/MCP_SERVER.md) for Codex and Claude Code examples. The server accepts only a loopback API URL. Its scholarly metadata search sends a query to a selected public provider only when the caller explicitly sets `allow_network: true`; it does not download full text or call a model API. The MCP host should request user approval for outbound research and project edits, source import and render jobs.
 
 ## Codex and Claude Code Skills
 
