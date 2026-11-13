@@ -23,3 +23,16 @@ test('slide bounds audit covers pictures, chart frames, connectors, and negative
  assert.deepEqual(result.elementBounds.map(item=>item.element),['pic','graphicFrame','cxnSp']);
  assert.deepEqual(result.smallText.map(item=>item.min_font_size_pt),[10.5]);
 });
+
+test('visual group QA unions named native shapes and connectors into one measurable footprint',()=>{
+ const tagged=(type,x,y,w,h)=>`<p:${type}><p:nvSpPr><p:cNvPr id="1" name="AIAutoSlidesVisualGroup:S01:diagram"/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${w}" cy="${h}"/></a:xfrm></p:spPr></p:${type}>`;
+ const result=auditTextLayout(tagged('sp',100,200,300,400)+tagged('cxnSp',800,1000,500,200),2000,2000);
+ assert.deepEqual(result.visualGroupBounds,[{group_id:'S01:diagram',kind:'diagram',ok:true,member_count:2,unmeasured_member_count:0,x:100,y:200,w:1200,h:1000,area_ratio:0.055,bounds_area_ratio:0.3}]);
+});
+
+test('visual group QA marks incomplete member geometry instead of treating the partial group as measured',()=>{
+ const measured='<p:sp><p:nvSpPr><p:cNvPr id="1" name="AIAutoSlidesVisualGroup:S02:process"/></p:nvSpPr><p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="100" cy="100"/></a:xfrm></p:spPr></p:sp>';
+ const missing='<p:sp><p:nvSpPr><p:cNvPr id="2" name="AIAutoSlidesVisualGroup:S02:process"/></p:nvSpPr></p:sp>';
+ const result=auditTextLayout(measured+missing,1000,1000);
+ assert.equal(result.visualGroupBounds[0].member_count,2);assert.equal(result.visualGroupBounds[0].unmeasured_member_count,1);assert.equal(result.visualGroupBounds[0].ok,false);assert.equal(result.visualGroupBounds[0].area_ratio,0.01);
+});

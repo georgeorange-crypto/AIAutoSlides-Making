@@ -28,6 +28,9 @@ test('IR render embeds the local SVG and preserves native diagram/process editab
   const result=await pptxgenjsIRAdapter.render({presentationIR:fixture,workspace,outputDir:workspace,inputPath:'pptxgenjs-assets-diagram.json'});
   assert.equal(result.status,'completed');assert.equal(result.slideCount,2);assert.equal(result.qa.status,'warning');
   const pptx=result.artifacts.find(item=>item.path.endsWith('.pptx'));
+  const qa=JSON.parse(fs.readFileSync(result.artifacts.find(item=>item.path.endsWith('.qa.json')).path,'utf8'));
+  const taggedGroups=qa.slides.flatMap(slide=>slide.visualGroupBounds);
+  assert.ok(taggedGroups.some(group=>group.kind==='diagram'&&group.area_ratio>=0.03&&group.bounds_area_ratio>=0.06),JSON.stringify(taggedGroups));assert.ok(taggedGroups.some(group=>group.kind==='process'&&group.area_ratio>=0.08&&group.bounds_area_ratio>=0.06),JSON.stringify(taggedGroups));
   const files=unzipSync(new Uint8Array(fs.readFileSync(pptx.path)));
   const media=Object.keys(files).filter(name=>/^ppt\/media\/.*\.svg$/i.test(name));assert.equal(media.length,1);
   const architecture=strFromU8(files['ppt/slides/slide1.xml']);

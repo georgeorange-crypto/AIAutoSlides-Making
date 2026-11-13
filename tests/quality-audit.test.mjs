@@ -12,7 +12,7 @@ function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text'}))];
   const contentPlan={slides:plannedSlides.map(slide=>({slide_id:slide.slide_id,time_budget_seconds:slide.importance==='core'?60:slide.importance==='supporting'?20:5}))};
   const plan={quality_contract:{...contract},slides:plannedSlides};
-  return{plan,presentationIR:{slides},contentPlan,renderedQa:{slides:slides.map(()=>({textBoundsPass:true,textOverlaps:[],smallText:[]}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}))}};
+  return{plan,presentationIR:{slides},contentPlan,renderedQa:{slides:slides.map(slide=>({textBoundsPass:true,textOverlaps:[],smallText:[],visualGroupBounds:slide.elements.filter(element=>element.kind==='diagram').map(()=>({group_id:`${slide.slide_id}:diagram`,kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,ok:true}))}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}))}};
 }
 
 test('formal quality audit passes a deck meeting the declared visual, explanation, language, layout, and render constraints',()=>{
@@ -131,6 +131,15 @@ test('formal quality audit blocks postage-stamp images and charts using rendered
  input.renderedQa.slides[3].elementBounds=[{element:'graphicFrame',ok:true,x:100,y:100,w:2000000,h:1000000}];
  result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.kind==='chart'));
  input.renderedQa.slides[3].elementBounds=[];result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_SIZE_UNMEASURED'&&item.kind==='chart'));
+});
+
+test('formal quality audit blocks tiny or unmeasured native diagram shape groups',()=>{
+ const input=fixture();input.renderedQa.slides[2].visualGroupBounds=[{group_id:'S1:diagram',kind:'diagram',area_ratio:0.025,bounds_area_ratio:0.2,member_count:4,ok:true}];
+ let result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.kind==='diagram'));
+ input.renderedQa.slides[2].visualGroupBounds=[];result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_SIZE_UNMEASURED'&&item.kind==='diagram'));
+ input.renderedQa.slides[2].visualGroupBounds=[{group_id:'S1:diagram',kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,unmeasured_member_count:1,ok:false}];result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_SIZE_UNMEASURED'&&item.kind==='diagram'));
+ const mermaid=fixture();mermaid.presentationIR.slides[2].elements.find(element=>element.kind==='diagram').kind='mermaid';mermaid.renderedQa.slides[2].visualGroupBounds=[{group_id:'S1:diagram',kind:'diagram',area_ratio:0.025,bounds_area_ratio:0.2,member_count:4,ok:true}];
+ assert.ok(auditDeckQuality(mermaid).blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.kind==='mermaid'));
 });
 
 test('formal Chinese deck flags English blocks and leaves OCR recognition failures for a human page review',()=>{
