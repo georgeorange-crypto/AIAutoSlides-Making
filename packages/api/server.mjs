@@ -8,6 +8,7 @@ import {pptxgenjsIRAdapter,mapPresentationIRToLegacy} from '../adapters/pptxgenj
 import {planPresentationIntelligence} from '../workflow/intelligence.mjs';
 import {critiqueDeck} from '../../src/critic.mjs';
 import {metadataSearch} from '../research/metadata-search.mjs';
+import {ingestArxivPaper} from '../research/arxiv-ingest.mjs';
 
 const loopback=new Set(['127.0.0.1','::1','localhost']);
 const mime={'pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation','pdf':'application/pdf','png':'image/png','json':'application/json','svg':'image/svg+xml'};
@@ -17,8 +18,12 @@ const contentHash=file=>crypto.createHash('sha256').update(fs.readFileSync(file)
 function send(res,status,value){const body=JSON.stringify(value);res.writeHead(status,{'content-type':'application/json; charset=utf-8','content-length':Buffer.byteLength(body),'cache-control':'no-store'});res.end(body);}
 async function bodyJson(req,limit=24*1024*1024){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw Object.assign(new Error(`Request exceeds ${limit} byte limit.`),{status:413});chunks.push(chunk);}if(!chunks.length)return{};try{return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw Object.assign(new Error('Request body must be valid JSON.'),{status:400});}}
 const notFound=(kind,id)=>Object.assign(new Error(`${kind} '${id}' was not found.`),{status:404});
+function arxivIdFromCandidate(source){
+  if(source?.research_candidate?.provider!=='arxiv'||typeof source.research_candidate.landing_url!=='string')return null;
+  try{const url=new URL(source.research_candidate.landing_url),match=url.hostname==='arxiv.org'&&url.protocol==='https:'&&url.pathname.match(/^\/abs\/([^/]+)$/);if(!match)return null;const id=decodeURIComponent(match[1]);return /^(?:\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?\/\d{7})(?:v\d+)?$/i.test(id)?id:null;}catch{return null;}
+}
 
-export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true,research=metadataSearch}={}){
+export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,preview=true,research=metadataSearch,arxivIngest=ingestArxivPaper}={}){
   if(!workspaceDir)throw new TypeError('workspaceDir is required');
   const store=await openProjectStore(workspaceDir),controllers=new Map(),running=new Map();
   store.recoverInterruptedJobs();
@@ -38,11 +43,18 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
           const ingestion=store.addResearchCandidates(job.project_id,result),payload={project_id:job.project_id,provider:result.provider,query:result.query,retrieved_at:result.retrieved_at,results:result.results,ingestion};
           store.setJob(jobId,{status:'completed',result:payload});store.event(jobId,'scholarly-metadata-search','completed',{candidate_count:result.results.length,added_count:ingestion.added_count});store.event(jobId,'job','completed',{candidate_count:result.results.length,added_count:ingestion.added_count});return;
         }
+        if(job.workflow==='arxiv-paper-ingest'){
+          const sourceId=job.options.source_id,candidate=project.presentationIR.source_ir.sources.find(source=>source.source_id===sourceId),arxivId=arxivIdFromCandidate(candidate);if(!arxivId)throw Object.assign(new Error(`Source '${sourceId}' is not a valid selected arXiv candidate.`),{status:400});
+          const outputDir=path.join(store.root,'runs',jobId,'arxiv'),ingestion=await arxivIngest({results:{provider:'arxiv',results:[{source_id:sourceId,arxiv_id:arxivId,title:candidate.research_candidate.title,landing_url:candidate.research_candidate.landing_url}]},sourceId,outDir:outputDir,signal:controller.signal,onStage:(stage,status,detail)=>store.event(jobId,`arxiv-${stage}`,status,detail)});
+          if(controller.signal.aborted){store.setJob(jobId,{status:'cancelled'});store.event(jobId,'job','cancelled',{reason:'cancel accepted after PDF extraction'});return;}
+          const attached=store.attachArxivPaper(job.project_id,sourceId,ingestion),artifacts=['source.pdf','extracted.md','source.manifest.json','evidence.json'].map(name=>{const file=path.join(ingestion.directory,name);return{path:file,format:path.extname(name).slice(1)||'text',sha256:contentHash(file),metadata:{kind:'arxiv-paper-ingest',source_id:sourceId,verification_status:name==='source.pdf'?'unverified':'pending_human_review'}};});
+          store.addArtifacts(job,artifacts);const savedArtifacts=store.listArtifacts({jobId});store.setJob(jobId,{status:'completed',result:{project_id:job.project_id,source_id:sourceId,manifest:ingestion.manifest,ingestion:attached,artifacts:savedArtifacts,scientific_verification:'pending_human_review',reuse_rights:'needs_review'}});store.event(jobId,'job','completed',{page_count:ingestion.manifest.page_count,evidence_count:attached.evidence_count,artifact_count:savedArtifacts.length});return;
+        }
         const outputDir=path.join(store.root,'runs',jobId);
         const result=await runPresentationWorkflow({jobId,project,presentationIR:project.presentationIR,workspace:store.root,outputDir,preview:job.options.preview??preview,signal:controller.signal,adapter,onEvent:(stage,status,detail)=>store.event(jobId,stage,status,detail)});
         if(controller.signal.aborted){store.setJob(jobId,{status:'cancelled'});store.event(jobId,'job','cancelled',{reason:'cancel accepted at stage boundary'});return;}
         store.addArtifacts(job,result.artifacts);store.setJob(jobId,{status:'completed',result:{...result,artifacts:store.listArtifacts({jobId})}});store.event(jobId,'job','completed',{artifact_count:result.artifacts.length,adapter:result.adapter});
-      }catch(error){const cancelled=error.name==='AbortError'||controller.signal.aborted;if(store.getJob(jobId)?.workflow==='research-topic')store.event(jobId,'scholarly-metadata-search',cancelled?'cancelled':'failed',{message:error.message});store.setJob(jobId,{status:cancelled?'cancelled':'failed',error:cancelled?null:error.message});store.event(jobId,'job',cancelled?'cancelled':'failed',{message:error.message});}
+      }catch(error){const cancelled=error.name==='AbortError'||controller.signal.aborted,workflow=store.getJob(jobId)?.workflow;if(workflow==='research-topic')store.event(jobId,'scholarly-metadata-search',cancelled?'cancelled':'failed',{message:error.message});if(workflow==='arxiv-paper-ingest')store.event(jobId,'arxiv-paper-ingest',cancelled?'cancelled':'failed',{message:error.message});store.setJob(jobId,{status:cancelled?'cancelled':'failed',error:cancelled?null:error.message});store.event(jobId,'job',cancelled?'cancelled':'failed',{message:error.message});}
       finally{controllers.delete(jobId);running.delete(jobId);}
     })();running.set(jobId,task);return task;
   }
@@ -71,6 +83,12 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
           const input=await bodyJson(req);if(input.allow_network!==true)throw Object.assign(new Error('External scholarly search is disabled unless allow_network is true.'),{status:403});
           if(!['openalex','crossref','arxiv'].includes(input.provider)||typeof input.query!=='string'||input.query.trim().length<2||input.query.length>500||input.limit!==undefined&&(!Number.isInteger(input.limit)||input.limit<1||input.limit>10)||input.timeout_ms!==undefined&&(!Number.isInteger(input.timeout_ms)||input.timeout_ms<500||input.timeout_ms>30000))throw Object.assign(new Error('provider, query, limit or timeout_ms is invalid.'),{status:400});
           const job=store.createJob(projectId,{research:{provider:input.provider,query:input.query.trim(),limit:input.limit,timeout_ms:input.timeout_ms}},'research-topic');setImmediate(()=>void runJob(job.job_id));return send(res,202,{job,notice:'Durable scholarly metadata search queued. Results remain unverified candidates.'});
+        }
+        if(segments[2]==='research'&&segments[3]==='papers'&&segments.length===4&&method==='POST'){
+          const input=await bodyJson(req);if(input.allow_download!==true)throw Object.assign(new Error('Selected-paper download requires allow_download: true.'),{status:403});
+          if(typeof input.source_id!=='string'||!project.presentationIR.source_ir.sources.some(source=>source.source_id===input.source_id))throw Object.assign(new Error('source_id must select an existing project source candidate.'),{status:400});
+          const candidate=project.presentationIR.source_ir.sources.find(source=>source.source_id===input.source_id);if(!arxivIdFromCandidate(candidate))throw Object.assign(new Error('Only a selected arXiv metadata candidate with a valid arXiv landing page can be downloaded.'),{status:400});
+          const job=store.createJob(projectId,{source_id:input.source_id},'arxiv-paper-ingest');setImmediate(()=>void runJob(job.job_id));return send(res,202,{job,notice:'One explicitly selected arXiv PDF will be downloaded and parsed locally; excerpts remain pending human review and reuse rights remain unreviewed.'});
         }
         if(segments.length===3&&segments[2]==='plan'&&method==='GET')return send(res,200,{project_id:projectId,plan:planPresentationIntelligence(project.presentationIR)});
         if(segments.length===3&&segments[2]==='critique'&&method==='GET'){const mapped=mapPresentationIRToLegacy(project.presentationIR);return send(res,200,{project_id:projectId,critique:critiqueDeck(mapped.deck,mapped.evidence),content_plan:planPresentationIntelligence(project.presentationIR)});}

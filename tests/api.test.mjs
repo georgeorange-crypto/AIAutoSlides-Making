@@ -6,6 +6,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {createLocalApi} from '../packages/api/server.mjs';
+import {createArxivIngest} from '../packages/research/arxiv-ingest.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const fixture=JSON.parse(fs.readFileSync(path.join(root,'examples/phase1/pptxgenjs-ir.json'),'utf8'));
@@ -46,6 +47,20 @@ test('durable scholarly search jobs persist status, events and unverified projec
     let job;for(let i=0;i<100;i++){job=(await (await fetch(`${base}/jobs/${jobId}`)).json()).job;if(['completed','failed','cancelled'].includes(job.status))break;await new Promise(resolve=>setTimeout(resolve,20));}
     assert.equal(job.status,'completed',job.error);assert.equal(job.workflow,'research-topic');assert.ok(job.events.some(event=>event.stage==='scholarly-metadata-search'&&event.status==='completed'));assert.equal(job.result.ingestion.added_count,1);const saved=(await (await fetch(`${base}/projects/${project.project_id}`)).json()).project;assert.equal(saved.presentationIR.source_ir.sources.find(source=>source.source_id==='SRC_JOB').verification_status,'unverified');
     response=await fetch(`${base}/projects/${project.project_id}/research/jobs`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:'openalex',query:'cache recovery'})});assert.equal(response.status,403);
+  }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
+test('selected arXiv ingestion job stores the PDF by hash and attaches pending page evidence',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-arxiv-job-'));let api;const pdf=Buffer.from('%PDF-1.4\nsynthetic arxiv fixture\n');
+  try{
+    api=await createLocalApi({workspaceDir:workspace,preview:false,research:{search:async({provider,query})=>({provider,query,retrieved_at:'2026-11-12T12:00:00.000Z',results:[{source_id:'SRC_ARXIV_JOB',record_sha256:'d'.repeat(64),provider_record_id:'2601.12345v1',title:'Synthetic arXiv paper',authors:['Example Author'],publication_year:2026,landing_url:'https://arxiv.org/abs/2601.12345v1',evidence_status:'metadata_candidate_only',verification_status:'unverified'}]})},arxivIngest:createArxivIngest({download:async id=>{assert.equal(id,'2601.12345v1');return{url:'https://arxiv.org/pdf/2601.12345',bytes:pdf};},extract:async bytes=>{assert.deepEqual(bytes,pdf);return[{locator:'page 1',content:'A synthetic extracted result for contract testing.'},{locator:'page 2',content:'A separate pending excerpt.'}];},clock:()=> '2026-11-12T12:01:00.000Z'})});const address=await api.listen({port:0}),base=`http://127.0.0.1:${address.port}`;
+    const created=await fetch(`${base}/projects`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title:'arXiv ingestion job',presentation_ir:fixture})}),project=(await created.json()).project;
+    const searchResponse=await fetch(`${base}/projects/${project.project_id}/research/jobs`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:'arxiv',query:'synthetic paper',allow_network:true})}),searchJobId=(await searchResponse.json()).job.job_id;let searchJob;
+    for(let i=0;i<100;i++){searchJob=(await (await fetch(`${base}/jobs/${searchJobId}`)).json()).job;if(['completed','failed','cancelled'].includes(searchJob.status))break;await new Promise(resolve=>setTimeout(resolve,20));}assert.equal(searchJob.status,'completed',searchJob.error);
+    let response=await fetch(`${base}/projects/${project.project_id}/research/papers`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({source_id:'SRC_ARXIV_JOB'})});assert.equal(response.status,403);
+    response=await fetch(`${base}/projects/${project.project_id}/research/papers`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({source_id:'SRC_ARXIV_JOB',allow_download:true})});assert.equal(response.status,202);const ingestJobId=(await response.json()).job.job_id;let ingestJob;
+    for(let i=0;i<100;i++){ingestJob=(await (await fetch(`${base}/jobs/${ingestJobId}`)).json()).job;if(['completed','failed','cancelled'].includes(ingestJob.status))break;await new Promise(resolve=>setTimeout(resolve,20));}assert.equal(ingestJob.status,'completed',ingestJob.error);assert.ok(ingestJob.events.some(event=>event.stage==='arxiv-pdf-extraction'&&event.status==='completed'));assert.equal(ingestJob.result.ingestion.evidence_count,2);assert.equal(ingestJob.result.artifacts.length,4);assert.equal(ingestJob.result.reuse_rights,'needs_review');
+    const saved=(await (await fetch(`${base}/projects/${project.project_id}`)).json()).project,paper=saved.presentationIR.source_ir.sources.find(source=>source.source_id==='SRC_ARXIV_JOB'),evidence=saved.presentationIR.source_ir.evidence;assert.equal(paper.type,'scholarly_paper');assert.equal(paper.verification_status,'unverified');assert.equal(paper.sha256,digest(pdf));assert.equal(fs.readFileSync(path.join(workspace,'source-blobs',paper.sha256)).toString(),pdf.toString());assert.equal(evidence.length,2);assert.ok(evidence.every(item=>item.source_id===paper.source_id&&item.verification_status==='pending'&&item.source_sha256===paper.sha256));
   }finally{if(api)await api.close();fs.rmSync(workspace,{recursive:true,force:true});}
 });
 

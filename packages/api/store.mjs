@@ -121,18 +121,39 @@ export async function openProjectStore(workspaceDir){
       const normalizedBytes=Buffer.from(JSON.stringify(normalized)),normalizedHash=sha256(normalizedBytes),blob=path.join(root,'source-blobs',normalizedHash);
       if(fs.existsSync(blob)){if(sha256(fs.readFileSync(blob))!==normalizedHash)throw new Error('Content-addressed research candidate blob failed hash verification.');}
       else fs.writeFileSync(blob,normalizedBytes,{flag:'wx'});
-      const existing=known.get(candidate.source_id);if(existing){if(existing.sha256!==normalizedHash)throw new Error(`Research source '${candidate.source_id}' already exists with a different metadata hash.`);continue;}
-      const source={source_id:candidate.source_id,type:'scholarly_metadata_candidate',uri:candidate.landing_url||candidate.record_url||null,sha256:normalizedHash,locator:`${result.provider}:${candidate.provider_record_id||candidate.source_id}`,verification_status:'unverified',claims:[],assets:[],research_candidate:{...normalized,query:result.query,retrieved_at:result.retrieved_at,record_url:candidate.record_url||null}};
+      const existing=known.get(candidate.source_id);if(existing){const existingMetadataHash=existing.research_candidate?.normalized_sha256||existing.sha256;if(existingMetadataHash!==normalizedHash)throw new Error(`Research source '${candidate.source_id}' already exists with a different metadata hash.`);continue;}
+      const source={source_id:candidate.source_id,type:'scholarly_metadata_candidate',uri:candidate.landing_url||candidate.record_url||null,sha256:normalizedHash,locator:`${result.provider}:${candidate.provider_record_id||candidate.source_id}`,verification_status:'unverified',claims:[],assets:[],research_candidate:{...normalized,normalized_sha256:normalizedHash,query:result.query,retrieved_at:result.retrieved_at,record_url:candidate.record_url||null}};
       sources.push(source);known.set(source.source_id,source);added.push(source.source_id);
     }
     const updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,sources}},blob=persistIR(updated),at=now();
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);});
     return{project_id:projectId,ir_sha256:blob.sha256,added_source_ids:added,added_count:added.length,total_sources:sources.length};
   }
+  function attachArxivPaper(projectId,sourceId,ingestion){
+    const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
+    const sourceIndex=project.presentationIR.source_ir.sources.findIndex(item=>item.source_id===sourceId),candidate=project.presentationIR.source_ir.sources[sourceIndex];
+    if(!candidate||candidate.research_candidate?.provider!=='arxiv')throw new Error(`Source '${sourceId}' is not an arXiv metadata candidate.`);
+    if(!ingestion?.manifest||ingestion.manifest.provider!=='arxiv'||ingestion.manifest.provider_source_id!==sourceId||!Array.isArray(ingestion.evidence?.entries))throw new TypeError('arXiv ingestion result has invalid source lineage.');
+    const directory=path.resolve(ingestion.directory),realDirectory=fs.realpathSync(directory);if(!within(root,realDirectory))throw new Error('arXiv ingestion output must stay inside the API workspace.');
+    const pdfPath=path.join(realDirectory,'source.pdf'),pdfBytes=fs.readFileSync(pdfPath),pdfHash=sha256(pdfBytes);if(pdfHash!==ingestion.manifest.source_sha256)throw new Error('arXiv source PDF hash does not match its manifest.');
+    const blob=path.join(root,'source-blobs',pdfHash);if(fs.existsSync(blob)){if(sha256(fs.readFileSync(blob))!==pdfHash)throw new Error('Content-addressed arXiv PDF blob failed hash verification.');}else fs.writeFileSync(blob,pdfBytes,{flag:'wx'});
+    if(candidate.type==='scholarly_paper'&&candidate.arxiv_paper?.source_sha256===pdfHash)return{project_id:projectId,source_id:sourceId,source_sha256:pdfHash,evidence_ids:ingestion.evidence.entries.map(entry=>entry.id),evidence_count:0,added:false,ir_sha256:project.ir_sha256};
+    const priorEvidence=project.presentationIR.source_ir.evidence||[],evidenceById=new Map(priorEvidence.map(item=>[item.evidence_id,item])),addedEvidence=[];
+    for(const entry of ingestion.evidence.entries){
+      if(!entry||typeof entry.id!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(entry.id)||typeof entry.excerpt!=='string'||!entry.excerpt.trim()||typeof entry.locator!=='string')throw new TypeError('arXiv excerpt candidate has an invalid ID, excerpt or locator.');
+      const evidence={evidence_id:entry.id,source_id:sourceId,excerpt:entry.excerpt,locator:entry.locator,verification_status:'pending',source_sha256:pdfHash,review_status:'pending_human_review'};
+      const existing=evidenceById.get(entry.id);if(existing){if(existing.source_id!==sourceId||existing.excerpt!==entry.excerpt||existing.locator!==entry.locator)throw new Error(`Evidence '${entry.id}' already exists with different content.`);continue;}
+      evidenceById.set(entry.id,evidence);addedEvidence.push(evidence);
+    }
+    const updatedSource={...candidate,type:'scholarly_paper',uri:`local-sha256:${pdfHash}`,sha256:pdfHash,locator:ingestion.manifest.download_url,verification_status:'unverified',arxiv_paper:{arxiv_id:ingestion.manifest.arxiv_id,title:ingestion.manifest.title,landing_url:ingestion.manifest.landing_url,download_url:ingestion.manifest.download_url,source_sha256:pdfHash,bytes:pdfBytes.length,page_count:ingestion.manifest.page_count,extraction_engine:ingestion.manifest.extraction_engine,retrieved_at:ingestion.manifest.retrieved_at,reuse_rights:'needs_review'}};
+    const sources=project.presentationIR.source_ir.sources.map((item,index)=>index===sourceIndex?updatedSource:item),updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,sources,evidence:[...priorEvidence,...addedEvidence]}},irBlob=persistIR(updated),at=now();
+    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,irBlob.path,irBlob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE sources SET original_name=?,blob_path=? WHERE project_id=? AND source_id=?').run('source.pdf',blob,projectId,sourceId);});
+    return{project_id:projectId,source_id:sourceId,source_sha256:pdfHash,evidence_ids:addedEvidence.map(item=>item.evidence_id),evidence_count:addedEvidence.length,added:true,ir_sha256:irBlob.sha256};
+  }
   function createJob(projectId,options={},workflow='presentation'){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);
     const jobId=id(),at=now(),events=[];
-    if(!['presentation','research-topic'].includes(workflow))throw new TypeError(`Unsupported workflow '${workflow}'.`);
+    if(!['presentation','research-topic','arxiv-paper-ingest'].includes(workflow))throw new TypeError(`Unsupported workflow '${workflow}'.`);
     db.prepare('INSERT INTO jobs(job_id,project_id,workflow,status,created_at,updated_at,options_json,events_json) VALUES(?,?,?,?,?,?,?,?)').run(jobId,projectId,workflow,'queued',at,at,json(options),json(events));
     return getJob(jobId);
   }
@@ -154,5 +175,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProfile,updateProfile,getProfile,listProfiles,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,addResearchCandidates,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProfile,updateProfile,getProfile,listProfiles,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,addResearchCandidates,attachArxivPaper,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }
