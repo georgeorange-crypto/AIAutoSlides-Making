@@ -201,6 +201,10 @@ test('formal quality audit blocks postage-stamp images and charts using rendered
 test('formal quality audit blocks tiny or unmeasured native diagram shape groups',()=>{
  const input=fixture();input.renderedQa.slides[2].visualGroupBounds=[{group_id:'S1:diagram',kind:'diagram',area_ratio:0.025,bounds_area_ratio:0.2,member_count:4,ok:true}];
  let result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.kind==='diagram'));
+ input.renderedQa.slides[2].visualGroupBounds=[{group_id:'S1:diagram',kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.119,member_count:5,ok:true}];
+ result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.minimum_bounds_area_ratio===0.12));
+ input.renderedQa.slides[2].visualGroupBounds[0].bounds_area_ratio=0.12;
+ result=auditDeckQuality(input);assert.ok(!result.blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.slide_id==='S1'),'a diagram at the 12 percent footprint boundary passes');
  input.renderedQa.slides[2].visualGroupBounds=[];result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_SIZE_UNMEASURED'&&item.kind==='diagram'));
  input.renderedQa.slides[2].visualGroupBounds=[{group_id:'S1:diagram',kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,unmeasured_member_count:1,ok:false}];result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_SIZE_UNMEASURED'&&item.kind==='diagram'));
  const mermaid=fixture();mermaid.presentationIR.slides[2].elements.find(element=>element.kind==='diagram').kind='mermaid';mermaid.renderedQa.slides[2].visualGroupBounds=[{group_id:'S1:diagram',kind:'diagram',area_ratio:0.025,bounds_area_ratio:0.2,member_count:4,ok:true}];

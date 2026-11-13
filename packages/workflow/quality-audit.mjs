@@ -12,6 +12,7 @@ const CAVEAT_CLAUSE=/(?:\b(?:does not|doesn't|do not|don't|cannot|can't|should n
 const VISUAL_WORDS=/(?:image|illustration|photo|figure|chart|diagram|architecture|process|table|图|照片|插图|示意|图表|架构|流程|表格|原图)/iu;
 const CJK=/\p{Script=Han}/u;
 const MIN_RENDERED_VISUAL_AREA={image:0.08,chart:0.15,table:0.15,diagram:0.03,process:0.08,cards:0.08};
+const MIN_RENDERED_VISUAL_FOOTPRINT=0.12;
 
 function textOfElement(element){
   const values=[element.text,element.value,element.caption,element.description,element.takeaway,element.x_axis_label,element.y_axis_label];
@@ -137,7 +138,7 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
         const count=elements.filter(element=>element.kind===kind).length;if(!count)continue;
         const groups=(qa.visualGroupBounds||[]).filter(group=>group.kind===groupKind&&String(group.group_id).startsWith(`${id}:`));
         if(groups.length<count||groups.slice(0,count).some(group=>!Number.isFinite(group.area_ratio)||Number(group.unmeasured_member_count)>0||Number(group.member_count)<=0)){blockers.push(issue('QUALITY_VISUAL_SIZE_UNMEASURED',id,`Rendered ${kind} shape-group geometry is missing or incomplete; its visible size cannot pass the visual-size gate.`,{kind,expected_group_count:count,measured_group_count:groups.length}));continue;}
-        groups.slice(0,count).forEach((group,visualIndex)=>{const minimumArea=MIN_RENDERED_VISUAL_AREA[groupKind],footprintTooSmall=!Number.isFinite(group.bounds_area_ratio)||group.bounds_area_ratio<0.06,objectAreaTooSmall=group.area_ratio<minimumArea;if(footprintTooSmall||objectAreaTooSmall)blockers.push(issue('QUALITY_VISUAL_TOO_SMALL',id,`Rendered ${kind} shape group ${visualIndex+1} has ${(group.area_ratio*100).toFixed(1)}% object-box coverage and ${(Number(group.bounds_area_ratio||0)*100).toFixed(1)}% overall footprint; minimums are ${(minimumArea*100).toFixed(0)}% and 6%.`,{kind,visual_index:visualIndex+1,actual_area_ratio:Number(group.area_ratio.toFixed(4)),minimum_area_ratio:minimumArea,actual_bounds_area_ratio:Number.isFinite(group.bounds_area_ratio)?Number(group.bounds_area_ratio.toFixed(4)):null,minimum_bounds_area_ratio:0.06,member_count:group.member_count}));});
+        groups.slice(0,count).forEach((group,visualIndex)=>{const minimumArea=MIN_RENDERED_VISUAL_AREA[groupKind],footprintTooSmall=!Number.isFinite(group.bounds_area_ratio)||group.bounds_area_ratio<MIN_RENDERED_VISUAL_FOOTPRINT,objectAreaTooSmall=group.area_ratio<minimumArea;if(footprintTooSmall||objectAreaTooSmall)blockers.push(issue('QUALITY_VISUAL_TOO_SMALL',id,`Rendered ${kind} shape group ${visualIndex+1} has ${(group.area_ratio*100).toFixed(1)}% object-box coverage and ${(Number(group.bounds_area_ratio||0)*100).toFixed(1)}% overall footprint; minimums are ${(minimumArea*100).toFixed(0)}% and ${(MIN_RENDERED_VISUAL_FOOTPRINT*100).toFixed(0)}%.`,{kind,visual_index:visualIndex+1,actual_area_ratio:Number(group.area_ratio.toFixed(4)),minimum_area_ratio:minimumArea,actual_bounds_area_ratio:Number.isFinite(group.bounds_area_ratio)?Number(group.bounds_area_ratio.toFixed(4)):null,minimum_bounds_area_ratio:MIN_RENDERED_VISUAL_FOOTPRINT,member_count:group.member_count}));});
       }
     }
   }
