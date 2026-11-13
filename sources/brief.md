@@ -1,21 +1,13 @@
-# Research presentation brief (demonstration)
+# Synthetic CI presentation brief
 
-Audience: AI systems research group. Goal: summarize a storage/latency tradeoff and ask for a decision on the next optimization experiment. Duration: approximately 7 minutes. Do not claim generalization beyond one recorded setup.
+This file and its corresponding storyboard are software fixtures containing invented values. They do not describe user research, measurements, models, or benchmark results.
 
-## Observations from an example experiment report
+Audience: software engineering team. Goal: exercise the presentation generator's layouts, evidence references, chart rendering, and structural QA in automated CI. Duration: approximately seven minutes.
 
-- Qwen3-32B tensor parallelism 4 used for paired cache measurements.
-- Raw cache miss TTFT P50: 0.369 seconds.
-- Raw cache hit TTFT P50: 0.353 seconds.
-- BitPack4 compressed cache hit TTFT P50: 67.792 seconds.
-- Byte savings for the compression setup: 72.7%.
-- Compressed reload accuracy was reported as 0.50; do not interpret this as a general model accuracy without examining the metric definition.
-- Host decode wall time per part was approximately 527–587 milliseconds; the end-to-end latency cannot be explained by this number alone without counting parts and synchronization.
+## Synthetic values
 
-## Interpretation boundary
+The chart uses the invented values 12, 18, and 15 in arbitrary units. These numbers were chosen only to verify stable data-to-chart behavior. Do not interpret, cite, or present them as empirical findings.
 
-These values are an example of an existing experiment report. The deck must explain that the specific benchmark setup, sample size, and repeatability require verification before publication. Do not introduce additional empirical results.
+## Review boundary
 
-## Ask
-
-Prioritize critical-path instrumentation and a controlled comparison of sequential versus batched decode while preserving data correctness checks.
+Automated validation and structural QA check software properties. They do not constitute scientific verification or human visual approval.

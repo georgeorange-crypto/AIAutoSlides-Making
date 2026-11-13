@@ -1,0 +1,133 @@
+name: Release
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+      attestations: write
+      pull-requests: read
+      issues: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: '22', cache: npm}
+      - name: Calculate and validate next SemVer
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PACKAGE_SEED: ${{ vars.RELEASE_SEED || '0.1.0' }}
+        run: |
+          echo "already_released=false" >> "$GITHUB_OUTPUT"
+          existing=$(node scripts/find-release-tag.mjs "$PR_NUMBER")
+          if [ -n "$existing" ]; then
+            if gh release view "$existing" >/dev/null 2>&1; then
+              echo "PR #$PR_NUMBER already released as $existing; skipping duplicate publication."
+              echo "already_released=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Tag $existing exists for PR #$PR_NUMBER but its GitHub Release is missing; stop for manual recovery."
+            exit 1
+          fi
+          labels=$(gh api "repos/$REPOSITORY/issues/$PR_NUMBER/labels" --jq '[.[].name | select(startswith("release:"))] | .[]')
+          version_args=()
+          while IFS= read -r label; do [ -n "$label" ] && version_args+=("$label"); done <<< "$labels"
+          test "${#version_args[@]}" -eq 1
+          latest=$(git tag --list 'v[0-9]*' --sort=-version:refname | head -n 1)
+          current=${latest:-$PACKAGE_SEED}
+          next=$(node scripts/release-version.mjs "$current" "${version_args[@]}")
+          if git rev-parse -q --verify "refs/tags/$next" >/dev/null; then echo "Tag $next already exists"; exit 1; fi
+          echo "tag=$next" >> "$GITHUB_OUTPUT"
+          echo "version=${next#v}" >> "$GITHUB_OUTPUT"
+          IFS=. read -r major minor patch <<< "${next#v}"
+          echo "minor_tag=$major.$minor" >> "$GITHUB_OUTPUT"
+      - name: Install preview tools
+        if: steps.version.outputs.already_released != 'true'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-impress poppler-utils fonts-liberation
+      - name: Install Node dependencies
+        if: steps.version.outputs.already_released != 'true'
+        run: npm ci --no-audit --no-fund
+      - name: Verify synthetic inputs
+        if: steps.version.outputs.already_released != 'true'
+        run: node scripts/check-ci-safety.mjs
+      - name: Check release source archive exclusions
+        if: steps.version.outputs.already_released != 'true'
+        run: node scripts/check-ci-safety.mjs --release-archive
+      - name: Build sample and preview
+        if: steps.version.outputs.already_released != 'true'
+        run: npm run build && npm run qa && node scripts/preview.mjs outputs/research-demo.pptx
+      - name: Prepare release assets
+        if: steps.version.outputs.already_released != 'true'
+        run: |
+          mkdir -p release-assets
+          cp outputs/research-demo.pptx outputs/research-demo.review.json outputs/research-demo.evidence-manifest.json outputs/research-demo.qa.json outputs/research-demo.qa.md outputs/research-demo.pdf release-assets/
+          cp outputs/research-demo-page-*.png release-assets/
+          printf '%s\n' 'Synthetic CI fixture only. Values are invented, not measured.' 'This GitHub Release provides the CLI image and a sample editable deck with structural QA.' 'The CLI image does not run the REST API or expose a service port.' > release-assets/README.txt
+          npm sbom --sbom-format=spdx > release-assets/npm-dependencies.sbom.spdx.json
+          (cd release-assets && sha256sum * > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130
+        if: steps.version.outputs.already_released != 'true'
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+        if: steps.version.outputs.already_released != 'true'
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        if: steps.version.outputs.already_released != 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish multi-platform CLI image
+        if: steps.version.outputs.already_released != 'true'
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/aiautoslides-making:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/aiautoslides-making:${{ steps.version.outputs.minor_tag }}
+            ghcr.io/${{ github.repository_owner }}/aiautoslides-making:latest
+          sbom: true
+          provenance: mode=max
+      - name: Verify public pull and both platform manifests
+        if: steps.version.outputs.already_released != 'true'
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/aiautoslides-making:${{ steps.version.outputs.version }}
+        run: |
+          docker logout ghcr.io
+          docker pull "$IMAGE" || { echo 'GHCR image is not publicly pullable. Set the package visibility to Public, then rerun this release job.'; exit 1; }
+          manifest=$(docker buildx imagetools inspect --raw "$IMAGE")
+          printf '%s' "$manifest" | jq -e '[.manifests[].platform | select(.os == "linux" and .architecture == "amd64")] | length > 0' >/dev/null
+          printf '%s' "$manifest" | jq -e '[.manifests[].platform | select(.os == "linux" and .architecture == "arm64")] | length > 0' >/dev/null
+      - name: Create version tag
+        if: steps.version.outputs.already_released != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.tag }} for PR #${{ github.event.pull_request.number }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+      - name: Attest synthetic release assets
+        if: steps.version.outputs.already_released != 'true'
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
+        with:
+          subject-path: release-assets/*
+      - name: Publish GitHub Release
+        if: steps.version.outputs.already_released != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh release create "$RELEASE_TAG" release-assets/* --title "$RELEASE_TAG" --generate-notes

@@ -1,73 +1,116 @@
-name: Validation and PPTX build
+name: CI
 on:
-  push:
   pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main, 'codex/**']
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
-  test-and-build:
+  linux:
+    name: Linux tests, build, QA and preview
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: '22', cache: npm}
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-impress poppler-utils fonts-liberation
       - run: npm ci --no-audit --no-fund
       - run: npm run check
-      - uses: actions/upload-artifact@v4
+      - name: Verify synthetic CI inputs
+        run: node scripts/check-ci-safety.mjs
+      - name: Check release source archive exclusions
+        run: node scripts/check-ci-safety.mjs --release-archive
+      - name: Create PDF and PNG preview
+        run: node scripts/preview.mjs outputs/research-demo.pptx
+      - name: Verify preview page count
+        run: node -e "const q=require('./outputs/research-demo.qa.json'),p=require('./outputs/research-demo.preview.json');if(p.status!=='rendered'||p.pages.length!==q.slideCount||p.page_count_matches_storyboard!==true)process.exit(1);console.log(p.pages.length+' preview pages verified')"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: example-editable-deck
+          name: synthetic-presentation-preview
           path: |
             outputs/research-demo.pptx
             outputs/research-demo.review.json
             outputs/research-demo.evidence-manifest.json
             outputs/research-demo.qa.json
             outputs/research-demo.qa.md
-            outputs/synthetic-csv-demo.pptx
-            outputs/synthetic-csv-demo.evidence-manifest.json
-            outputs/synthetic-csv-demo.qa.json
-            outputs/synthetic-csv-demo.qa.md
-            outputs/synthetic-line-demo.pptx
-            outputs/synthetic-line-demo.review.json
-            outputs/synthetic-line-demo.evidence-manifest.json
-            outputs/synthetic-line-demo.qa.json
-            outputs/synthetic-line-demo.qa.md
-            outputs/synthetic-multiseries-demo.pptx
-            outputs/synthetic-multiseries-demo.evidence-manifest.json
-            outputs/synthetic-multiseries-demo.qa.json
-            outputs/synthetic-multiseries-demo.qa.md
-            outputs/synthetic-scatter-demo.pptx
-            outputs/synthetic-scatter-demo.evidence-manifest.json
-            outputs/synthetic-scatter-demo.qa.json
-            outputs/synthetic-scatter-demo.qa.md
-            outputs/synthetic-cdf-demo.pptx
-            outputs/synthetic-cdf-demo.evidence-manifest.json
-            outputs/synthetic-cdf-demo.qa.json
-            outputs/synthetic-cdf-demo.qa.md
-            outputs/synthetic-repeated-demo.pptx
-            outputs/synthetic-repeated-demo.evidence-manifest.json
-            outputs/synthetic-repeated-demo.qa.json
-            outputs/synthetic-repeated-demo.qa.md
-            outputs/m2-dual/research-demo-talk.pptx
-            outputs/m2-dual/research-demo-talk.qa.json
-            outputs/m2-dual/research-demo-talk.qa.md
-            outputs/m2-dual/research-demo-talk.evidence-manifest.json
-            outputs/m2-dual/research-demo-reading.pptx
-            outputs/m2-dual/research-demo-reading.qa.json
-            outputs/m2-dual/research-demo-reading.qa.md
-            outputs/m2-dual/research-demo-reading.evidence-manifest.json
-            outputs/m2-dual/research-demo-shared-evidence.json
-            outputs/m2-dual/research-demo-shared-evidence.md
-            outputs/research-demo-critique.json
-            outputs/research-demo-critique.md
-            outputs/m4/update-benchmark.benchmark.json
-            outputs/m4/update-benchmark.benchmark.md
-            outputs/m4/update-benchmark-first.pptx
-            outputs/m4/update-benchmark-first.qa.json
-            outputs/m4/update-benchmark-first.qa.md
-            outputs/m4/update-benchmark-first.evidence-manifest.json
-            outputs/m4/update-benchmark-updated.pptx
-            outputs/m4/update-benchmark-updated.qa.json
-            outputs/m4/update-benchmark-updated.qa.md
-            outputs/m4/update-benchmark-updated.evidence-manifest.json
+            outputs/research-demo.pdf
+            outputs/research-demo-page-*.png
+          retention-days: 14
+          if-no-files-found: error
+  windows:
+    name: Windows unit tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: '22', cache: npm}
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+  docker:
+    name: CLI container build and smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Build local image
+        run: docker build --tag aiautoslides-ci:smoke .
+      - name: Validate and build through mounted workspace
+        run: |
+          mkdir -p "$RUNNER_TEMP/aiautoslides-output"
+          docker run --rm --user "$(id -u):$(id -g)" -v "$GITHUB_WORKSPACE:/work:ro" aiautoslides-ci:smoke validate --input /work/examples/research-demo.json --evidence /work/sources/evidence.json
+          docker run --rm --user "$(id -u):$(id -g)" -v "$GITHUB_WORKSPACE:/work:ro" -v "$RUNNER_TEMP/aiautoslides-output:/out" aiautoslides-ci:smoke build --input /work/examples/research-demo.json --evidence /work/sources/evidence.json --out /out/container-demo.pptx
+          test -s "$RUNNER_TEMP/aiautoslides-output/container-demo.pptx"
+          test "$(docker image inspect aiautoslides-ci:smoke --format '{{.Config.User}}')" = node
+          test -z "$(docker image inspect aiautoslides-ci:smoke --format '{{json .Config.ExposedPorts}}' | grep -v '^null$' || true)"
+      - name: Check build context excludes local outputs and research sources
+        run: node scripts/check-ci-safety.mjs --docker-context
+  security:
+    name: Security and dependency review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48
+        if: github.event_name == 'pull_request'
+        with: {fail-on-severity: high}
+      - uses: github/codeql-action/init@9418214df1f2c4b8128c770156c409013b07d6b9
+        with: {languages: javascript-typescript}
+      - uses: github/codeql-action/analyze@9418214df1f2c4b8128c770156c409013b07d6b9
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
+        env: {GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'}
+  release-label:
+    name: Validate release label
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - name: Require exactly one SemVer intent label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          labels=$(gh api "repos/$REPOSITORY/issues/$PR_NUMBER/labels" --jq '[.[].name | select(startswith("release:"))] | join("\n")')
+          count=$(printf '%s\n' "$labels" | sed '/^$/d' | wc -l)
+          test "$count" -eq 1 || { echo 'PR to main must have exactly one release:patch/minor/major label'; exit 1; }
+          printf '%s\n' "$labels" | grep -Eq '^release:(patch|minor|major)$' || { echo 'Invalid release label'; exit 1; }
+  ci-gate:
+    name: ci-gate
+    if: always()
+    needs: [linux, windows, docker, security, release-label]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all applicable checks to pass
+        env: {RESULTS: '${{ toJSON(needs) }}'}
+        run: |
+          node -e 'const x=JSON.parse(process.env.RESULTS);for(const [k,v] of Object.entries(x)){if(v.result!=="success"&&v.result!=="skipped"){console.error(`${k}: ${v.result}`);process.exitCode=1}}'
