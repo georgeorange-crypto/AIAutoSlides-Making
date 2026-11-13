@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "directed": true,
+  "layout": "dot",
+  "rankdir": "LR",
+  "title": "Synthetic request-processing architecture",
+  "nodes": [
+    {"id": "Gateway", "label": "API gateway", "shape": "hexagon", "fill": "#dbeafe"},
+    {"id": "Scheduler", "label": "Request scheduler", "shape": "box", "fill": "#e2e8f0"},
+    {"id": "Worker", "label": "Worker pool", "shape": "component", "fill": "#dcfce7"}
+  ],
+  "edges": [
+    {"from": "Gateway", "to": "Scheduler", "label": "request", "style": "solid"},
+    {"from": "Scheduler", "to": "Worker", "label": "dispatch", "style": "dashed", "color": "#2563eb"}
+  ],
+  "source_ids": ["E_SYN_01"]
+}

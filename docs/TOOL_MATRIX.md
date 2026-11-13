@@ -34,6 +34,8 @@ Marp setup: `npm run deps:marp`; export the checked-in fixture with `npm run ren
 
 Matplotlib setup: `npm run deps:matplotlib`; export the synthetic fixture with `npm run render:matplotlib`. The worker uses the isolated Python environment under `workers/matplotlib/.venv/`.
 
+Graphviz setup: Windows can run `npm run deps:graphviz` to download the official 16.1.1 x64 ZIP, verify its upstream SHA-256, and unpack it under the ignored `workers/graphviz/.tools/` directory. Render the synthetic fixture with `npm run render:graphviz`; output includes `.dot`, `.svg`, `.png`, and a provenance manifest. Inputs use a bounded JSON graph contract rather than arbitrary DOT so local file/image references cannot be smuggled in. SVG/PNG are not native PowerPoint shapes. Linux/macOS require Graphviz installed by the system package manager and `AI4SLIDES_GRAPHVIZ_DOT` set to its `dot` executable.
+
 PyMuPDF setup: `npm run deps:pymupdf`; run the checked-in extraction fixture with `npm run import:pymupdf`. The worker uses `workers/pymupdf/.venv/`, emits page text/locators, bounded embedded-image files and vector drawing bounds, and does not run OCR. Its license state remains `needs-review`; resolve AGPL/commercial terms before redistribution. The fixture is synthetic and its extracted evidence remains unverified. Custom inputs can be passed as `npm run import:pymupdf -- --input <paper.pdf> --out <new-output-directory> --evidence-id E_LOCAL_PAPER --preview-pages 0,1`.
 
 ## Phase-0 candidate evaluation snapshot (2026-11-12)

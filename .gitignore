@@ -14,3 +14,4 @@ __pycache__/
 workers/markitdown/.venv/
 workers/matplotlib/.venv/
 workers/pymupdf/.venv/
+workers/graphviz/.tools/
