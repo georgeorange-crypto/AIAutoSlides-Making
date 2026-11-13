@@ -273,6 +273,16 @@ npm run research:ingest:europepmc -- --doi 10.1000/example --allow-network --all
 
 See `docs/M16_DOI_FULLTEXT_EUROPEPMC_REPORT.md` for verified scope and limits.
 
+## Selected Wikimedia Commons batch import
+
+Search and download stay separate. After reviewing candidates in the Commons result manifest, prepare a selection file with `items:[{source_id,asset_id}]` and run the explicitly opted-in batch command below. It downloads only those chosen results, at most five images and 50 MiB total, into a new directory with an `assets.json` manifest. Each asset keeps its source page, declared license/artist metadata, download URL and SHA-256; duplicate bytes fail the batch. The files stay local. Rights and actual attribution requirements still need human review.
+
+```powershell
+node src/asset-research.mjs download-batch --results outputs/research/commons.json --selection outputs/research/commons-selection.json --out-dir outputs/research/commons-selected --allow-download
+```
+
+This is a bounded selected batch, not general website scraping or unbounded media acquisition. See `docs/M17_COMMONS_BATCH_IMPORT_REPORT.md`.
+
 ## Research and design rules
 
 - Titles state the slide's point; evidence stays attached to each factual slide.

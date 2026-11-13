@@ -11,7 +11,7 @@ Status: **implemented and locally exercised** for the bounded workflows describe
 | Local MarkItDown extraction | `src/research-ingest.mjs extract --engine markitdown` | Existing isolated adapter; local files only | Source/text SHA-256, engine/version, paragraph locator (no page coordinates), short excerpt candidates |
 | One-page Crawl4AI | `src/research-ingest.mjs crawl` | Requires `--allow-network --site-authorized`; HTTPS, public DNS by default, same-host requests, robots check, no link traversal or media | Requested/final URL, retrieval time, robots result, extracted Markdown hash, short unverified excerpts |
 | One selected arXiv PDF | `src/research-ingest.mjs download-arxiv` | Search result ID plus `--allow-download`; one PDF, 50 MiB cap, HTTPS host allowlist and PDF signature check | PDF SHA-256, download/landing URLs, page locators and unverified excerpts |
-| Wikimedia Commons image | `src/asset-research.mjs` | Search requires `--allow-network`; separately select one result and pass `--allow-download` | Source page, image URL/hash, author, license/terms metadata and `needs_human_review` rights state |
+| Wikimedia Commons image | `src/asset-research.mjs` | Search requires `--allow-network`; separately select one result or a user-authored batch of up to five and pass `--allow-download` | Source page, image URL/hash, author, license/terms metadata and `needs_human_review` rights state |
 
 All output writers refuse to overwrite an existing output. Extracted source text and webpages are untrusted data. Generated excerpts are candidates only; `verified` remains false until a human checks them against the source. A license string in an API response is metadata to review, not approval to use an image.
 
@@ -60,7 +60,7 @@ Final checks on the latest remote revision: `npm run test` passed **157/157**; `
 ## Deliberate limits
 
 - Crossref, OpenAlex and arXiv provide metadata search; the DOI importer now supports a separate bounded Europe PMC open-access JATS route for exact DOI records with a PMC ID. It does not resolve arbitrary publisher full text, and arXiv remains the only PDF download path.
-- Crawl4AI does not follow links, bypass access controls, or fetch page media. Bulk media retrieval is not implemented.
+- Crawl4AI does not follow links, bypass access controls, or fetch page media. Commons downloads are limited to user-selected batches of five images/50 MiB; broad crawling and unbounded media retrieval are not implemented.
 - Wikimedia Commons is the only integrated asset source. The license/creator/attribution metadata is retained, but every downloaded asset remains blocked for slide reuse until a human checks the file page and intended use.
 - MinerU is not integrated because the blueprint requires a separate review of its additional license conditions and model terms.
 - Parser accuracy, scientific claims, excerpt correctness, media rights and website terms require human review. No measured accuracy or benchmark claim is made.
