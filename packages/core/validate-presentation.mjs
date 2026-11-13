@@ -105,7 +105,7 @@ export function validatePresentationIR(ir){
           for(const [index,group] of groups.entries())if(!text(group?.label)||!inside(group))errors.push(`${sid}/${eid}: diagram group ${index} requires a label and in-bounds geometry`);
           const nodeIds=new Set();
           for(const [index,node] of nodes.entries()){
-            if(!text(node?.id)||nodeIds.has(node.id)||!text(node?.label)||node.label.length>65||!inside(node))errors.push(`${sid}/${eid}: diagram node ${index} requires a unique ID, bounded label, and in-bounds geometry`);
+            if(!text(node?.id)||nodeIds.has(node.id)||!text(node?.label)||node.label.length>65||node.shape!==undefined&&!['rect','roundRect','diamond'].includes(node.shape)||!inside(node))errors.push(`${sid}/${eid}: diagram node ${index} requires a unique ID, bounded label, supported shape, and in-bounds geometry`);
             if(text(node?.id))nodeIds.add(node.id);
           }
           for(const [index,edge] of edges.entries())if(!nodeIds.has(edge?.from)||!nodeIds.has(edge?.to)||edge.from===edge.to)errors.push(`${sid}/${eid}: diagram edge ${index} must connect two distinct known nodes`);

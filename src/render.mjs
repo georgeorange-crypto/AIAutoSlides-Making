@@ -4,7 +4,7 @@ import pptxgen from 'pptxgenjs';
 import {codeSegments} from './code-snippet.mjs';
 
 const W = 13.333, H = 7.5;
-const Shape = { roundRect: 'roundRect', line: 'line', ellipse: 'ellipse', rect: 'rect' };
+const Shape = { roundRect: 'roundRect', line: 'line', ellipse: 'ellipse', rect: 'rect', diamond: 'diamond' };
 
 function txt(slide, text, opts) {
   slide.addText(String(text), {margin:0, breakLine:false, valign:'mid', ...opts});
@@ -127,12 +127,14 @@ function architecture(s,d,t) {
   for(const edge of g.edges){
     const a=byId.get(edge.from),b=byId.get(edge.to),x1=a.x+a.w/2,y1=a.y+a.h/2,x2=b.x+b.w/2,y2=b.y+b.h/2;
     const dx=x2-x1,dy=y2-y1;
-    s.addShape(Shape.line,{x:Math.min(x1,x2),y:Math.min(y1,y2),w:Math.abs(dx),h:Math.abs(dy),flipH:dx<0,flipV:dy<0,line:{color:t.accent,width:1.8,endArrowType:'triangle'}});
+      s.addShape(Shape.line,{x:Math.min(x1,x2),y:Math.min(y1,y2),w:Math.max(Math.abs(dx),0.001),h:Math.max(Math.abs(dy),0.001),flipH:dx<0,flipV:dy<0,line:{color:t.accent,width:1.8,endArrowType:'triangle'}});
     if(edge.label)txt(s,edge.label,{x:(x1+x2)/2-0.55,y:(y1+y2)/2-0.25,w:1.1,h:0.22,fontFace:t.bodyFontFace,fontSize:9.5,color:t.muted,align:'center',fit:'shrink'});
   }
   g.nodes.forEach((node,i)=>{
-    rect(s,{x:node.x,y:node.y,w:node.w,h:node.h,rectRadius:0.12,fill:{color:i%2?t.surface:t.background},line:{color:t.accent,width:1.4}});
-    txt(s,node.label,{x:node.x+0.12,y:node.y+0.14,w:node.w-0.24,h:node.h-0.28,fontFace:t.bodyFontFace,fontSize:Math.min(16,node.label.length>28?12:16),bold:true,color:t.title,align:'center',fit:'shrink'});
+    const shape=node.shape==='rect'?Shape.rect:node.shape==='diamond'?Shape.diamond:Shape.roundRect;
+      s.addShape(shape,{x:node.x,y:node.y,w:node.w,h:node.h,...(node.shape==='roundRect'?{rectRadius:0.12}:{}),fill:{color:i%2?t.surface:t.background},line:{color:t.accent,width:1.4}});
+    const inset=node.shape==='diamond'?0.42:0.14;
+    txt(s,node.label,{x:node.x+inset,y:node.y+0.13,w:node.w-inset*2,h:node.h-0.26,fontFace:t.bodyFontFace,fontSize:Math.min(16,node.label.length>28?10:16),bold:true,color:t.title,align:'center',fit:'shrink'});
   });
 }
 function editableTable(s,d,t) {
