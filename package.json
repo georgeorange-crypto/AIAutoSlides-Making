@@ -18,6 +18,7 @@
     "evaluate:critic": "node src/evaluate-critic.mjs",
     "theme-gallery": "node src/theme-gallery.mjs",
     "templates:download": "node scripts/download-templates.mjs",
+    "template:import": "node scripts/import-template.mjs",
     "select:design": "node src/select-design.mjs",
     "review:draft": "node src/review-draft.mjs",
     "preview": "node scripts/preview.mjs outputs/research-demo.pptx",

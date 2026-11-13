@@ -153,6 +153,8 @@ Theme tokens live in `themes/*.json`; current options are `academic-light`, `tec
 
 The source catalog, AI usage guide, and local-only download workflow live in [`docs/template/`](docs/template/README.md). Preview the exact direct links with `npm run templates:download -- --dry-run`; fetch catalog-listed PPTX/ZIP files into the Git-ignored local evaluation directory with `npm run templates:download -- --local-evaluation`. Downloads are not added to the repository, are not automatically extracted, and do not grant reuse or redistribution rights. See [`USER_GUIDE.md`](docs/template/USER_GUIDE.md) for the workflow and limits.
 
+To inspect a user-provided PPTX/POTX and write a metadata-only registry record, use `npm run template:import -- <local-file.pptx|local-file.potx> --out outputs/templates/<record>.json`. The inspector verifies the OOXML main content type against the extension, caps archive and expanded sizes, and records a SHA-256 plus slide/master/layout/font/media metadata. It does not copy, extract, render, or execute the original. Rights remain `unknown` and the entry is blocked from generation until reviewed; this command does not apply templates to a generated deck.
+
 Windows rendering uses Microsoft PowerPoint if installed. If COM export is unavailable, open the PPTX in PowerPoint and use **File → Export → Create PDF/XPS**. Linux rendering requires LibreOffice Impress. Both paths require Poppler for PNG rendering. The preview command reports the number and paths of every page image; it does not claim to detect layout defects automatically.
 
 ## Optional AI storyboard
