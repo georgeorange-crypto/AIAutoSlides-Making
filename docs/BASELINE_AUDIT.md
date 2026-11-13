@@ -1,5 +1,7 @@
 # Baseline audit — 2026-11-12
 
+> **Historical snapshot notice:** the dated baseline below describes an earlier repository/worktree state and is not the current branch or current test report. The latest continuation audit is appended at the end; see `docs/IMPLEMENTATION_STATUS.md` for the current roadmap status.
+
 ## Repository state
 
 - Worktree: `dev`, HEAD `671538b444430f42d45833c2e39eef773a43c3a3`.
@@ -34,3 +36,12 @@ The structural QA report records 7/7 text-editable slides, 111 native shapes, 1 
 ## Phase-0 scope decision
 
 This round is baseline and competitive POC only. Do not begin the Phase-1 architecture rewrite until the missing candidate runs, shared-input comparisons, and full test rerun are recorded. Current implementation is not a GUI product, MCP service, generic research agent, or multi-engine orchestrator.
+
+## Continuation audit — 2026-11-12
+
+- Isolated worktree `AIAutoSlides-Remaining-20261112`; topic branch `codex/complete-roadmap-20261112`; starting commit `f1a26151baa7510fb8ba78389093c0b310b420ef`, one commit ahead of `origin/dev` at the recorded start. The working tree was clean before this continuation's edits. Other existing worktrees were listed and preserved; no worktree was switched or removed.
+- Environment refresh: Docker Engine 29.9.3 and WSL Ubuntu 24.04 are available. Presenton cached image digest is recorded in `artifacts/open-source-bakeoff/presenton/runtime-evidence.json`; loopback service/API setup succeeded, but its configured Ollama model was absent and generation returned HTTP 404. No model was downloaded and no deck was produced.
+- PPTAgent refresh: checked-in `answer.pptx` SHA matches `final-report.json`; all nine `pages/png/page-01.png` through `page-09.png` were directly opened and visually inspected. The deck has 9/9 editable-text slides, 116 native shapes, 17 connectors, two native tables and no pictures or native charts. It demonstrates deterministic HTML conversion, not AI authoring or research correctness.
+- Current roadmap implementation added read-only MCP `research_topic` with mandatory explicit `allow_network: true` and MCP `export_deck` which returns a local download route plus artifact hash. API and MCP targeted tests passed 6/6; public research providers were not contacted.
+- A local npm dependency metadata inventory was generated: 39 packages, zero missing declared license fields and eight directories without recognized top-level license files. This is not legal review and does not cover the Python sidecars, model weights, fonts, media or distributable transitive notices.
+- Full current-revision verification completed after these edits: 167/167 tests passed; validation/build/QA/preview exited successfully with three unverified-evidence/chart-sample warnings; all seven current rendered pages were directly inspected. This does not close the missing matched candidate tasks or pending human scientific/design review. Remaining exact acceptance gates are listed in `docs/IMPLEMENTATION_STATUS.md` and `docs/POC_RESULTS.md`.

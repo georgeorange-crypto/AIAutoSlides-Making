@@ -40,6 +40,11 @@ test('metadata search rejects invalid inputs, bad payloads and XML entity declar
  const dtd=createMetadataSearch({fetchImpl:async()=>new Response('<!DOCTYPE feed [<!ENTITY x "x">]><feed/>',{status:200})});await assert.rejects(dtd.search({provider:'arxiv',query:'valid'}),/forbidden DTD/);
 });
 
+test('durable-job abort signal cancels an in-flight provider request distinctly from timeout',async()=>{
+ const controller=new AbortController(),search=createMetadataSearch({fetchImpl:async(_url,init)=>new Promise((_,reject)=>init.signal.addEventListener('abort',()=>reject(new DOMException('Aborted','AbortError'))))});
+ const pending=search.search({provider:'openalex',query:'cancellation fixture',signal:controller.signal});controller.abort();await assert.rejects(pending,error=>error.name==='AbortError'&&/cancelled/.test(error.message));
+});
+
 test('research search CLI stays offline by default and refuses to overwrite an output',()=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-search-cli-'));
  try{

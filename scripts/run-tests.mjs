@@ -9,6 +9,6 @@ const files=fs.readdirSync(testDir,{withFileTypes:true})
   .map(entry=>path.join(testDir,entry.name))
   .sort();
 if(!files.length)throw new Error(`No test files found in ${testDir}`);
-const result=spawnSync(process.execPath,['--test',...files],{stdio:'inherit'});
+const result=spawnSync(process.execPath,['--test','--test-concurrency=1',...files],{stdio:'inherit'});
 if(result.error)throw result.error;
 process.exitCode=result.status??1;

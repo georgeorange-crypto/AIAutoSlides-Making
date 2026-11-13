@@ -7,9 +7,10 @@ import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {unzipSync,zipSync,strToU8} from 'fflate';
+import {ImageKind} from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {buildSourceBundle,createTesseractRecognizer,extractDocxParagraphs,extractPdfPages,extractPdfPagesWithOcr,parsePdfPages} from '../src/document-extractors.mjs';
 import {extractDocxAssets} from '../src/document-assets.mjs';
-import {extractPdfAssets} from '../src/pdf-assets.mjs';
+import {extractPdfAssets,splitInlineImageGroup} from '../src/pdf-assets.mjs';
 import {loadAssetManifest} from '../src/assets.mjs';
 import {generatePresentation} from '../src/render.mjs';
 
@@ -32,6 +33,11 @@ function syntheticPdf(text='SYNTHETIC PDF source text'){
  const stream=text?`BT /F1 16 Tf 72 720 Td (${text}) Tj ET\n`:'';
  const objects=[null,'<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>','<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',`<< /Length ${Buffer.byteLength(stream,'binary')} >>\nstream\n${stream}endstream`];let pdf='%PDF-1.4\n';const offsets=[0];for(let id=1;id<=5;id++){offsets[id]=Buffer.byteLength(pdf,'binary');pdf+=`${id} 0 obj\n${objects[id]}\nendobj\n`;}
  const xrefOffset=Buffer.byteLength(pdf,'binary'),xref=['xref','0 6','0000000000 65535 f ',...offsets.slice(1).map(n=>`${String(n).padStart(10,'0')} 00000 n `)].join('\n');return Buffer.from(`${pdf}${xref}\ntrailer << /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`,'binary');
+}
+
+function inlineImagePdf(count=1){
+ const image=Buffer.concat([Buffer.from('BI /W 1 /H 1 /CS /RGB /BPC 8 ID '),Buffer.from([255,0,0]),Buffer.from(' \nEI')]),content=Buffer.concat(Array.from({length:count},(_,index)=>Buffer.concat([Buffer.from(`q\n1 0 0 1 ${index*2} 0 cm\n`),image,Buffer.from('\nQ\n')]))),objects=[Buffer.from('<< /Type /Catalog /Pages 2 0 R >>'),Buffer.from('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'),Buffer.from('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] /Contents 4 0 R >>'),Buffer.concat([Buffer.from(`<< /Length ${content.length} >>\nstream\n`),content,Buffer.from('\nendstream')])],parts=[Buffer.from('%PDF-1.4\n')],offsets=[0];let length=parts[0].length;
+ for(let index=0;index<objects.length;index++){offsets.push(length);const part=Buffer.concat([Buffer.from(`${index+1} 0 obj\n`),objects[index],Buffer.from('\nendobj\n')]);parts.push(part);length+=part.length;}const xrefOffset=length,xref=['xref','0 5','0000000000 65535 f ',...offsets.slice(1).map(value=>`${String(value).padStart(10,'0')} 00000 n `)].join('\n');parts.push(Buffer.from(`${xref}\ntrailer << /Size 5 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`));return Buffer.concat(parts);
 }
 
 function imageOnlyPdfFromPng(pngBytes,{repeat=false}={}){
@@ -65,6 +71,11 @@ test('DOCX parser rejects invalid packages and PDF page parser preserves blank-p
  assert.deepEqual(parsePdfPages('Page one\f\fPage three\f').map(x=>x.locator),['page 1','page 2','page 3']);
  assert.equal(parsePdfPages('Page one\f\fPage three\f')[1].content,'');
  assert.throws(()=>parsePdfPages('\f\n\f'),/image-only PDFs require OCR/);
+});
+
+test('DOCX text extraction includes only section-referenced header and footer parts with explicit locators',()=>{
+ const document='<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body><w:p><w:r><w:t>Body statement</w:t></w:r></w:p><w:sectPr><w:headerReference w:type="default" r:id="rIdHeader"/><w:footerReference w:type="default" r:id="rIdFooter"/></w:sectPr></w:body></w:document>',relationships='<Relationships><Relationship Id="rIdHeader" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="rIdFooter" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/><Relationship Id="rIdUnused" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header2.xml"/><Relationship Id="rIdExternal" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="https://example.test/header.xml" TargetMode="External"/></Relationships>',header='<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:r><w:t>Header statement</w:t></w:r></w:p></w:hdr>',footer='<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:r><w:t>Footer note</w:t></w:r></w:p></w:ftr>',orphan='<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:r><w:t>Unreferenced header</w:t></w:r></w:p></w:hdr>',bytes=zipSync({'[Content_Types].xml':strToU8('<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>'),'word/document.xml':strToU8(document),'word/_rels/document.xml.rels':strToU8(relationships),'word/header1.xml':strToU8(header),'word/header2.xml':strToU8(orphan),'word/footer1.xml':strToU8(footer)}),blocks=extractDocxParagraphs(bytes),bundle=buildSourceBundle({bytes,filename:'sections.docx',format:'docx',blocks,id:'E_DOCX_SECTIONS'});
+ assert.deepEqual(blocks.map(block=>block.locator),['paragraph 1','header header1 paragraph 1','footer footer1 paragraph 1']);assert.deepEqual(blocks.map(block=>block.content),['Body statement','Header statement','Footer note']);assert.match(bundle.manifest.warnings[1],/Referenced section headers and footers are included/);assert.equal(bundle.entry.verified,false);
 });
 
 test('optional DOCX image extraction writes deduplicated local assets and a compatible provenance manifest',async()=>{
@@ -103,7 +114,27 @@ test('optional PDF image extraction decodes bounded XObjects and imports them in
 });
 
 test('PDF image extraction does not mistake page renders for embedded images',async()=>{
- await assert.rejects(()=>extractPdfAssets(syntheticPdf('Selectable text only')),/No supported PDF image XObjects/);
+ await assert.rejects(()=>extractPdfAssets(syntheticPdf('Selectable text only')),/No supported PDF images/);
+});
+
+test('PDF image extraction decodes inline images with page and operator provenance',async()=>{
+ const pdfBytes=inlineImagePdf(),result=await extractPdfAssets(pdfBytes,{filename:'inline-only.pdf'}),asset=result.assets[0];
+ assert.equal(result.assets.length,1);assert.equal(asset.mime_type,'image/png');assert.deepEqual(asset.bytes.subarray(0,8),Buffer.from([137,80,78,71,13,10,26,10]));assert.equal(asset.verified,false);
+ assert.deepEqual(asset.source_parts,[{page:1,operator_index:2,operator:'paintInlineImageXObject',inline_image:true,placement_index:0,source_image_sha256:crypto.createHash('sha256').update(Buffer.from([255,0,0,255])).digest('hex')}]);
+ assert.match(asset.source,/inline image from inline-only\.pdf/);
+});
+
+test('PDF image extraction deduplicates repeated inline images while preserving each placement',async()=>{
+ const result=await extractPdfAssets(inlineImagePdf(10),{filename:'inline-group.pdf'}),asset=result.assets[0];
+ assert.equal(result.assets.length,1);assert.equal(asset.source_parts.length,10);assert.ok(asset.source_parts.every(source=>source.operator==='paintInlineImageXObject'&&source.inline_image));
+ assert.deepEqual(asset.source_parts.map(source=>source.placement_index),Array(10).fill(0));
+});
+
+test('grouped PDF inline-image sprite is split into bounded placement pixels',()=>{
+ const data=Uint8Array.from({length:24},(_,index)=>index+1),image={width:3,height:2,kind:ImageKind.RGBA_32BPP,data},placements=[{x:1,y:0,w:2,h:2}];
+ const split=splitInlineImageGroup(image,placements);assert.equal(split.length,1);assert.equal(split[0].width,2);assert.equal(split[0].height,2);
+ assert.deepEqual([...split[0].data],[5,6,7,8,9,10,11,12,17,18,19,20,21,22,23,24]);
+ assert.throws(()=>splitInlineImageGroup(image,[{x:2,y:0,w:2,h:2}]),/Invalid grouped PDF inline-image placement/);
 });
 
 test('optional bundled Tesseract fallback renders PDF pages and keeps OCR output explicitly unverified',async()=>{

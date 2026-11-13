@@ -4,10 +4,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import {unzipSync,strFromU8} from 'fflate';
 import {fileURLToPath} from 'node:url';
 import {validatePresentationIR,assertValidPresentationIR,createProject,createUserProfile,createSource,createEvidence,createAsset,createClaim,createSlideIR,createDeckIR,createJobState,transitionJob} from '../packages/core/index.mjs';
 import {mapPresentationIRToLegacy,pptxgenjsIRAdapter} from '../packages/adapters/pptxgenjs-ir.mjs';
 import {pptxgenjsAdapter} from '../packages/adapters/pptxgenjs.mjs';
+import {parseMermaidFlowchart} from '../packages/core/mermaid-flowchart.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const fixture=JSON.parse(fs.readFileSync(path.join(root,'examples/phase1/pptxgenjs-ir.json'),'utf8'));
@@ -41,6 +43,39 @@ test('PptxGenJS IR mapping preserves provenance and reports native chart require
  assert.equal(result.evidence.entries[0].verified,false);
  assert.deepEqual(result.deck.slides[1].chart.values,[12,18,15]);
  assert.deepEqual(result.deck.slides[1].chart.categories,['A','B','C']);
+});
+
+test('bounded Mermaid flowcharts map to editable diagram shapes with source lineage',()=>{
+ const ir=structuredClone(fixture),slide=ir.slides[1];slide.type='statement';slide.elements=[slide.elements[0],{element_id:'S02-M01',kind:'mermaid',source_ids:['E_PHASE1_SYN'],source:'flowchart TD\nA[Evidence] --> B{Reviewed}\nB --> C[Claim]'}];
+ const result=mapPresentationIRToLegacy(ir),mapped=result.deck.slides[1];
+ assert.equal(mapped.type,'architecture');assert.equal(mapped.diagram.nodes.length,3);assert.deepEqual(mapped.diagram.nodes.map(node=>node.shape),['rect','diamond','rect']);
+ assert.ok(mapped.speaker_notes.includes('flowchart TD'));assert.deepEqual(mapped.evidence_ids,['E_PHASE1_SYN']);assert.deepEqual(result.warnings.filter(warning=>warning.includes('S02-M01')),[]);
+});
+
+test('canonical diagram validation rejects unsupported native node shapes',()=>{
+ const ir=structuredClone(fixture),slide=ir.slides[1],diagram=parseMermaidFlowchart('flowchart TD\nA --> B');slide.type='architecture';slide.elements=[{element_id:'S02-D01',kind:'diagram',source_ids:['E_PHASE1_SYN'],...diagram}];slide.elements[0].nodes[0].shape='star';
+ assert.throws(()=>assertValidPresentationIR(ir),/supported shape/);
+});
+
+test('unsupported Mermaid source remains editable text with a visible warning',()=>{
+ const ir=structuredClone(fixture),slide=ir.slides[1];slide.type='statement';slide.elements=[slide.elements[0],{element_id:'S02-M01',kind:'mermaid',source_ids:['E_PHASE1_SYN'],source:'sequenceDiagram\nA->>B: message'}];
+ const result=mapPresentationIRToLegacy(ir),mapped=result.deck.slides[1];
+ assert.equal(mapped.type,'statement');assert.ok(mapped.body.some(line=>line.includes('sequenceDiagram')));assert.ok(result.warnings.some(warning=>warning.includes('preserved as text')));
+});
+
+test('bounded Mermaid flowchart renders as native PPTX diagram shapes and passes structural QA',async()=>{
+ const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-mermaid-ir-'));
+ try{
+  const ir=structuredClone(fixture),slide=ir.slides[1];slide.type='statement';slide.elements=[slide.elements[0],{element_id:'S02-M01',kind:'mermaid',source_ids:['E_PHASE1_SYN'],source:'flowchart LR\nA[Source] -->|supports| B{Reviewed}\nB ==> C[Claim]'}];
+  const result=await pptxgenjsIRAdapter.render({presentationIR:ir,workspace,outputDir:workspace});
+  assert.equal(result.status,'completed');assert.deepEqual(result.qa.errors,[]);assert.equal(result.slideEditability[1].images,0);assert.ok(result.slideEditability[1].native_shapes>=5);
+  const deck=JSON.parse(fs.readFileSync(path.join(workspace,'presentation.storyboard.json'),'utf8'));
+  assert.equal(deck.slides[1].type,'architecture');assert.ok(deck.slides[1].speaker_notes.includes('flowchart LR'));
+  const lineage=JSON.parse(fs.readFileSync(path.join(workspace,'presentation.lineage.json'),'utf8'));
+  assert.deepEqual(lineage.slides[1].elements[1].source_ids,['E_PHASE1_SYN']);
+  const pptxPath=result.artifacts.find(item=>item.path.endsWith('presentation.pptx')).path,slideXml=strFromU8(unzipSync(fs.readFileSync(pptxPath))['ppt/slides/slide2.xml']);
+  assert.match(slideXml,/<a:prstGeom prst="diamond"><a:avLst><\/a:avLst><\/a:prstGeom>/);
+ }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
 test('separate evidence records and claim mappings resolve through their parent source',()=>{

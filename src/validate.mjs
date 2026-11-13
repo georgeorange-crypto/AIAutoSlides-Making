@@ -121,7 +121,7 @@ export function validateDeck(input, ledger) {
       if(!g||!Array.isArray(g.groups)||!g.groups.length||!Array.isArray(g.nodes)||g.nodes.length<2||g.nodes.length>12||!Array.isArray(g.edges)||!g.edges.length)errors.push(`${where}: architecture requires groups, 2–12 nodes, and edges`);
       else{
         for(const [j,group] of g.groups.entries())if(!isString(group.label)||!inside(group))errors.push(`${where}: diagram.groups[${j}] requires a label and in-bounds geometry`);
-        const ids=new Set();for(const [j,node] of g.nodes.entries()){if(!isString(node.id)||ids.has(node.id)||!boundedText(node.label,65)||!inside(node))errors.push(`${where}: diagram.nodes[${j}] requires unique id, label, and in-bounds geometry`);ids.add(node.id);}
+        const ids=new Set();for(const [j,node] of g.nodes.entries()){if(!isString(node.id)||ids.has(node.id)||!boundedText(node.label,65)||node.shape!==undefined&&!['rect','roundRect','diamond'].includes(node.shape)||!inside(node))errors.push(`${where}: diagram.nodes[${j}] requires unique id, label, supported shape, and in-bounds geometry`);ids.add(node.id);}
         for(const [j,edge] of g.edges.entries())if(!ids.has(edge.from)||!ids.has(edge.to)||edge.from===edge.to)errors.push(`${where}: diagram.edges[${j}] must connect two distinct known node IDs`);
       }
     }

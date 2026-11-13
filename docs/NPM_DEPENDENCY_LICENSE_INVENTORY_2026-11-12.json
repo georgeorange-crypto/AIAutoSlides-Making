@@ -1,0 +1,333 @@
+{
+  "schema_version": "aiautoslides.npm-license-inventory.v1",
+  "generated_at": "2026-11-13T01:42:48.197Z",
+  "scope": "Installed npm packages in root and workers/mermaid node_modules trees; package metadata only, not legal review.",
+  "package_lock_sha256": "a36a8a0274eaa86097a77f44cbf793a2cb221fbd542f296ee1bc0041c1456794",
+  "package_count": 39,
+  "license_missing": [],
+  "license_file_missing": [
+    {
+      "name": "@napi-rs/canvas-win32-x64-msvc",
+      "version": "0.1.100",
+      "license": "MIT",
+      "manifest_path": "node_modules/@napi-rs/canvas-win32-x64-msvc/package.json"
+    },
+    {
+      "name": "@tesseract.js-data/chi_sim",
+      "version": "1.0.0",
+      "license": "MIT",
+      "manifest_path": "node_modules/@tesseract.js-data/chi_sim/package.json"
+    },
+    {
+      "name": "@tesseract.js-data/eng",
+      "version": "1.0.0",
+      "license": "MIT",
+      "manifest_path": "node_modules/@tesseract.js-data/eng/package.json"
+    },
+    {
+      "name": "https",
+      "version": "1.0.0",
+      "license": "ISC",
+      "manifest_path": "node_modules/https/package.json"
+    },
+    {
+      "name": "is-url",
+      "version": "1.2.4",
+      "license": "MIT",
+      "manifest_path": "node_modules/is-url/package.json"
+    },
+    {
+      "name": "isarray",
+      "version": "1.0.0",
+      "license": "MIT",
+      "manifest_path": "node_modules/isarray/package.json"
+    },
+    {
+      "name": "jszip",
+      "version": "3.10.2",
+      "license": "(MIT OR GPL-3.0-or-later)",
+      "manifest_path": "node_modules/jszip/package.json"
+    },
+    {
+      "name": "tr46",
+      "version": "0.0.3",
+      "license": "MIT",
+      "manifest_path": "node_modules/tr46/package.json"
+    }
+  ],
+  "packages": [
+    {
+      "name": "@napi-rs/canvas",
+      "version": "0.1.100",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/@napi-rs/canvas/package.json"
+    },
+    {
+      "name": "@napi-rs/canvas-win32-x64-msvc",
+      "version": "0.1.100",
+      "license": "MIT",
+      "license_file": false,
+      "manifest_path": "node_modules/@napi-rs/canvas-win32-x64-msvc/package.json"
+    },
+    {
+      "name": "@tesseract.js-data/chi_sim",
+      "version": "1.0.0",
+      "license": "MIT",
+      "license_file": false,
+      "manifest_path": "node_modules/@tesseract.js-data/chi_sim/package.json"
+    },
+    {
+      "name": "@tesseract.js-data/eng",
+      "version": "1.0.0",
+      "license": "MIT",
+      "license_file": false,
+      "manifest_path": "node_modules/@tesseract.js-data/eng/package.json"
+    },
+    {
+      "name": "@types/node",
+      "version": "22.20.5",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/@types/node/package.json"
+    },
+    {
+      "name": "bmp-js",
+      "version": "0.1.0",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/bmp-js/package.json"
+    },
+    {
+      "name": "core-util-is",
+      "version": "1.0.3",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/core-util-is/package.json"
+    },
+    {
+      "name": "fflate",
+      "version": "0.8.3",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/fflate/package.json"
+    },
+    {
+      "name": "https",
+      "version": "1.0.0",
+      "license": "ISC",
+      "license_file": false,
+      "manifest_path": "node_modules/https/package.json"
+    },
+    {
+      "name": "idb-keyval",
+      "version": "6.3.0",
+      "license": "Apache-2.0",
+      "license_file": true,
+      "manifest_path": "node_modules/idb-keyval/package.json"
+    },
+    {
+      "name": "image-size",
+      "version": "1.2.1",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/image-size/package.json"
+    },
+    {
+      "name": "immediate",
+      "version": "3.0.6",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/immediate/package.json"
+    },
+    {
+      "name": "inherits",
+      "version": "2.0.4",
+      "license": "ISC",
+      "license_file": true,
+      "manifest_path": "node_modules/inherits/package.json"
+    },
+    {
+      "name": "is-url",
+      "version": "1.2.4",
+      "license": "MIT",
+      "license_file": false,
+      "manifest_path": "node_modules/is-url/package.json"
+    },
+    {
+      "name": "isarray",
+      "version": "1.0.0",
+      "license": "MIT",
+      "license_file": false,
+      "manifest_path": "node_modules/isarray/package.json"
+    },
+    {
+      "name": "jszip",
+      "version": "3.10.2",
+      "license": "(MIT OR GPL-3.0-or-later)",
+      "license_file": false,
+      "manifest_path": "node_modules/jszip/package.json"
+    },
+    {
+      "name": "lie",
+      "version": "3.3.0",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/lie/package.json"
+    },
+    {
+      "name": "node-fetch",
+      "version": "2.7.0",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/node-fetch/package.json"
+    },
+    {
+      "name": "node-readable-to-web-readable-stream",
+      "version": "0.4.2",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/node-readable-to-web-readable-stream/package.json"
+    },
+    {
+      "name": "opencollective-postinstall",
+      "version": "2.0.3",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/opencollective-postinstall/package.json"
+    },
+    {
+      "name": "pako",
+      "version": "1.0.11",
+      "license": "(MIT AND Zlib)",
+      "license_file": true,
+      "manifest_path": "node_modules/pako/package.json"
+    },
+    {
+      "name": "pdfjs-dist",
+      "version": "5.4.624",
+      "license": "Apache-2.0",
+      "license_file": true,
+      "manifest_path": "node_modules/pdfjs-dist/package.json"
+    },
+    {
+      "name": "pptxgenjs",
+      "version": "4.0.1",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/pptxgenjs/package.json"
+    },
+    {
+      "name": "process-nextick-args",
+      "version": "2.0.1",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/process-nextick-args/package.json"
+    },
+    {
+      "name": "queue",
+      "version": "6.0.2",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/queue/package.json"
+    },
+    {
+      "name": "readable-stream",
+      "version": "2.3.8",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/readable-stream/package.json"
+    },
+    {
+      "name": "regenerator-runtime",
+      "version": "0.13.11",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/regenerator-runtime/package.json"
+    },
+    {
+      "name": "safe-buffer",
+      "version": "5.1.2",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/safe-buffer/package.json"
+    },
+    {
+      "name": "setimmediate",
+      "version": "1.0.5",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/setimmediate/package.json"
+    },
+    {
+      "name": "string_decoder",
+      "version": "1.1.1",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/string_decoder/package.json"
+    },
+    {
+      "name": "tesseract.js",
+      "version": "7.0.0",
+      "license": "Apache-2.0",
+      "license_file": true,
+      "manifest_path": "node_modules/tesseract.js/package.json"
+    },
+    {
+      "name": "tesseract.js-core",
+      "version": "7.0.0",
+      "license": "Apache-2.0",
+      "license_file": true,
+      "manifest_path": "node_modules/tesseract.js-core/package.json"
+    },
+    {
+      "name": "tr46",
+      "version": "0.0.3",
+      "license": "MIT",
+      "license_file": false,
+      "manifest_path": "node_modules/tr46/package.json"
+    },
+    {
+      "name": "undici-types",
+      "version": "6.21.0",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/undici-types/package.json"
+    },
+    {
+      "name": "util-deprecate",
+      "version": "1.0.2",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/util-deprecate/package.json"
+    },
+    {
+      "name": "wasm-feature-detect",
+      "version": "1.10.1",
+      "license": "Apache-2.0",
+      "license_file": true,
+      "manifest_path": "node_modules/wasm-feature-detect/package.json"
+    },
+    {
+      "name": "webidl-conversions",
+      "version": "3.0.1",
+      "license": "BSD-2-Clause",
+      "license_file": true,
+      "manifest_path": "node_modules/webidl-conversions/package.json"
+    },
+    {
+      "name": "whatwg-url",
+      "version": "5.0.0",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/whatwg-url/package.json"
+    },
+    {
+      "name": "zlibjs",
+      "version": "0.3.1",
+      "license": "MIT",
+      "license_file": true,
+      "manifest_path": "node_modules/zlibjs/package.json"
+    }
+  ]
+}

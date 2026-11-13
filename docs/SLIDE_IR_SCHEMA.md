@@ -25,6 +25,8 @@ Machine-readable structural schema: [`../packages/contracts/presentation.schema.
 - Unsupported element kinds are errors for a selected adapter; they must not be silently omitted.
 - `image` elements require a declared local asset, descriptive `alt`, and positive `x/y/w/h` geometry within the 16:9 canvas. PptxGenJS verifies workspace containment, symlinks, size, MIME and SHA-256 before embedding. Restricted rights fail; pending/unknown rights remain warnings.
 - `process` elements require 2–6 titled steps. PptxGenJS maps supported process groups to editable objects; Slidev maps them to HTML layout elements and may rasterize them in PPTX export.
+- `mermaid` elements remain canonical source text. The PptxGenJS adapter converts a bounded acyclic flowchart subset (`flowchart`/`graph`, TD/TB/BT/LR/RL, plain node labels/shapes and directed labeled edges) into native editable PowerPoint shapes/connectors. Unsupported syntax, cycles, or layouts above 12 nodes, 24 edges, four layers or four nodes per layer fall back to editable source text with a visible warning. The full Mermaid language is not supported; Slidev may still rasterize Mermaid.
+- Structured diagram nodes may use `rect`, `roundRect`, or `diamond`; omitted shapes keep the renderer's rounded-rectangle default.
 - Backends may declare lower editability than requested only by returning a warning/failure that identifies the affected elements.
 
 ## Migration

@@ -12,6 +12,7 @@ import {validateDeck} from '../../src/validate.mjs';
 import {generatePresentation} from '../../src/render.mjs';
 import {createRunManifest} from '../contracts/migrate.mjs';
 import {patchPresentationSlide} from '../core/patch-slide.mjs';
+import {parseMermaidFlowchart} from '../core/mermaid-flowchart.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const require=createRequire(import.meta.url);
@@ -113,8 +114,15 @@ export function mapPresentationIRToLegacy(ir){
           mapped.diagram={groups:element.groups,nodes:element.nodes,edges:element.edges};
           break;
         case 'mermaid':
-          body.push(`Diagram source (editable text; diagram layout is not rendered):\n${element.source}`);
-          warnings.push(`${slide.slide_id}/${element.element_id}: Mermaid source is preserved as text; this adapter does not render it as native diagram objects`);
+          try{
+            if(mapped.diagram||mapped.chart||mapped.steps)throw new Error('a Mermaid flowchart cannot share a slide with another structured visual');
+            mapped.diagram=parseMermaidFlowchart(element.source);
+            mapped.type='architecture';
+            mapped.speaker_notes=[mapped.speaker_notes,`Mermaid source (native-shape subset):\n${element.source}`].filter(Boolean).join('\n\n');
+          }catch(error){
+            body.push(`Diagram source (editable text; native rendering unavailable):\n${element.source}`);
+            warnings.push(`${slide.slide_id}/${element.element_id}: Mermaid source was preserved as text because native conversion was unavailable (${error.message})`);
+          }
           break;
         default: throw new Error(`${slide.slide_id}/${element.element_id}: unsupported PptxGenJS IR element '${element.kind}'`);
       }
