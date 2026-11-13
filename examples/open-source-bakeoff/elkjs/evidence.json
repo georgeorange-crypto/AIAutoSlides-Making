@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "id": "E_ELK_SYNTHETIC",
+      "label": "Synthetic graph fixture definition",
+      "source": "AIAutoSlides repository fixture; hypothetical systems architecture",
+      "locator": "examples/open-source-bakeoff/elkjs/architecture.json; no real system or measurement",
+      "verified": false,
+      "note": "Synthetic layout-test input only. It is not scientific or operational evidence."
+    }
+  ]
+}

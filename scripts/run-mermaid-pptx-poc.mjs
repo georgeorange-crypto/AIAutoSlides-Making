@@ -1,0 +1,33 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+import {mermaidAdapter} from '../packages/adapters/mermaid.mjs';
+import {pptxgenjsIRAdapter} from '../packages/adapters/pptxgenjs-ir.mjs';
+
+const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const out=path.resolve(process.argv[2]||path.join(root,'outputs/open-source-bakeoff/mermaid-pptx-poc'));
+if(!path.relative(root,out)||path.relative(root,out).startsWith(`..${path.sep}`)||path.isAbsolute(path.relative(root,out)))throw new Error('Output must be a child of this repository.');
+try{await fs.access(out);throw new Error(`Refusing to overwrite existing output: ${out}`);}catch(error){if(error.code!=='ENOENT')throw error;}
+await fs.mkdir(out,{recursive:true});
+const source=path.join(root,'examples/phase1/mermaid/synthetic-architecture.mmd');
+const diagramDir=path.join(out,'diagram');
+const diagram=await mermaidAdapter.run({inputFile:source,outputDir:diagramDir,format:'svg',theme:'neutral'});
+const svgPath=diagram.artifacts.find(file=>file.endsWith('.svg'));
+const svgName=path.basename(svgPath),svgBytes=await fs.readFile(svgPath),assetPath=path.join(out,svgName);
+await fs.copyFile(svgPath,assetPath);
+const ir=JSON.parse(await fs.readFile(path.join(root,'examples/open-source-bakeoff/synthetic-presentation-ir.json'),'utf8'));
+ir.assets=[{asset_id:'A_MERMAID_SYN',uri:svgName,sha256:crypto.createHash('sha256').update(svgBytes).digest('hex'),media_type:'image/svg+xml',source_id:'E_SYN_01',license:'Generated test asset; inspect Mermaid project/dependency licensing before redistribution',rights_status:'pending'}];
+const slide=ir.slides.find(item=>item.slide_id==='S03');
+if(!slide)throw new Error('Synthetic IR fixture lacks S03.');
+slide.type='statement';
+slide.elements=slide.elements.map(element=>element.kind==='mermaid'?{element_id:'S03-MERMAID-IMAGE',kind:'image',asset_id:'A_MERMAID_SYN',alt:'Synthetic Mermaid flowchart, retained as an SVG picture object in PowerPoint.',x:0.9,y:2.1,w:8.5,h:2.2,source_ids:['E_SYN_01']}:element);
+const irPath=path.join(out,'presentation-ir.json');
+await fs.writeFile(irPath,JSON.stringify(ir,null,2)+'\n');
+const renderDir=path.join(out,'rendered');
+const result=await pptxgenjsIRAdapter.render({presentationIR:ir,workspace:out,outputDir:renderDir,inputPath:path.relative(root,irPath),inputHash:crypto.createHash('sha256').update(await fs.readFile(irPath)).digest('hex')});
+const targetSlide=result.slideEditability[2];
+if(result.status!=='completed'||result.qa.errors.length||targetSlide.images!==1||targetSlide.native_shapes<1)throw new Error('PptxGenJS IR output did not pass the expected PPTX structure QA.');
+const report={schema_version:'1.0.0',fixture:'synthetic/hypothetical; no empirical claims or private sources',tools:{mermaid:diagram.report.tool.version,pptxgenjs_ir:result.backendVersion},outputs:{pptx:result.artifacts.find(item=>item.format==='pptx'),mermaid_svg_sha256:diagram.report.output.sha256},checks:{pptx_ir_qa:result.qa.status,slide_count:result.slideCount,s03:{editable_text:targetSlide.text,native_shapes:targetSlide.native_shapes,native_charts:targetSlide.native_charts,native_tables:targetSlide.native_tables,picture_objects:targetSlide.images},mermaid_source_editable:true,mermaid_svg_vector_image:true,native_editable_mermaid_nodes:false,visual_review:'Mermaid PNG reviewed separately; full deck visual review requires slide preview/export.'},warnings:[...diagram.warnings,...result.warnings]};
+await fs.writeFile(path.join(out,'poc-report.json'),JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify(report,null,2));

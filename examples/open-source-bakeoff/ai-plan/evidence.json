@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "id": "E_SYN",
+      "label": "Synthetic request-pipeline fixture",
+      "source": "Test fixture written for the local API contract test",
+      "locator": "examples/open-source-bakeoff/ai-plan/brief.md; no real system or measurement",
+      "verified": false,
+      "note": "Synthetic test content only. This is not scientific or operational evidence."
+    }
+  ]
+}

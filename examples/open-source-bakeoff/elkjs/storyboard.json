@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "title": "Hypothetical inference service architecture",
+    "subtitle": "Synthetic ELK.js layout adapter proof of concept",
+    "audience": "Systems engineering review",
+    "theme": "academic-light",
+    "status": "SYNTHETIC / HYPOTHETICAL"
+  },
+  "slides": [
+    {
+      "slide_id": "S01",
+      "type": "architecture",
+      "kicker": "LAYOUT BACKEND POC",
+      "title": "A graph layout engine can place nodes while PPTX stays editable.",
+      "assertion_title": "ELK.js computes positions; AIAutoSlides renders native PowerPoint shapes.",
+      "evidence_ids": ["E_ELK_SYNTHETIC"],
+      "notes": "All system labels and connections in this diagram are hypothetical fixture content, not a description of a deployed service.",
+      "diagram": {}
+    }
+  ]
+}
