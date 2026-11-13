@@ -17,6 +17,22 @@ const projectRoot=path.dirname(path.dirname(path.dirname(fileURLToPath(import.me
 const hashFile=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const checkAbort=signal=>{if(signal?.aborted)throw Object.assign(new Error('Job cancellation requested.'),{name:'AbortError'});};
 
+function addSectionRoadmaps(presentationIR,qualityPlan){
+  if(!qualityPlan?.slides)return presentationIR;
+  const slides=presentationIR.slides.map(slide=>({...slide,design:slide.design?{...slide.design}:slide.design}));
+  const planned=qualityPlan.slides,transitions=planned.filter(item=>/^(section[_ -]?transition|section)$/i.test(item.narrative_role||'')&&item.section_name);
+  for(const transition of transitions){
+    const target=slides.find(slide=>slide.slide_id===transition.slide_id);
+    if(!target)continue;
+    const topics=planned.filter(item=>item.section_name===transition.section_name&&item.slide_id!==transition.slide_id&&!/^(agenda|contents|table[_ -]?of[_ -]?contents|目录|section[_ -]?transition|section|cover|opening|closing|conclusion|summary)$/i.test(item.narrative_role||''))
+      .map(item=>slides.find(slide=>slide.slide_id===item.slide_id)).filter(Boolean).slice(0,3)
+      .map(slide=>({slide_id:slide.slide_id,title:slide.assertion_title||slide.title}));
+    target.section_name=transition.section_name;
+    target.section_topics=topics;
+  }
+  return{...presentationIR,slides};
+}
+
 async function previewDeck(pptxPath,{signal,timeoutMs=180_000}={}){
   checkAbort(signal);
   const script=path.join(projectRoot,'scripts','preview.mjs');
@@ -35,6 +51,7 @@ export async function runPresentationWorkflow({jobId,project,presentationIR=proj
   const stage=async(name,status,detail={})=>{const event={job_id:jobId,stage:name,status,at:new Date().toISOString(),detail};events.push(event);await appendFile(logPath,`${JSON.stringify(event)}\n`);await onEvent(name,status,detail);};
   const execute=async(name,fn)=>{checkAbort(signal);await stage(name,'running');try{const value=await fn();await stage(name,'completed',value?.summary||{});return value;}catch(error){await stage(name,error.name==='AbortError'?'cancelled':'failed',{message:error.message});throw error;}};
   try{
+    const renderIR=addSectionRoadmaps(presentationIR,qualityPlan);
     const validation=await execute('import-and-validate',async()=>{assertValidPresentationIR(presentationIR);return{summary:{slides:presentationIR.slides.length,sources:presentationIR.source_ir.sources.length}};});
     const probe=await execute('research-and-evidence-inventory',async()=>{const unknownSources=presentationIR.source_ir.sources.filter(source=>source.verification_status!=='verified').map(source=>source.source_id),unknownEvidence=(presentationIR.source_ir.evidence||[]).filter(item=>item.verification_status!=='verified').map(item=>item.evidence_id),pendingClaims=(presentationIR.source_ir.claims||[]).filter(claim=>claim.review_status!=='verified').map(claim=>claim.claim_id);return{summary:{network:'disabled',sources:presentationIR.source_ir.sources.length,unverified_sources:unknownSources.length,unverified_evidence:unknownEvidence.length},report:{network:'disabled',performed:false,reason:'Phase 1 workflow inventories supplied evidence only; it does not search the web or verify claims.',unverified_source_ids:unknownSources,unverified_evidence_ids:unknownEvidence,unreviewed_claim_ids:pendingClaims}};});
     const content=await execute('content-plan',async()=>{const report=planPresentationIntelligence(presentationIR,{qualityPlan});return{summary:{slides:report.slides.length,audience_profile:report.audience_profile,total_allocated_seconds:report.total_allocated_seconds},report};});
@@ -58,7 +75,7 @@ export async function runPresentationWorkflow({jobId,project,presentationIR=proj
         checkAbort(signal);
         if(candidate!==route.adapter){if(!allowDegradedFallback)break;const probeResult=await candidate.probe();if(probeResult.status!=='available'){attempts.push({adapter:candidate.manifest.id,status:'blocked',reason:probeResult.reason||'probe failed'});continue;}const negotiation=await candidate.negotiate({formats:['pptx'],requirements:{}});if(!negotiation.formats.includes('pptx')){attempts.push({adapter:candidate.manifest.id,status:'unsupported',reasons:negotiation.reasons});continue;}attempts.push({adapter:candidate.manifest.id,status:'fallback-selected',degraded:true,capabilities:negotiation.capabilities});}
         try{
-          const result=await candidate.render({presentationIR,workspace:base,outputDir:runDir,inputHash:project?.ir_sha256||null,inputPath:`project:${project?.project_id||'local'}`});
+          const result=await candidate.render({presentationIR:renderIR,workspace:base,outputDir:runDir,inputHash:project?.ir_sha256||null,inputPath:`project:${project?.project_id||'local'}`});
           if(result.slideCount!==presentationIR.slides.length)throw new Error(`Rendered slide count ${result.slideCount} does not match input ${presentationIR.slides.length}.`);
           const degraded=route.degraded||candidate!==route.adapter;const warnings=degraded?['Output capability was degraded by adapter routing/fallback; review editability and chart limitations before delivery.']:[];result.warnings.push(...warnings);result.qa.warnings.push(...warnings);artifacts.push(...result.artifacts);
           return{summary:{slides:result.slideCount,qa_status:result.qa.status,chart_values_exact:result.qa.chartValuesExact,adapter:candidate.manifest.id},result,adapter:candidate,route:{...route,adapter:candidate,attempts,degraded}};
@@ -70,8 +87,8 @@ export async function runPresentationWorkflow({jobId,project,presentationIR=proj
     const critique=await execute('critic',async()=>{
       const qaArtifact=rendered.result.artifacts.find(item=>item.path.endsWith('.qa.json'));
       const renderedQa=qaArtifact?JSON.parse(await fs.promises.readFile(qaArtifact.path,'utf8')):null;
-      const imageReview=await critiqueRenderedPages({presentationIR,pages:previewArtifacts.artifacts,renderedQa});
-      const qualityGate=qualityPlan?auditDeckQuality({plan:qualityPlan,presentationIR,renderedQa,imageReview,contentPlan:content.report,renderWarnings:rendered.result.warnings||[]}):null;
+      const imageReview=await critiqueRenderedPages({presentationIR:renderIR,pages:previewArtifacts.artifacts,renderedQa});
+      const qualityGate=qualityPlan?auditDeckQuality({plan:qualityPlan,presentationIR:renderIR,renderedQa,imageReview,contentPlan:content.report,renderWarnings:rendered.result.warnings||[]}):null;
       const required={science:[...new Set([...presentationIR.source_ir.sources.map(item=>item.source_id),...(presentationIR.source_ir.evidence||[]).map(item=>item.evidence_id),...(presentationIR.source_ir.claims||[]).map(item=>item.claim_id)])].sort(),visual:preview?presentationIR.slides.map(slide=>slide.slide_id).sort():[]};
       const report={schema_version:'1.0.0',job_id:jobId,deck_sha256:rendered.result.artifacts.find(item=>item.format==='pptx')?.sha256,structural:{status:rendered.result.qa.status,errors:rendered.result.qa.errors,warnings:rendered.result.qa.warnings,renderer_warnings:rendered.result.warnings||[],chart_values_exact:rendered.result.qa.chartValuesExact,per_slide:renderedQa?.slides?.map((slide,index)=>({slide_id:presentationIR.slides[index]?.slide_id,text_bounds_pass:slide.textBoundsPass??slide.textBounds?.every(bound=>bound.ok),text_overlaps:slide.textOverlaps?.length||0,small_text:slide.smallText?.length||0,editable_text_runs:slide.editableText,native_shapes:slide.nativeShapes,native_charts:slide.charts,native_tables:slide.tables}))||null},rendered_image_screen:imageReview,...(qualityGate?{quality_gate:qualityGate}:{}),content_intelligence:{method:content.report.method,audience_profile:content.report.audience_profile,slides:content.report.slides},scientific_accuracy:'not_assessed',visual_review:preview?'pending_human':'not_rendered',source_review:presentationIR.source_ir.sources.map(source=>({source_id:source.source_id,verification_status:source.verification_status})),review_requirements:required};
       const file=path.join(runDir,'workflow.critique.json');await writeFile(file,`${JSON.stringify(report,null,2)}\n`);const artifact={path:file,format:'json',sha256:hashFile(file),editable:'not-applicable'};artifacts.push(artifact);

@@ -2,7 +2,7 @@ import {createTesseractRecognizer} from '../../src/document-extractors.mjs';
 
 const norm=value=>String(value||'').normalize('NFKC').toLocaleLowerCase().replace(/[\s\p{P}\p{S}]+/gu,'');
 function expectedText(slide){
-  const values=[slide.title,slide.assertion_title,slide.role];
+  const values=[slide.title,slide.assertion_title,slide.role,...(slide.section_topics||[]).map(topic=>topic.title)];
   for(const element of slide.elements||[]){
     values.push(element.text,element.value,element.source,element.caption,element.x_axis_label,element.y_axis_label);
     for(const item of element.items||[])values.push(typeof item==='string'?item:item.title,item?.value,item?.detail);
@@ -21,7 +21,7 @@ function unionArea(rectangles){
 function visibleOccupancy(recognized,slide,qa){
   const width=recognized.image_width,height=recognized.image_height,slideWidth=qa?.slideWidthEmu,slideHeight=qa?.slideHeightEmu;
   if(!Number.isFinite(width)||!Number.isFinite(height)||!Number.isFinite(slideWidth)||!Number.isFinite(slideHeight)||!Array.isArray(qa?.textBounds)||!Array.isArray(recognized.words))return null;
-  const bodyText=(slide.elements||[]).flatMap(element=>[element.text,element.value,element.caption,element.description,element.takeaway,element.x_axis_label,element.y_axis_label,...(element.headers||[]),...(element.items||[]).flatMap(item=>typeof item==='string'?[item]:[item?.title,item?.value,item?.body,item?.detail]),...(element.rows||[]).flat(),...(element.nodes||[]).map(node=>node.label),...(element.steps||[]).flatMap(step=>typeof step==='string'?[step]:[step?.title,step?.detail])]).filter(value=>typeof value==='string'&&norm(value).length>=3).map(norm);
+  const bodyText=[...(slide.section_topics||[]).map(topic=>topic.title),(slide.elements||[]).flatMap(element=>[element.text,element.value,element.caption,element.description,element.takeaway,element.x_axis_label,element.y_axis_label,...(element.headers||[]),...(element.items||[]).flatMap(item=>typeof item==='string'?[item]:[item?.title,item?.value,item?.body,item?.detail]),...(element.rows||[]).flat(),...(element.nodes||[]).map(node=>node.label),...(element.steps||[]).flatMap(step=>typeof step==='string'?[step]:[step?.title,step?.detail])])].flat().filter(value=>typeof value==='string'&&norm(value).length>=3).map(norm);
   const bodyBounds=qa.textBounds.filter(bound=>bound.text&&Number.isFinite(bound.x)&&bodyText.some(value=>norm(bound.text).includes(value)||value.includes(norm(bound.text)))).map(bound=>({x0:bound.x/slideWidth*width,y0:bound.y/slideHeight*height,x1:(bound.x+bound.w)/slideWidth*width,y1:(bound.y+bound.h)/slideHeight*height}));
   if(!bodyBounds.length)return null;
   const top=height*.2,bottom=height*.9,left=width*.04,right=width*.96,region=(right-left)*(bottom-top),boxes=[],bodyCopy=bodyText.join(''),bodyBottom=Math.max(...bodyBounds.map(bound=>bound.y1)),bodyLeft=Math.min(...bodyBounds.map(bound=>bound.x0)),bodyRight=Math.max(...bodyBounds.map(bound=>bound.x1));let overflowWords=0;

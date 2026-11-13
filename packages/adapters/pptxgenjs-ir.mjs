@@ -73,7 +73,7 @@ export function mapPresentationIRToLegacy(ir){
   const evidence={entries:[...sourceEntries,...evidenceEntries]};
   const warnings=[...check.warnings];
   const slides=ir.slides.map(slide=>{
-    const body=[],sourceIds=new Set(slide.evidence_ids||[]),mapped={slide_id:slide.slide_id,type:slide.type,title:slide.title,assertion_title:slide.assertion_title||undefined,evidence_ids:[],speaker_notes:slide.speaker_notes||'',kicker:slide.role||slide.kicker||slide.type,layout:slide.design?.legacy_layout||undefined,figure_description:slide.design?.visual_description||undefined};
+    const body=[],sourceIds=new Set(slide.evidence_ids||[]),mapped={slide_id:slide.slide_id,type:slide.type,title:slide.title,assertion_title:slide.assertion_title||undefined,evidence_ids:[],speaker_notes:slide.speaker_notes||'',kicker:slide.section_name||slide.role||slide.kicker||slide.type,layout:slide.design?.legacy_layout||undefined,figure_description:slide.design?.visual_description||undefined,section_name:slide.section_name,section_topics:slide.section_topics};
     for(const element of slide.elements){
       for(const id of element.source_ids||[])sourceIds.add(id);
       switch(element.kind){

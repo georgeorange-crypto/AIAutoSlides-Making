@@ -84,6 +84,20 @@ function cover(s,d,t,meta) {
 }
 function statement(s,d,t) {
   addTop(s,d,t);
+  if(d.section_name){
+    txt(s,d.title,{x:0.80,y:1.10,w:11.70,h:0.94,fontFace:t.headFontFace,fontSize:39,bold:true,color:t.title,valign:'mid',fit:'shrink'});
+    const intro=(d.body||[])[0];
+    if(intro)txt(s,intro,{x:0.84,y:2.12,w:11.55,h:0.90,fontFace:t.bodyFontFace,fontSize:18,color:t.text,valign:'mid',fit:'shrink'});
+    const topics=(d.section_topics||[]).slice(0,3),left=0.82,gap=0.18,total=11.70,w=(total-gap*(topics.length-1))/Math.max(1,topics.length),top=3.43,height=2.62;
+    topics.forEach((topic,index)=>{
+      const x=left+index*(w+gap),name=`SectionRoadmap:${d.slide_id}:${topic.slide_id}`;
+      panel(s,x,top,w,height,t,index===1,name);
+      s.addShape(Shape.rect,{x,y:top,w:0.07,h:height,line:{color:t.accent,transparency:100},fill:{color:index===2?t.accent2:t.accent},objectName:name});
+      txt(s,`${String(index+1).padStart(2,'0')}  /  ${String(topics.length).padStart(2,'0')}`,{x:x+0.25,y:top+0.24,w:w-0.48,h:0.36,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.accent,charSpacing:0.5,objectName:name});
+      txt(s,topic.title,{x:x+0.25,y:top+0.83,w:w-0.48,h:1.40,fontFace:t.headFontFace,fontSize:22,bold:true,color:t.title,valign:'mid',fit:'shrink',objectName:name});
+    });
+    return;
+  }
   // The claim itself takes the stage; short supporting evidence below.
   const hasVisual=(d.visuals||[]).length>0||Array.isArray(d.steps)||!!d.diagram;
   const fs=hasVisual?37:d.title.length>90?35:d.title.length>65?42:49;

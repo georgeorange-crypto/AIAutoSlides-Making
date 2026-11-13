@@ -6,13 +6,14 @@ const longText='这一页解释研究方法如何影响测量结果，并结合�
 const contract={content_priorities:['Results'],priority_depth:[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2}],visual_slide_ratio_min:0.4,minimum_explanation_units:28,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,language:'Chinese',narrative_sections:['Results']};
 function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const agenda={slide_id:'AGENDA',type:'bullets',title:'Contents',elements:[{element_id:'A1',kind:'text',text:'Results'}]};
-  const divider={slide_id:'DIV-RESULTS',type:'statement',title:'Results',role:'section_transition',section_name:'Results',elements:[{element_id:'DIV-T01',kind:'text',text:'本节先解释关键机制及其作用，再说明这一机制如何连接到观察结果。'}]};
+  const divider={slide_id:'DIV-RESULTS',type:'statement',title:'Results',role:'section_transition',section_name:'Results',section_topics:[],elements:[{element_id:'DIV-T01',kind:'text',text:'本节先解释关键机制及其作用，再说明这一机制如何连接到观察结果。'}]};
   const contentSlides=Array.from({length:count},(_,index)=>({slide_id:`S${index+1}`,type:'statement',title:`Claim ${index+1}`,role,evidence_ids:['E1'],elements:[{element_id:`T${index+1}`,kind:'text',text:body===longText?`${body} 本页聚焦样例观察编号${index+1}及其具体作用。`:body},...(index%visualEvery===0?[{element_id:`D${index+1}`,kind:'diagram',groups:[{label:'System'}],nodes:[{id:'a',label:'Input'},{id:'b',label:'Output'}],edges:[{from:'a',to:'b',label:'maps'}]}]:[])]}));
   const slides=[agenda,divider,...contentSlides];
+  divider.section_topics=contentSlides.slice(0,3).map(slide=>({slide_id:slide.slide_id,title:slide.assertion_title||slide.title}));
   const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',priority_ids:index%2===0?['Results']:[],visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text',evidence_ids:['E1']}))];
   const contentPlan={slides:plannedSlides.map(slide=>({slide_id:slide.slide_id,time_budget_seconds:slide.importance==='core'?60:slide.importance==='supporting'?20:5}))};
   const plan={quality_contract:{...contract},slides:plannedSlides};
-  return{plan,presentationIR:{slides},contentPlan,renderedQa:{theme:{headFontFace:'Aptos Display',bodyFontFace:'Aptos'},slides:slides.map(slide=>({textBoundsPass:true,textOverlaps:[],smallText:[],fontFaces:['Aptos Display','Aptos'],unmeasuredFonts:[],visualGroupBounds:slide.elements.filter(element=>element.kind==='diagram').map(()=>({group_id:`${slide.slide_id}:diagram`,kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,ok:true}))}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:slide.elements.some(element=>element.kind==='diagram')?0.055:0.07,visible_text_line_count:4}))}};
+  return{plan,presentationIR:{slides},contentPlan,renderedQa:{theme:{headFontFace:'Aptos Display',bodyFontFace:'Aptos'},slides:slides.map(slide=>({textBoundsPass:true,textOverlaps:[],smallText:[],fontFaces:['Aptos Display','Aptos'],unmeasuredFonts:[],visualGroupBounds:slide.elements.filter(element=>element.kind==='diagram').map(()=>({group_id:`${slide.slide_id}:diagram`,kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,ok:true}))}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',matched_text:slide.section_topics?.map(topic=>topic.title)||[],visible_text_occupancy_ratio:slide.elements.some(element=>element.kind==='diagram')?0.055:0.07,visible_text_line_count:4}))}};
 }
 
 test('formal quality audit passes a deck meeting the declared visual, explanation, language, layout, and render constraints',()=>{
@@ -277,6 +278,15 @@ test('formal quality audit blocks an omitted agenda, missing section divider, or
   assert.ok(auditDeckQuality(agendaOmitsSection).blockers.some(item=>item.code==='QUALITY_AGENDA_CONTENT'));
   const emptyDivider=fixture();emptyDivider.presentationIR.slides[1].elements[0].text='结果';
   assert.ok(auditDeckQuality(emptyDivider).blockers.some(item=>item.code==='QUALITY_SECTION_TRANSITION_TOO_THIN'));
+});
+
+test('formal quality audit requires authored section roadmap topics and rendered visibility',()=>{
+ const missingRoute=fixture();missingRoute.presentationIR.slides[1].section_topics=[];
+ assert.ok(auditDeckQuality(missingRoute).blockers.some(item=>item.code==='QUALITY_SECTION_ROADMAP_MISSING'));
+ const missingPixels=fixture();missingPixels.imageReview.pages[1].matched_text=[];
+ assert.ok(auditDeckQuality(missingPixels).blockers.some(item=>item.code==='QUALITY_SECTION_ROADMAP_NOT_VISIBLE'));
+ const sparseRoute=fixture();sparseRoute.imageReview.pages[1].visible_text_occupancy_ratio=0.0449;
+ assert.ok(auditDeckQuality(sparseRoute).blockers.some(item=>item.code==='QUALITY_SECTION_ROADMAP_TOO_SPARSE'));
 });
 
 test('representative-slide pilot defers whole-deck agenda checks until the planned full deck is rendered',()=>{
