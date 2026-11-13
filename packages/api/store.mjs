@@ -90,6 +90,24 @@ export async function openProjectStore(workspaceDir){
     transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,irBlob.path,irBlob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);db.prepare('UPDATE sources SET original_name=?,blob_path=? WHERE project_id=? AND source_id=?').run(originalName,blob,projectId,sourceId);});
     return{...source,original_name:originalName,blob_sha256:hash,bytes:bytes.length};
   }
+  function addResearchCandidates(projectId,result){
+    const project=getProject(projectId);if(!project)throw new Error(`Unknown project '${projectId}'`);
+    if(!result||!['openalex','crossref','arxiv'].includes(result.provider)||!Array.isArray(result.results))throw new TypeError('Research result must contain a supported provider and results[].');
+    const sources=[...project.presentationIR.source_ir.sources],known=new Map(sources.map(source=>[source.source_id,source])),added=[];
+    for(const candidate of result.results){
+      if(typeof candidate?.source_id!=='string'||!/^SRC_[A-Z0-9_]+$/.test(candidate.source_id)||!/^[a-f\d]{64}$/i.test(candidate.record_sha256||''))throw new Error('Research candidate has an invalid source ID or record SHA-256.');
+      const normalized={source_id:candidate.source_id,provider:result.provider,record_sha256:candidate.record_sha256,provider_record_id:candidate.provider_record_id||null,title:candidate.title||null,authors:candidate.authors||[],publication_year:candidate.publication_year??null,doi:candidate.doi||null,landing_url:candidate.landing_url||null,evidence_status:candidate.evidence_status||'metadata_candidate_only'};
+      const normalizedBytes=Buffer.from(JSON.stringify(normalized)),normalizedHash=sha256(normalizedBytes),blob=path.join(root,'source-blobs',normalizedHash);
+      if(fs.existsSync(blob)){if(sha256(fs.readFileSync(blob))!==normalizedHash)throw new Error('Content-addressed research candidate blob failed hash verification.');}
+      else fs.writeFileSync(blob,normalizedBytes,{flag:'wx'});
+      const existing=known.get(candidate.source_id);if(existing){if(existing.sha256!==normalizedHash)throw new Error(`Research source '${candidate.source_id}' already exists with a different metadata hash.`);continue;}
+      const source={source_id:candidate.source_id,type:'scholarly_metadata_candidate',uri:candidate.landing_url||candidate.record_url||null,sha256:normalizedHash,locator:`${result.provider}:${candidate.provider_record_id||candidate.source_id}`,verification_status:'unverified',claims:[],assets:[],research_candidate:{...normalized,query:result.query,retrieved_at:result.retrieved_at,record_url:candidate.record_url||null}};
+      sources.push(source);known.set(source.source_id,source);added.push(source.source_id);
+    }
+    const updated={...project.presentationIR,source_ir:{...project.presentationIR.source_ir,sources}},blob=persistIR(updated),at=now();
+    transaction(()=>{db.prepare('UPDATE projects SET updated_at=?,ir_path=?,ir_sha256=? WHERE project_id=?').run(at,blob.path,blob.sha256,projectId);replaceSources(projectId,updated);replaceSlides(projectId,updated.slides);});
+    return{project_id:projectId,ir_sha256:blob.sha256,added_source_ids:added,added_count:added.length,total_sources:sources.length};
+  }
   function createJob(projectId,options={}){
     if(!db.prepare('SELECT 1 FROM projects WHERE project_id=?').get(projectId))throw new Error(`Unknown project '${projectId}'`);
     const jobId=id(),at=now(),events=[];
@@ -114,5 +132,5 @@ export async function openProjectStore(workspaceDir){
   function getArtifact(artifactId){const row=db.prepare('SELECT * FROM artifacts WHERE artifact_id=?').get(artifactId);return row?{artifact_id:row.artifact_id,project_id:row.project_id,job_id:row.job_id,path:row.path,format:row.format,sha256:row.sha256,created_at:row.created_at,metadata:parse(row.metadata_json)}:null;}
   function getSlides(projectId){return db.prepare('SELECT slide_id,ordinal,slide_json FROM slides WHERE project_id=? ORDER BY ordinal').all(projectId).map(row=>({slide_id:row.slide_id,ordinal:row.ordinal,slide:parse(row.slide_json)}));}
   function close(){db.close();}
-  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
+  return{root,db,createProject,getProject,listProjects,savePresentationIR,updateSlide,importSource,addResearchCandidates,createJob,getJob,listJobs,event,setJob,requestCancel,listQueuedJobs,recoverInterruptedJobs,addArtifacts,listArtifacts,getArtifact,getSlides,close};
 }

@@ -44,7 +44,6 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
       const remote=req.socket.remoteAddress?.replace(/^::ffff:/,'');if(!loopback.has(remote)&&!remote?.startsWith('127.'))return send(res,403,{error:'loopback_only'});
       const url=new URL(req.url,'http://127.0.0.1'),segments=url.pathname.split('/').filter(Boolean).map(decodeURIComponent),method=req.method;
       if(method==='GET'&&segments[0]==='health')return send(res,200,{ok:true,service:'aiautoslides-local-api',network:'loopback-only'});
-      if(method==='POST'&&segments[0]==='research'&&segments[1]==='topic'&&segments.length===2){const input=await bodyJson(req);if(input.allow_network!==true)throw Object.assign(new Error('External scholarly search is disabled unless allow_network is true.'),{status:403});const result=await research.search({provider:input.provider,query:input.query,limit:input.limit,timeoutMs:input.timeout_ms});return send(res,200,{result,notice:'Search metadata is an unverified candidate; no full text was downloaded and no claim was verified.'});}
       if(segments[0]==='projects'&&segments.length===1&&method==='GET')return send(res,200,{projects:store.listProjects()});
       if(segments[0]==='projects'&&segments.length===1&&method==='POST'){
         const input=await bodyJson(req);const project=store.createProject({title:input.title,presentationIR:input.presentation_ir});return send(res,201,{project});
@@ -52,6 +51,11 @@ export async function createLocalApi({workspaceDir,adapter=pptxgenjsIRAdapter,pr
       if(segments[0]==='projects'&&segments[1]){
         const projectId=segments[1],project=store.getProject(projectId);if(!project)throw notFound('Project',projectId);
         if(segments.length===2&&method==='GET')return send(res,200,{project});
+        if(segments[2]==='research'&&segments[3]==='topic'&&segments.length===4&&method==='POST'){
+          const input=await bodyJson(req);if(input.allow_network!==true)throw Object.assign(new Error('External scholarly search is disabled unless allow_network is true.'),{status:403});
+          const result=await research.search({provider:input.provider,query:input.query,limit:input.limit,timeoutMs:input.timeout_ms}),ingestion=store.addResearchCandidates(projectId,result);
+          return send(res,201,{...ingestion,result,notice:'Metadata candidates were attached to this project as unverified sources. No full text was downloaded, no evidence excerpt was created, and no claim was verified.'});
+        }
         if(segments.length===3&&segments[2]==='plan'&&method==='GET')return send(res,200,{project_id:projectId,plan:planPresentationIntelligence(project.presentationIR)});
         if(segments.length===3&&segments[2]==='critique'&&method==='GET'){const mapped=mapPresentationIRToLegacy(project.presentationIR);return send(res,200,{project_id:projectId,critique:critiqueDeck(mapped.deck,mapped.evidence),content_plan:planPresentationIntelligence(project.presentationIR)});}
         if(segments[2]==='slides'&&segments.length===3&&method==='GET')return send(res,200,{slides:store.getSlides(projectId)});
