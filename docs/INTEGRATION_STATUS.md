@@ -27,7 +27,7 @@ Date: 2026-11-12. Current checkout is `dev`; this section supersedes the histori
 
 ## Remaining P1 work
 
-The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, Graphviz, and D2 have verified local routes. Quarto and LibreOffice remain outstanding; the PyMuPDF distribution-license decision is also pending. Template/POTX import and `pptx-automizer` are outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. Graphviz and D2 are E2E-verified on Windows only; Linux/macOS packaging is not verified.
+The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, Graphviz, D2, and Quarto have verified local routes. LibreOffice remains outstanding; the PyMuPDF distribution-license decision is also pending. Template/POTX import and `pptx-automizer` are outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. Graphviz, D2, and Quarto are E2E-verified on Windows only; Linux/macOS installation is not verified.
 
 ## P1/P2 continuation — 2026-11-12
 
@@ -79,6 +79,14 @@ The P1 ecosystem tranche is not complete. Since this historical status was writt
 - `npm run deps:d2`, `npm run tools -- tools doctor d2`, `npm run tools -- tools test d2`, and `npm run render:d2` passed on Windows with D2 0.9.0. The three-node/two-edge synthetic example emitted D2 source, SVG, PNG and manifest; evidence remains unverified. SVG/PNG are images in PPTX rather than native shapes.
 - The synthetic render was opened and visually inspected; node labels and connectors are legible. No private input or network diagram render was used. The upstream binary is locally installed under ignored `workers/d2/.tools/` and not committed.
 - Full repository check passed with 182/182 tests (175 parallel-safe, then Graphviz 2/2, D2 2/2 and Marp 3/3 isolated renderer tests); validation/build/QA/benchmark stages completed. Existing unverified evidence and missing sample-size warnings remain expected.
+
+### P1: Quarto presentation backend
+
+- Added a Quarto 1.11.9 local adapter, pinned Windows ZIP installer, doctor/test commands, and a synthetic two-slide spec. The adapter generates QMD from bounded plain text (2–30 slides, bounded titles and bullets); arbitrary QMD, HTML, links, extensions, images, and code execution are not accepted. It emits self-contained reveal.js HTML, editable-text PPTX and source-manifest hashes; every PPTX slide is checked for text and all source IDs.
+- `npm run deps:quarto` installed the official Windows ZIP after its published SHA-256 matched `eda220a2f39c392f622049de013ddf7b4dfdf019ba877f251be14ce43e5734d1`; Quarto reported version 1.11.9. The install is local/ignored and the binary is not committed.
+- `npm run tools -- tools doctor quarto`, `npm run tools -- tools test quarto`, `npm run render:quarto`, and the focused tests passed. The PPTX contains 3 slides (Quarto title slide plus two authored slides), 10 editable text runs, and source ID `E_SYN_01` on all three. The 3.48 MB self-contained HTML and artifact hashes are recorded; synthetic evidence remains unverified.
+- PowerPoint 16.0 rendered the three slides to PNG via Poppler 26.07.0. Each page was opened and visually inspected; text, evidence ID, margins and wrapping are legible with no visible clipping. The standalone HTML is not a scientific approval and the PPTX theme/layout remains plain by design.
+- Full repository check passed: 185/185 tests (176 parallel-safe, then Graphviz 2/2, D2 2/2, Quarto 2/2 and Marp 3/3 serial renderer tests). The chain completed critic evaluation, benchmark update, markdown/CSV/repeated-run imports, validation, native PPTX builds and QA. Existing unverified-source and missing-chart-sample-size warnings remain expected.
 
 ---
 
