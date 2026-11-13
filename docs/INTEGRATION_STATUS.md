@@ -27,7 +27,7 @@ Date: 2026-11-12. Current checkout is `dev`; this section supersedes the histori
 
 ## Remaining P1 work
 
-The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, and Matplotlib have verified executable routes. Remaining named integrations include PyMuPDF, Graphviz/D2, Quarto, and LibreOffice; template/POTX import and `pptx-automizer` are also outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. See the dated continuations below for current evidence boundaries.
+The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, and Graphviz have verified local routes. D2, Quarto, and LibreOffice remain outstanding; the PyMuPDF distribution-license decision is also pending. Template/POTX import and `pptx-automizer` are outstanding. Existing-deck editing remains limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain unverified. Graphviz is E2E-verified on Windows only; Linux/macOS packaging is not verified.
 
 ## P1/P2 continuation — 2026-11-12
 
@@ -47,7 +47,7 @@ The P1 ecosystem tranche is not complete. Since this historical status was writt
 ### Checks and next acceptance work
 
 - Focused adapter suite: Marp real HTML+PPTX E2E and Presenton contract tests passed.
-- Continue P1 with isolated PyMuPDF / Graphviz or D2 / Quarto / LibreOffice routes and stronger existing-template editing. Continue P2 by bringing up an approved local Presenton + model runtime, then evaluate the three host-agent tools in disposable profiles without recursive author-agent calls.
+- At that checkpoint, the next planned P1 adapters were PyMuPDF / Graphviz or D2 / Quarto / LibreOffice; the PyMuPDF and Graphviz Windows routes are now implemented in the sections below. D2, Quarto, LibreOffice, and stronger existing-template editing remain. Continue P2 by bringing up an approved local Presenton + model runtime, then evaluate the three host-agent tools in disposable profiles without recursive author-agent calls.
 
 ### P1: Matplotlib scientific figure worker
 
@@ -64,6 +64,14 @@ The P1 ecosystem tranche is not complete. Since this historical status was writt
 - The official PyMuPDF documentation describes PyMuPDF/MuPDF as dual licensed under GNU AGPL and Artifex commercial terms. This repository has not selected a distribution license path; catalog status remains `needs-review`, so the optional worker is not a default dependency. The environment's local installation and fixture run do not resolve that license gate.
 - Verification: `npm run deps:pymupdf` installed PyMuPDF 2.1 in the isolated Python 3.12.7 environment; rerunning it against the generated exact-version dependency lock passed. `npm run tools -- tools doctor pymupdf`, `npm run tools -- tools test pymupdf`, and `npm run import:pymupdf` passed locally. The focused PyMuPDF suite passed 3/3, including path/task rejection and a synthetic raster-image + vector-coordinate extraction. The produced `page-0001.png` was opened and visually inspected; it displays the synthetic PDF text with no apparent render corruption. `npm run check` passed with 176/176 tests and the full legacy build/QA/benchmark chain. Existing unverified-source and sample-size warnings remain expected.
 - Synthetic run output is local and ignored under `outputs/pymupdf-synthetic/`; no research or private files were used. PyMuPDF is now `e2e-tested` for this local extraction capability only; the AGPL/commercial distribution gate remains unresolved.
+
+### P1: Graphviz diagram worker
+
+- Added a Graphviz 16.1.1 `dot` adapter, a Windows installer for the official x64 ZIP with an upstream SHA-256 check, a synthetic architecture fixture, provenance manifest, `doctor` / `test`, and a runnable render command. The adapter accepts only a bounded JSON graph contract (≤200 nodes, ≤500 edges) and generates the DOT source; labels, shapes, styles, and colors use allowlists, and external resources are not accepted.
+- The fixture renders actual SVG and PNG artifacts locally; IDs resolve against the existing synthetic evidence ledger and remain unverified. Generated DOT and artifact hashes are recorded. SVG/PNG remain image objects in PPTX, not native shapes.
+- Graphviz's official site lists the current stable Windows x64 ZIP and describes the project license as EPL-2.0. The binary ZIP SHA-256 is pinned to `72b1f3a9a1fd3f6e726478c1e044a95483a8fbddec13ba2fb395438d75d001b4`; it is installed under an ignored local worker directory and not committed. Linux/macOS currently use a configured system executable rather than a bundled installer.
+- Verification: `npm run deps:graphviz`, `npm run tools -- tools doctor graphviz`, `npm run render:graphviz`, and `npm run tools -- tools test graphviz` pass on the installed Windows Graphviz 16.1.1. The three-node/two-edge synthetic fixture produced `.dot` (610 bytes), `.svg` (2,925 bytes), `.png` (10,959 bytes), and a manifest with SHA-256 hashes. The PNG was opened and visually inspected; all three labeled nodes and both edges are visible. Evidence `E_SYN_01` remains unverified, and no network render or external data was used.
+- Final repository gate: `npm run check` passed with 179/179 tests (174 parallel-safe, 2 isolated Graphviz, 3 isolated Marp), then completed validation, native deck builds, QA and benchmark tasks. Existing example evidence remains unverified as expected.
 
 ---
 
