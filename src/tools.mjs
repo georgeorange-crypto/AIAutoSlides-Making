@@ -15,13 +15,14 @@ import {presentonAdapter} from '../packages/adapters/presenton.mjs';
 import {matplotlibAdapter} from '../packages/adapters/matplotlib.mjs';
 import {pymupdfAdapter} from '../packages/adapters/pymupdf.mjs';
 import {graphvizAdapter} from '../packages/adapters/graphviz.mjs';
+import {d2Adapter} from '../packages/adapters/d2.mjs';
 import {createGoogleOAuthServer,loadOAuthClient} from './google-oauth.mjs';
 import {createCanvaOAuthServer} from './canva-oauth.mjs';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const catalogDir=path.join(root,'registry','catalog');
 function loadCatalog(){return fs.readdirSync(catalogDir).filter(f=>f.endsWith('.yaml')).sort().map(f=>JSON.parse(fs.readFileSync(path.join(catalogDir,f),'utf8')));}
-const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter],[marpAdapter.manifest.id,marpAdapter],[presentonAdapter.manifest.id,presentonAdapter],[matplotlibAdapter.manifest.id,matplotlibAdapter],[pymupdfAdapter.manifest.id,pymupdfAdapter],[graphvizAdapter.manifest.id,graphvizAdapter]]);
+const adapters=new Map([[pptxgenjsAdapter.manifest.id,pptxgenjsAdapter],[pptxgenjsIRAdapter.manifest.id,pptxgenjsIRAdapter],[pdfjsAdapter.manifest.id,pdfjsAdapter],[ooxmlTextAdapter.manifest.id,ooxmlTextAdapter],[mermaidAdapter.manifest.id,mermaidAdapter],[slidevAdapter.manifest.id,slidevAdapter],[markitdownAdapter.manifest.id,markitdownAdapter],[marpAdapter.manifest.id,marpAdapter],[presentonAdapter.manifest.id,presentonAdapter],[matplotlibAdapter.manifest.id,matplotlibAdapter],[pymupdfAdapter.manifest.id,pymupdfAdapter],[graphvizAdapter.manifest.id,graphvizAdapter],[d2Adapter.manifest.id,d2Adapter]]);
 function executable(name){const r=spawnSync(name,['--version'],{encoding:'utf8',timeout:4000,windowsHide:true});return r.error?null:(r.stdout||r.stderr||'available').trim().split(/\r?\n/)[0];}
 function line(t){console.log(`${t.id.padEnd(23)} ${(t.status||'catalogued').padEnd(16)} ${t.name}`);}
 async function main(){
@@ -44,6 +45,7 @@ async function main(){
    'tesseract-js':['Integrated: bundled Tesseract.js 7 engine plus local eng and chi_sim traineddata performs offline OCR after Poppler rasterizes each scanned PDF page.','OCR confidence is not scientific verification; page images and extracted text still require human comparison.'],
    pymupdf:['Integrated isolated local parser with page locators, text, embedded raster images, vector drawing coordinates, and selected page previews.','PyMuPDF/MuPDF require an approved AGPL or commercial licensing path before distribution; OCR is not run and extracted image reuse rights remain unknown.'],
    graphviz:['Integrated Graphviz 16.1.1 CLI renderer from validated JSON graph specs to SVG/PNG with evidence IDs and artifact hashes.','Rendered diagrams are image objects in PPTX; keep the generated DOT source. The official binary package remains an optional, locally installed dependency.'],
+   d2:['Integrated D2 0.9.0 local CLI renderer for bounded D2 diagram source to SVG/PNG with evidence IDs and artifact hashes.','Rendered diagrams are image objects in PPTX; keep the D2 source. The official standalone binary remains an optional, locally installed dependency.'],
    docling:['Local Python pipeline can preserve richer layout/table structure; consider for complex papers.','Heavier model/runtime and not installed here; extracted claims still require evidence review.'],
    markitdown:['Optional local-only text and table to Markdown conversion with plugins disabled and a source hash.','MarkItDown is text-oriented and supplies no page locators; output remains unverified and must be checked against the original document.'],
    'fact-review':['Use the project review gate and deterministic critic for source links, flags, and human approval.','Automated checks do not verify scientific truth or replace human fact checking.'],

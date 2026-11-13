@@ -15,3 +15,4 @@ workers/markitdown/.venv/
 workers/matplotlib/.venv/
 workers/pymupdf/.venv/
 workers/graphviz/.tools/
+workers/d2/.tools/
