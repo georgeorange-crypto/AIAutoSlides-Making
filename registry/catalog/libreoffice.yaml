@@ -3,44 +3,43 @@
   "name": "LibreOffice",
   "kind": "review-render",
   "official_url": "https://www.libreoffice.org/",
-  "version": "not-pinned",
-  "interface": "CLI, COM host, or local code",
+  "version": "26.2.3.2 (verified Windows runtime)",
+  "interface": "isolated headless soffice CLI plus Poppler rasterization",
   "platforms": [
     "windows",
     "linux",
     "macos"
   ],
   "capabilities": [
-    "review-render"
+    "pptx-to-pdf",
+    "pdf-to-png-pages",
+    "preview-manifest-and-hashes"
   ],
   "inputs": [
-    "pptx",
-    "pdf",
-    "evidence-ir",
-    "asset-manifest"
+    "pptx"
   ],
   "outputs": [
     "pdf",
     "png-pages",
-    "qa-report"
+    "render-manifest"
   ],
   "dependencies": [
-    "renderer-dependent"
+    "LibreOffice Impress and Poppler pdftoppm"
   ],
   "needs_network": false,
   "needs_auth": false,
   "expected_cost": "unknown",
   "editable": "not-applicable",
   "license": {
-    "identifier": "unreviewed",
+    "identifier": "MPL-2.0",
     "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "note": "LibreOffice has multiple licensing terms across its source and bundled components; this repository does not redistribute the application and has not audited the complete runtime closure."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/libreoffice.mjs",
   "probe": {
     "command": "soffice"
   },
-  "limitations": "Structural checks do not replace page-by-page human visual inspection or factual verification.",
-  "status": "catalogued"
+  "limitations": "Windows 26.2.3.2 and Poppler 26.07.0 were tested locally. Rendering can differ from Microsoft PowerPoint and still requires human visual inspection. Other platforms are not E2E-verified.",
+  "status": "e2e-tested"
 }

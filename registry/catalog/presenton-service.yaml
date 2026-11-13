@@ -3,8 +3,8 @@
   "name": "Presenton self-hosted REST/MCP",
   "kind": "service-backend",
   "official_url": "https://docs.presenton.ai/",
-  "version": "not-pinned",
-  "interface": "REST/MCP/OAuth",
+  "version": "v1 REST API contract (self-hosted release not pinned)",
+  "interface": "REST API",
   "platforms": [
     "windows",
     "linux",
@@ -19,7 +19,7 @@
     "assets"
   ],
   "outputs": [
-    "hosted-deck",
+    "loopback-service-deck",
     "pptx",
     "pdf"
   ],
@@ -33,9 +33,9 @@
     "review_status": "needs-review",
     "note": "Verify the current upstream license and transitive dependencies before production use."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "adapter-ready",
+  "adapter": "packages/adapters/presenton.mjs",
   "probe": null,
-  "limitations": "Requires explicit account authorization and scoped permissions; no credentials are present or tested.",
-  "status": "catalogued"
+  "limitations": "Adapter permits loopback-only self-hosted HTTP, requires a per-run allowProviderUsage opt-in, and has mock contract coverage only. Service connection, provider cost/privacy, API release compatibility and generated-deck fidelity have not been verified.",
+  "status": "adapter-ready"
 }

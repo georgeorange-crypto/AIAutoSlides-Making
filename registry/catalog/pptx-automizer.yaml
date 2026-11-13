@@ -3,8 +3,8 @@
   "name": "pptx-automizer",
   "kind": "editor",
   "official_url": "https://github.com/singerla/pptx-automizer",
-  "version": "not-pinned",
-  "interface": "Node API or Office.js host",
+  "version": "0.9.4",
+  "interface": "isolated local Node worker",
   "platforms": [
     "windows",
     "linux",
@@ -22,20 +22,22 @@
     "change-report"
   ],
   "dependencies": [
-    "PowerPoint host for Office.js"
+    "Node.js 20+ and isolated worker install"
   ],
   "needs_network": false,
   "needs_auth": false,
   "expected_cost": "unknown",
   "editable": "native",
   "license": {
-    "identifier": "unreviewed",
-    "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "identifier": "MIT",
+    "review_status": "verified-from-package-metadata",
+    "note": "Upstream pptx-automizer 0.9.4 package declares MIT. Isolated image-size 2.1.0 override resolves npm audit advisory; re-audit before upgrades."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
-  "probe": null,
-  "limitations": "Cannot promise lossless arbitrary PPTX editing; preserve untouched pages and compare rendered output.",
-  "status": "catalogued"
+  "verification_status": "fixture-e2e-tested",
+  "adapter": "packages/adapters/pptx-automizer.mjs",
+  "probe": {
+    "command": "npm run deps:pptx-automizer"
+  },
+  "limitations": "Exact editable text-shape replacement only; copies all slides into output. Animations, video/audio, and some special relationships may not round-trip. Chart modifications and general template conversion are not enabled.",
+  "status": "adapter-ready"
 }

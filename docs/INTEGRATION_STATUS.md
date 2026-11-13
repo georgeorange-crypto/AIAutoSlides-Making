@@ -27,7 +27,88 @@ Date: 2026-11-12. Current checkout is `dev`; this section supersedes the histori
 
 ## Remaining P1 work
 
-The P1 ecosystem tranche is not complete: Docling, MarkItDown, PyMuPDF, Matplotlib, Mermaid, Graphviz/D2, Quarto, Marp and LibreOffice adapters/routes are not verified by these slices. Existing-deck editing is limited to exact text in one OOXML run; chart/image/master/note edits, arbitrary template preservation, vendor extension fidelity, and layout repair remain outstanding. Do not describe these as tested. Next continue isolated parser/figure/backend adapters and expand existing-PPTX editing only with object-specific fixtures and fidelity checks.
+The P1 ecosystem tranche is not complete. Since this historical status was written, local PDF/DOCX, Docling and MarkItDown extraction, Mermaid, Slidev, Marp, Matplotlib, PyMuPDF, Graphviz, D2, Quarto, and LibreOffice have verified local routes. The PyMuPDF distribution-license decision is pending. Local PPTX/POTX metadata registration and a scoped `pptx-automizer` text-replacement route are now implemented. General template application/preservation, chart/image/master/note edits, vendor extension fidelity, and layout repair remain unverified. Graphviz, D2, Quarto, and LibreOffice are E2E-verified on Windows only; Linux/macOS are not verified in this phase.
+
+## P1/P2 continuation — 2026-11-12
+
+### P1: Marp CLI adapter
+
+- Added isolated `workers/marp/` package, pinned to `@marp-team/marp-cli@4.5.1`, a local adapter, `doctor` / `test` registration, a runnable synthetic fixture, and `npm run render:marp`.
+- The adapter exports HTML/PDF/PPTX from local Markdown, rejects remote/data/file media references and active HTML, prevents output overwrite, hashes inputs/outputs, and can carry a provided source-lineage sidecar. It does not enable Marp's unsafe local-file mode.
+- Real Windows smoke and fixture export passed. The Marp PPTX had 2 slides, 0 editable text runs, and 3 media objects; the manifest correctly marks its default pages as rasterized. PowerPoint 16.0 + Poppler rendered the two pages, both visually inspected.
+- Marp's experimental `--pptx-editable` path is not enabled here because LibreOffice is absent; it has known output-fidelity tradeoffs and is not claimed as tested.
+
+### P2: Presenton self-hosted API contract
+
+- Added a Presenton v1 adapter path with offline doctor, mocked request-contract smoke test, loopback-only service URL, bearer-key handling without logging, bounded slide/output sizes, explicit `allowProviderUsage` per run, disabled web search, and same-origin PPTX download validation.
+- The adapter contract tests pass without contacting a service. This is **adapter-ready / contract-tested**, not service E2E: no Presenton service is running, Docker is unavailable on PATH, and local Ollama has no installed models in this environment. A generated deck, actual provider cost, and editability have not been verified.
+- slide-maker, PPT Master, and PPTAgent still have no executable end-to-end route in this phase. Their upstream Skill/CLI flows need supported host/runtime and model-provider readiness. No external or paid model call was made.
+
+### Checks and next acceptance work
+
+- Focused adapter suite: Marp real HTML+PPTX E2E and Presenton contract tests passed.
+- At that checkpoint, the next planned P1 adapters were PyMuPDF / Graphviz or D2 / Quarto / LibreOffice; the PyMuPDF and Graphviz Windows routes are now implemented in the sections below. D2, Quarto, LibreOffice, and stronger existing-template editing remain. Continue P2 by bringing up an approved local Presenton + model runtime, then evaluate the three host-agent tools in disposable profiles without recursive author-agent calls.
+
+### P1: Matplotlib scientific figure worker
+
+- Added a Python 3.12 virtual-environment installer and pinned Matplotlib 3.10.8 worker. The worker accepts bounded JSON for line/bar/scatter/CDF figures, requires source IDs, checks numeric shapes and CDF monotonicity, and emits deterministic SVG/PNG plus input/evidence/output hashes.
+- Registered `doctor` / `test` and a runnable synthetic example. `npm run render:matplotlib` produced an actual 1-slide PPTX with the SVG as a vector picture object; native title/status text, source IDs and pending verification are retained in notes and sidecar manifests.
+- Windows runtime: Python 3.12.7, Matplotlib 3.10.8. PowerPoint 16.0 + Poppler rendered the PPTX and its page was visually inspected. `src/qa.mjs` reported 1 slide, 1 text-editable slide, 0 native charts. No empirical data or external APIs were used.
+- This does not meet native chart-object editability. The Python transitive dependency and bundled-font license closure remains under review.
+
+### P1: PyMuPDF local PDF extraction worker
+
+- Added an isolated Python worker pinned to PyMuPDF 2.1, `doctor` / `test` registration, and a synthetic-paper fixture. The adapter checks input scope, task IDs, worker version, source hash, artifact paths and SHA-256 values; output includes page text/locators, selected PNG previews, raster image extraction with bounding boxes, vector drawing bounds, and source/evidence sidecars.
+- Resource bounds: PDF ≤100 MiB and ≤500 pages; text ≤20 million characters total / 1 million per page; previews ≤20 pages and 25 million pixels per page; embedded images ≤100, ≤25 million pixels each and ≤50 MiB total; vector records ≤2,000 per page. OCR is not run.
+- The fixture is synthetic. Extracted evidence remains `verified:false`; the run records source hash and OCR status. Embedded-image extraction does not grant reuse rights.
+- The official PyMuPDF documentation describes PyMuPDF/MuPDF as dual licensed under GNU AGPL and Artifex commercial terms. This repository has not selected a distribution license path; catalog status remains `needs-review`, so the optional worker is not a default dependency. The environment's local installation and fixture run do not resolve that license gate.
+- Verification: `npm run deps:pymupdf` installed PyMuPDF 2.1 in the isolated Python 3.12.7 environment; rerunning it against the generated exact-version dependency lock passed. `npm run tools -- tools doctor pymupdf`, `npm run tools -- tools test pymupdf`, and `npm run import:pymupdf` passed locally. The focused PyMuPDF suite passed 3/3, including path/task rejection and a synthetic raster-image + vector-coordinate extraction. The produced `page-0001.png` was opened and visually inspected; it displays the synthetic PDF text with no apparent render corruption. `npm run check` passed with 176/176 tests and the full legacy build/QA/benchmark chain. Existing unverified-source and sample-size warnings remain expected.
+- Synthetic run output is local and ignored under `outputs/pymupdf-synthetic/`; no research or private files were used. PyMuPDF is now `e2e-tested` for this local extraction capability only; the AGPL/commercial distribution gate remains unresolved.
+
+### P1: Graphviz diagram worker
+
+- Added a Graphviz 16.1.1 `dot` adapter, a Windows installer for the official x64 ZIP with an upstream SHA-256 check, a synthetic architecture fixture, provenance manifest, `doctor` / `test`, and a runnable render command. The adapter accepts only a bounded JSON graph contract (≤200 nodes, ≤500 edges) and generates the DOT source; labels, shapes, styles, and colors use allowlists, and external resources are not accepted.
+- The fixture renders actual SVG and PNG artifacts locally; IDs resolve against the existing synthetic evidence ledger and remain unverified. Generated DOT and artifact hashes are recorded. SVG/PNG remain image objects in PPTX, not native shapes.
+- Graphviz's official site lists the current stable Windows x64 ZIP and describes the project license as EPL-2.0. The binary ZIP SHA-256 is pinned to `72b1f3a9a1fd3f6e726478c1e044a95483a8fbddec13ba2fb395438d75d001b4`; it is installed under an ignored local worker directory and not committed. Linux/macOS currently use a configured system executable rather than a bundled installer.
+- Verification: `npm run deps:graphviz`, `npm run tools -- tools doctor graphviz`, `npm run render:graphviz`, and `npm run tools -- tools test graphviz` pass on the installed Windows Graphviz 16.1.1. The three-node/two-edge synthetic fixture produced `.dot` (610 bytes), `.svg` (2,925 bytes), `.png` (10,959 bytes), and a manifest with SHA-256 hashes. The PNG was opened and visually inspected; all three labeled nodes and both edges are visible. Evidence `E_SYN_01` remains unverified, and no network render or external data was used.
+- Final repository gate: `npm run check` passed with 179/179 tests (174 parallel-safe, 2 isolated Graphviz, 3 isolated Marp), then completed validation, native deck builds, QA and benchmark tasks. Existing example evidence remains unverified as expected.
+
+### P1: D2 diagram worker
+
+- Added D2 0.9.0 CLI integration, a Windows x64 installer for the official standalone archive with its published SHA-256 pinned, doctor/test registration, and a runnable synthetic architecture example. The bounded JSON input carries D2 DSL and evidence IDs; the adapter rejects imports, external URLs and image/icon directives, requires known unique IDs, caps source size/line count, and records source/evidence/output hashes.
+- `npm run deps:d2`, `npm run tools -- tools doctor d2`, `npm run tools -- tools test d2`, and `npm run render:d2` passed on Windows with D2 0.9.0. The three-node/two-edge synthetic example emitted D2 source, SVG, PNG and manifest; evidence remains unverified. SVG/PNG are images in PPTX rather than native shapes.
+- The synthetic render was opened and visually inspected; node labels and connectors are legible. No private input or network diagram render was used. The upstream binary is locally installed under ignored `workers/d2/.tools/` and not committed.
+- Full repository check passed with 182/182 tests (175 parallel-safe, then Graphviz 2/2, D2 2/2 and Marp 3/3 isolated renderer tests); validation/build/QA/benchmark stages completed. Existing unverified evidence and missing sample-size warnings remain expected.
+
+### P1: Quarto presentation backend
+
+- Added a Quarto 1.11.9 local adapter, pinned Windows ZIP installer, doctor/test commands, and a synthetic two-slide spec. The adapter generates QMD from bounded plain text (2–30 slides, bounded titles and bullets); arbitrary QMD, HTML, links, extensions, images, and code execution are not accepted. It emits self-contained reveal.js HTML, editable-text PPTX and source-manifest hashes; every PPTX slide is checked for text and all source IDs.
+- `npm run deps:quarto` installed the official Windows ZIP after its published SHA-256 matched `eda220a2f39c392f622049de013ddf7b4dfdf019ba877f251be14ce43e5734d1`; Quarto reported version 1.11.9. The install is local/ignored and the binary is not committed.
+- `npm run tools -- tools doctor quarto`, `npm run tools -- tools test quarto`, `npm run render:quarto`, and the focused tests passed. The PPTX contains 3 slides (Quarto title slide plus two authored slides), 10 editable text runs, and source ID `E_SYN_01` on all three. The 3.48 MB self-contained HTML and artifact hashes are recorded; synthetic evidence remains unverified.
+- PowerPoint 16.0 rendered the three slides to PNG via Poppler 26.07.0. Each page was opened and visually inspected; text, evidence ID, margins and wrapping are legible with no visible clipping. The standalone HTML is not a scientific approval and the PPTX theme/layout remains plain by design.
+- Full repository check passed: 185/185 tests (176 parallel-safe, then Graphviz 2/2, D2 2/2, Quarto 2/2 and Marp 3/3 serial renderer tests). The chain completed critic evaluation, benchmark update, markdown/CSV/repeated-run imports, validation, native PPTX builds and QA. Existing unverified-source and missing-chart-sample-size warnings remain expected.
+
+### P1: LibreOffice headless review renderer
+
+- Added a LibreOffice render adapter around the existing `scripts/preview.mjs` backend, a `doctor`/`test` path, `preview:libreoffice` command, optional `AI4SLIDES_LIBREOFFICE_BIN` configuration, isolated two-slide E2E tests, and page/PDF/artifact hashes. The adapter only consumes local PPTX, creates a new output directory, checks PDF/PNG signatures, enforces input/output bounds and refuses overwrite. Preview is not considered visual approval.
+- The environment already has LibreOffice Impress 26.2.3.2 at `D:\\Program Files\\LibreOffice\\program\\soffice.com` and Poppler `pdftoppm 26.07.0`; no application was installed or changed in this step.
+- `npm run tools -- tools doctor libreoffice`, `npm run tools -- tools test libreoffice`, and `node --test tests/libreoffice-adapter.test.mjs` passed. The real two-slide PPTX rendered to a two-page PDF and two PNGs; all outputs passed signature/manifest checks.
+- The Quarto three-slide deck was also rendered through LibreOffice and visually inspected page by page after its dedicated preview run. PowerPoint 16.0 and LibreOffice do not share layout fidelity; reports retain renderer identity and no claim is made that one renderer substitutes for the other.
+- Full repository check passed: 188/188 tests (177 parallel-safe, then Graphviz 2/2, D2 2/2, Quarto 2/2, LibreOffice 2/2 and Marp 3/3 serial renderer tests). Critic evaluation, benchmark update, source/CSV imports, validation, legacy deck builds, dual deck build, and QA also completed. Existing unverified-source and missing-chart-sample-size warnings remain expected.
+
+### P1: Local PPTX/POTX metadata registration
+
+- Added `npm run template:import -- <file.pptx|file.potx> --out <record.json>` to inspect local OOXML package metadata and create a metadata-only record. It checks archive size/expanded-size/entry-count limits, rejects unsafe paths, encrypted and ZIP64 packages, validates extension against the main OOXML type, and records SHA-256, slide dimensions/count, masters/layouts, media extensions, fonts, and external relationship count. No source binary is copied, extracted, executed, rendered, or tracked.
+- Rights stay `unknown`; each registration is explicitly unavailable for generation. No actual institution or third-party template was used for this synthetic test, and template application is not claimed.
+- `node --test tests/template-import.test.mjs` covers PPTX, POTX, mismatched extension, malformed ZIP, path traversal, metadata privacy, rights default, and overwrite refusal.
+- Remaining P1 items: full template application/preservation beyond exact text replacement, PyMuPDF license decision, and Linux/macOS E2E for Graphviz/D2/Quarto/LibreOffice.
+
+### P1: Isolated pptx-automizer text replacement
+
+- Pinned upstream `pptx-automizer` 0.9.4 in an isolated worker with its package lock; metadata declares MIT and Node.js 20+. The upstream tool warns that animation IDs, video/audio, and special relationships can be affected. The worker accepts PPTX only and edits one exactly named editable text shape on one 1-based slide, rebuilding all slides into a new output and refusing source/output overwrite.
+- A fixture run changed slide 2 while preserving all 3 slide parts and the native chart part. The input SHA-256 was unchanged. LibreOffice 26.2.3.2 + Poppler 26.07 rendered before and after; page 1 and 3 PNG hashes were identical and the modified page was visually inspected.
+- `image-size@2.1.0` is pinned as an isolated transitive override to address the high-severity JXL/HEIF/ICNS parser DoS advisory in `image-size@1.2.1`. `npm audit --prefix workers/pptx-automizer` must pass before this worker is updated.
+- This route is fixture-E2E tested only; it does not prove arbitrary user-template round-trip fidelity, chart editing, or POTX application. Per-upstream limitations and user-deck review remain required.
 
 ---
 

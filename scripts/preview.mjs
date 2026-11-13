@@ -19,6 +19,7 @@ function run(cmd,args,options={}){
  return result;
 }
 function locate(candidates){
+ if(candidates.some(name=>['soffice','libreoffice'].includes(name))&&process.env.AI4SLIDES_LIBREOFFICE_BIN&&fs.existsSync(process.env.AI4SLIDES_LIBREOFFICE_BIN))return process.env.AI4SLIDES_LIBREOFFICE_BIN;
  const lookup=process.platform==='win32'?'where.exe':'which';
  for(const candidate of candidates){const r=spawnSync(lookup,[candidate],{encoding:'utf8',timeout:5000});if(r.status===0)return candidate;}
  return null;

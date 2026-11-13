@@ -1,6 +1,6 @@
 # Tool Matrix
 
-The machine-readable catalog is in [`registry/catalog/`](../registry/catalog/). It currently contains 55 candidate entries. Every `.yaml` file is JSON syntax, which is valid YAML 1.2; the CLI uses Node's built-in JSON parser, so the base install gains no YAML dependency.
+The machine-readable catalog is in [`registry/catalog/`](../registry/catalog/). It currently contains 56 candidate entries. Every `.yaml` file is JSON syntax, which is valid YAML 1.2; the CLI uses Node's built-in JSON parser, so the base install gains no YAML dependency.
 
 Each entry records official URL, kind, interface, platforms, capabilities, inputs/outputs, dependencies, network/auth/cost, editability, license review state, adapter state, and limitations. `version: not-pinned` means upstream version was not checked; `license.review_status: needs-review` is deliberately conservative and does not assert incompatibility.
 
@@ -21,6 +21,28 @@ Each entry records official URL, kind, interface, platforms, capabilities, input
 The original PptxGenJS tool adapter remains a dependency/smoke-test wrapper. The new `pptxgenjs-ir` adapter validates Presentation IR 1.0.0, maps the supported element subset through the existing renderer, emits editable PPTX plus lineage/run manifests, and runs structural QA before returning success. Its synthetic 3-slide route is registered and smoke-tested by the catalog CLI. The Slidev IR conversion/export remains a separate experimental route. Neither integration performs research or verifies evidence; external/cloud providers stay opt-in and are not contacted by `tools list`, `doctor`, or `test`.
 
 Update each entry only when its executable, version, runtime, and test evidence are recorded. Use `npm run catalog:generate` to regenerate the catalog from its checked-in source.
+
+## P1/P2 continuation — 2026-11-12
+
+| Tool | Current evidence | Boundary |
+|---|---|---|
+| Marp CLI 4.5.1 | Isolated lockfile, local adapter, `doctor` / `test`, and a real synthetic HTML+PPTX export; PowerPoint rendered both pages. | Default PPTX contains rendered page images (2 slides, 0 text runs in the test fixture). Do not claim native editability. Experimental editable export is not tested. |
+| Presenton self-hosted v1 API | Loopback-only adapter and mocked contract tests; `doctor` reports missing credentials/service without contacting anything. | Adapter-ready only. No live service, model/provider invocation, deck export, cost, or editability has been verified. |
+| Matplotlib 3.10.8 | Pinned isolated Python worker, source-ID check, line/bar/scatter/CDF mapping, SVG/PNG hashes, and a real synthetic PPTX+preview run. | The figure is an SVG picture, not a native PowerPoint chart. Source record remains unverified; transitive license closure is pending. |
+
+Marp setup: `npm run deps:marp`; export the checked-in fixture with `npm run render:marp`. Presenton may run only when explicitly configured for a loopback instance and invoked with `allowProviderUsage: true`; no model call occurs during `tools doctor` or its mock contract test.
+
+Matplotlib setup: `npm run deps:matplotlib`; export the synthetic fixture with `npm run render:matplotlib`. The worker uses the isolated Python environment under `workers/matplotlib/.venv/`.
+
+Graphviz setup: Windows can run `npm run deps:graphviz` to download the official 16.1.1 x64 ZIP, verify its upstream SHA-256, and unpack it under the ignored `workers/graphviz/.tools/` directory. Render the synthetic fixture with `npm run render:graphviz`; output includes `.dot`, `.svg`, `.png`, and a provenance manifest. Inputs use a bounded JSON graph contract rather than arbitrary DOT so local file/image references cannot be smuggled in. SVG/PNG are not native PowerPoint shapes. Linux/macOS require Graphviz installed by the system package manager and `AI4SLIDES_GRAPHVIZ_DOT` set to its `dot` executable.
+
+D2 setup: Windows can run `npm run deps:d2` to download the official v0.9.0 x64 release archive, verify the published SHA-256, and unpack it under the ignored `workers/d2/.tools/` directory. Render the synthetic fixture with `npm run render:d2`; output includes the `.d2` source, `.svg`, `.png`, and a provenance manifest. The adapter rejects imports and external URL/image directives and requires ledger source IDs. SVG/PNG are not native PowerPoint shapes. Linux/macOS require D2 installed according to the official instructions and `AI4SLIDES_D2_BIN` set to its executable.
+
+Quarto setup: Windows can run `npm run deps:quarto` to download the official 1.11.9 ZIP, verify its published SHA-256, and unpack it under ignored `workers/quarto/.tools/`. `npm run render:quarto` renders the bounded synthetic JSON slide spec to standalone reveal.js HTML and editable-text PPTX, retaining source IDs on every slide and writing an artifact manifest. The adapter accepts plain text only, does not run code or extensions, and rejects HTML and external references. On other platforms install Quarto using its official instructions and set `AI4SLIDES_QUARTO_BIN`.
+
+LibreOffice preview: install LibreOffice Impress and Poppler (`pdftoppm`), then set `AI4SLIDES_LIBREOFFICE_BIN` if `soffice` is not on PATH. Run `npm run preview:libreoffice -- <deck.pptx>` for direct page previews, or use `ai4slides tools test libreoffice` for a disposable real two-slide render. The adapter copies a local PPTX into a new output directory, emits PDF/PNG pages and SHA-256 manifest, and refuses to overwrite. PowerPoint and LibreOffice fidelity differ; inspect every page.
+
+PyMuPDF setup: `npm run deps:pymupdf`; run the checked-in extraction fixture with `npm run import:pymupdf`. The worker uses `workers/pymupdf/.venv/`, emits page text/locators, bounded embedded-image files and vector drawing bounds, and does not run OCR. Its license state remains `needs-review`; resolve AGPL/commercial terms before redistribution. The fixture is synthetic and its extracted evidence remains unverified. Custom inputs can be passed as `npm run import:pymupdf -- --input <paper.pdf> --out <new-output-directory> --evidence-id E_LOCAL_PAPER --preview-pages 0,1`.
 
 ## Phase-0 candidate evaluation snapshot (2026-11-12)
 

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "figure_id": "FIG_SYN_MPL_01",
+  "kind": "line",
+  "title": "Synthetic latency by payload size",
+  "x_label": "Synthetic payload size (MiB)",
+  "y_label": "Synthetic p50 latency (ms)",
+  "x": [1, 2, 4, 8, 16],
+  "series": [
+    {
+      "name": "Fixture series",
+      "y": [8, 12, 17, 26, 43]
+    }
+  ],
+  "source_ids": ["E_SYN_01"],
+  "note": "Fictional test values. Not measured performance or a research result."
+}

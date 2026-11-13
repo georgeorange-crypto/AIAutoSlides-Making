@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0.0",
+  "title": "Synthetic request-processing architecture",
+  "source_ids": ["E_SYN_01"],
+  "slides": [
+    {"title": "Request path", "bullets": ["A gateway forwards each request to a scheduler.", "The scheduler dispatches work to a worker pool."]},
+    {"title": "Evidence boundary", "bullets": ["This is a synthetic architecture example.", "The evidence ledger entry remains unverified."]}
+  ]
+}

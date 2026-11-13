@@ -3,41 +3,46 @@
   "name": "D2",
   "kind": "diagram",
   "official_url": "https://github.com/terrastruct/d2",
-  "version": "not-pinned",
-  "interface": "DSL/CLI/file format",
+  "version": "0.9.0",
+  "interface": "isolated D2 CLI over bounded source-linked JSON spec",
   "platforms": [
     "windows",
     "linux",
     "macos"
   ],
   "capabilities": [
-    "diagram"
+    "D2-DSL-render",
+    "svg-render",
+    "png-render",
+    "source-lineage-and-hashes"
   ],
   "inputs": [
-    "diagram-dsl"
+    "bounded-d2-json",
+    "evidence-ledger"
   ],
   "outputs": [
     "svg",
     "png",
-    "editable-source"
+    "d2-source",
+    "diagram-manifest"
   ],
   "dependencies": [
-    "independent executable/runtime"
+    "workers/d2/.tools/0.9.0/ official Windows x64 release or configured system D2 executable"
   ],
   "needs_network": false,
   "needs_auth": false,
-  "expected_cost": "unknown",
+  "expected_cost": "free-local",
   "editable": "partial",
   "license": {
-    "identifier": "unreviewed",
-    "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "identifier": "MIT",
+    "review_status": "verified-in-repository",
+    "note": "D2 upstream project is MIT licensed; official standalone archive and bundled notices are not redistributed by this repository."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/d2.mjs",
   "probe": {
     "command": "d2"
   },
-  "limitations": "SVG is an image object in PPTX unless rebuilt as native shapes; retain source DSL.",
-  "status": "catalogued"
+  "limitations": "Accepts bounded D2 source in JSON with source IDs; imports, URLs, external image/icon directives are rejected. SVG/PNG are image objects in PPTX, not native PowerPoint shapes. Pinned installer is Windows x64; Linux/macOS require a configured D2 executable.",
+  "status": "e2e-tested"
 }
