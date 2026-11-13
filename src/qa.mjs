@@ -45,7 +45,7 @@ if(fs.existsSync(cliReview)){
  const selected=JSON.parse(fs.readFileSync(cliReview,'utf8')).theme, themeFile=path.join('themes',`${selected}.json`);
  if(fs.existsSync(themeFile)){
   const t=JSON.parse(fs.readFileSync(themeFile,'utf8'));
-  reviewTheme={name:selected,...auditThemeContrast(t)};
+  reviewTheme={name:selected,headFontFace:t.headFontFace,bodyFontFace:t.bodyFontFace,...auditThemeContrast(t)};
   if(reviewTheme.pairsBelowMinimum.length)errors.push(`Theme ${selected} has ${reviewTheme.pairsBelowMinimum.length} text/color token pairs below 4.5:1`);
  }
 }

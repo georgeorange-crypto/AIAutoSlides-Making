@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {auditTextLayout} from '../src/layout-audit.mjs';
 
-const shape=(x,y,w,h,size=1200,text='Label')=>`<p:sp><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${w}" cy="${h}"/></a:xfrm></p:spPr><p:txBody><a:p><a:r><a:rPr sz="${size}"/><a:t>${text}</a:t></a:r></a:p></p:txBody></p:sp>`;
+const shape=(x,y,w,h,size=1200,text='Label',font='Aptos')=>`<p:sp><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${w}" cy="${h}"/></a:xfrm></p:spPr><p:txBody><a:p><a:r><a:rPr sz="${size}"><a:latin typeface="${font}"/></a:rPr><a:t>${text}</a:t></a:r></a:p></p:txBody></p:sp>`;
 test('text layout audit identifies bounds, overlaps, and small fonts even in the footer area',()=>{
  const xml=shape(0,0,100000,100000,800)+shape(50000,50000,100000,100000,1200)+shape(200000,0,100000,100000,900)+shape(0,950000,100000,40000,700);
  const report=auditTextLayout(xml,250000,1000000);
@@ -19,6 +19,12 @@ test('text with inherited or absent explicit font size is reported as unmeasured
  const xml='<p:sp><p:spPr><a:xfrm><a:off x="0" y="950000"/><a:ext cx="100000" cy="40000"/></a:xfrm></p:spPr><p:txBody><a:p><a:r><a:t>Long footer-like body content</a:t></a:r></a:p></p:txBody></p:sp>';
  const report=auditTextLayout(xml,250000,1000000);
  assert.deepEqual(report.smallText,[]);assert.equal(report.unmeasuredText.length,1);assert.match(report.unmeasuredText[0].text,/Long footer/);
+});
+
+test('text layout audit records explicit font families and reports inherited font faces',()=>{
+ const inherited='<p:sp><p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="100000" cy="100000"/></a:xfrm></p:spPr><p:txBody><a:p><a:r><a:rPr sz="1400"/><a:t>Inherited family</a:t></a:r></a:p></p:txBody></p:sp>';
+ const result=auditTextLayout(shape(0,0,100000,100000,1800,'Heading','Aptos Display')+shape(120000,0,100000,100000,1400,'Body','Aptos')+inherited,300000,200000);
+ assert.deepEqual(result.fontFaces,['Aptos Display','Aptos']);assert.equal(result.unmeasuredFonts.length,1);assert.match(result.unmeasuredFonts[0].text,/Inherited family/);
 });
 
 test('slide bounds audit covers pictures, chart frames, connectors, and negative coordinates',()=>{

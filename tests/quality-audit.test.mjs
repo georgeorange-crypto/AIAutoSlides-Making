@@ -12,12 +12,20 @@ function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',priority_ids:index%2===0?['Results']:[],visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text',evidence_ids:['E1']}))];
   const contentPlan={slides:plannedSlides.map(slide=>({slide_id:slide.slide_id,time_budget_seconds:slide.importance==='core'?60:slide.importance==='supporting'?20:5}))};
   const plan={quality_contract:{...contract},slides:plannedSlides};
-  return{plan,presentationIR:{slides},contentPlan,renderedQa:{slides:slides.map(slide=>({textBoundsPass:true,textOverlaps:[],smallText:[],visualGroupBounds:slide.elements.filter(element=>element.kind==='diagram').map(()=>({group_id:`${slide.slide_id}:diagram`,kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,ok:true}))}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}))}};
+  return{plan,presentationIR:{slides},contentPlan,renderedQa:{theme:{headFontFace:'Aptos Display',bodyFontFace:'Aptos'},slides:slides.map(slide=>({textBoundsPass:true,textOverlaps:[],smallText:[],fontFaces:['Aptos Display','Aptos'],unmeasuredFonts:[],visualGroupBounds:slide.elements.filter(element=>element.kind==='diagram').map(()=>({group_id:`${slide.slide_id}:diagram`,kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,ok:true}))}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',visible_text_occupancy_ratio:0.06,visible_text_line_count:4}))}};
 }
 
 test('formal quality audit passes a deck meeting the declared visual, explanation, language, layout, and render constraints',()=>{
   const result=auditDeckQuality(fixture());assert.equal(result.status,'pass',JSON.stringify(result.blockers));assert.equal(result.visual_slide_ratio,0.6);assert.deepEqual(result.blockers,[]);
   assert.equal(result.priority_allocation.priority_slide_share,0.6);assert.equal(result.priority_allocation.priority_time_share,0.818);
+});
+
+test('formal quality audit blocks font families outside the selected theme and missing font measurements',()=>{
+ const input=fixture();input.renderedQa.slides[2].fontFaces=['Aptos Display','Comic Sans MS'];
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_FONT_MISMATCH'&&item.slide_id==='S1'));
+ input.renderedQa.slides[2].fontFaces=['Aptos'];input.renderedQa.slides[2].unmeasuredFonts=[{shape:4,text:'Inherited font'}];
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_FONT_UNMEASURED'&&item.slide_id==='S1'));
+ input.renderedQa.theme={};assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_THEME_FONTS_UNMEASURED'));
 });
 
 test('opening-context pages and repeated opening labels cannot bypass content and priority audits',()=>{

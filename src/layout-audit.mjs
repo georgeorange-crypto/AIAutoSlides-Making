@@ -4,6 +4,7 @@ function geometry(shapeXml){
   return{x:Number(off[1]),y:Number(off[2]),w:Number(ext[1]),h:Number(ext[2])};
 }
 function fontSizes(shapeXml){return [...shapeXml.matchAll(/<a:(?:rPr|defRPr|endParaRPr)\b[^>]*\bsz="(\d+)"/g)].map(m=>Number(m[1])/100);}
+function fontFaces(shapeXml){return [...shapeXml.matchAll(/<a:latin\b[^>]*\btypeface="([^"]*)"/g)].map(match=>match[1]).filter(Boolean);}
 function textContent(shapeXml){return [...shapeXml.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g)].map(match=>match[1].replaceAll('&amp;','&').replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&quot;','"').replaceAll('&apos;',"'")).join('');}
 function visualGroupName(shapeXml){return shapeXml.match(/<p:cNvPr\b[^>]*\bname="(AIAutoSlidesVisualGroup:[^"]+)"/)?.[1]||null;}
 function rectangleUnionArea(rectangles){
@@ -28,7 +29,8 @@ export function auditTextLayout(xml,slideWidth,slideHeight,smallTextThresholdPt=
   }
   const smallText=[];
   const unmeasuredText=[];
-  shapes.forEach(item=>{const g=geometry(item.xml);if(!g)return;const sizes=fontSizes(item.xml),text=textContent(item.xml),location={x:g.x,y:g.y,w:g.w,h:g.h};if(!sizes.length){unmeasuredText.push({shape:item.index,text, ...location});return;}const min=Math.min(...sizes);if(min<smallTextThresholdPt)smallText.push({shape:item.index,min_font_size_pt:min,text,...location});});
+  const unmeasuredFonts=[];
+  shapes.forEach(item=>{const g=geometry(item.xml);if(!g)return;const sizes=fontSizes(item.xml),faces=fontFaces(item.xml),text=textContent(item.xml),location={x:g.x,y:g.y,w:g.w,h:g.h};if(!sizes.length){unmeasuredText.push({shape:item.index,text, ...location});return;}if(!faces.length&&/[\p{L}\p{N}]/u.test(text))unmeasuredFonts.push({shape:item.index,text,...location});const min=Math.min(...sizes);if(min<smallTextThresholdPt)smallText.push({shape:item.index,min_font_size_pt:min,text,...location});});
   elements.filter(item=>item.type==='graphicFrame').forEach(item=>{const g=geometry(item.xml);if(!g)return;const sizes=fontSizes(item.xml);if(!sizes.length)return;const min=Math.min(...sizes);if(min<smallTextThresholdPt)smallText.push({shape:item.index,element:item.type,min_font_size_pt:min,...g});});
-  return{textBounds,elementBounds,visualGroupBounds,overlaps,smallText,unmeasuredText,editableTextShapes:shapes.length};
+  return{textBounds,elementBounds,visualGroupBounds,overlaps,smallText,unmeasuredText,fontFaces:[...new Set(shapes.flatMap(item=>fontFaces(item.xml)))],unmeasuredFonts,editableTextShapes:shapes.length};
 }

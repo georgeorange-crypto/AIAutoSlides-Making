@@ -1,7 +1,12 @@
 import path from 'node:path';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {unzipSync,strFromU8,strToU8,zipSync} from 'fflate';
 import {runPresentationWorkflow} from '../packages/workflow/index.mjs';
 import {pptxgenjsIRAdapter} from '../packages/adapters/pptxgenjs-ir.mjs';
+import {definePresentationAdapter} from '../packages/adapters/protocol.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const runId=new Date().toISOString().replace(/[:.]/g,'-');
@@ -15,6 +20,7 @@ const lowVisualCoverageStress=process.argv.includes('--low-visual-coverage-stres
 const evidenceLineageStress=process.argv.includes('--evidence-lineage-stress');
 const transitionCaveatStress=process.argv.includes('--transition-caveat-stress');
 const priorityTopicStress=process.argv.includes('--priority-topic-stress');
+const fontMismatchStress=process.argv.includes('--font-mismatch-stress');
 const source={source_id:'E_SYN_SECTION',type:'synthetic_fixture',uri:'fixture://section-structure',locator:'synthetic fixture only',verification_status:'unverified'};
 const text=(id,value)=>({element_id:id,kind:'text',text:value});
 const bullets=(id,items)=>({element_id:id,kind:'bullets',items});
@@ -45,11 +51,33 @@ const roles=layoutRepetitionStress?['agenda','section_transition','mechanism','m
 const sections=layoutRepetitionStress?[null,'机制解析','机制解析','机制解析','机制解析','机制解析','实际影响','实际影响','实际影响','实际影响','实际影响',null]:[null,'机制解析','机制解析','机制解析','实际影响','实际影响','实际影响',...(lowVisualCoverageStress?['实际影响']:[])];
 const coreIds=layoutRepetitionStress?new Set(['S03','S08','S06','S10']):new Set(['S03','S04','S06']);
 const plan={task:{target_duration_seconds:layoutRepetitionStress?720:420,expected_slide_count:slides.length},quality_contract:{language:'Chinese',content_priorities:['机制解析','实际影响'],narrative_sections:['机制解析','实际影响'],visual_slide_ratio_min:0.5,minimum_explanation_units:28,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5},slides:slides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:roles[index],...(sections[index]?{section_name:sections[index]}:{}),importance:coreIds.has(slide.slide_id)?'core':['mechanism','implications'].includes(roles[index])?'supporting':'standard',...(sections[index]?{priority_ids:coreIds.has(slide.slide_id)?[priorityTopicStress&&sections[index]==='实际影响'?'机制解析':sections[index]]:priorityTopicStress&&slide.slide_id==='S07'?['实际影响']:[]}:{}),visual_type:slide.elements.some(element=>element.kind==='process')?'process':'text',layout_intent:layoutRepetitionStress&&['mechanism','implications'].includes(roles[index])?`unique-label-${slide.slide_id}`:slide.type,evidence_ids:slide.slide_id==='S04'&&evidenceLineageStress?[]:slide.evidence_ids||[]}))};
-const result=await runPresentationWorkflow({jobId:'synthetic-section-structure-proof',presentationIR,qualityPlan:plan,workspace,outputDir:out,preview:true,adapters:[pptxgenjsIRAdapter]});
+const corruptFontAdapter=fontMismatchStress?definePresentationAdapter({
+ manifest:{...pptxgenjsIRAdapter.manifest,id:'pptxgenjs-ir-font-stress'},
+ async probe(){return pptxgenjsIRAdapter.probe();},
+ async capabilities(){return pptxgenjsIRAdapter.capabilities();},
+ async export(request){return pptxgenjsIRAdapter.export(request);},
+ async render(request){
+ const rendered=await pptxgenjsIRAdapter.render(request),pptx=rendered.artifacts.find(item=>item.format==='pptx')?.path;
+ if(!pptx)throw new Error('Font mismatch fixture did not produce a PPTX');
+ const packageFiles=unzipSync(new Uint8Array(fs.readFileSync(pptx))),slide='ppt/slides/slide3.xml',xml=strFromU8(packageFiles[slide]);
+ if(!xml.includes('typeface="Aptos"'))throw new Error('Expected theme body font was absent from the rendered synthetic slide');
+ packageFiles[slide]=strToU8(xml.replace('typeface="Aptos"','typeface="Comic Sans MS"'));
+ fs.writeFileSync(pptx,zipSync(packageFiles));
+ execFileSync(process.execPath,[path.join(root,'src/qa.mjs'),pptx],{cwd:root,stdio:'ignore',windowsHide:true});
+ const qaPath=pptx.replace(/\.pptx$/i,'.qa.json'),qa=JSON.parse(fs.readFileSync(qaPath,'utf8'));
+ const manifestPath=pptx.replace(/\.pptx$/i,'.run-manifest.json'),manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+ for(const output of manifest.outputs||[]){const file=path.join(path.dirname(pptx),output.path);if(fs.existsSync(file))output.sha256=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');}
+ fs.writeFileSync(manifestPath,`${JSON.stringify(manifest,null,2)}\n`);
+ rendered.qa={status:qa.status,errors:qa.errors,warnings:qa.warnings,chartValuesExact:qa.chartData.exactMatch};
+ for(const artifact of rendered.artifacts){if(fs.existsSync(artifact.path))artifact.sha256=crypto.createHash('sha256').update(fs.readFileSync(artifact.path)).digest('hex');}
+ return rendered;
+ }
+}):pptxgenjsIRAdapter;
+const result=await runPresentationWorkflow({jobId:'synthetic-section-structure-proof',presentationIR,qualityPlan:plan,workspace,outputDir:out,preview:true,adapters:[fontMismatchStress?corruptFontAdapter:pptxgenjsIRAdapter]});
 const gate=result.report.critique.quality_gate;
 const voiceBlockers=gate.blockers.filter(item=>item.code==='QUALITY_ASSISTANT_VOICE');
 const layoutBlockers=gate.blockers.filter(item=>item.code==='QUALITY_LAYOUT_DIVERSITY');
 const densityBlockers=gate.blockers.filter(item=>item.code==='QUALITY_VISIBLE_DENSITY_LOW');
-const expectedBlockers=[...(assistantVoiceStress?['QUALITY_ASSISTANT_VOICE']:[]),...(layoutRepetitionStress?['QUALITY_LAYOUT_DIVERSITY']:[]),...(sparseDensityStress?['QUALITY_VISIBLE_DENSITY_LOW']:[]),...(unmaterializedVisualStress||lowVisualCoverageStress?['QUALITY_VISUAL_COVERAGE']:[]),...(evidenceLineageStress?['QUALITY_PLAN_EVIDENCE_MISSING']:[]),...(transitionCaveatStress?['QUALITY_CAVEAT_REPETITION']:[]),...(priorityTopicStress?['QUALITY_PRIORITY_UNCOVERED']:[])];
+const expectedBlockers=[...(assistantVoiceStress?['QUALITY_ASSISTANT_VOICE']:[]),...(layoutRepetitionStress?['QUALITY_LAYOUT_DIVERSITY']:[]),...(sparseDensityStress?['QUALITY_VISIBLE_DENSITY_LOW']:[]),...(unmaterializedVisualStress||lowVisualCoverageStress?['QUALITY_VISUAL_COVERAGE']:[]),...(evidenceLineageStress?['QUALITY_PLAN_EVIDENCE_MISSING']:[]),...(transitionCaveatStress?['QUALITY_CAVEAT_REPETITION']:[]),...(priorityTopicStress?['QUALITY_PRIORITY_UNCOVERED']:[]),...(fontMismatchStress?['QUALITY_FONT_MISMATCH']:[])];
 if(expectedBlockers.length?expectedBlockers.some(code=>!gate.blockers.some(item=>item.code===code)):gate.blockers.length)throw new Error(`Synthetic section fixture did not meet the expected ${expectedBlockers.length?'stress-blocked':'pass'} result: ${gate.blockers.map(item=>item.code).join(', ')}`);
-console.log(JSON.stringify({status:result.status,slides:slides.length,assistant_voice_stress:assistantVoiceStress,layout_repetition_stress:layoutRepetitionStress,sparse_density_stress:sparseDensityStress,unmaterialized_visual_stress:unmaterializedVisualStress,low_visual_coverage_stress:lowVisualCoverageStress,evidence_lineage_stress:evidenceLineageStress,transition_caveat_stress:transitionCaveatStress,priority_topic_stress:priorityTopicStress,visual_coverage:{visual_slide_count:gate.visual_slide_count,content_slide_count:gate.content_slide_count,visual_slide_ratio:gate.visual_slide_ratio,minimum_visual_slide_ratio:gate.minimum_visual_slide_ratio,unmaterialized_visuals:gate.unmaterialized_visuals},density_findings:densityBlockers.map(item=>({slide_id:item.slide_id,occupancy:item.visible_text_occupancy_ratio,line_count:item.visible_text_line_count,minimum_ratio:item.minimum_ratio,minimum_line_count:item.minimum_line_count})),layout_diversity:gate.layout_diversity,priority_topic_coverage:gate.priority_topic_coverage,quality_gate:{status:gate.status,blockers:gate.blockers.map(item=>({code:item.code,slide_id:item.slide_id,priority:item.priority,location:item.location,missing_evidence_ids:item.missing_evidence_ids,unmaterialized_visuals:item.unmaterialized_visuals})),warnings:gate.warnings.map(item=>item.code)},render_warnings:result.report.critique.structural.renderer_warnings.filter(item=>/Mermaid source was preserved as text/.test(item)),preview:result.preview,artifacts:result.artifacts.filter(item=>item.format==='pptx').map(({path,format,sha256})=>({path,format,sha256}))},null,2));
+console.log(JSON.stringify({status:result.status,slides:slides.length,assistant_voice_stress:assistantVoiceStress,layout_repetition_stress:layoutRepetitionStress,sparse_density_stress:sparseDensityStress,unmaterialized_visual_stress:unmaterializedVisualStress,low_visual_coverage_stress:lowVisualCoverageStress,evidence_lineage_stress:evidenceLineageStress,transition_caveat_stress:transitionCaveatStress,priority_topic_stress:priorityTopicStress,font_mismatch_stress:fontMismatchStress,visual_coverage:{visual_slide_count:gate.visual_slide_count,content_slide_count:gate.content_slide_count,visual_slide_ratio:gate.visual_slide_ratio,minimum_visual_slide_ratio:gate.minimum_visual_slide_ratio,unmaterialized_visuals:gate.unmaterialized_visuals},density_findings:densityBlockers.map(item=>({slide_id:item.slide_id,occupancy:item.visible_text_occupancy_ratio,line_count:item.visible_text_line_count,minimum_ratio:item.minimum_ratio,minimum_line_count:item.minimum_line_count})),layout_diversity:gate.layout_diversity,priority_topic_coverage:gate.priority_topic_coverage,quality_gate:{status:gate.status,blockers:gate.blockers.map(item=>({code:item.code,slide_id:item.slide_id,priority:item.priority,location:item.location,unexpected_font_families:item.unexpected_font_families,expected_theme_fonts:item.expected_theme_fonts,missing_evidence_ids:item.missing_evidence_ids,unmaterialized_visuals:item.unmaterialized_visuals})),warnings:gate.warnings.map(item=>item.code)},render_warnings:result.report.critique.structural.renderer_warnings.filter(item=>/Mermaid source was preserved as text/.test(item)),preview:result.preview,artifacts:result.artifacts.filter(item=>item.format==='pptx').map(({path,format,sha256})=>({path,format,sha256}))},null,2));
