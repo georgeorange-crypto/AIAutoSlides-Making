@@ -13,7 +13,7 @@ function rectangleUnionArea(rectangles){
 }
 function overlap(a,b){return Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)>6000&&Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)>6000;}
 
-export function auditTextLayout(xml,slideWidth,slideHeight,smallTextThresholdPt=12){
+export function auditTextLayout(xml,slideWidth,slideHeight,smallTextThresholdPt=14){
   const elements=[...xml.matchAll(/<p:(sp|pic|graphicFrame|cxnSp)>([\s\S]*?)<\/p:\1>/g)].map((match,index)=>({index:index+1,type:match[1],xml:match[2]}));
   const elementBounds=elements.map(item=>{const g=geometry(item.xml);return g?{ok:g.x>=0&&g.y>=0&&g.x+g.w<=slideWidth&&g.y+g.h<=slideHeight,element:item.type,index:item.index,...g}:{ok:false,element:item.type,index:item.index,reason:'missing geometry'};});
   const groupMap=new Map();

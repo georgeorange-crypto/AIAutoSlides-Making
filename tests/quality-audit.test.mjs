@@ -135,6 +135,13 @@ test('formal quality audit blocks rendered overlap, out-of-bounds text, unreadab
   assert.equal(auditDeckQuality({...input,renderedQa:null}).status,'fail');
 });
 
+test('formal readability gate blocks 13.9 pt and accepts a measured 14 pt text floor',()=>{
+ const input=fixture();input.renderedQa.slides[3]={textBoundsPass:true,textOverlaps:[],smallText:[{shape:2,min_font_size_pt:13.9,text:'Too small'}],unmeasuredText:[]};
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_TEXT_TOO_SMALL'));
+ input.renderedQa.slides[3].smallText=[{shape:2,min_font_size_pt:14,text:'Readable'}];
+ assert.ok(!auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_TEXT_TOO_SMALL'));
+});
+
 test('formal quality audit blocks postage-stamp images and charts using rendered OOXML bounds',()=>{
  const input=fixture();input.presentationIR.slides[3].elements.push({element_id:'IMG-SMALL',kind:'image',asset_id:'synthetic-photo',alt:'Synthetic fixture image',x:0,y:0,w:1,h:1});
  input.renderedQa.slides[3]={...input.renderedQa.slides[3],slideWidthEmu:12192000,slideHeightEmu:6858000,elementBounds:[{element:'pic',ok:true,x:100,y:100,w:300000,h:300000}]};

@@ -15,7 +15,7 @@ function visualGroup(d,kind){return `AIAutoSlidesVisualGroup:${d.slide_id}:${kin
 function titleSize(text) { const n=[...text].length; return n>85?25:n>60?29:n>39?34:40; }
 function addBackground(s,t) {s.background={color:t.background};}
 function addTop(s,d,t) {
-  txt(s, (d.kicker||'AI AUTO SLIDES').toUpperCase(), {x:0.74,y:0.37,w:10.5,h:0.30,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,charSpacing:1.2});
+  txt(s, (d.kicker||'AI AUTO SLIDES').toUpperCase(), {x:0.74,y:0.37,w:10.5,h:0.34,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.accent,charSpacing:1.2});
   line(s,0.74,0.84,12.58,0.84,t.line);
 }
 function addTitle(s,d,t,options={}) {
@@ -24,7 +24,7 @@ function addTitle(s,d,t,options={}) {
 }
 function addFooter(s,index,total,t) {
   line(s,0.74,7.02,12.58,7.02,t.line);
-  txt(s,`${String(index+1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`,{x:11.88,y:7.06,w:0.70,h:0.28,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.muted,align:'right'});
+  txt(s,`${String(index+1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`,{x:11.78,y:7.04,w:0.80,h:0.34,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.muted,align:'right'});
 }
 function panel(s,x,y,w,h,t,alt=false,objectName) {
   rect(s,{x,y,w,h,rectRadius:0.16,radius:0.15,fill:{color:alt?t.surfaceAlt:t.surface},line:{color:t.line,width:0.6},...(objectName?{objectName}:{})});
@@ -39,7 +39,7 @@ function plannerVisual(s,d,t){
     steps.forEach((step,index)=>{
       const sy=stepTop+index*(stepH+stepGap);
       s.addShape(Shape.ellipse,{x:cx,y:sy+0.04,w:0.40,h:0.40,fill:{color:index%2?t.surface:t.background},line:{color:t.accent,width:1.2},objectName});
-      txt(s,String(index+1),{x:cx,y:sy+0.08,w:0.40,h:0.28,fontFace:t.headFontFace,fontSize:13,bold:true,color:t.accent,align:'center',objectName});
+      txt(s,String(index+1),{x:cx,y:sy+0.06,w:0.40,h:0.32,fontFace:t.headFontFace,fontSize:14,bold:true,color:t.accent,align:'center',objectName});
       txt(s,step,{x:cx+0.62,y:sy+0.01,w:w-1.50,h:stepH-0.02,fontFace:t.bodyFontFace,fontSize:14.5,bold:true,color:t.text,valign:'mid',fit:'shrink',objectName});
       if(index<steps.length-1)line(s,cx+0.20,sy+0.45,cx+0.20,sy+stepH+stepGap-0.04,t.line,objectName);
     });
@@ -52,9 +52,9 @@ function plannerVisual(s,d,t){
     const a=nodes.get(edge.from),b=nodes.get(edge.to),x1=a.x+a.w/2,y1=a.y+a.h/2,x2=b.x+b.w/2,y2=b.y+b.h/2,dx=x2-x1,dy=y2-y1;
     s.addShape(Shape.line,{x:Math.min(x1,x2),y:Math.min(y1,y2),w:Math.max(Math.abs(dx),0.001),h:Math.max(Math.abs(dy),0.001),flipH:dx<0,flipV:dy<0,line:{color:t.accent,width:1.4,endArrowType:'triangle'},objectName});
   }
-  diagram.nodes.forEach((node,index)=>{const box=nodes.get(node.id),shape=node.shape==='rect'?Shape.rect:node.shape==='diamond'?Shape.diamond:Shape.roundRect;s.addShape(shape,{x:box.x,y:box.y,w:box.w,h:box.h,fill:{color:index%2?t.surface:t.background},line:{color:t.accent,width:1.2},objectName});txt(s,node.label,{x:box.x+0.05,y:box.y+0.04,w:box.w-0.10,h:box.h-0.08,fontFace:t.bodyFontFace,fontSize:13,bold:true,color:t.title,align:'center',fit:'shrink',objectName});});
+  diagram.nodes.forEach((node,index)=>{const box=nodes.get(node.id),shape=node.shape==='rect'?Shape.rect:node.shape==='diamond'?Shape.diamond:Shape.roundRect;s.addShape(shape,{x:box.x,y:box.y,w:box.w,h:box.h,fill:{color:index%2?t.surface:t.background},line:{color:t.accent,width:1.2},objectName});txt(s,node.label,{x:box.x+0.05,y:box.y+0.04,w:box.w-0.10,h:box.h-0.08,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.title,align:'center',fit:'shrink',objectName});});
   const columns=diagram.edges.length>3?2:1,rows=Math.ceil(diagram.edges.length/columns),legendTop=y+2.88,legendHeight=Math.min(0.68,(h-3.00)/rows),legendGap=0.08,legendWidth=(w-0.50-(columns-1)*0.16)/columns;
-  diagram.edges.forEach((edge,index)=>{const row=index%rows,column=Math.floor(index/rows),a=nodes.get(edge.from),b=nodes.get(edge.to),rx=x+0.25+column*(legendWidth+0.16),ry=legendTop+row*(legendHeight+legendGap);panel(s,rx,ry,legendWidth,legendHeight,t,false,objectName);txt(s,edge.label,{x:rx+0.10,y:ry+0.05,w:legendWidth-0.20,h:0.22,fontFace:t.bodyFontFace,fontSize:12.5,bold:true,color:t.accent,valign:'mid',fit:'shrink',objectName});txt(s,`${a.label} → ${b.label}`,{x:rx+0.10,y:ry+0.31,w:legendWidth-0.20,h:0.27,fontFace:t.bodyFontFace,fontSize:13,bold:true,color:t.text,valign:'mid',fit:'shrink',objectName});});
+  diagram.edges.forEach((edge,index)=>{const row=index%rows,column=Math.floor(index/rows),a=nodes.get(edge.from),b=nodes.get(edge.to),rx=x+0.25+column*(legendWidth+0.16),ry=legendTop+row*(legendHeight+legendGap);panel(s,rx,ry,legendWidth,legendHeight,t,false,objectName);txt(s,edge.label,{x:rx+0.10,y:ry+0.04,w:legendWidth-0.20,h:0.27,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.accent,valign:'mid',fit:'shrink',objectName});txt(s,`${a.label} → ${b.label}`,{x:rx+0.10,y:ry+0.32,w:legendWidth-0.20,h:0.30,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.text,valign:'mid',fit:'shrink',objectName});});
 }
 function body(s,d,t,y=2.60,fs=20) {
   (d.body||[]).slice(0,4).forEach((b,i)=>txt(s,b,{x:0.83,y:y+i*0.84,w:11.4,h:0.69,fontFace:t.bodyFontFace,fontSize:fs,color:t.text,valign:'top',fit:'shrink'}));
@@ -64,23 +64,23 @@ function cover(s,d,t,meta) {
   if(d.cover_visual?.kind==='process'&&Array.isArray(d.cover_visual.steps)){
     rect(s,{x:9.18,y:0,w:4.15,h:7.5,rectRadius:0,fill:{color:t.surfaceAlt},line:{color:t.surfaceAlt,transparency:100}});
     const objectName=visualGroup(d,'process');
-    txt(s,'THE STORY IN THREE STEPS',{x:9.55,y:1.12,w:3.30,h:0.36,fontFace:t.bodyFontFace,fontSize:12.5,bold:true,color:t.accent,charSpacing:1.1,fit:'shrink',objectName});
+    txt(s,'THE STORY IN THREE STEPS',{x:9.55,y:1.12,w:3.30,h:0.38,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.accent,charSpacing:1.1,fit:'shrink',objectName});
     const left=9.52,top=1.72,width=3.35,height=1.12,gap=0.42,steps=d.cover_visual.steps.slice(0,3);
     steps.forEach((step,index)=>{
       const y=top+index*(height+gap);
       if(index>0)s.addShape(Shape.line,{x:left+0.24,y:y-gap+0.02,w:0,h:gap-0.04,line:{color:t.accent2,width:1.8,endArrowType:'triangle'},objectName});
       panel(s,left,y,width,height,t,index===1,objectName);
       s.addShape(Shape.ellipse,{x:left+0.17,y:y+0.31,w:0.48,h:0.48,fill:{color:index===1?t.surface:t.background},line:{color:index===1?t.accent2:t.accent,width:1.4},objectName});
-      txt(s,String(index+1).padStart(2,'0'),{x:left+0.17,y:y+0.39,w:0.48,h:0.24,fontFace:t.headFontFace,fontSize:12.5,bold:true,color:index===1?t.accent2:t.accent,align:'center',fit:'shrink',objectName});
+      txt(s,String(index+1).padStart(2,'0'),{x:left+0.17,y:y+0.34,w:0.48,h:0.34,fontFace:t.headFontFace,fontSize:14,bold:true,color:index===1?t.accent2:t.accent,align:'center',fit:'shrink',objectName});
       txt(s,step,{x:left+0.82,y:y+0.17,w:2.32,h:0.78,fontFace:t.bodyFontFace,fontSize:15,bold:true,color:t.text,valign:'mid',fit:'shrink',objectName});
     });
   }
   const copyWidth=d.cover_visual?.kind==='process'&&Array.isArray(d.cover_visual.steps)?8.0:11.5;
-  txt(s,(d.kicker||'RESEARCH PRESENTATION').toUpperCase(),{x:0.85,y:0.71,w:copyWidth,h:0.34,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,charSpacing:1.5,fit:'shrink'});
+  txt(s,(d.kicker||'RESEARCH PRESENTATION').toUpperCase(),{x:0.85,y:0.71,w:copyWidth,h:0.38,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.accent,charSpacing:1.5,fit:'shrink'});
   txt(s,d.title,{x:0.85,y:1.66,w:copyWidth,h:2.43,fontFace:t.headFontFace,fontSize:52,bold:true,color:t.title,valign:'top',fit:'shrink'});
   (d.body||[]).slice(0,2).forEach((b,i)=>txt(s,b,{x:0.89,y:4.54+i*0.55,w:copyWidth-0.05,h:0.49,fontFace:t.bodyFontFace,fontSize:20-i*3,color:i===0?t.text:t.muted,fit:'shrink'}));
   line(s,0.89,6.26,Math.min(8.8,0.89+copyWidth),6.26,t.line);
-  txt(s,meta.subtitle||'',{x:0.89,y:6.42,w:copyWidth-0.05,h:0.31,fontSize:13,color:t.muted,fontFace:t.bodyFontFace,fit:'shrink'});
+  txt(s,meta.subtitle||'',{x:0.89,y:6.42,w:copyWidth-0.05,h:0.34,fontSize:14,color:t.muted,fontFace:t.bodyFontFace,fit:'shrink'});
 }
 function statement(s,d,t) {
   addTop(s,d,t);
@@ -122,8 +122,8 @@ function chart(s,d,t,pptx) {
   const chartType=c.kind==='line'?pptx.ChartType.line:scatter?pptx.ChartType.scatter:pptx.ChartType.bar;
   s.addChart(chartType,data,{
     x:1.03,y:2.86,w:11.20,h:2.91,
-    catAxisLabelFontFace:t.bodyFontFace,catAxisLabelFontSize:13.5,
-    valAxisLabelFontFace:t.bodyFontFace,valAxisLabelFontSize:12,
+    catAxisLabelFontFace:t.bodyFontFace,catAxisLabelFontSize:14,
+    valAxisLabelFontFace:t.bodyFontFace,valAxisLabelFontSize:14,
     catAxisLabelColor:t.text,valAxisLabelColor:t.text,
     catAxisLineColor:t.muted,valAxisLineColor:t.muted,
     showLegend:series.length>1,legendPos:'b',legendColor:t.text,showValue:!scatter,showTitle:false,showBorder:false,
@@ -135,8 +135,8 @@ function chart(s,d,t,pptx) {
     lineDataSymbol:c.kind==='line'||c.kind==='scatter'?'circle':'none',lineDataSymbolSize:6,lineSize:c.kind==='cdf'?2.5:c.kind==='scatter'?0:2.5
   });
   txt(s,c.y_axis_label||c.unit,{x:0.91,y:2.40,w:4.0,h:0.30,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,fit:'shrink'});
-  if(scatter&&c.x_axis_label)txt(s,c.x_axis_label,{x:4.10,y:5.83,w:4.8,h:0.24,fontFace:t.bodyFontFace,fontSize:12,color:t.muted,align:'center',fit:'shrink'});
-  if(d.assertion_title&&d.assertion_title!==d.title)txt(s,d.assertion_title,{x:0.86,y:6.18,w:11.5,h:0.30,fontFace:t.bodyFontFace,fontSize:13.4,bold:true,color:t.text,fit:'shrink'});
+  if(scatter&&c.x_axis_label)txt(s,c.x_axis_label,{x:4.10,y:5.83,w:4.8,h:0.30,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,align:'center',fit:'shrink'});
+  if(d.assertion_title&&d.assertion_title!==d.title)txt(s,d.assertion_title,{x:0.86,y:6.18,w:11.5,h:0.34,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.text,fit:'shrink'});
   if((d.body||[])[0])txt(s,d.body[0],{x:0.86,y:d.assertion_title&&d.assertion_title!==d.title?6.48:6.24,w:11.5,h:0.40,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,fit:'shrink'});
 }
 function process(s,d,t) {
@@ -157,42 +157,42 @@ function architecture(s,d,t) {
   const g=d.diagram,objectName=visualGroup(d,'diagram');
   for(const group of g.groups){
     rect(s,{x:group.x,y:group.y,w:group.w,h:group.h,rectRadius:0.14,fill:{color:t.surfaceAlt,transparency:24},line:{color:t.line,width:0.8,dash:'dash'}});
-    txt(s,group.label,{x:group.x+0.16,y:group.y+0.10,w:group.w-0.32,h:0.28,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.muted,fit:'shrink'});
+    txt(s,group.label,{x:group.x+0.16,y:group.y+0.08,w:group.w-0.32,h:0.34,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.muted,fit:'shrink'});
   }
   const byId=new Map(g.nodes.map(n=>[n.id,n]));
   for(const edge of g.edges){
     const a=byId.get(edge.from),b=byId.get(edge.to),x1=a.x+a.w/2,y1=a.y+a.h/2,x2=b.x+b.w/2,y2=b.y+b.h/2;
     const dx=x2-x1,dy=y2-y1;
       s.addShape(Shape.line,{x:Math.min(x1,x2),y:Math.min(y1,y2),w:Math.max(Math.abs(dx),0.001),h:Math.max(Math.abs(dy),0.001),flipH:dx<0,flipV:dy<0,line:{color:t.accent,width:1.8,endArrowType:'triangle'},objectName});
-    if(edge.label)txt(s,edge.label,{x:(x1+x2)/2-0.72,y:(y1+y2)/2-0.25,w:1.44,h:0.25,fontFace:t.bodyFontFace,fontSize:12,color:t.muted,align:'center',fit:'shrink',objectName});
+    if(edge.label)txt(s,edge.label,{x:(x1+x2)/2-0.90,y:(y1+y2)/2-0.25,w:1.80,h:0.34,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,align:'center',fit:'shrink',objectName});
   }
   g.nodes.forEach((node,i)=>{
     const shape=node.shape==='rect'?Shape.rect:node.shape==='diamond'?Shape.diamond:Shape.roundRect;
       s.addShape(shape,{x:node.x,y:node.y,w:node.w,h:node.h,...(node.shape==='roundRect'?{rectRadius:0.12}:{}),fill:{color:i%2?t.surface:t.background},line:{color:t.accent,width:1.4},objectName});
     const inset=node.shape==='diamond'?0.42:0.14;
-    txt(s,node.label,{x:node.x+inset,y:node.y+0.13,w:node.w-inset*2,h:node.h-0.26,fontFace:t.bodyFontFace,fontSize:Math.min(16,node.label.length>28?12:16),bold:true,color:t.title,align:'center',fit:'shrink',objectName});
+    txt(s,node.label,{x:node.x+inset,y:node.y+0.11,w:node.w-inset*2,h:node.h-0.22,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.title,align:'center',fit:'shrink',objectName});
   });
 }
 function editableTable(s,d,t) {
   addTop(s,d,t);addTitle(s,d,t);
   const table=d.table,columns=table.headers.length,totalRows=table.rows.length+1,x=0.82,y=2.64,w=11.70;
-  const rowH=Math.max(0.34,Math.min(0.72,3.75/totalRows)),fontSize=Math.max(12,Math.min(14.5,15.5-Math.max(0,columns-3)*1.1-Math.max(0,table.rows.length-6)*0.45));
+  const rowH=Math.max(0.38,Math.min(0.72,3.75/totalRows)),fontSize=Math.max(14,Math.min(14.5,15.5-Math.max(0,columns-3)*0.4-Math.max(0,table.rows.length-6)*0.2));
   const cell=(value,options)=>({text:String(value),options});
   const rows=[
     table.headers.map(header=>cell(header,{bold:true,color:'FFFFFF',fill:{color:t.accent},align:'left'})),
     ...table.rows.map((row,rowIndex)=>row.map(value=>cell(value,{color:t.text,fill:{color:rowIndex%2===0?t.surface:t.surfaceAlt},align:typeof value==='number'?'right':'left'})))
   ];
   s.addTable(rows,{x,y,w,rowH,colW:w/columns,margin:[0.07,0.10,0.07,0.10],fontFace:t.bodyFontFace,fontSize,color:t.text,border:{type:'solid',pt:0.65,color:t.line},valign:'middle',autoPage:false,objectName:'Editable evidence table'});
-  if(table.caption)txt(s,table.caption,{x:0.86,y:y+rowH*totalRows+0.14,w:11.5,h:0.34,fontFace:t.bodyFontFace,fontSize:12.5,color:t.muted,valign:'top',fit:'shrink'});
+  if(table.caption)txt(s,table.caption,{x:0.86,y:y+rowH*totalRows+0.14,w:11.5,h:0.38,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,valign:'top',fit:'shrink'});
 }
 function editableCode(s,d,t,slideNumber){
   addTop(s,d,t);addTitle(s,d,t);
   const code=d.code,segments=codeSegments(code.lines),x=0.82,y=2.43,w=11.70,h=4.22;
   rect(s,{x,y,w,h,rectRadius:0.10,fill:{color:t.surface},line:{color:t.line,width:0.8}});
-  txt(s,code.filename,{x:x+0.22,y:y+0.13,w:8.9,h:0.26,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.text,fit:'shrink'});
-  txt(s,code.language.toUpperCase(),{x:x+w-2.1,y:y+0.13,w:1.85,h:0.26,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,align:'right'});
-  const rowH=Math.min(0.225,3.62/segments.length),startY=y+0.52;
-  segments.forEach((segment,index)=>txt(s,segment.text,{x:x+0.22,y:startY+index*rowH,w:w-0.44,h:rowH,fontFace:'Consolas',fontSize:12.3,color:t.text,valign:'mid',fit:'shrink',objectName:`Code_S${String(d.slide_id||`S${String(slideNumber).padStart(2,'0')}`).replace(/^S/,'')}_L${String(segment.line).padStart(2,'0')}_P${String(segment.part).padStart(2,'0')}`}));
+  txt(s,code.filename,{x:x+0.22,y:y+0.12,w:8.9,h:0.30,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.text,fit:'shrink'});
+  txt(s,code.language.toUpperCase(),{x:x+w-2.1,y:y+0.12,w:1.85,h:0.30,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.accent,align:'right'});
+  const rowH=Math.min(0.24,3.58/segments.length),startY=y+0.52;
+  segments.forEach((segment,index)=>txt(s,segment.text,{x:x+0.22,y:startY+index*rowH,w:w-0.44,h:rowH,fontFace:'Consolas',fontSize:14,color:t.text,valign:'mid',fit:'shrink',objectName:`Code_S${String(d.slide_id||`S${String(slideNumber).padStart(2,'0')}`).replace(/^S/,'')}_L${String(segment.line).padStart(2,'0')}_P${String(segment.part).padStart(2,'0')}`}));
 }
 function timeline(s,d,t,slideNumber){
   addTop(s,d,t);addTitle(s,d,t);
@@ -201,10 +201,10 @@ function timeline(s,d,t,slideNumber){
   events.forEach((event,index)=>{
     const x=left+span*index/(events.length-1),id=`Timeline_S${String(d.slide_id||`S${String(slideNumber).padStart(2,'0')}`).replace(/^S/,'')}_E${String(index+1).padStart(2,'0')}`;
     s.addShape(Shape.ellipse,{x:x-0.11,y:y-0.11,w:0.22,h:0.22,fill:{color:t.accent},line:{color:t.background,width:1.4},objectName:`${id}_Marker`});
-    txt(s,event.when,{x:x-colW/2,y:3.20,w:colW,h:0.35,fontFace:t.bodyFontFace,fontSize:12,bold:true,color:t.accent,align:'center',valign:'mid',fit:'shrink',objectName:`${id}_When`});
+    txt(s,event.when,{x:x-colW/2,y:3.20,w:colW,h:0.40,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.accent,align:'center',valign:'mid',fit:'shrink',objectName:`${id}_When`});
     line(s,x,y+0.14,x,4.40,t.line);
     txt(s,event.label,{x:x-colW/2,y:4.52,w:colW,h:0.58,fontFace:t.bodyFontFace,fontSize:15,bold:true,color:t.title,align:'center',valign:'top',fit:'shrink',objectName:`${id}_Label`});
-    if(event.detail)txt(s,event.detail,{x:x-colW/2,y:5.18,w:colW,h:0.80,fontFace:t.bodyFontFace,fontSize:12,color:t.muted,align:'center',valign:'top',fit:'shrink',objectName:`${id}_Detail`});
+    if(event.detail)txt(s,event.detail,{x:x-colW/2,y:5.18,w:colW,h:0.80,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,align:'center',valign:'top',fit:'shrink',objectName:`${id}_Detail`});
   });
 }
 function bullets(s,d,t) {

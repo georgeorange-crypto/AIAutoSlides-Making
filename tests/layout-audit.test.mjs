@@ -7,7 +7,12 @@ test('text layout audit identifies bounds, overlaps, and small fonts even in the
  const xml=shape(0,0,100000,100000,800)+shape(50000,50000,100000,100000,1200)+shape(200000,0,100000,100000,900)+shape(0,950000,100000,40000,700);
  const report=auditTextLayout(xml,250000,1000000);
  assert.equal(report.textBounds[0].ok,true);assert.equal(report.textBounds[2].ok,false);
- assert.equal(report.overlaps.length,1);assert.deepEqual(report.smallText.map(x=>x.min_font_size_pt),[8,9,7]);assert.equal(report.smallText[2].text,'Label');
+ assert.equal(report.overlaps.length,1);assert.deepEqual(report.smallText.map(x=>x.min_font_size_pt),[8,12,9,7]);assert.equal(report.smallText[2].text,'Label');
+});
+
+test('14 pt is the hard rendered-text floor',()=>{
+ const report=auditTextLayout(shape(0,0,100000,100000,1399,'Too small')+shape(120000,0,100000,100000,1400,'Readable'),250000,1000000);
+ assert.deepEqual(report.smallText.map(item=>item.text),['Too small']);
 });
 
 test('text with inherited or absent explicit font size is reported as unmeasured, regardless of vertical position',()=>{
