@@ -50,6 +50,10 @@ The local build is **fully offline** after dependencies are installed; AI planni
 
 Each `evidence_ids` item must match an entry from `sources/evidence.json`. No source ID may be silently invented or ignored.
 
+### Europe PMC DOI full-text importer (M16 bounded adapter)
+
+`npm run research:ingest:europepmc -- --doi 10.xxxx/example --allow-network --allow-download --out-dir <new-dir>` sends the public DOI identifier to Europe PMC, requires one exact DOI record marked open access with a `PMC` identifier, and fetches that record's JATS XML from the fixed Europe PMC endpoint. It writes the original XML, extracted Markdown, a source manifest, and paragraph-level `verified:false` evidence with section locators and hashes. Network access and full-text download require separate flags; output directories cannot already exist; redirects are rejected and responses are bounded to 20 MiB. The adapter does not download arbitrary URLs or publisher PDFs. Open-access metadata and any returned license string are recorded as provider metadata, not legal validation; `reuse_rights` remains `needs_review`. Text extraction is a lightweight paragraph parser, not a complete JATS structural conversion. The [Europe PMC REST API documentation](https://dev.europepmc.org/RestfulWebService) describes the service and its full-text access.
+
 ### Local image assets (M3A first vertical slice)
 
 An optional `--assets <manifest.json>` can accompany `validate` and `build`. Manifest paths resolve relative to the manifest file. Each `assets[]` entry requires a unique `asset_id`, `path`, exact `type` and `mime_type` (`image/png`, `image/jpeg`, or `image/svg+xml`), matching file `sha256`, nonempty `source` and `license`, and boolean `verified`. Duplicate file hashes, missing files, invalid MIME/type pairs, and stale hashes are errors. `verified:false` means provenance/permission has not received human confirmation; a syntactically valid license string is not legal validation.

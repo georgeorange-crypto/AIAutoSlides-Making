@@ -69,7 +69,7 @@ M3 已加入受众/目标/时长字段、可选 AI 分镜、按规则 ID 和页�
 
 `src/assets.mjs` 和 `--assets` 支持本地 PNG/JPEG/SVG 清单校验及 PPTX 图片对象嵌入，记录 SHA-256、来源、许可、核验状态和关联 slide ID；活动内容、外部引用和实体声明会被 SVG 检查拒绝。`examples/multimodal/` 有 hypothetical SVG 演示。素材仍是单个图片对象，SVG 路径不会自动转为原生可编辑形状。`src/import-document.mjs` 可在本地抽取 PDF/DOCX 文本、对 PDF 扫描页调用离线 OCR，并用 `--extract-images` 提取 DOCX 正文、页眉和页脚引用的 PNG/JPEG/SVG，以及把 PDF 行内图像和图像 XObject 解码为 PNG。DOCX 正文及被主文档引用的页眉/页脚文本具有独立 locator；表格会线性化，批注和修订删除语义不抽取。提取保留文档哈希、DOCX part/relationship 或 PDF 页/操作定位和来源状态；PDF 图像遮罩/软遮罩及不常见采样格式暂不支持；继承许可仍待人工确认，OCR 和图片均不会自动变为已核验。也不自动判断图片语义或使用权。
 
-任何未来检索或提取功能都应保留来源 URL/文件定位、授权或许可信息、采集日期和人工审核状态；外部页面与用户文件应作为不可信材料处理，不能当成指令或未经核验的事实。
+Europe PMC DOI 路线目前只支持一个明确选择的开放获取 PMC JATS 全文，不代表一般 DOI 全文解析。它只发送 DOI 标识符，保留源 XML 与哈希，全文提取仍是待核验证据；开放获取标记和许可字段不能代替版权许可审查。任何检索或提取功能都应保留来源 URL/文件定位、授权或许可信息、采集日期和人工审核状态；外部页面与用户文件应作为不可信材料处理，不能当成指令或未经核验的事实。
 
 参考：`src/qa.mjs`、`docs/SCHEMA.md`、`docs/CODEX_MASTER_PROMPT.md` 的输入适配器与来源追溯要求。
 

@@ -56,8 +56,8 @@
 - The existing local document importer also provides offline PDF OCR, DOCX body/header/footer text and image extraction, and PDF inline-image/image-XObject extraction with hashes and source locators. PDF masks/soft masks, uncommon sample formats and DOCX comments/tracked-deletion semantics remain unsupported.
 - Search/download boundaries are explicit: network calls require opt-in; image search does not download files; only one selected arXiv paper or Commons image can be downloaded per command; web crawl does not traverse links or fetch media.
 - Docling 2.150.0 and Crawl4AI 0.9.5 are pinned in the isolated Python runtime. Docling model downloads are opt-in. Crawl4AI requires its locally installed Playwright Chromium. MarkItDown 0.1.9 uses its separate isolated worker.
-- Phase 2 is complete for this bounded integration slice. API workflow research actions, DOI full-text resolution beyond arXiv, bulk media acquisition, MinerU integration/licensing, automated scientific verification and parser-accuracy evaluation remain planned or out of scope.
-- The prior combined `npm run check` record on the PDF/DOCX asset and cover-layout update is exit 0 with 153/153 tests and the synthetic import/build/QA sequence. On the current latest revision, I separately reran the full suite: `npm run test` passed **157/157**; `npm run validate` and `npm run build` exited 0; `node src/qa.mjs outputs/research-demo.pptx` confirmed 7 editable slides and 1 native chart; `npm run preview` rendered seven pages using PowerPoint 16.0 and Poppler 26.07.0, and each page was visually inspected. One chart sample-size warning and two unverified evidence entries remain. The cover title wraps within the content column without intruding into the decorative panel; human design approval remains pending.
+- Phase 2 is complete for this bounded integration slice. API workflow research actions, general DOI full-text resolution outside Europe PMC, bulk media acquisition, MinerU integration/licensing, automated scientific verification and parser-accuracy evaluation remain planned or out of scope.
+- The prior combined `npm run check` record on the PDF/DOCX asset and cover-layout update is exit 0 with 153/153 tests and the synthetic import/build/QA sequence. On the M12/PDF-DOCX revision, I separately reran the full suite: `npm run test` passed **157/157**; `npm run validate` and `npm run build` exited 0; `node src/qa.mjs outputs/research-demo.pptx` confirmed 7 editable slides and 1 native chart; `npm run preview` rendered seven pages using PowerPoint 16.0 and Poppler 26.07.0, and each page was visually inspected. One chart sample-size warning and two unverified evidence entries remain. The cover title wraps within the content column without intruding into the decorative panel; human design approval remains pending.
 
 ## Verification record
 
@@ -102,5 +102,10 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 ## Asset usage suggestion follow-on — 2026-11-12
 
 - Added `npm run assets:suggest` for deterministic, explainable lexical candidate ranking between slide copy and optional asset metadata. It reports matched terms, current associations, and source/license/verification review flags without changing slides or verification state.
-- This is not image-semantic matching, license review, or evidence entailment. Audio/video management, semantic matching, rights validation, DOI full-text workflows beyond arXiv, bulk media acquisition, and MinerU evaluation remain incomplete.
+- This is not image-semantic matching, license review, or evidence entailment. Audio/video management, semantic matching, rights validation, generic DOI full-text workflows outside Europe PMC, bulk media acquisition, and MinerU evaluation remain incomplete.
 - Detailed implementation and limitations: `docs/M15_ASSET_USAGE_SUGGESTION_REPORT.md`.
+
+## Europe PMC DOI full-text follow-on — 2026-11-12
+
+- Added an opt-in single-DOI import for exact Europe PMC records marked open access and carrying a PMC ID. The importer keeps JATS XML, source and metadata hashes, paragraph locators, and unverified evidence locally; rights remain pending review.
+- This does not provide generic publisher DOI resolution or PDF downloads. See `docs/M16_DOI_FULLTEXT_EUROPEPMC_REPORT.md` for test and scope boundaries.

@@ -263,6 +263,16 @@ node src/qa.mjs outputs/multimodal/ai-systems-synthetic.pptx
 
 `node scripts/build-multimodal-demo.mjs` deterministically rebuilds the explicitly synthetic/hypothetical 10-slide AI Systems storyboard and evidence ledger from the technical Markdown, architecture JSON, and synthetic CSV. It includes two original local SVG illustrations, a native editable architecture diagram, a native CSV-derived chart, notes, and evidence IDs. SVGs are image objects; architecture nodes and connectors are native PowerPoint objects. All source records remain `verified:false`. Build to `outputs/multimodal/ai-systems-synthetic.pptx`; use `node scripts/preview.mjs outputs/multimodal/ai-systems-synthetic.pptx` for local PDF/PNG rendering. PowerPoint 16.0 and Poppler rendered all 10 pages in the current environment; the assistant inspected each PNG, and human slide sign-off remains pending.
 
+## Selected DOI full-text import (Europe PMC)
+
+For a known DOI in biomedical literature, the optional importer sends only that DOI to the public [Europe PMC REST API](https://dev.europepmc.org/RestfulWebService) after network opt-in. It downloads one JATS XML article only when Europe PMC returns one exact DOI match marked open access and with a PMC ID. The original XML, source hashes, DOI/PMCID metadata, paragraph locators, and unverified evidence candidates are written locally. This adapter does not download publisher PDFs or follow external URLs; open-access status is not a determination of redistribution rights.
+
+```powershell
+npm run research:ingest:europepmc -- --doi 10.1000/example --allow-network --allow-download --out-dir outputs/papers/example
+```
+
+See `docs/M16_DOI_FULLTEXT_EUROPEPMC_REPORT.md` for verified scope and limits.
+
 ## Research and design rules
 
 - Titles state the slide's point; evidence stays attached to each factual slide.
