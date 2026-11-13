@@ -1,0 +1,6 @@
+{
+  "input": "synthetic-paper.pdf",
+  "evidenceId": "E_PYMUPDF_SYNTHETIC",
+  "label": "Synthetic PyMuPDF extraction fixture; not research evidence",
+  "previewPages": [0]
+}

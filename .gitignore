@@ -13,3 +13,10 @@ docs/template/local-assets/**
 content/ai-storyboard.json
 __pycache__/
 workers/markitdown/.venv/
+workers/matplotlib/.venv/
+workers/pymupdf/.venv/
+workers/graphviz/.tools/
+workers/d2/.tools/
+workers/quarto/.tools/
+workers/libreoffice/.tools/
+workers/presenton/.models/

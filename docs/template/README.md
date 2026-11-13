@@ -5,7 +5,8 @@
 ## 当前状态（2026-11-12）
 
 - 调研目录有 **57 条记录**，包括大学、科技公司、金融机构、专业协会、政府机构及官方演示工具生态。
-- 第三方原始文件已下载到本地忽略目录供评估；它们不会随 Git 提交/远端分发，项目目前仍没有模板导入器。
+- 第三方原始文件已下载到本地忽略目录供评估；它们不会随 Git 提交/远端分发。另有 metadata-only PPTX/POTX 登记命令，但尚未应用模板生成演示文稿。
+- `npm run template:import -- <file.pptx|file.potx> --out outputs/templates/<entry>.json` 为本地 PPTX/POTX 建立登记。它只读 ZIP/OOXML、校验扩展名和安全边界，不复制/解压/渲染源文件；登记后仍是 `rights: unknown`、不可用于生成。
 - 57 条记录是候选来源元数据；`official_status: verified_official` 只表示来源/工具官方性经过初筛，**不表示模板本身许可已清楚、可以商用或可再分发**。
 - 在当前 AIAutoSlides 流程里，可直接使用的是项目内 `themes/*.json`。它们是项目自己的视觉主题，不是 MIT、Google、Goldman Sachs、IEEE 的官方品牌模板。
 - 已核验的重点边界：MIT CSAIL 页面将演示模板描述为供其成员演讲使用；Google Brand Resource Center 是品牌元素使用规范，不等于 Google Slides 的企业模板；Goldman Sachs Investor Relations 页面是公开投资者演示材料，不是可下载的空白母版；IEEE 有官方模板/资源入口，但每一项仍需核对面向对象和再分发权。

@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0.0",
+  "title": "Synthetic request-processing architecture",
+  "dsl": "direction: right\nGateway: API gateway\nScheduler: Request scheduler\nWorkers: Worker pool\nGateway -> Scheduler: request\nScheduler -> Workers: dispatch",
+  "source_ids": ["E_SYN_01"]
+}

@@ -22,6 +22,28 @@ The original PptxGenJS tool adapter remains a dependency/smoke-test wrapper. The
 
 Update each entry only when its executable, version, runtime, and test evidence are recorded. Use `npm run catalog:generate` to regenerate the catalog from its checked-in source.
 
+## P1/P2 continuation — 2026-11-12
+
+| Tool | Current evidence | Boundary |
+|---|---|---|
+| Marp CLI 4.5.1 | Isolated lockfile, local adapter, `doctor` / `test`, and a real synthetic HTML+PPTX export; PowerPoint rendered both pages. | Default PPTX contains rendered page images (2 slides, 0 text runs in the test fixture). Do not claim native editability. Experimental editable export is not tested. |
+| Presenton self-hosted v1 API | Loopback-only adapter and mocked contract tests; `doctor` reports missing credentials/service without contacting anything. Local service boot and Ollama-backed model setup are separately verified in `INTEGRATION_STATUS.md`. | Real generation/export and resulting deck editability still require an authenticated local instance and a successful synthetic generation run. No cloud model/provider call is allowed by the default route. |
+| Matplotlib 3.10.8 | Pinned isolated Python worker, source-ID check, line/bar/scatter/CDF mapping, SVG/PNG hashes, and a real synthetic PPTX+preview run. | The figure is an SVG picture, not a native PowerPoint chart. Source record remains unverified; transitive license closure is pending. |
+
+Marp setup: `npm run deps:marp`; export the checked-in fixture with `npm run render:marp`. For a local Presenton model, run `npm run deps:presenton-model`; this downloads a pinned Qwen2.5 1.5B GGUF to the ignored `workers/presenton/.models/`, verifies its exact size and SHA-256, imports it into local Ollama, and performs a loopback-only completion smoke. Configure self-hosted Presenton with `LLM=ollama`, `OLLAMA_MODEL=ai4slides-qwen2.5-1.5b-instruct`, `OLLAMA_URL=http://host.docker.internal:11434`, and `DISABLE_IMAGE_GENERATION=true`. The adapter may run only against a loopback Presenton instance and with `allowProviderUsage: true`; `tools doctor` and the mocked contract test make no provider calls.
+
+Matplotlib setup: `npm run deps:matplotlib`; export the synthetic fixture with `npm run render:matplotlib`. The worker uses the isolated Python environment under `workers/matplotlib/.venv/`.
+
+Graphviz setup: Windows can run `npm run deps:graphviz` to download the official 16.1.1 x64 ZIP, verify its upstream SHA-256, and unpack it under the ignored `workers/graphviz/.tools/` directory. Render the synthetic fixture with `npm run render:graphviz`; output includes `.dot`, `.svg`, `.png`, and a provenance manifest. Inputs use a bounded JSON graph contract rather than arbitrary DOT so local file/image references cannot be smuggled in. SVG/PNG are not native PowerPoint shapes. Linux/macOS require Graphviz installed by the system package manager and `AI4SLIDES_GRAPHVIZ_DOT` set to its `dot` executable.
+
+D2 setup: Windows can run `npm run deps:d2` to download the official v0.9.0 x64 release archive, verify the published SHA-256, and unpack it under the ignored `workers/d2/.tools/` directory. Render the synthetic fixture with `npm run render:d2`; output includes the `.d2` source, `.svg`, `.png`, and a provenance manifest. The adapter rejects imports and external URL/image directives and requires ledger source IDs. SVG/PNG are not native PowerPoint shapes. Linux/macOS require D2 installed according to the official instructions and `AI4SLIDES_D2_BIN` set to its executable.
+
+Quarto setup: Windows can run `npm run deps:quarto` to download the official 1.11.9 ZIP, verify its published SHA-256, and unpack it under ignored `workers/quarto/.tools/`. `npm run render:quarto` renders the bounded synthetic JSON slide spec to standalone reveal.js HTML and editable-text PPTX, retaining source IDs on every slide and writing an artifact manifest. The adapter accepts plain text only, does not run code or extensions, and rejects HTML and external references. On other platforms install Quarto using its official instructions and set `AI4SLIDES_QUARTO_BIN`.
+
+LibreOffice preview: install LibreOffice Impress and Poppler (`pdftoppm`), then set `AI4SLIDES_LIBREOFFICE_BIN` if `soffice` is not on PATH. Run `npm run preview:libreoffice -- <deck.pptx>` for direct page previews, or use `ai4slides tools test libreoffice` for a disposable real two-slide render. The adapter copies a local PPTX into a new output directory, emits PDF/PNG pages and SHA-256 manifest, and refuses to overwrite. PowerPoint and LibreOffice fidelity differ; inspect every page.
+
+PyMuPDF setup: `npm run deps:pymupdf`; run the checked-in extraction fixture with `npm run import:pymupdf`. The worker uses `workers/pymupdf/.venv/`, emits page text/locators, bounded embedded-image files and vector drawing bounds, and does not run OCR. Its license state remains `needs-review`; resolve AGPL/commercial terms before redistribution. The fixture is synthetic and its extracted evidence remains unverified. Custom inputs can be passed as `npm run import:pymupdf -- --input <paper.pdf> --out <new-output-directory> --evidence-id E_LOCAL_PAPER --preview-pages 0,1`.
+
 ## Phase-0 candidate evaluation snapshot (2026-11-12)
 
 This table is execution evidence, distinct from the 56-entry discovery catalog. PptxGenJS, Slidev and deterministic PPTAgent conversion completed generated-deck loops. Presenton service/API smoke passed but it could not generate without its configured local model; slide-maker and SlidePoise remain unrun end-to-end. Details and rerun requirements are in [`POC_RESULTS.md`](POC_RESULTS.md); license gates are in [`LICENSE_AUDIT.md`](LICENSE_AUDIT.md).

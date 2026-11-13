@@ -62,3 +62,18 @@ Recorded model cost for completed local runs: **$0** (no model calls). This does
 2. Execute one controlled source set per requested audience using the same content/data and a logged model/provider/cost policy.
 3. Preserve each candidate's logs, exact SHAs, input hash, PPTX/PDF/PNGs, notes, object counts, per-slide edit tests and visual review.
 4. Only then choose any new rendering adapter. Do not start a deep UI fork based on catalog entries or vendor claims.
+
+## P1/P2 continuation — 2026-11-12
+
+- **Marp CLI (P1):** added an isolated `@marp-team/marp-cli@4.5.1` worker and local adapter. Synthetic Markdown exported to HTML and PPTX; the PPTX contains 2 slides, 0 editable text runs, and 3 media objects, so it is explicitly classified as rasterized. The two pages were rendered with PowerPoint 16.0 and Poppler and visually inspected. No external service was called.
+- **Presenton (P2):** added a loopback-only v1 REST adapter with bounded input/output handling, explicit per-run provider-usage opt-in, and mocked request/OOXML validation. Its contract smoke test passed without contacting a service. Docker is unavailable on this host and Ollama has no installed models; no Presenton deck, provider cost, or generated-deck editability is verified. This supersedes the earlier “no adapter” boundary, but not the “service blocked” result.
+- **Full repository check:** `npm run check` passed on Windows, including 167/167 tests, dependency inspection, evaluation, benchmark update, synthetic imports, validation, PPTX builds, QA, dual-profile build, and critique. `npm run render:marp` and the focused Marp/Presenton adapter tests also passed.
+- **Acceptance boundary:** this is a completed, verifiable P1/P2 implementation slice, not completion of the full P1 or P2 tranches. Remaining P1 work is listed in `INTEGRATION_STATUS.md`; remaining P2 service and agent-host trials require a working supported runtime and an explicitly approved local model/provider. No paid or cloud generation was performed.
+
+## Matplotlib P1 continuation — 2026-11-12
+
+- Installed the isolated Matplotlib 3.10.8 worker in a Python 3.12.7 venv; transitive versions are pinned in `workers/matplotlib/requirements.lock.txt`. No global Python packages were changed.
+- `npm run tools -- tools doctor matplotlib` and the real worker smoke passed. The line-chart fixture mapped 5 input observations and `E_SYN_01` exactly to deterministic SVG/PNG artifacts with SHA-256 manifests; evidence stayed unverified.
+- `npm run render:matplotlib -- --out outputs/matplotlib-synthetic-reviewed` produced `outputs/matplotlib-synthetic-reviewed/matplotlib-synthetic.pptx`; OOXML QA: 1 slide, 1 text-editable slide, 0 native charts. PowerPoint 16.0 and Poppler rendered the page; the visual check found the chart title, synthetic warning and evidence status fit and remain readable. The SVG remains a picture object.
+- `npm run check` passed end to end with 172/172 tests, then completed the benchmark, synthetic import, validation, PPTX build/QA, dual-profile build and critique steps.
+- This is another P1 integration slice. PyMuPDF, Graphviz/D2, Quarto, LibreOffice, template/POTX import and broader existing-deck object edits remain incomplete. P2 service/agent E2E remains incomplete.

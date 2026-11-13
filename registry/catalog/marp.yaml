@@ -3,7 +3,7 @@
   "name": "Marp CLI",
   "kind": "deck-backend",
   "official_url": "https://github.com/marp-team/marp-cli",
-  "version": "not-pinned",
+  "version": "4.5.1",
   "interface": "CLI",
   "platforms": [
     "windows",
@@ -24,22 +24,22 @@
     "pptx"
   ],
   "dependencies": [
-    "independent executable/runtime"
+    "isolated workers/marp npm install and Chrome, Edge, or Firefox for non-HTML outputs"
   ],
   "needs_network": false,
   "needs_auth": false,
   "expected_cost": "unknown",
   "editable": "partial",
   "license": {
-    "identifier": "unreviewed",
+    "identifier": "MIT",
     "review_status": "needs-review",
     "note": "Verify the current upstream license and transitive dependencies before production use."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/marp.mjs",
   "probe": {
     "command": "marp"
   },
-  "limitations": "PPTX export may rasterize or simplify elements; object-level QA required.",
-  "status": "catalogued"
+  "limitations": "Default PPTX output is rendered page images, not editable text/shapes/charts. Editable PPTX is experimental and requires LibreOffice; source Markdown is kept separately.",
+  "status": "e2e-tested"
 }

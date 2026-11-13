@@ -2,44 +2,26 @@
   "id": "pymupdf",
   "name": "PyMuPDF",
   "kind": "parser",
-  "official_url": "https://github.com/pymupdf/PyMuPDF",
-  "version": "not-pinned",
-  "interface": "Python API/CLI or Node library",
-  "platforms": [
-    "windows",
-    "linux",
-    "macos"
-  ],
-  "capabilities": [
-    "parser"
-  ],
-  "inputs": [
-    "pdf",
-    "pptx",
-    "docx",
-    "html",
-    "web"
-  ],
-  "outputs": [
-    "source-document-ir",
-    "page-locators",
-    "assets"
-  ],
-  "dependencies": [
-    "isolated runtime required"
-  ],
+  "official_url": "https://pymupdf.readthedocs.io/en/latest/",
+  "version": "2.1",
+  "interface": "isolated Python 3.12 worker",
+  "platforms": ["windows", "linux", "macos"],
+  "capabilities": ["selectable-text", "page-locators", "embedded-image-extraction", "vector-drawing-coordinates", "page-preview", "source-sha256"],
+  "inputs": ["authorized-local-pdf", "task-json"],
+  "outputs": ["page-json", "markdown-source-record-1.0.0", "evidence-entry", "embedded-images", "vector-metadata", "png-preview", "run-manifest"],
+  "dependencies": ["workers/pymupdf/requirements.lock.txt", "isolated workers/pymupdf/.venv"],
   "needs_network": false,
   "needs_auth": false,
-  "expected_cost": "unknown",
+  "expected_cost": "free-local",
   "editable": "not-applicable",
   "license": {
-    "identifier": "unreviewed",
+    "identifier": "AGPL-3.0-only OR commercial",
     "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "note": "PyMuPDF and MuPDF are offered under AGPL or commercial terms. The pinned wheel dependency closure and distribution model require an approved licensing review before redistribution."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/pymupdf.mjs",
   "probe": null,
-  "limitations": "Playwright web access requires explicit URL authorization; no page restrictions may be bypassed.",
-  "status": "catalogued"
+  "limitations": "Local-only and bounded extraction. OCR is not run. Empty text may indicate scanned/vector-only pages. Image reuse permissions are unknown. A maximum of 100 extracted images / 50 MiB / 25 million pixels per image and 2,000 vector drawing records per page applies. Evidence remains unverified.",
+  "status": "e2e-tested"
 }

@@ -2,42 +2,48 @@
   "id": "graphviz",
   "name": "Graphviz",
   "kind": "diagram",
-  "official_url": "https://gitlab.com/graphviz/graphviz",
-  "version": "not-pinned",
-  "interface": "DSL/CLI/file format",
+  "official_url": "https://graphviz.org/",
+  "version": "16.1.1",
+  "interface": "isolated Graphviz dot CLI over validated JSON graph spec",
   "platforms": [
     "windows",
     "linux",
     "macos"
   ],
   "capabilities": [
-    "diagram"
+    "directed-graph-layout",
+    "dot-source-generation",
+    "svg-render",
+    "png-render",
+    "source-lineage-and-hashes"
   ],
   "inputs": [
-    "diagram-dsl"
+    "validated-graph-json",
+    "evidence-ledger"
   ],
   "outputs": [
     "svg",
     "png",
-    "editable-source"
+    "dot-source",
+    "diagram-manifest"
   ],
   "dependencies": [
-    "independent executable/runtime"
+    "workers/graphviz/.tools/16.1.1/ (official Windows x64 ZIP) or configured system Graphviz executable"
   ],
   "needs_network": false,
   "needs_auth": false,
-  "expected_cost": "unknown",
+  "expected_cost": "free-local",
   "editable": "partial",
   "license": {
-    "identifier": "unreviewed",
-    "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "identifier": "EPL-2.0",
+    "review_status": "verified-in-repository",
+    "note": "Graphviz official license page states current releases are under Eclipse Public License 2.0. The official Windows ZIP contains runtime libraries/plugins; review bundled notices before redistributing that binary package."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/graphviz.mjs",
   "probe": {
     "command": "dot"
   },
-  "limitations": "SVG is an image object in PPTX unless rebuilt as native shapes; retain source DSL.",
-  "status": "catalogued"
+  "limitations": "Accepts a bounded JSON graph contract and generates DOT; arbitrary DSL, external images and URL references are not accepted. SVG/PNG are image objects in PPTX, not native editable shapes. Windows installer is pinned; Linux/macOS require a configured system Graphviz executable.",
+  "status": "e2e-tested"
 }

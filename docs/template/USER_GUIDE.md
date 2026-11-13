@@ -51,6 +51,27 @@ Catalog 当前没有 `approval_state` 字段时，新增时不要擅自以 `offi
 
 ## 5. 技术评估步骤
 
+### 本地 PPTX/POTX metadata-only 登记
+
+用户提供且已在授权范围内可读取的本地文件，可先登记结构元数据，不需要复制第三方二进制：
+
+```powershell
+npm run template:import -- D:\path\to\template.potx --out outputs\templates\my-template.json
+```
+
+命令只读源文件并记录文件名、SHA-256、页面尺寸、页面/母版/版式/媒体数量、字体和外部关系计数；输出不会保存源文件的绝对路径。它拒绝扩展名与 OOXML 类型不符、危险 ZIP 路径、加密/ZIP64、超限归档，并拒绝覆盖现有登记文件。登记项的授权仍为 `unknown`，也不会被生成器采用。它不抽取、复制、渲染、修改或执行模板；应用模板与逐页 QA 仍须单独实现和验证。
+
+### 对现有 PPTX 进行精确文本修改
+
+安装隔离依赖后，可用 `pptx-automizer` 修改指定页上精确命名的原生文本形状；输出为新文件，不会覆盖原稿：
+
+```powershell
+npm run deps:pptx-automizer
+npm run template:edit -- --input D:\path\to\source.pptx --out outputs\revised.pptx --slide 2 --element "Text 0" --text "Revised wording"
+```
+
+先查页面与形状名称可用 `npm run tools -- tools test pptx-automizer` 的合成冒烟；实际用户文件应在 PowerPoint 中核对形状名称。此适配器复制所有页再替换一个文本形状；它不改图表，不应用 POTX，不承诺动画、音视频或特殊关系无损。执行后必须对输出逐页预览并检查源文件哈希/变更清单。
+
 ### A. PPTX/POTX/KEY/Google Slides
 
 - 记录页宽高比、母版/版式数、placeholder 类型、字体/主题色、notes、图片/媒体、OLE、链接、宏和 chart parts。

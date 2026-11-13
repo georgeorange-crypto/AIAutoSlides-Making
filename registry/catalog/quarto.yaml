@@ -3,43 +3,44 @@
   "name": "Quarto",
   "kind": "deck-backend",
   "official_url": "https://github.com/quarto-dev/quarto-cli",
-  "version": "not-pinned",
-  "interface": "CLI",
+  "version": "1.11.9",
+  "interface": "isolated Quarto CLI over bounded evidence-linked slide JSON",
   "platforms": [
     "windows",
     "linux",
     "macos"
   ],
   "capabilities": [
-    "deck-backend"
+    "native-text-pptx",
+    "revealjs-html",
+    "source-lineage-and-hashes"
   ],
   "inputs": [
-    "markdown",
-    "qmd",
-    "html"
+    "bounded-presentation-json",
+    "evidence-ledger"
   ],
   "outputs": [
-    "html",
-    "pdf",
-    "pptx"
+    "pptx",
+    "revealjs-html",
+    "source-manifest"
   ],
   "dependencies": [
-    "independent executable/runtime"
+    "workers/quarto/.tools/1.11.9/ official Windows ZIP or configured Quarto CLI"
   ],
   "needs_network": false,
   "needs_auth": false,
-  "expected_cost": "unknown",
+  "expected_cost": "free-local",
   "editable": "partial",
   "license": {
-    "identifier": "unreviewed",
-    "review_status": "needs-review",
-    "note": "Verify the current upstream license and transitive dependencies before production use."
+    "identifier": "MIT",
+    "review_status": "verified-in-repository",
+    "note": "Quarto source is MIT licensed; official standalone binary and bundled runtimes are not redistributed by this repository."
   },
-  "verification_status": "catalogued",
-  "adapter": "not-implemented",
+  "verification_status": "e2e-tested",
+  "adapter": "packages/adapters/quarto.mjs",
   "probe": {
     "command": "quarto"
   },
-  "limitations": "PPTX export may rasterize or simplify elements; object-level QA required.",
-  "status": "catalogued"
+  "limitations": "Accepts plain-text slide specs only; code execution, extensions, HTML, URLs and images are not supported. PPTX output is checked for editable text and source IDs; page visual fidelity remains renderer-dependent. Windows pinned installer; Linux/macOS require a configured executable.",
+  "status": "e2e-tested"
 }
