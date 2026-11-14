@@ -58,6 +58,11 @@ test('formal quality audit blocks chart labels below 14 pt and outside the selec
  const result=auditDeckQuality(input),codes=new Set(result.blockers.map(item=>item.code));assert.ok(codes.has('QUALITY_FONT_MISMATCH'));assert.ok(codes.has('QUALITY_TEXT_TOO_SMALL'));
 });
 
+test('formal quality audit blocks chart typography that QA could not measure',()=>{
+ const input=fixture(),page=input.renderedQa.slides[2];page.unmeasuredText=[{shape:1,element:'chart',text:'chart text styles are absent'}];page.unmeasuredFonts=[{shape:1,element:'chart',text:'chart text styles are absent'}];
+ const codes=new Set(auditDeckQuality(input).blockers.map(item=>item.code));assert.ok(codes.has('QUALITY_TEXT_SIZE_UNMEASURED'));assert.ok(codes.has('QUALITY_FONT_UNMEASURED'));
+});
+
 test('opening-context pages and repeated opening labels cannot bypass content and priority audits',()=>{
  const input=fixture({count:5,visualEvery:2});input.plan.quality_contract.minimum_priority_slide_share=0.5;
  for(let index=0;index<3;index++){

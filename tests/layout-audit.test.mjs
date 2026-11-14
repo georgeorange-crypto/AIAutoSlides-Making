@@ -24,6 +24,10 @@ test('chart-part text audit marks inherited font and size styles unmeasured',()=
  const report=auditChartText('<c:chartSpace><c:valAx><c:txPr><a:p><a:pPr><a:defRPr/></a:pPr></a:p></c:txPr></c:valAx></c:chartSpace>');assert.equal(report.unmeasuredText.length,1);assert.equal(report.unmeasuredFonts.length,1);
 });
 
+test('chart-part text audit fails closed when all chart text styles are absent',()=>{
+ const report=auditChartText('<c:chartSpace><c:plotArea><c:barChart/></c:plotArea></c:chartSpace>');assert.equal(report.textStyleCount,0);assert.equal(report.unmeasuredText[0].text,'chart text styles are absent');assert.equal(report.unmeasuredFonts[0].text,'chart text styles are absent');
+});
+
 test('text with inherited or absent explicit font size is reported as unmeasured, regardless of vertical position',()=>{
  const xml='<p:sp><p:spPr><a:xfrm><a:off x="0" y="950000"/><a:ext cx="100000" cy="40000"/></a:xfrm></p:spPr><p:txBody><a:p><a:r><a:t>Long footer-like body content</a:t></a:r></a:p></p:txBody></p:sp>';
  const report=auditTextLayout(xml,250000,1000000);

@@ -39,6 +39,10 @@ export function auditTextLayout(xml,slideWidth,slideHeight,smallTextThresholdPt=
 export function auditChartText(xml,smallTextThresholdPt=14){
   const smallText=[],unmeasuredText=[],unmeasuredFonts=[],faces=[];
   const styles=[...xml.matchAll(/<c:txPr\b[^>]*>([\s\S]*?)<\/c:txPr>/g)];
+  if(!styles.length){
+    unmeasuredText.push({shape:1,element:'chart',text:'chart text styles are absent'});
+    unmeasuredFonts.push({shape:1,element:'chart',text:'chart text styles are absent'});
+  }
   styles.forEach((match,index)=>{
     const style=match[1],label=`chart text style ${index+1}`,sizes=fontSizes(style),families=fontFaces(style);
     faces.push(...families);

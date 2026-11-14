@@ -275,3 +275,8 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - Rendered-PDF inspection exposed a chart-specific defect: academic-light's slide text used Aptos, while native chart data labels were emitted as Arial at 12 pt. Slide XML QA had not been reading the separate chart XML part, so those labels escaped the theme-font and 14 pt checks.
 - Chart data labels now use the selected theme body font at 14 pt; legends use the same font and size. QA follows each slide's chart relationships and merges chart-internal font/size measurements into that slide's formal review record. Unmeasured chart text is surfaced as unmeasured and blocks formal review through the existing font/size gates.
 - An adversarial PPTX fixture restores Arial/12 pt in chart XML and verifies QA reports both defects; the formal quality-audit tests verify those measurements block approval. PowerPoint 16.0 re-rendered all seven synthetic pages; page 4's PDF font table now contains Aptos/Aptos Display and no Arial. See `docs/CHART_TYPOGRAPHY_REPORT.md`.
+
+## Fail-closed chart typography follow-on (2026-11-13)
+
+- Review found two bypasses in the first chart gate: a chart with no `c:txPr` nodes and a broken slide-to-chart relationship were silently omitted from typography measurements. Both now surface unmeasured font and size findings, which the existing formal gate blocks.
+- The real-PPTX adversarial fixture now removes every chart text style and then separately breaks the chart relationship; QA records unmeasured findings for both cases. See `docs/CHART_TYPOGRAPHY_REPORT.md`.
