@@ -244,6 +244,13 @@ test('formal quality audit blocks stacked or copy-pasted disclaimer clauses whil
  assert.deepEqual(issue.slide_ids,['S2','S3','S4']);
 });
 
+test('formal quality audit blocks the same disclaimer repeated on only two pages',()=>{
+ const repeated=fixture({count:2});
+ for(const id of ['S1','S2'])repeated.presentationIR.slides.find(slide=>slide.slide_id===id).elements[0].text+=' 该结果不代表因果关系。';
+ const issue=auditDeckQuality(repeated).blockers.find(item=>item.code==='QUALITY_CAVEAT_REPETITION');
+ assert.deepEqual(issue?.slide_ids,['S1','S2']);
+});
+
 test('caveat gates include section transitions while ignoring the navigation-only agenda',()=>{
  const stacked=fixture();stacked.presentationIR.slides[1].elements[0].text+=' 本结论不代表因果关系。不表明适用于所有样本。不能证明其他机制不存在。';
  assert.ok(auditDeckQuality(stacked).blockers.some(item=>item.code==='QUALITY_CAVEAT_OVERLOAD'&&item.slide_id==='DIV-RESULTS'));
