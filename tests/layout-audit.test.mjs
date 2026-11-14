@@ -40,6 +40,26 @@ test('text with inherited or absent explicit font size is reported as unmeasured
  assert.deepEqual(report.smallText,[]);assert.equal(report.unmeasuredText.length,1);assert.match(report.unmeasuredText[0].text,/Long footer/);
 });
 
+test('text layout audit blocks a partially inherited run even when a sibling run has a measured size',()=>{
+ const xml=shape(0,0,250000,100000,1800,'Measured run').replace('</a:r></a:p>','</a:r><a:r><a:t>Inherited run</a:t></a:r></a:p>');
+ const report=auditTextLayout(xml,300000,200000);
+ assert.equal(report.unmeasuredText.length,1);assert.equal(report.unmeasuredText[0].unmeasured_run_count,1);assert.match(report.unmeasuredText[0].text,/Inherited run/);
+});
+
+test('text layout audit resolves a visible run from its explicit paragraph default size',()=>{
+ const xml='<p:sp><p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="250000" cy="100000"/></a:xfrm></p:spPr><p:txBody><a:p><a:pPr><a:defRPr sz="1800"/></a:pPr><a:r><a:t>Paragraph default</a:t></a:r></a:p></p:txBody></p:sp>';
+ const report=auditTextLayout(xml,300000,200000);
+ assert.deepEqual(report.unmeasuredText,[]);assert.deepEqual(report.smallText,[]);
+});
+
+test('table text audit reports inherited cell sizes and catches small explicit cell text',()=>{
+ const table=`<p:graphicFrame><p:xfrm><a:off x="0" y="0"/><a:ext cx="250000" cy="100000"/></p:xfrm><a:graphic><a:tbl><a:tr>${['Measured cell','Inherited cell'].map((text,index)=>`<a:tc><a:txBody><a:p><a:r>${index===0?'<a:rPr sz="1800"><a:latin typeface="Aptos"/></a:rPr>':''}<a:t>${text}</a:t></a:r></a:p></a:txBody></a:tc>`).join('')}</a:tr></a:tbl></a:graphic></p:graphicFrame>`;
+ const inherited=auditTextLayout(table,300000,200000);
+ assert.equal(inherited.unmeasuredText.length,1);assert.equal(inherited.unmeasuredText[0].element,'table');assert.match(inherited.unmeasuredText[0].text,/Inherited cell/);
+ const tiny=auditTextLayout(table.replace('sz="1800"','sz="800"').replace('<a:t>Inherited cell</a:t>','<a:rPr sz="800"><a:latin typeface="Aptos"/></a:rPr><a:t>Inherited cell</a:t>'),300000,200000);
+ assert.equal(tiny.smallText.length,1);assert.equal(tiny.smallText[0].element,'table');assert.equal(tiny.smallText[0].min_font_size_pt,8);
+});
+
 test('text layout audit records explicit font families and reports inherited font faces',()=>{
  const inherited='<p:sp><p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="100000" cy="100000"/></a:xfrm></p:spPr><p:txBody><a:p><a:r><a:rPr sz="1400"/><a:t>Inherited family</a:t></a:r></a:p></p:txBody></p:sp>';
  const result=auditTextLayout(shape(0,0,100000,100000,1800,'Heading','Aptos Display')+shape(120000,0,100000,100000,1400,'Body','Aptos')+inherited,300000,200000);

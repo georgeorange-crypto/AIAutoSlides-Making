@@ -343,6 +343,12 @@ test('formal readability gate blocks persisted autofit that reduces a 52 pt titl
  assert.ok(finding);assert.equal(finding.font_size_pt,10.4);assert.match(finding.text,/reproducible/);
 });
 
+test('formal readability gate blocks table text runs with inherited font sizes',()=>{
+ const input=fixture();input.renderedQa.slides[2].unmeasuredText=[{shape:4,element:'table',unmeasured_run_count:1,text:'Inherited table cell',x:0,y:0,w:100,h:100}];
+ const finding=auditDeckQuality(input).blockers.find(item=>item.code==='QUALITY_TEXT_SIZE_UNMEASURED'&&item.slide_id==='S1');
+ assert.ok(finding);assert.equal(finding.element,'table');assert.equal(finding.unmeasured_run_count,1);
+});
+
 test('formal quality audit blocks postage-stamp images and charts using rendered OOXML bounds',()=>{
  const input=fixture();input.presentationIR.slides[3].elements.push({element_id:'IMG-SMALL',kind:'image',asset_id:'synthetic-photo',alt:'Synthetic fixture image',x:0,y:0,w:1,h:1});
  input.renderedQa.slides[3]={...input.renderedQa.slides[3],slideWidthEmu:12192000,slideHeightEmu:6858000,elementBounds:[{element:'pic',ok:true,x:100,y:100,w:300000,h:300000}]};

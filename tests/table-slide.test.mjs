@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {strFromU8,unzipSync} from 'fflate';
+import {strFromU8,strToU8,unzipSync,zipSync} from 'fflate';
 
 test('table slide builds native editable cells and exact evidence lineage',()=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-table-'));
@@ -24,5 +24,12 @@ test('table slide builds native editable cells and exact evidence lineage',()=>{
   const qa=spawnSync(process.execPath,['src/qa.mjs',pptxPath],{encoding:'utf8'});
   assert.equal(qa.status,0,qa.stderr);const report=JSON.parse(fs.readFileSync(path.join(dir,'table-demo.qa.json'),'utf8'));
   assert.equal(report.nativeTableCount,1);assert.equal(report.tableDataExactMatch,true);assert.deepEqual(report.errors,[]);
+  const slideName='ppt/slides/slide2.xml',originalSlide=strFromU8(files[slideName]);
+  files[slideName]=strToU8(originalSlide.replace('sz="1450"',''));
+  fs.writeFileSync(pptxPath,zipSync(files));const inheritedRun=spawnSync(process.execPath,['src/qa.mjs',pptxPath],{encoding:'utf8'});assert.equal(inheritedRun.status,0,inheritedRun.stdout+inheritedRun.stderr);
+  const inheritedReport=JSON.parse(fs.readFileSync(path.join(dir,'table-demo.qa.json'),'utf8'));assert.ok(inheritedReport.slides[1].unmeasuredText.some(item=>item.element==='table'&&item.unmeasured_run_count===1));
+  files[slideName]=strToU8(originalSlide.replace('sz="1450"','sz="800"'));
+  fs.writeFileSync(pptxPath,zipSync(files));const tinyRun=spawnSync(process.execPath,['src/qa.mjs',pptxPath],{encoding:'utf8'});assert.equal(tinyRun.status,0,tinyRun.stdout+tinyRun.stderr);
+  const tinyReport=JSON.parse(fs.readFileSync(path.join(dir,'table-demo.qa.json'),'utf8'));assert.ok(tinyReport.slides[1].smallText.some(item=>item.element==='table'&&item.min_font_size_pt===8));
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });

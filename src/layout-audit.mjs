@@ -10,6 +10,19 @@ function autofitFontScale(shapeXml){
   return Number.isFinite(scale)&&scale>=0&&scale<=100000?scale/100000:0;
 }
 function fontSizes(shapeXml){const scale=autofitFontScale(shapeXml);return [...shapeXml.matchAll(/<a:(?:rPr|defRPr|endParaRPr)\b[^>]*\bsz="(\d+)"/g)].map(m=>Number(m[1])/100*scale);}
+function textRunFontSizes(shapeXml){
+  const scale=autofitFontScale(shapeXml),sizes=[],unmeasured=[];
+  for(const paragraph of shapeXml.matchAll(/<a:p\b[^>]*>([\s\S]*?)<\/a:p>/g)){
+    const paragraphDefault=paragraph[1].match(/<a:pPr\b[^>]*>([\s\S]*?)<\/a:pPr>/)?.[1].match(/<a:defRPr\b[^>]*\bsz="(\d+)"/)?.[1];
+    const runs=[...paragraph[1].matchAll(/<a:(r|fld)\b[^>]*>([\s\S]*?)<\/a:\1>/g)].filter(run=>/<a:t\b/.test(run[2]));
+    for(const run of runs){
+      const own=run[2].match(/<a:rPr\b[^>]*\bsz="(\d+)"/)?.[1],size=own||paragraphDefault,text=textContent(run[2]);
+      if(size)sizes.push(Number(size)/100*scale);else unmeasured.push(text);
+    }
+    if(!runs.length&&/<a:t\b/.test(paragraph[1]))unmeasured.push(textContent(paragraph[1]));
+  }
+  return{sizes,unmeasured};
+}
 function fontFaces(shapeXml){return [...shapeXml.matchAll(/<a:latin\b[^>]*\btypeface="([^"]*)"/g)].map(match=>match[1]).filter(Boolean);}
 function textContent(shapeXml){return [...shapeXml.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g)].map(match=>match[1].replaceAll('&amp;','&').replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&quot;','"').replaceAll('&apos;',"'")).join('');}
 function visualGroupName(shapeXml){return shapeXml.match(/<p:cNvPr\b[^>]*\bname="(AIAutoSlidesVisualGroup:[^"]+)"/)?.[1]||null;}
@@ -36,9 +49,11 @@ export function auditTextLayout(xml,slideWidth,slideHeight,smallTextThresholdPt=
   const smallText=[];
   const unmeasuredText=[];
   const unmeasuredFonts=[];
-  shapes.forEach(item=>{const g=geometry(item.xml);if(!g)return;const sizes=fontSizes(item.xml),faces=fontFaces(item.xml),text=textContent(item.xml),location={x:g.x,y:g.y,w:g.w,h:g.h};if(!sizes.length){unmeasuredText.push({shape:item.index,text, ...location});return;}if(!faces.length&&/[\p{L}\p{N}]/u.test(text))unmeasuredFonts.push({shape:item.index,text,...location});const min=Math.min(...sizes);if(min<smallTextThresholdPt)smallText.push({shape:item.index,min_font_size_pt:min,text,...location});});
-  elements.filter(item=>item.type==='graphicFrame').forEach(item=>{const g=geometry(item.xml);if(!g)return;const sizes=fontSizes(item.xml);if(!sizes.length)return;const min=Math.min(...sizes);if(min<smallTextThresholdPt)smallText.push({shape:item.index,element:item.type,min_font_size_pt:min,...g});});
-  return{textBounds,elementBounds,visualGroupBounds,overlaps,smallText,unmeasuredText,fontFaces:[...new Set(shapes.flatMap(item=>fontFaces(item.xml)))],unmeasuredFonts,editableTextShapes:shapes.length};
+  shapes.forEach(item=>{const g=geometry(item.xml);if(!g)return;const measurement=textRunFontSizes(item.xml),sizes=measurement.sizes,faces=fontFaces(item.xml),text=textContent(item.xml),location={x:g.x,y:g.y,w:g.w,h:g.h};if(!sizes.length||measurement.unmeasured.length)unmeasuredText.push({shape:item.index,text,unmeasured_run_count:measurement.unmeasured.length,...location});if(!faces.length&&/[\p{L}\p{N}]/u.test(text))unmeasuredFonts.push({shape:item.index,text,...location});if(sizes.length){const min=Math.min(...sizes);if(min<smallTextThresholdPt)smallText.push({shape:item.index,min_font_size_pt:min,text,...location});}});
+  const tableFonts=[];
+  elements.filter(item=>item.type==='graphicFrame'&&/<a:tbl\b/.test(item.xml)).forEach(item=>{const g=geometry(item.xml);if(!g)return;const measurement=textRunFontSizes(item.xml),text=textContent(item.xml),faces=fontFaces(item.xml);tableFonts.push(...faces);if(!measurement.sizes.length||measurement.unmeasured.length)unmeasuredText.push({shape:item.index,element:'table',text,unmeasured_run_count:measurement.unmeasured.length,...g});if(text&&/[\p{L}\p{N}]/u.test(text)&&!faces.length)unmeasuredFonts.push({shape:item.index,element:'table',text,...g});if(measurement.sizes.length){const min=Math.min(...measurement.sizes);if(min<smallTextThresholdPt)smallText.push({shape:item.index,element:'table',min_font_size_pt:min,text,...g});}});
+  elements.filter(item=>item.type==='graphicFrame'&&!/<a:tbl\b/.test(item.xml)).forEach(item=>{const g=geometry(item.xml);if(!g)return;const sizes=fontSizes(item.xml);if(sizes.length){const min=Math.min(...sizes);if(min<smallTextThresholdPt)smallText.push({shape:item.index,element:item.type,min_font_size_pt:min,...g});}});
+  return{textBounds,elementBounds,visualGroupBounds,overlaps,smallText,unmeasuredText,fontFaces:[...new Set([...shapes.flatMap(item=>fontFaces(item.xml)),...tableFonts])],unmeasuredFonts,editableTextShapes:shapes.length};
 }
 
 /** Inspect chart-part text styles, which are not stored in the slide's graphicFrame XML. */
