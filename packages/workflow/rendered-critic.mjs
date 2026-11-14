@@ -31,6 +31,20 @@ function visibleOccupancy(recognized,slide,qa){
   return region>0?{ratio:Number((unionArea(boxes)/region).toFixed(4)),line_count:lines.length,overflow_word_count:overflowWords,overflow_directions:overflowDirections}:null;
 }
 
+function chartTextOverlaps(recognized,qa){
+  if(!Number.isInteger(qa?.charts)||qa.charts===0)return{count:0,word_count:0,collisions:[]};
+  const width=recognized.image_width,height=recognized.image_height,slideWidth=qa.slideWidthEmu,slideHeight=qa.slideHeightEmu,bounds=qa.chartBounds;
+  if(!Number.isFinite(width)||!Number.isFinite(height)||!Number.isFinite(slideWidth)||!Number.isFinite(slideHeight)||!Array.isArray(bounds)||bounds.length!==qa.charts||bounds.some(box=>!box.ok||![box.x,box.y,box.w,box.h].every(Number.isFinite)))return{count:null,word_count:0,collisions:[]};
+  const chartRects=bounds.map(box=>({x0:box.x/slideWidth*width,y0:box.y/slideHeight*height,x1:(box.x+box.w)/slideWidth*width,y1:(box.y+box.h)/slideHeight*height})),words=[];
+  for(const word of recognized.words||[]){const box=word.bbox;if(!box||![box.x0,box.y0,box.x1,box.y1].every(Number.isFinite)||box.x1<=box.x0||box.y1<=box.y0||Number.isFinite(word.confidence)&&word.confidence<35)continue;const centerX=(box.x0+box.x1)/2,centerY=(box.y0+box.y1)/2;if(!chartRects.some(rect=>centerX>=rect.x0&&centerX<=rect.x1&&centerY>=rect.y0&&centerY<=rect.y1))continue;if(words.some(item=>item.text===String(word.text||'').normalize('NFKC').toLocaleLowerCase()&&Math.abs(item.x0-box.x0)<1&&Math.abs(item.y0-box.y0)<1&&Math.abs(item.x1-box.x1)<1&&Math.abs(item.y1-box.y1)<1))continue;words.push({text:String(word.text||''),x0:box.x0,y0:box.y0,x1:box.x1,y1:box.y1});}
+  if(words.length<2)return{count:null,word_count:words.length,collisions:[]};
+  const collisions=[];
+  for(let i=0;i<words.length;i++)for(let j=i+1;j<words.length;j++){
+    const a=words[i],b=words[j],overlapW=Math.min(a.x1,b.x1)-Math.max(a.x0,b.x0),overlapH=Math.min(a.y1,b.y1)-Math.max(a.y0,b.y0);if(overlapW<2||overlapH<2)continue;const overlapArea=overlapW*overlapH,smallerArea=Math.min((a.x1-a.x0)*(a.y1-a.y0),(b.x1-b.x0)*(b.y1-b.y0)),ratio=overlapArea/smallerArea;if(ratio>=0.35)collisions.push({text_a:a.text,text_b:b.text,overlap_ratio:Number(ratio.toFixed(3)),bounds:{x0:Math.max(a.x0,b.x0),y0:Math.max(a.y0,b.y0),x1:Math.min(a.x1,b.x1),y1:Math.min(a.y1,b.y1)}});
+  }
+  return{count:collisions.length,word_count:words.length,collisions};
+}
+
 /** OCR checks expected text, body-density evidence, and authored-text overflow in exported page images. It does not judge meaning or overall layout quality. */
 export async function critiqueRenderedPages({presentationIR,pages,renderedQa,recognizerFactory=createTesseractRecognizer}){
   const slides=presentationIR.slides||[],imagePages=(pages||[]).filter(item=>item.format==='png'),byNumber=new Map(imagePages.map(item=>[Number(item.path.match(/page-(\d+)\.png$/i)?.[1]),item]));
@@ -47,7 +61,8 @@ export async function critiqueRenderedPages({presentationIR,pages,renderedQa,rec
       try{recognized=await recognizer.recognize(image.path);}catch(error){results.push({slide_id:slide.slide_id,page:number,status:'ocr_failed',expected_text_items:expected.length,detected_text_items:0,coverage:null,ocr_confidence:null,error:error.message});continue;}
       const visible=norm(recognized.text),matched=expected.filter(text=>visible.includes(norm(text)));
       const coverage=expected.length?Number((matched.length/expected.length).toFixed(3)):null,occupancy=visibleOccupancy(recognized,slide,qa);
-      results.push({slide_id:slide.slide_id,page:number,status:coverage===null?'no_expected_text':coverage<0.6?'low_text_coverage':'text_detected',expected_text_items:expected.length,detected_text_items:matched.length,matched_text:matched,coverage,visible_text_occupancy_ratio:occupancy?.ratio??null,visible_text_line_count:occupancy?.line_count??null,body_text_overflow_word_count:occupancy?.overflow_word_count??null,body_text_overflow_directions:occupancy?.overflow_directions??null,ocr_confidence:Number.isFinite(recognized.confidence)?Number(recognized.confidence.toFixed(2)):null,image_sha256:image.sha256||null});
+      const chartOverlaps=chartTextOverlaps(recognized,qa);
+      results.push({slide_id:slide.slide_id,page:number,status:coverage===null?'no_expected_text':coverage<0.6?'low_text_coverage':'text_detected',expected_text_items:expected.length,detected_text_items:matched.length,matched_text:matched,coverage,visible_text_occupancy_ratio:occupancy?.ratio??null,visible_text_line_count:occupancy?.line_count??null,body_text_overflow_word_count:occupancy?.overflow_word_count??null,body_text_overflow_directions:occupancy?.overflow_directions??null,chart_text_word_count:chartOverlaps.word_count,chart_text_overlap_count:chartOverlaps.count,chart_text_overlaps:chartOverlaps.collisions,ocr_confidence:Number.isFinite(recognized.confidence)?Number(recognized.confidence.toFixed(2)):null,image_sha256:image.sha256||null});
     }
     const missing=results.filter(item=>item.status==='missing_page_image').length,low=results.filter(item=>item.status==='low_text_coverage').length,failed=results.filter(item=>item.status==='ocr_failed').length;
     return{status:missing?'incomplete':failed?'partial':low?'review':'text_detected',method:'local_tesseract_ocr',language,pages:results,limitations:['OCR text coverage is a screening signal; low coverage can result from font, language, contrast, or recognition errors.','The overflow screen matches OCR words to authored body text and checks all four text-box edges with a 1.5% page-size tolerance. OCR errors, clipping beyond the slide canvas, and spill that cannot be attributed to a specific authored box may escape it.','OCR never upgrades source, evidence, or claim verification.','Every rendered page still requires a named human visual decision.']};

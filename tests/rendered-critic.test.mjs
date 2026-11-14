@@ -25,6 +25,19 @@ test('rendered-page Critic measures OCR word-box union after excluding the autho
  assert.ok(report.pages[0].visible_text_occupancy_ratio>0.04);
 });
 
+test('rendered-page Critic detects OCR word boxes colliding inside the native chart bounds',async()=>{
+ const qa={slideWidthEmu:1000,slideHeightEmu:1000,charts:1,chartBounds:[{ok:true,x:100,y:100,w:800,h:700}]};
+ const words=[{text:'12',confidence:95,bbox:{x0:250,y0:300,x1:320,y1:350}},{text:'18',confidence:95,bbox:{x0:280,y0:310,x1:330,y1:360}},{text:'title',confidence:95,bbox:{x0:105,y0:20,x1:180,y1:60}}];
+ const report=await critiqueRenderedPages({presentationIR:deck,renderedQa:{slides:[qa]},pages:[{format:'png',path:'fixture-page-1.png'}],recognizerFactory:async()=>({recognize:async()=>({text:'研究结果 Latency improved Request rate Latency ms 12 18 title',confidence:90,image_width:1000,image_height:1000,words}),close:async()=>{}})});
+ assert.equal(report.pages[0].chart_text_overlap_count,1);assert.deepEqual(report.pages[0].chart_text_overlaps.map(item=>[item.text_a,item.text_b]),[['12','18']]);
+});
+
+test('rendered-page Critic marks chart collision screen unmeasured without chart geometry or enough detected labels',async()=>{
+ const words=[{text:'12',bbox:{x0:250,y0:300,x1:300,y1:350}}],pages=[{format:'png',path:'fixture-page-1.png'}],recognizerFactory=async()=>({recognize:async()=>({text:'12',confidence:90,image_width:1000,image_height:1000,words}),close:async()=>{}});
+ const missingBounds=await critiqueRenderedPages({presentationIR:deck,renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,charts:1,chartBounds:[]}]},pages,recognizerFactory});assert.equal(missingBounds.pages[0].chart_text_overlap_count,null);
+ const tooFewLabels=await critiqueRenderedPages({presentationIR:deck,renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,charts:1,chartBounds:[{ok:true,x:100,y:100,w:800,h:700}]}]},pages,recognizerFactory});assert.equal(tooFewLabels.pages[0].chart_text_overlap_count,null);
+});
+
 test('rendered-page Critic detects authored body words rendered below their text-box bounds',async()=>{
  const body='The body explanation overflows its box and continues below.';
  const report=await critiqueRenderedPages({presentationIR:{slides:[{slide_id:'S01',title:'A clear claim',elements:[{element_id:'T1',kind:'text',text:body}]}]},renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,textBounds:[{text:body,x:100,y:300,w:800,h:200}]}]},pages:[{format:'png',path:'fixture-page-1.png'}],recognizerFactory:async()=>({recognize:async()=>({text:body,confidence:90,image_width:1000,image_height:1000,words:[{text:'explanation',bbox:{x0:170,y0:420,x1:340,y1:450}},{text:'continues',bbox:{x0:100,y0:530,x1:240,y1:560}},{text:'below',bbox:{x0:260,y0:530,x1:340,y1:560}}]}),close:async()=>{}})});

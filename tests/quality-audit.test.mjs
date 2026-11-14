@@ -63,6 +63,12 @@ test('formal quality audit blocks chart typography that QA could not measure',()
  const codes=new Set(auditDeckQuality(input).blockers.map(item=>item.code));assert.ok(codes.has('QUALITY_TEXT_SIZE_UNMEASURED'));assert.ok(codes.has('QUALITY_FONT_UNMEASURED'));
 });
 
+test('formal quality audit blocks chart-label collisions and unmeasured chart collision screens',()=>{
+ const input=fixture(),slide=input.presentationIR.slides.find(item=>item.slide_id==='S1'),page=input.imageReview.pages.find(item=>item.slide_id==='S1');slide.elements.push({element_id:'CHART-1',kind:'chart'});page.chart_text_overlap_count=1;page.chart_text_overlaps=[{text_a:'12',text_b:'18',overlap_ratio:0.48}];
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_CHART_TEXT_OVERLAP'&&item.slide_id==='S1'));
+ page.chart_text_overlap_count=null;assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_CHART_TEXT_OVERLAP_UNMEASURED'&&item.slide_id==='S1'));
+});
+
 test('opening-context pages and repeated opening labels cannot bypass content and priority audits',()=>{
  const input=fixture({count:5,visualEvery:2});input.plan.quality_contract.minimum_priority_slide_share=0.5;
  for(let index=0;index<3;index++){
