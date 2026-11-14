@@ -217,11 +217,11 @@ test('full-deck layout diversity gate catches alternating repeated templates eve
 });
 
 test('assistant voice screen catches common Chinese and English user-facing phrases without flagging research narration',()=>{
- for(const phrase of ['如果您愿意，可以先看这张图。','你会发现结果随着样本量增加而变化。','希望这能对您有帮助。','If you would like, please tell me what you think.','I will now show you the main result.','You should review this slide.']){
+ for(const phrase of ['如果您愿意，可以先看这张图。','你会发现结果随着样本量增加而变化。','希望这能对您有帮助。','我们一起来看这张图。','带你走进模型的核心机制。',"Let's take a look at the main result.",'As you can see, the effect increases with sample size.','If you would like, please tell me what you think.','I will now show you the main result.','You should review this slide.']){
   const input=fixture();input.presentationIR.slides[3].elements[0].text=`${longText} ${phrase}`;
   assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_ASSISTANT_VOICE'),`expected assistant voice blocker for: ${phrase}`);
  }
- const researchNarration=fixture();researchNarration.presentationIR.slides[3].elements[0].text='We demonstrate that the measured effect increases consistently across the three reported conditions.';
+ const researchNarration=fixture();researchNarration.presentationIR.slides[3].elements[0].text='We demonstrate that the measured effect increases consistently across the three reported conditions. 我们证明该机制在三种条件下均能解释观察到的变化。';
  assert.ok(!auditDeckQuality(researchNarration).blockers.some(item=>item.code==='QUALITY_ASSISTANT_VOICE'));
 });
 
