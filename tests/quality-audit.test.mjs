@@ -352,6 +352,16 @@ test('formal Chinese deck blocks a substantial English passage split across shor
   assert.ok(issue,'two short English-dominant bullets totaling at least 16 words must be blocked');
   assert.equal(issue.fragment_count,2);assert.equal(issue.latin_words,17);
 
+ const fragmented=fixture();fragmented.presentationIR.slides[3].elements=[{element_id:'S4-B01',kind:'bullets',items:[
+  'The cache reduces computation.',
+  'Requests reuse stored keys.',
+  'This preserves output quality.',
+  'Latency falls on calls.'
+ ]}];
+ const fourWordFragments=auditDeckQuality(fragmented).blockers.find(item=>item.code==='QUALITY_ENGLISH_BLOCK_FRAGMENTED');
+ assert.ok(fourWordFragments,'four English-dominant fragments totaling at least 16 words must not bypass the language gate');
+ assert.equal(fourWordFragments.fragment_count,4);assert.equal(fourWordFragments.latin_words,16);assert.equal(fourWordFragments.minimum_fragment_words,4);
+
   const short=fixture();short.presentationIR.slides[3].elements=[{element_id:'S4-B01',kind:'bullets',items:['The cache reduces repeated computation and shortens response time.','用中文解释请求如何复用已存储的键并维持输出质量。']}];
   assert.ok(!auditDeckQuality(short).blockers.some(item=>item.code==='QUALITY_ENGLISH_BLOCK_FRAGMENTED'),'one short technical fragment with Chinese explanation should pass');
 });
