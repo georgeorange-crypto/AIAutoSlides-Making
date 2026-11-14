@@ -32,6 +32,13 @@ test('rendered-page Critic detects OCR word boxes colliding inside the native ch
  assert.equal(report.pages[0].chart_text_overlap_count,1);assert.deepEqual(report.pages[0].chart_text_overlaps.map(item=>[item.text_a,item.text_b]),[['12','18']]);
 });
 
+test('rendered-page Critic ignores containment caused by oversized OCR boxes over chart gridlines',async()=>{
+ const qa={slideWidthEmu:1000,slideHeightEmu:1000,charts:1,chartBounds:[{ok:true,x:100,y:100,w:800,h:700}]};
+ const words=[{text:'18',confidence:93,bbox:{x0:500,y0:300,x1:521,y1:315}},{text:'BB',confidence:43,bbox:{x0:467,y0:297,x1:879,y1:590}},{text:'12',confidence:95,bbox:{x0:250,y0:400,x1:272,y1:415}},{text:'mm',confidence:36,bbox:{x0:120,y0:397,x1:360,y1:590}}];
+ const report=await critiqueRenderedPages({presentationIR:deck,renderedQa:{slides:[qa]},pages:[{format:'png',path:'fixture-page-1.png'}],recognizerFactory:async()=>({recognize:async()=>({text:'研究结果 Latency improved Request rate Latency ms 18 BB 12 mm',confidence:88,image_width:1000,image_height:1000,words}),close:async()=>{}})});
+ assert.equal(report.pages[0].chart_text_overlap_count,0);assert.deepEqual(report.pages[0].chart_text_overlaps,[]);
+});
+
 test('rendered-page Critic measures title words against title-box geometry and reports overflow',async()=>{
  const title='A title extending past its right edge',words=['title','extending','past','its'].map((text,index)=>({text,confidence:95,bbox:{x0:130+index*55,y0:120,x1:175+index*55,y1:150}}));words.push({text:'right',confidence:95,bbox:{x0:440,y0:120,x1:495,y1:150}},{text:'edge',confidence:95,bbox:{x0:510,y0:120,x1:560,y1:150}});
  const renderedQa={slides:[{slideWidthEmu:1000,slideHeightEmu:1000,textBounds:[{text:title,x:100,y:100,w:300,h:100}]}]},pages=[{format:'png',path:'fixture-page-1.png'}],recognizerFactory=async()=>({recognize:async()=>({text:title,confidence:90,image_width:1000,image_height:1000,words}),close:async()=>{}});
