@@ -15,6 +15,12 @@ test('14 pt is the hard rendered-text floor',()=>{
  assert.deepEqual(report.smallText.map(item=>item.text),['Too small']);
 });
 
+test('text layout audit applies persisted PowerPoint autofit scaling before the 14 pt floor',()=>{
+ const scaled=shape(0,0,250000,100000,1400,'Shrunk by PowerPoint').replace('<a:p>','<a:bodyPr><a:normAutofit fontScale="20000"/></a:bodyPr><a:p>');
+ const report=auditTextLayout(scaled,300000,200000);
+ assert.equal(report.smallText.length,1);assert.ok(Math.abs(report.smallText[0].min_font_size_pt-2.8)<1e-9);assert.match(report.smallText[0].text,/Shrunk/);
+});
+
 test('chart-part text audit measures data-label fonts and catches small or theme-mismatched labels',()=>{
  const chart='<c:chartSpace><c:dLbls><c:txPr><a:bodyPr/><a:p><a:pPr><a:defRPr sz="1200"><a:latin typeface="Arial"/></a:defRPr></a:pPr></a:p></c:txPr></c:dLbls><c:catAx><c:txPr><a:p><a:pPr><a:defRPr sz="1400"><a:latin typeface="Aptos"/></a:defRPr></a:pPr></a:p></c:txPr></c:catAx></c:chartSpace>';
  const report=auditChartText(chart);assert.deepEqual(report.fontFaces,['Arial','Aptos']);assert.equal(report.textStyleCount,2);assert.deepEqual(report.smallText.map(item=>item.min_font_size_pt),[12]);assert.equal(report.unmeasuredText.length,0);assert.equal(report.unmeasuredFonts.length,0);

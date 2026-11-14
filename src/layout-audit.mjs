@@ -3,7 +3,13 @@ function geometry(shapeXml){
   if(!off||!ext)return null;
   return{x:Number(off[1]),y:Number(off[2]),w:Number(ext[1]),h:Number(ext[2])};
 }
-function fontSizes(shapeXml){return [...shapeXml.matchAll(/<a:(?:rPr|defRPr|endParaRPr)\b[^>]*\bsz="(\d+)"/g)].map(m=>Number(m[1])/100);}
+function autofitFontScale(shapeXml){
+  const autofit=shapeXml.match(/<a:normAutofit\b([^>]*)\/?\s*>/),match=autofit?.[1].match(/\bfontScale="(\d+)"/);
+  if(!match)return 1;
+  const scale=Number(match[1]);
+  return Number.isFinite(scale)&&scale>=0&&scale<=100000?scale/100000:0;
+}
+function fontSizes(shapeXml){const scale=autofitFontScale(shapeXml);return [...shapeXml.matchAll(/<a:(?:rPr|defRPr|endParaRPr)\b[^>]*\bsz="(\d+)"/g)].map(m=>Number(m[1])/100*scale);}
 function fontFaces(shapeXml){return [...shapeXml.matchAll(/<a:latin\b[^>]*\btypeface="([^"]*)"/g)].map(match=>match[1]).filter(Boolean);}
 function textContent(shapeXml){return [...shapeXml.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g)].map(match=>match[1].replaceAll('&amp;','&').replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&quot;','"').replaceAll('&apos;',"'")).join('');}
 function visualGroupName(shapeXml){return shapeXml.match(/<p:cNvPr\b[^>]*\bname="(AIAutoSlidesVisualGroup:[^"]+)"/)?.[1]||null;}

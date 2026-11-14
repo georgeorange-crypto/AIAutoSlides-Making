@@ -337,6 +337,12 @@ test('formal readability gate blocks 13.9 pt and accepts a measured 14 pt text f
  assert.ok(!auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_TEXT_TOO_SMALL'));
 });
 
+test('formal readability gate blocks persisted autofit that reduces a 52 pt title below 14 pt',()=>{
+ const input=fixture();input.renderedQa.slides[2].smallText=[{shape:2,min_font_size_pt:10.4,text:'A reproducible build starts with a clear contract.'}];
+ const finding=auditDeckQuality(input).blockers.find(item=>item.code==='QUALITY_TEXT_TOO_SMALL'&&item.slide_id==='S1');
+ assert.ok(finding);assert.equal(finding.font_size_pt,10.4);assert.match(finding.text,/reproducible/);
+});
+
 test('formal quality audit blocks postage-stamp images and charts using rendered OOXML bounds',()=>{
  const input=fixture();input.presentationIR.slides[3].elements.push({element_id:'IMG-SMALL',kind:'image',asset_id:'synthetic-photo',alt:'Synthetic fixture image',x:0,y:0,w:1,h:1});
  input.renderedQa.slides[3]={...input.renderedQa.slides[3],slideWidthEmu:12192000,slideHeightEmu:6858000,elementBounds:[{element:'pic',ok:true,x:100,y:100,w:300000,h:300000}]};
