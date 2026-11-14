@@ -146,15 +146,25 @@ test('formal quality audit requires every declared focus topic to have a core/hi
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_MAP_INVALID'));
 });
 
-test('formal quality audit verifies each core page contains visible terms for its assigned priority',()=>{
+test('formal quality audit verifies exact topic phrases in visible core-page body copy',()=>{
  const input=fixture({count:5,visualEvery:2}),accepted=auditDeckQuality(input);
  assert.equal(accepted.priority_topic_alignment.length,3);assert.ok(accepted.priority_topic_alignment.every(item=>item.status==='aligned'&&item.matched_terms.length>0));
  input.plan.quality_contract.priority_depth[0].priority_terms=['金融市场','公司估值'];
+ for(const slide of input.presentationIR.slides.filter(item=>input.plan.slides.find(planned=>planned.slide_id===item.slide_id)?.importance==='core')){slide.title='金融市场与公司估值';slide.assertion_title='金融市场决定公司估值';slide.elements=[{element_id:`${slide.slide_id}-BODY`,kind:'text',text:longText}];}
  const mismatched=auditDeckQuality(input),findings=mismatched.blockers.filter(item=>item.code==='QUALITY_PRIORITY_CONTENT_MISMATCH');
  assert.equal(findings.length,3,'all three unrelated priority-tagged core pages must be identified');
  assert.ok(mismatched.priority_topic_alignment.every(item=>item.status==='unmatched'&&item.matched_terms.length===0));
  delete input.plan.quality_contract.priority_depth[0].priority_terms;
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_TERMS_UNMEASURED'),'a missing priority vocabulary must fail closed');
+});
+
+test('formal quality audit does not match English topic phrases inside larger unrelated words',()=>{
+ const input=fixture({count:5,visualEvery:2});input.plan.quality_contract.priority_depth[0].priority_terms=['art'];
+ for(const slide of input.presentationIR.slides.filter(item=>input.plan.slides.find(planned=>planned.slide_id===item.slide_id)?.importance==='core'))slide.elements=[{element_id:`${slide.slide_id}-BODY`,kind:'text',text:'Partial analysis describes the measurement process in enough detail for this synthetic test.'}];
+ const findings=auditDeckQuality(input).blockers.filter(item=>item.code==='QUALITY_PRIORITY_CONTENT_MISMATCH');
+ assert.equal(findings.length,3,'the substring art inside partial must not count as a topic match');
+ input.plan.quality_contract.priority_depth[0].priority_terms=['partial analysis'];
+ assert.ok(!auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_CONTENT_MISMATCH'),'an exact English phrase in visible body copy must match');
 });
 
 test('formal quality audit requires per-topic core pages to match declared standard or deep explanation depth',()=>{
