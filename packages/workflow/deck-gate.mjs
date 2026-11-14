@@ -18,6 +18,9 @@ export const PAGE_QUALITY_CHECKS=Object.freeze([
   'content_density','typography','visual_support','diagram_logic','narrative_role',
   'presentation_voice','language_clarity','layout_variety','caveat_relevance','emphasis_depth','rendered_fit'
 ]);
+export const MIN_PAGE_REVIEW_NOTE_UNITS=12;
+const reviewNoteUnits=value=>(String(value||'').match(/[A-Za-z][A-Za-z0-9'’.-]*|\p{Script=Han}/gu)||[]).length;
+const normalizeReviewNote=value=>String(value||'').normalize('NFC').toLocaleLowerCase().replace(/[\s\p{P}\p{S}]+/gu,'');
 
 export function validateDeckPlan(plan){
   const errors=[];
@@ -165,7 +168,13 @@ export function validatePageReviews(pageReviews,requiredSlideIds){
     if(item.status==='pass'&&!/^(?:none|resolved:\s*\S)/i.test(String(item.findings||'').trim()))errors.push(`${id} cannot pass with unresolved findings; use "none" or "resolved: ..." after rechecking`);
     const checks=item.quality_checks;
     if(!checks||typeof checks!=='object'||Array.isArray(checks)){errors.push(`${id} requires quality_checks for every required quality dimension`);continue;}
-    for(const check of PAGE_QUALITY_CHECKS){const value=checks[check];if(!value||!['pass','not_applicable'].includes(value.status)||typeof value.note!=='string'||!value.note.trim())errors.push(`${id}.${check} requires status=pass or not_applicable and a nonempty note`);else if(value.status==='not_applicable'&&!/^(?:n\/?a|not applicable):\s*\S/i.test(value.note.trim()))errors.push(`${id}.${check} not_applicable requires a reason after "N/A:"`);}
+    const noteOwners=new Map();
+    for(const check of PAGE_QUALITY_CHECKS){const value=checks[check];if(!value||!['pass','not_applicable'].includes(value.status)||typeof value.note!=='string'||!value.note.trim())errors.push(`${id}.${check} requires status=pass or not_applicable and a nonempty note`);else{
+      const note=value.note.trim(),noteUnits=reviewNoteUnits(note),normalized=normalizeReviewNote(note);
+      if(noteUnits<MIN_PAGE_REVIEW_NOTE_UNITS)errors.push(`${id}.${check} note must contain at least ${MIN_PAGE_REVIEW_NOTE_UNITS} informative text units; found ${noteUnits}`);
+      const owner=noteOwners.get(normalized);if(owner)errors.push(`${id}.${check} repeats the ${owner} note; each quality dimension needs its own page-specific observation`);else noteOwners.set(normalized,check);
+      if(value.status==='not_applicable'&&!/^(?:n\/?a|not applicable):\s*\S/i.test(note))errors.push(`${id}.${check} not_applicable requires a reason after "N/A:"`);
+    }}
     for(const check of Object.keys(checks))if(!PAGE_QUALITY_CHECKS.includes(check))errors.push(`${id}.${check} is not a recognized quality check`);
   }
   return fail(errors);

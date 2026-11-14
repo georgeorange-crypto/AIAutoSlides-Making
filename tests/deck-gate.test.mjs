@@ -45,14 +45,19 @@ test('approval binds every rendered headline and evidence mapping to the approve
 });
 
 test('visual approval requires one passing and rechecked record for every page',()=>{
- const checked=Object.fromEntries(PAGE_QUALITY_CHECKS.map(key=>[key,{status:'pass',note:`Checked ${key} at presentation size`} ]));
+ const checked=Object.fromEntries(PAGE_QUALITY_CHECKS.map(key=>[key,{status:'pass',note:`${key}: inspected at full presentation size; the rendered page shows a distinct observation for this quality dimension`} ]));
  const good=['S01','S02'].map(slide_id=>({slide_id,status:'pass',findings:'none',rechecked:true,quality_checks:structuredClone(checked)}));assert.equal(validatePageReviews(good,['S01','S02']).status,'pass');
  assert.equal(validatePageReviews(good.slice(0,1),['S01','S02']).status,'fail');good[1].rechecked=false;assert.equal(validatePageReviews(good,['S01','S02']).status,'fail');
  good[1].rechecked=true;good[1].findings='title overlaps chart label';assert.equal(validatePageReviews(good,['S01','S02']).status,'fail');
  good[1].findings='resolved: title resized and page re-rendered';assert.equal(validatePageReviews(good,['S01','S02']).status,'pass');
  good[1].rechecked=true;delete good[1].quality_checks.visual_support;assert.equal(validatePageReviews(good,['S01','S02']).status,'fail');
  good[1].quality_checks.visual_support={status:'not_applicable',note:'N/A'};assert.equal(validatePageReviews(good,['S01','S02']).status,'fail');
- good[1].quality_checks.visual_support={status:'not_applicable',note:'N/A: this is a text-only transition page'};assert.equal(validatePageReviews(good,['S01','S02']).status,'pass');
+ good[1].quality_checks.visual_support={status:'not_applicable',note:'N/A: this text-only section transition has no diagram or image; navigation copy was reviewed on the rendered page'};assert.equal(validatePageReviews(good,['S01','S02']).status,'pass');
+
+ const boilerplate=structuredClone(good);for(const check of PAGE_QUALITY_CHECKS)boilerplate[0].quality_checks[check]={status:'pass',note:'Looks good'};
+ const boilerplateReport=validatePageReviews(boilerplate,['S01','S02']);assert.equal(boilerplateReport.status,'fail');assert.ok(boilerplateReport.errors.some(error=>error.includes('informative text units')));assert.ok(boilerplateReport.errors.some(error=>error.includes('repeats the')));
+ const copied=structuredClone(good);copied[0].quality_checks.typography.note=copied[0].quality_checks.content_density.note;
+ assert.ok(validatePageReviews(copied,['S01','S02']).errors.some(error=>error.includes('each quality dimension needs its own page-specific observation')));
 });
 
 test('plan requires a real audience, narrative priorities, declared topic depth and per-slide explanation intent',()=>{
