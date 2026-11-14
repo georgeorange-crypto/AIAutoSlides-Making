@@ -254,6 +254,6 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 
 ## Rendered body-copy overflow screen (2026-11-13)
 
-- OCR word boxes are compared with authored body-text geometry. Two or more recognizable words from the authored copy below the matched body-text bounds produce `QUALITY_RENDERED_TEXT_OVERFLOW`.
-- A synthetic overlong-text Harness run demonstrates the blocker against a real PowerPoint/Poppler render, where PPTX structural bounds alone still pass.
-- This screen checks downward overflow only. OCR can miss text; horizontal overflow and spill into a neighboring body box are not fully covered. Human page review remains required. See `docs/AI_PLANNER_VISUALS_REPORT.md`.
+- OCR word boxes are compared with authored body-text geometry. Two or more recognizable words from authored copy outside the matching text box on any side produce `QUALITY_RENDERED_TEXT_OVERFLOW`; the finding records which edges were crossed.
+- A real PowerPoint 16.0 / Poppler fixture narrows a synthetic body box and disables wrapping/autofit. The rendered S04 line visibly exits to the right; OCR reports 11 matching words outside the right edge and the normal formal gate blocks it.
+- The screen allows a 1.5% page-dimension tolerance and ignores OCR words inside another text box that contains the same text token. OCR can still miss glyphs, text clipped beyond the slide canvas, or spill that cannot be linked to one authored box. Human page review remains required. See `docs/HORIZONTAL_TEXT_OVERFLOW_REPORT.md`.

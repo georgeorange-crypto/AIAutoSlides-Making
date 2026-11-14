@@ -10,7 +10,7 @@ test('rendered-page Critic checks real page text with injected local recognizer 
  assert.equal(report.status,'text_detected');
  assert.equal(report.pages[0].coverage,1);
  assert.equal(report.pages[0].image_sha256,'a'.repeat(64));
- assert.ok(report.limitations.some(item=>item.includes('horizontal overflow')));
+ assert.ok(report.limitations.some(item=>item.includes('all four text-box edges')));
 });
 
 test('rendered-page Critic reports missing and low-coverage pages without inventing visual success',async()=>{
@@ -29,6 +29,19 @@ test('rendered-page Critic detects authored body words rendered below their text
  const body='The body explanation overflows its box and continues below.';
  const report=await critiqueRenderedPages({presentationIR:{slides:[{slide_id:'S01',title:'A clear claim',elements:[{element_id:'T1',kind:'text',text:body}]}]},renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,textBounds:[{text:body,x:100,y:300,w:800,h:200}]}]},pages:[{format:'png',path:'fixture-page-1.png'}],recognizerFactory:async()=>({recognize:async()=>({text:body,confidence:90,image_width:1000,image_height:1000,words:[{text:'explanation',bbox:{x0:170,y0:420,x1:340,y1:450}},{text:'continues',bbox:{x0:100,y0:530,x1:240,y1:560}},{text:'below',bbox:{x0:260,y0:530,x1:340,y1:560}}]}),close:async()=>{}})});
  assert.equal(report.pages[0].body_text_overflow_word_count,2);
+});
+
+test('rendered-page Critic detects authored body words rendered beyond the right edge of their text box',async()=>{
+ const body='The body explanation continues and overflows past its box.';
+ const words=[{text:'The',bbox:{x0:120,y0:350,x1:150,y1:380}},{text:'body',bbox:{x0:160,y0:350,x1:205,y1:380}},{text:'explanation',bbox:{x0:210,y0:350,x1:300,y1:380}},{text:'continues',bbox:{x0:420,y0:350,x1:480,y1:380}},{text:'overflows',bbox:{x0:500,y0:350,x1:570,y1:380}}];
+ const report=await critiqueRenderedPages({presentationIR:{slides:[{slide_id:'S01',title:'Check horizontal fit',elements:[{element_id:'T1',kind:'text',text:body}]}]},renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,textBounds:[{text:body,x:100,y:300,w:300,h:200}]}]},pages:[{format:'png',path:'fixture-page-1.png'}],recognizerFactory:async()=>({recognize:async()=>({text:body,confidence:90,image_width:1000,image_height:1000,words}),close:async()=>{}})});
+ assert.equal(report.pages[0].body_text_overflow_word_count,2);assert.deepEqual(report.pages[0].body_text_overflow_directions,{above:0,below:0,left:0,right:2});
+});
+
+test('rendered-page Critic checks all four edges and does not mistake a repeated title word for body overflow',async()=>{
+ const body='The measured explanation extends beyond each matching box edge.';
+ const report=await critiqueRenderedPages({presentationIR:{slides:[{slide_id:'S01',title:'Measured explanation',elements:[{element_id:'T1',kind:'text',text:body}]}]},renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,textBounds:[{text:'Measured explanation',x:100,y:250,w:700,h:100},{text:body,x:300,y:300,w:400,h:300}]}]},pages:[{format:'png',path:'fixture-page-1.png'}],recognizerFactory:async()=>({recognize:async()=>({text:`Measured explanation ${body}`,confidence:90,image_width:1000,image_height:1000,words:[{text:'Measured',bbox:{x0:120,y0:280,x1:220,y1:310}},{text:'explanation',bbox:{x0:230,y0:280,x1:290,y1:310}},{text:'The',bbox:{x0:100,y0:400,x1:130,y1:430}},{text:'measured',bbox:{x0:720,y0:400,x1:780,y1:430}},{text:'beyond',bbox:{x0:400,y0:240,x1:490,y1:270}},{text:'edge',bbox:{x0:400,y0:620,x1:480,y1:650}}]}),close:async()=>{}})});
+ assert.equal(report.pages[0].body_text_overflow_word_count,4,JSON.stringify(report.pages[0].body_text_overflow_directions));assert.deepEqual(report.pages[0].body_text_overflow_directions,{above:1,below:1,left:1,right:1});
 });
 
 test('rendered-page Critic recognizes single-character CJK OCR tokens in overflowing body copy',async()=>{
