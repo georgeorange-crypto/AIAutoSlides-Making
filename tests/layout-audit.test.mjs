@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {auditTextLayout} from '../src/layout-audit.mjs';
+import {auditChartText,auditTextLayout} from '../src/layout-audit.mjs';
 
 const shape=(x,y,w,h,size=1200,text='Label',font='Aptos')=>`<p:sp><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${w}" cy="${h}"/></a:xfrm></p:spPr><p:txBody><a:p><a:r><a:rPr sz="${size}"><a:latin typeface="${font}"/></a:rPr><a:t>${text}</a:t></a:r></a:p></p:txBody></p:sp>`;
 test('text layout audit identifies bounds, overlaps, and small fonts even in the footer area',()=>{
@@ -13,6 +13,15 @@ test('text layout audit identifies bounds, overlaps, and small fonts even in the
 test('14 pt is the hard rendered-text floor',()=>{
  const report=auditTextLayout(shape(0,0,100000,100000,1399,'Too small')+shape(120000,0,100000,100000,1400,'Readable'),250000,1000000);
  assert.deepEqual(report.smallText.map(item=>item.text),['Too small']);
+});
+
+test('chart-part text audit measures data-label fonts and catches small or theme-mismatched labels',()=>{
+ const chart='<c:chartSpace><c:dLbls><c:txPr><a:bodyPr/><a:p><a:pPr><a:defRPr sz="1200"><a:latin typeface="Arial"/></a:defRPr></a:pPr></a:p></c:txPr></c:dLbls><c:catAx><c:txPr><a:p><a:pPr><a:defRPr sz="1400"><a:latin typeface="Aptos"/></a:defRPr></a:pPr></a:p></c:txPr></c:catAx></c:chartSpace>';
+ const report=auditChartText(chart);assert.deepEqual(report.fontFaces,['Arial','Aptos']);assert.equal(report.textStyleCount,2);assert.deepEqual(report.smallText.map(item=>item.min_font_size_pt),[12]);assert.equal(report.unmeasuredText.length,0);assert.equal(report.unmeasuredFonts.length,0);
+});
+
+test('chart-part text audit marks inherited font and size styles unmeasured',()=>{
+ const report=auditChartText('<c:chartSpace><c:valAx><c:txPr><a:p><a:pPr><a:defRPr/></a:pPr></a:p></c:txPr></c:valAx></c:chartSpace>');assert.equal(report.unmeasuredText.length,1);assert.equal(report.unmeasuredFonts.length,1);
 });
 
 test('text with inherited or absent explicit font size is reported as unmeasured, regardless of vertical position',()=>{

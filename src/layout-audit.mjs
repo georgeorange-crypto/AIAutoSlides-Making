@@ -34,3 +34,17 @@ export function auditTextLayout(xml,slideWidth,slideHeight,smallTextThresholdPt=
   elements.filter(item=>item.type==='graphicFrame').forEach(item=>{const g=geometry(item.xml);if(!g)return;const sizes=fontSizes(item.xml);if(!sizes.length)return;const min=Math.min(...sizes);if(min<smallTextThresholdPt)smallText.push({shape:item.index,element:item.type,min_font_size_pt:min,...g});});
   return{textBounds,elementBounds,visualGroupBounds,overlaps,smallText,unmeasuredText,fontFaces:[...new Set(shapes.flatMap(item=>fontFaces(item.xml)))],unmeasuredFonts,editableTextShapes:shapes.length};
 }
+
+/** Inspect chart-part text styles, which are not stored in the slide's graphicFrame XML. */
+export function auditChartText(xml,smallTextThresholdPt=14){
+  const smallText=[],unmeasuredText=[],unmeasuredFonts=[],faces=[];
+  const styles=[...xml.matchAll(/<c:txPr\b[^>]*>([\s\S]*?)<\/c:txPr>/g)];
+  styles.forEach((match,index)=>{
+    const style=match[1],label=`chart text style ${index+1}`,sizes=fontSizes(style),families=fontFaces(style);
+    faces.push(...families);
+    if(!sizes.length)unmeasuredText.push({shape:index+1,element:'chart',text:label});
+    if(!families.length)unmeasuredFonts.push({shape:index+1,element:'chart',text:label});
+    if(sizes.length&&Math.min(...sizes)<smallTextThresholdPt)smallText.push({shape:index+1,element:'chart',min_font_size_pt:Math.min(...sizes),text:label});
+  });
+  return{smallText,unmeasuredText,unmeasuredFonts,fontFaces:[...new Set(faces)],textStyleCount:styles.length};
+}

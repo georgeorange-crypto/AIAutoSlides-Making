@@ -53,6 +53,11 @@ test('formal quality audit blocks font families outside the selected theme and m
  input.renderedQa.theme={};assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_THEME_FONTS_UNMEASURED'));
 });
 
+test('formal quality audit blocks chart labels below 14 pt and outside the selected theme fonts',()=>{
+ const input=fixture(),page=input.renderedQa.slides[2];page.fontFaces=['Aptos Display','Aptos','Arial'];page.smallText=[{shape:1,element:'chart',min_font_size_pt:12,text:'chart data label'}];
+ const result=auditDeckQuality(input),codes=new Set(result.blockers.map(item=>item.code));assert.ok(codes.has('QUALITY_FONT_MISMATCH'));assert.ok(codes.has('QUALITY_TEXT_TOO_SMALL'));
+});
+
 test('opening-context pages and repeated opening labels cannot bypass content and priority audits',()=>{
  const input=fixture({count:5,visualEvery:2});input.plan.quality_contract.minimum_priority_slide_share=0.5;
  for(let index=0;index<3;index++){

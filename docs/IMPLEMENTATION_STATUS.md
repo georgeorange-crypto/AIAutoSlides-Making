@@ -269,3 +269,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - QA now inspects actual OOXML text-run RGB colors rather than relying only on theme palette pairs. It checks each run against the slide background and known solid fills that overlap the text box, fails ratios below 4.5:1, and blocks cases where the actual background or foreground cannot be measured.
 - Synthetic adversarial checks exercise low-contrast emitted text, text on known panels, and image-backed text with unknown contrast. A full-PPTX fixture proves a custom low-contrast run fails QA even while all selected theme token pairs pass.
 - This is a structural color check, not a rendered-pixel or aesthetic judgment; images, gradients, inherited/scheme colors, and chart-internal labels remain outside its measurable scope and are not silently reported as passing. See `docs/PPTX_TEXT_CONTRAST_REPORT.md`.
+
+## Native chart typography gate (2026-11-13)
+
+- Rendered-PDF inspection exposed a chart-specific defect: academic-light's slide text used Aptos, while native chart data labels were emitted as Arial at 12 pt. Slide XML QA had not been reading the separate chart XML part, so those labels escaped the theme-font and 14 pt checks.
+- Chart data labels now use the selected theme body font at 14 pt; legends use the same font and size. QA follows each slide's chart relationships and merges chart-internal font/size measurements into that slide's formal review record. Unmeasured chart text is surfaced as unmeasured and blocks formal review through the existing font/size gates.
+- An adversarial PPTX fixture restores Arial/12 pt in chart XML and verifies QA reports both defects; the formal quality-audit tests verify those measurements block approval. PowerPoint 16.0 re-rendered all seven synthetic pages; page 4's PDF font table now contains Aptos/Aptos Display and no Arial. See `docs/CHART_TYPOGRAPHY_REPORT.md`.
