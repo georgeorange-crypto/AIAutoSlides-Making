@@ -15,7 +15,7 @@ const distinctPageCopy=[
  '这一页定位误差沿数据链路的传播位置，从输入噪声、聚合过程到最终估计逐层说明。每个环节都要对应可检查的记录，避免把误差来源混成一个无法诊断的总量。',
  '这一页界定方法适用的样本、时间范围和运行条件，并指出超出这些条件后需要重新验证什么。适用边界决定结论可以迁移到哪些对象，不能由当前样例自动推出。'
 ];
-const contract={content_priorities:['Results'],priority_depth:[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2}],visual_slide_ratio_min:0.4,minimum_explanation_units:40,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,language:'Chinese',narrative_sections:['Results']};
+const contract={content_priorities:['Results'],priority_depth:[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2,priority_terms:['结果','结论','指标']}],visual_slide_ratio_min:0.4,minimum_explanation_units:40,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,language:'Chinese',narrative_sections:['Results']};
 function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const agenda={slide_id:'AGENDA',type:'bullets',title:'Contents',elements:[{element_id:'A1',kind:'text',text:'Results'}]};
   const divider={slide_id:'DIV-RESULTS',type:'statement',title:'Results',role:'section_transition',section_name:'Results',section_topics:[],elements:[{element_id:'DIV-T01',kind:'text',text:'本节先解释关键机制及其作用，再说明这一机制如何连接到观察结果。'}]};
@@ -134,7 +134,7 @@ test('formal quality audit blocks too few core pages and too little talk time fo
 });
 
 test('formal quality audit requires every declared focus topic to have a core/high owner',()=>{
- const input=fixture({count:6,visualEvery:2});input.plan.quality_contract.content_priorities=['Mechanism','Result'];input.plan.quality_contract.priority_depth=[{priority_id:'Mechanism',depth_level:'standard',minimum_core_slides:2},{priority_id:'Result',depth_level:'standard',minimum_core_slides:2}];
+ const input=fixture({count:6,visualEvery:2});input.plan.quality_contract.content_priorities=['Mechanism','Result'];input.plan.quality_contract.priority_depth=[{priority_id:'Mechanism',depth_level:'standard',minimum_core_slides:2,priority_terms:['流程','误差','样本']},{priority_id:'Result',depth_level:'standard',minimum_core_slides:2,priority_terms:['结果','读数','结论','指标']}];
  for(const slide of input.plan.slides.filter(item=>item.slide_id.startsWith('S'))){
   slide.priority_ids=slide.importance==='core'?['Mechanism']:slide.slide_id==='S2'?['Result']:[];
  }
@@ -146,18 +146,29 @@ test('formal quality audit requires every declared focus topic to have a core/hi
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_MAP_INVALID'));
 });
 
+test('formal quality audit verifies each core page contains visible terms for its assigned priority',()=>{
+ const input=fixture({count:5,visualEvery:2}),accepted=auditDeckQuality(input);
+ assert.equal(accepted.priority_topic_alignment.length,3);assert.ok(accepted.priority_topic_alignment.every(item=>item.status==='aligned'&&item.matched_terms.length>0));
+ input.plan.quality_contract.priority_depth[0].priority_terms=['金融市场','公司估值'];
+ const mismatched=auditDeckQuality(input),findings=mismatched.blockers.filter(item=>item.code==='QUALITY_PRIORITY_CONTENT_MISMATCH');
+ assert.equal(findings.length,3,'all three unrelated priority-tagged core pages must be identified');
+ assert.ok(mismatched.priority_topic_alignment.every(item=>item.status==='unmatched'&&item.matched_terms.length===0));
+ delete input.plan.quality_contract.priority_depth[0].priority_terms;
+ assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_TERMS_UNMEASURED'),'a missing priority vocabulary must fail closed');
+});
+
 test('formal quality audit requires per-topic core pages to match declared standard or deep explanation depth',()=>{
- const input=fixture({count:5,visualEvery:2});input.plan.quality_contract.priority_depth=[{priority_id:'Results',depth_level:'deep',minimum_core_slides:7}];
+ const input=fixture({count:5,visualEvery:2});input.plan.quality_contract.priority_depth=[{priority_id:'Results',depth_level:'deep',minimum_core_slides:7,priority_terms:['结果','结论','指标']}];
  const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNDERALLOCATED'&&item.priority==='Results');
  assert.ok(finding);assert.equal(finding.actual_core_slide_count,3);assert.equal(finding.minimum_core_slides,7);
- input.plan.quality_contract.priority_depth=[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2}];
+ input.plan.quality_contract.priority_depth=[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2,priority_terms:['结果','结论','指标']}];
  assert.ok(!auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNDERALLOCATED'));
  input.plan.quality_contract.priority_depth=[null];
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_DEPTH_UNMEASURED'));
 });
 
 test('formal quality audit blocks deep priorities whose core pages repeat one explanation stage',()=>{
- const input=fixture({count:13,visualEvery:2});input.plan.quality_contract.priority_depth=[{priority_id:'Results',depth_level:'deep',minimum_core_slides:7}];
+ const input=fixture({count:13,visualEvery:2});input.plan.quality_contract.priority_depth=[{priority_id:'Results',depth_level:'deep',minimum_core_slides:7,priority_terms:['结果','结论','指标']}];
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_PRIORITY_STAGE_MISSING'),'deep pages without stage declarations must fail the independent final audit');
  for(const planned of input.plan.slides.filter(item=>item.importance==='core'))planned.explanation_stage='mechanism';
  const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_PRIORITY_STAGE_DIVERSITY');
