@@ -24,7 +24,7 @@ function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
 }
 
 test('formal quality audit passes a deck meeting the declared visual, explanation, language, layout, and render constraints',()=>{
-  const result=auditDeckQuality(fixture());assert.equal(result.status,'pass',JSON.stringify(result.blockers));assert.equal(result.visual_slide_ratio,0.6);assert.deepEqual(result.blockers,[]);
+  const input=fixture();input.presentationIR.slides[6].type='chart';const result=auditDeckQuality(input);assert.equal(result.status,'pass',JSON.stringify(result.blockers));assert.equal(result.visual_slide_ratio,0.6);assert.deepEqual(result.blockers,[]);
   assert.equal(result.minimum_explanation_units,40,'the approved minimum is a non-lowerable floor');
   assert.equal(result.priority_allocation.priority_slide_share,0.6);assert.equal(result.priority_allocation.priority_time_share,0.818);
 });
@@ -214,6 +214,23 @@ test('full-deck layout diversity gate catches alternating repeated templates eve
  varied.plan.slides.slice(2).forEach((slide,index)=>{slide.layout_intent='same-plan-label';});
  const variedResult=auditDeckQuality(varied);
  assert.equal(variedResult.layout_diversity.status,'pass');assert.ok(!variedResult.blockers.some(item=>item.code==='QUALITY_LAYOUT_DIVERSITY'));
+});
+
+test('full-deck layout diversity gate blocks a dominant template in a three-page talk',()=>{
+ const withoutVisuals=deck=>deck.presentationIR.slides.slice(2).forEach(slide=>{slide.elements=slide.elements.filter(element=>element.kind!=='diagram');});
+ const same=fixture({count:3,visualEvery:99});withoutVisuals(same);
+ same.plan.slides.slice(2).forEach((slide,index)=>{slide.layout_intent=`different-plan-label-${index}`;});
+ const sameResult=auditDeckQuality(same),sameFinding=sameResult.blockers.find(item=>item.code==='QUALITY_LAYOUT_DIVERSITY');
+ assert.ok(sameFinding,'a short talk with three pages of the same composition must not bypass the diversity gate');
+ assert.equal(sameFinding.largest_signature_share,1);assert.equal(sameFinding.minimum_full_deck_pages,3);
+
+ const majority=fixture({count:3,visualEvery:99});withoutVisuals(majority);majority.presentationIR.slides[3].type='chart';
+ const majorityFinding=auditDeckQuality(majority).blockers.find(item=>item.code==='QUALITY_LAYOUT_DIVERSITY');
+ assert.ok(majorityFinding,'one signature covering two of three pages exceeds the 60% dominant-template limit');
+ assert.equal(majorityFinding.largest_signature_share,0.667);
+
+ const varied=fixture({count:3,visualEvery:99});withoutVisuals(varied);['statement','chart','table'].forEach((kind,index)=>{varied.presentationIR.slides[index+2].type=kind;});
+ assert.ok(!auditDeckQuality(varied).blockers.some(item=>item.code==='QUALITY_LAYOUT_DIVERSITY'),'three genuinely different compositions should pass the diversity gate');
 });
 
 test('assistant voice screen catches common Chinese and English user-facing phrases without flagging research narration',()=>{

@@ -15,6 +15,8 @@ const MIN_RENDERED_VISUAL_AREA={image:0.08,chart:0.15,table:0.15,diagram:0.03,pr
 const MIN_RENDERED_VISUAL_FOOTPRINT=0.12;
 const MIN_VISIBLE_TEXT_OCCUPANCY={visual:0.055,text:0.07};
 const MIN_ENDING_TEXT_OCCUPANCY=0.07;
+const MIN_DOMINANT_LAYOUT_SHARE=0.6;
+const MIN_LAYOUT_DIVERSITY_SLIDES=3;
 
 function textOfElement(element){
   const values=[element.text,element.value,element.caption,element.description,element.takeaway,element.x_axis_label,element.y_axis_label];
@@ -249,10 +251,10 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
   const layoutGroups=new Map();
   for(const item of content){const qa=renderedQa?.slides?.[item.index],signature=compositionSignature(item.slide,qa,renderWarnings),slidesInLayout=layoutGroups.get(signature)||[];slidesInLayout.push(item.slide.slide_id);layoutGroups.set(signature,slidesInLayout);}
   const layoutVariantCount=layoutGroups.size,uniqueLayoutShare=content.length?layoutVariantCount/content.length:1,largestLayout=Math.max(0,...[...layoutGroups.values()].map(ids=>ids.length)),largestLayoutShare=content.length?largestLayout/content.length:0,layoutDistribution=[...layoutGroups].map(([signature,slideIds])=>({signature,slide_ids:slideIds,count:slideIds.length,share:Number((slideIds.length/Math.max(1,content.length)).toFixed(3))})).sort((a,b)=>b.count-a.count||a.signature.localeCompare(b.signature));
-  let layoutDiversity={status:'deferred',content_slide_count:content.length,distinct_signature_count:layoutVariantCount,unique_signature_share:Number(uniqueLayoutShare.toFixed(3)),largest_signature_share:Number(largestLayoutShare.toFixed(3)),minimum_unique_signature_share:0.4,signature_distribution:layoutDistribution};
+  let layoutDiversity={status:'deferred',content_slide_count:content.length,distinct_signature_count:layoutVariantCount,unique_signature_share:Number(uniqueLayoutShare.toFixed(3)),largest_signature_share:Number(largestLayoutShare.toFixed(3)),minimum_unique_signature_share:0.4,minimum_dominant_signature_share:MIN_DOMINANT_LAYOUT_SHARE,minimum_full_deck_pages:MIN_LAYOUT_DIVERSITY_SLIDES,signature_distribution:layoutDistribution};
   if(isFullDeck){
-    const lowVariety=content.length>=5&&uniqueLayoutShare<0.4,dominantTemplate=largestLayout>=4&&largestLayoutShare>=0.6;
-    if(lowVariety||dominantTemplate)blockers.push(issue('QUALITY_LAYOUT_DIVERSITY','DECK',`The full deck uses ${layoutVariantCount} composition signatures across ${content.length} content pages; distinct layouts cover ${(uniqueLayoutShare*100).toFixed(1)}% and the most repeated layout covers ${(largestLayoutShare*100).toFixed(1)}%.`,{content_slide_count:content.length,distinct_signature_count:layoutVariantCount,unique_signature_share:Number(uniqueLayoutShare.toFixed(3)),largest_signature_share:Number(largestLayoutShare.toFixed(3)),minimum_unique_signature_share:0.4,signature_distribution:layoutDistribution,recommendation:'Use more than one genuinely different explanatory composition across the full deck; do not rely on changing titles or plan labels while reusing the same page structure.'}));
+    const lowVariety=content.length>=5&&uniqueLayoutShare<0.4,dominantTemplate=content.length>=MIN_LAYOUT_DIVERSITY_SLIDES&&largestLayoutShare>=MIN_DOMINANT_LAYOUT_SHARE;
+    if(lowVariety||dominantTemplate)blockers.push(issue('QUALITY_LAYOUT_DIVERSITY','DECK',`The full deck uses ${layoutVariantCount} composition signatures across ${content.length} content pages; distinct layouts cover ${(uniqueLayoutShare*100).toFixed(1)}% and the most repeated layout covers ${(largestLayoutShare*100).toFixed(1)}%.`,{content_slide_count:content.length,distinct_signature_count:layoutVariantCount,unique_signature_share:Number(uniqueLayoutShare.toFixed(3)),largest_signature_share:Number(largestLayoutShare.toFixed(3)),minimum_unique_signature_share:0.4,minimum_dominant_signature_share:MIN_DOMINANT_LAYOUT_SHARE,minimum_full_deck_pages:MIN_LAYOUT_DIVERSITY_SLIDES,signature_distribution:layoutDistribution,recommendation:'Use more than one genuinely different explanatory composition across the full deck; do not rely on changing titles or plan labels while reusing the same page structure.'}));
     layoutDiversity={...layoutDiversity,status:lowVariety||dominantTemplate?'fail':'pass'};
   }
   let run=[];
