@@ -12,6 +12,8 @@ Apply to every generated variant; report `pass`, `fail`, `blocked`, or `not-run`
 
 No aggregate score may conceal a failed hard constraint. Missing external executable or authorized account is `blocked`, not pass.
 
+Formal plans require at least 40 visible explanation units per content page; a Han character or a non-Han word counts as one unit. The rendered-density gate separately requires at least two visible body-text lines and a minimum occupancy ratio. Agenda, section-transition, cover, and ending roles use their own structure checks and are not forced to meet the content-page floor.
+
 ## Formal Harness page review
 
 Formal deck completion requires a human reviewer to record a note for every page under each of these checks: content density, typography, visual support, diagram logic, narrative role, presentation voice, language clarity, layout variety, caveat relevance, emphasis/depth allocation, and rendered fit. `not_applicable` requires a reason. Missing checks, unresolved findings, notes shorter than 12 informative text units (Han characters or Latin words), or repeated notes across quality dimensions on the same page block approval. Reviewers must describe a page-specific observation for each dimension; this rejects empty or copied boilerplate, but it cannot authenticate the reviewer or prove the observation is honest. These records are reviewer attestations bound to the rendered deck hash; they do not prove reviewer identity, taste, or truthfulness, and automated geometry/OCR still cannot certify aesthetic quality or narrative adequacy.

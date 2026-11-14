@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import {classifyImportance,importanceLevels} from './importance.mjs';
 
 export const MIN_FORMAL_VISUAL_SLIDE_RATIO=0.5;
+export const MIN_FORMAL_EXPLANATION_UNITS=40;
 export const DEEP_EXPLANATION_STAGES=Object.freeze(['question','mechanism','evidence','comparison','result','implication','boundary','synthesis']);
 const AGENDA_ROLE=/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i;
 const SECTION_ROLE=/^(section[_ -]?transition|section)$/i;
@@ -44,7 +45,7 @@ export function validateDeckPlan(plan){
     if(Array.isArray(quality.narrative_sections)&&!quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must not be empty');
     if(Array.isArray(quality.narrative_sections)&&new Set(quality.narrative_sections).size!==quality.narrative_sections.length)errors.push('quality_contract.narrative_sections must be unique');
     if(!Number.isFinite(quality.visual_slide_ratio_min)||quality.visual_slide_ratio_min<MIN_FORMAL_VISUAL_SLIDE_RATIO||quality.visual_slide_ratio_min>1)errors.push(`quality_contract.visual_slide_ratio_min must be between ${MIN_FORMAL_VISUAL_SLIDE_RATIO.toFixed(2)} and 1`);
-    if(!Number.isInteger(quality.minimum_explanation_units)||quality.minimum_explanation_units<18||quality.minimum_explanation_units>120)errors.push('quality_contract.minimum_explanation_units must be an integer between 18 and 120');
+    if(!Number.isInteger(quality.minimum_explanation_units)||quality.minimum_explanation_units<MIN_FORMAL_EXPLANATION_UNITS||quality.minimum_explanation_units>120)errors.push(`quality_contract.minimum_explanation_units must be an integer between ${MIN_FORMAL_EXPLANATION_UNITS} and 120`);
     if(!Number.isFinite(quality.minimum_priority_slide_share)||quality.minimum_priority_slide_share<0.25||quality.minimum_priority_slide_share>0.75)errors.push('quality_contract.minimum_priority_slide_share must be between 0.25 and 0.75');
     if(!Number.isFinite(quality.minimum_priority_time_share)||quality.minimum_priority_time_share<0.5||quality.minimum_priority_time_share>0.9)errors.push('quality_contract.minimum_priority_time_share must be between 0.50 and 0.90');}
   if(!Array.isArray(plan?.materials)||!plan.materials.length)errors.push('materials must list at least one required project/source material');

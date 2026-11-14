@@ -10,7 +10,7 @@ const distinctPageCopy=[
  '这一页定位误差沿数据链路的传播位置，从输入噪声、聚合过程到最终估计逐层说明。每个环节都要对应可检查的记录，避免把误差来源混成一个无法诊断的总量。',
  '这一页界定方法适用的样本、时间范围和运行条件，并指出超出这些条件后需要重新验证什么。适用边界决定结论可以迁移到哪些对象，不能由当前样例自动推出。'
 ];
-const contract={content_priorities:['Results'],priority_depth:[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2}],visual_slide_ratio_min:0.4,minimum_explanation_units:28,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,language:'Chinese',narrative_sections:['Results']};
+const contract={content_priorities:['Results'],priority_depth:[{priority_id:'Results',depth_level:'standard',minimum_core_slides:2}],visual_slide_ratio_min:0.4,minimum_explanation_units:40,minimum_priority_slide_share:0.25,minimum_priority_time_share:0.5,language:'Chinese',narrative_sections:['Results']};
 function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const agenda={slide_id:'AGENDA',type:'bullets',title:'Contents',elements:[{element_id:'A1',kind:'text',text:'Results'}]};
   const divider={slide_id:'DIV-RESULTS',type:'statement',title:'Results',role:'section_transition',section_name:'Results',section_topics:[],elements:[{element_id:'DIV-T01',kind:'text',text:'本节先解释关键机制及其作用，再说明这一机制如何连接到观察结果。'}]};
@@ -25,7 +25,14 @@ function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
 
 test('formal quality audit passes a deck meeting the declared visual, explanation, language, layout, and render constraints',()=>{
   const result=auditDeckQuality(fixture());assert.equal(result.status,'pass',JSON.stringify(result.blockers));assert.equal(result.visual_slide_ratio,0.6);assert.deepEqual(result.blockers,[]);
+  assert.equal(result.minimum_explanation_units,40,'the approved minimum is a non-lowerable floor');
   assert.equal(result.priority_allocation.priority_slide_share,0.6);assert.equal(result.priority_allocation.priority_time_share,0.818);
+});
+
+test('formal content audit blocks a sparse page even when a plan tries to lower the explanation floor',()=>{
+ const input=fixture();input.plan.quality_contract.minimum_explanation_units=18;input.presentationIR.slides[2].elements[0].text='本页简要说明机制与结果之间的联系。';
+ const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_CONTENT_TOO_THIN'&&item.slide_id==='S1');
+ assert.equal(result.minimum_explanation_units,40);assert.ok(finding);assert.equal(finding.minimum,40);assert.ok(finding.text_units<40);
 });
 
 test('formal quality audit blocks font families outside the selected theme and missing font measurements',()=>{
