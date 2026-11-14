@@ -1,5 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {spawnSync} from 'node:child_process';
+import pptxgen from 'pptxgenjs';
 import {auditDeckQuality} from '../packages/workflow/quality-audit.mjs';
 
 const longText='这一页解释研究方法如何影响测量结果，并结合原始证据说明关键机制、适用范围、比较关系及其对结论的具体影响。读者可以据此理解数据从哪里来、为什么这样分析，以及结果支持到什么程度。';
@@ -214,6 +219,47 @@ test('full-deck layout diversity gate catches alternating repeated templates eve
  varied.plan.slides.slice(2).forEach((slide,index)=>{slide.layout_intent='same-plan-label';});
  const variedResult=auditDeckQuality(varied);
  assert.equal(variedResult.layout_diversity.status,'pass');assert.ok(!variedResult.blockers.some(item=>item.code==='QUALITY_LAYOUT_DIVERSITY'));
+});
+
+test('rendered geometry diversity catches one real PPTX template relabeled as different IR slide types',async()=>{
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-layout-diversity-')),pptxPath=path.join(directory,'repeated-template.pptx'),types=['statement','chart','table','architecture','process'],kinds=['text','chart','table','diagram','image'];
+ try{
+  const pptx=new pptxgen();pptx.layout='LAYOUT_WIDE';
+  for(let index=0;index<5;index++){
+   const slide=pptx.addSlide();slide.background={color:'F7F9FC'};
+   slide.addText(`Synthetic layout ${index+1}`,{x:0.7,y:0.45,w:12,h:0.65,fontFace:'Aptos Display',fontSize:26,bold:true,color:'17324D'});
+   slide.addText(`Panel A explanation ${index+1}: ${longText}`,{x:0.7,y:1.5,w:5.6,h:1.2,fontFace:'Aptos',fontSize:18,color:'243648'});
+   slide.addText(`Panel B explanation ${index+1}: ${longText}`,{x:6.9,y:1.5,w:5.6,h:1.2,fontFace:'Aptos',fontSize:18,color:'243648'});
+   slide.addText(`Evidence and interpretation ${index+1}: ${longText}`,{x:0.7,y:3.2,w:11.8,h:2.8,fontFace:'Aptos',fontSize:18,color:'243648'});
+  }
+  await pptx.writeFile({fileName:pptxPath});
+  const qaRun=spawnSync(process.execPath,['src/qa.mjs',pptxPath],{cwd:process.cwd(),encoding:'utf8'});
+  assert.equal(qaRun.status,0,qaRun.stdout+qaRun.stderr);
+  const rendered=JSON.parse(fs.readFileSync(path.join(directory,'repeated-template.qa.json'),'utf8')),input=fixture({count:5,visualEvery:99});
+  for(const [index,slide] of input.presentationIR.slides.slice(2).entries()){
+   slide.type=types[index];slide.elements=[{element_id:`${slide.slide_id}-VIS`,kind:kinds[index],text:longText}];
+   input.renderedQa.slides[index+2]={...input.renderedQa.slides[index+2],...rendered.slides[index]};
+  }
+  const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_LAYOUT_DIVERSITY');
+  assert.ok(finding,'five differently labeled slides must fail when QA measures the same real PPTX object geometry');
+  assert.equal(result.layout_diversity.distinct_signature_count,5);assert.equal(result.layout_diversity.largest_rendered_geometry_share,1);assert.equal(result.layout_diversity.rendered_geometry_measured_slide_count,5);
+
+  const varied=fixture({count:5,visualEvery:99}),layouts=[
+   [[.6,1.4,3.2,4.5],[4.1,1.4,7.8,1.2],[4.1,3.0,7.8,2.8]],
+   [[.6,1.4,6.0,4.5],[7.0,1.4,4.9,1.2],[7.0,3.0,4.9,2.8]],
+   [[.6,1.8,3.7,2.8],[4.8,1.8,3.7,2.8],[9.0,1.8,3.7,2.8]],
+   [[2.0,1.4,9.3,1.0],[2.0,2.8,9.3,1.0],[2.0,4.2,9.3,1.0]],
+   [[.6,1.4,5.6,4.6],[6.8,1.4,5.4,1.2],[6.8,3.0,5.4,1.2]]
+  ];
+  for(const [index,slide] of varied.presentationIR.slides.slice(2).entries()){
+   varied.presentationIR.slides[index+2].type='statement';
+   varied.presentationIR.slides[index+2].elements=[{element_id:`${slide.slide_id}-TXT`,kind:'text',text:longText}];
+   const boxes=layouts[index].map(([x,y,w,h])=>({element:'sp',ok:true,x:Math.round(x*914400),y:Math.round(y*914400),w:Math.round(w*914400),h:Math.round(h*914400)}));
+   varied.renderedQa.slides[index+2]={...varied.renderedQa.slides[index+2],...rendered.slides[index],elementBounds:boxes};
+  }
+  const variedResult=auditDeckQuality(varied);
+  assert.ok(!variedResult.blockers.some(item=>item.code==='QUALITY_LAYOUT_DIVERSITY'),'different rendered object arrangements should not fail only because page types repeat');
+ }finally{fs.rmSync(directory,{recursive:true,force:true});}
 });
 
 test('full-deck layout diversity gate blocks a dominant template in a three-page talk',()=>{

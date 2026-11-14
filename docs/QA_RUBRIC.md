@@ -14,6 +14,8 @@ Apply to every generated variant; report `pass`, `fail`, `blocked`, or `not-run`
 
 No aggregate score may conceal a failed hard constraint. Missing external executable or authorized account is `blocked`, not pass.
 
+The full-deck layout-diversity gate checks both semantic composition signatures and measured object geometry from the emitted PPTX. It blocks when one body-object arrangement appears on at least 60% of all content pages and geometry is measurable on at least three pages, even if the IR assigns different slide types or element kinds. This narrows a template-relabeling loophole; it does not rate aesthetics or distinguish an intentional, useful recurring grid from monotonous reuse. Review every rendered page for actual visual variety.
+
 ## Architecture diagram logic
 
 The formal validator rejects architecture diagrams with fewer than three named components, fewer than two directed relationships, repeated source-to-target arrows, no explicit entry or output component, disconnected components, or nodes outside an entry-to-output path. Edge labels must use a recognized action relationship. These are structural plausibility checks: they cannot establish that the arrows match the real system, that labels describe the right mechanism, or that the chosen abstraction answers the audience's question. Human `diagram_logic` review remains required.
