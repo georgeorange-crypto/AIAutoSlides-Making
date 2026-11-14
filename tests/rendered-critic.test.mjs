@@ -32,6 +32,13 @@ test('rendered-page Critic detects OCR word boxes colliding inside the native ch
  assert.equal(report.pages[0].chart_text_overlap_count,1);assert.deepEqual(report.pages[0].chart_text_overlaps.map(item=>[item.text_a,item.text_b]),[['12','18']]);
 });
 
+test('rendered-page Critic measures title words against title-box geometry and reports overflow',async()=>{
+ const title='A title extending past its right edge',words=['title','extending','past','its'].map((text,index)=>({text,confidence:95,bbox:{x0:130+index*55,y0:120,x1:175+index*55,y1:150}}));words.push({text:'right',confidence:95,bbox:{x0:440,y0:120,x1:495,y1:150}},{text:'edge',confidence:95,bbox:{x0:510,y0:120,x1:560,y1:150}});
+ const renderedQa={slides:[{slideWidthEmu:1000,slideHeightEmu:1000,textBounds:[{text:title,x:100,y:100,w:300,h:100}]}]},pages=[{format:'png',path:'fixture-page-1.png'}],recognizerFactory=async()=>({recognize:async()=>({text:title,confidence:90,image_width:1000,image_height:1000,words}),close:async()=>{}});
+ const report=await critiqueRenderedPages({presentationIR:{slides:[{slide_id:'S01',title,elements:[]}]},renderedQa,pages,recognizerFactory});assert.equal(report.pages[0].title_text_overflow_word_count,2);assert.deepEqual(report.pages[0].title_text_overflow_directions,{above:0,below:0,left:0,right:2});
+ const missing=await critiqueRenderedPages({presentationIR:{slides:[{slide_id:'S01',title,elements:[]}]},renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,textBounds:[]}]},pages,recognizerFactory});assert.equal(missing.pages[0].title_text_overflow_word_count,null);assert.equal(missing.pages[0].title_text_overflow_reason,'title_text_box_missing');
+});
+
 test('rendered-page Critic marks chart collision screen unmeasured without chart geometry or enough detected labels',async()=>{
  const words=[{text:'12',bbox:{x0:250,y0:300,x1:300,y1:350}}],pages=[{format:'png',path:'fixture-page-1.png'}],recognizerFactory=async()=>({recognize:async()=>({text:'12',confidence:90,image_width:1000,image_height:1000,words}),close:async()=>{}});
  const missingBounds=await critiqueRenderedPages({presentationIR:deck,renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,charts:1,chartBounds:[]}]},pages,recognizerFactory});assert.equal(missingBounds.pages[0].chart_text_overlap_count,null);
@@ -54,7 +61,7 @@ test('rendered-page Critic detects authored body words rendered beyond the right
 test('rendered-page Critic checks all four edges and does not mistake a repeated title word for body overflow',async()=>{
  const body='The measured explanation extends beyond each matching box edge.';
  const report=await critiqueRenderedPages({presentationIR:{slides:[{slide_id:'S01',title:'Measured explanation',elements:[{element_id:'T1',kind:'text',text:body}]}]},renderedQa:{slides:[{slideWidthEmu:1000,slideHeightEmu:1000,textBounds:[{text:'Measured explanation',x:100,y:250,w:700,h:100},{text:body,x:300,y:300,w:400,h:300}]}]},pages:[{format:'png',path:'fixture-page-1.png'}],recognizerFactory:async()=>({recognize:async()=>({text:`Measured explanation ${body}`,confidence:90,image_width:1000,image_height:1000,words:[{text:'Measured',bbox:{x0:120,y0:280,x1:220,y1:310}},{text:'explanation',bbox:{x0:230,y0:280,x1:290,y1:310}},{text:'The',bbox:{x0:100,y0:400,x1:130,y1:430}},{text:'measured',bbox:{x0:720,y0:400,x1:780,y1:430}},{text:'beyond',bbox:{x0:400,y0:240,x1:490,y1:270}},{text:'edge',bbox:{x0:400,y0:620,x1:480,y1:650}}]}),close:async()=>{}})});
- assert.equal(report.pages[0].body_text_overflow_word_count,4,JSON.stringify(report.pages[0].body_text_overflow_directions));assert.deepEqual(report.pages[0].body_text_overflow_directions,{above:1,below:1,left:1,right:1});
+ assert.equal(report.pages[0].body_text_overflow_word_count,4,JSON.stringify(report.pages[0].body_text_overflow_directions));assert.deepEqual(report.pages[0].body_text_overflow_directions,{above:1,below:1,left:1,right:1});assert.equal(report.pages[0].title_text_overflow_word_count,0,'a repeated title word inside its separate body box is not title overflow');
 });
 
 test('rendered-page Critic recognizes single-character CJK OCR tokens in overflowing body copy',async()=>{
