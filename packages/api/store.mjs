@@ -326,8 +326,10 @@ export async function openProjectStore(workspaceDir,{enableLocalPdfOcr=false,pdf
     if(category==='visual'&&job.options?.deck_task&&decision==='approve'){
       const qualityGate=job.result?.report?.critique?.quality_gate;
       if(qualityGate?.status!=='pass')throw Object.assign(new Error(`Automatic quality gate is ${qualityGate?.status||'missing'}; fix blocking findings before visual approval.${qualityGate?.blockers?.length?` ${qualityGate.blockers.map(item=>`${item.code} (${item.slide_id}): ${item.message}`).join('; ')}`:''}`),{status:409});
+      const pageHashes=context.rendered_page_sha256_by_slide,pageNumbers=context.rendered_page_number_by_slide,pageArtifacts=listArtifacts({jobId}).filter(item=>item.format==='png');
+      for(const slideId of required){const pageNumber=pageNumbers?.[slideId],expectedHash=pageHashes?.[slideId];if(!Number.isInteger(pageNumber)||!/^[a-f\d]{64}$/i.test(expectedHash||''))throw Object.assign(new Error(`Current rendered page evidence is missing for ${slideId}.`),{status:409});const pageArtifact=pageArtifacts.find(item=>Number(item.path.match(/-page-(\d+)\.png$/i)?.[1])===pageNumber);if(!pageArtifact||sha256(fs.readFileSync(pageArtifact.path))!==expectedHash||pageArtifact.sha256!==expectedHash)throw Object.assign(new Error(`Rendered page artifact for ${slideId} is missing or has changed since the review package was created.`),{status:409});}
       const {validatePageReviews}=await import('../workflow/deck-gate.mjs');
-      const pageGate=validatePageReviews(page_reviews,required);
+      const pageGate=validatePageReviews(page_reviews,required,context.rendered_page_sha256_by_slide);
       if(pageGate.status!=='pass')throw Object.assign(new Error(`Page review rejected: ${pageGate.errors.join('; ')}`),{status:400});
     }
     const result={...job.result,reviews:{...(job.result.reviews||{}),[category]:{decision,reviewer:reviewer.trim(),note:note.trim(),reviewed_ids:decision==='approve'?[...required]:[],...(page_reviews?{page_reviews}:{}),artifact_sha256,reviewed_at:now()}}};

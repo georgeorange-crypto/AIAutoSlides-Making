@@ -17,6 +17,7 @@ This top-level section supersedes older phase summaries below where they describ
 ## This revision's evidence
 
 - User-reported presentation defects now have a single evidence/limits matrix in [`USER_QUALITY_REQUIREMENTS_AUDIT.md`](USER_QUALITY_REQUIREMENTS_AUDIT.md). It distinguishes automated constraints from human semantic/design review and records the current suite snapshot; no 100% quality claim is supported.
+- Formal Harness page reviews now carry each rendered PNG's SHA-256 and page number in `review_context`; approval re-hashes the stored image and rejects missing, changed, or stale page evidence. This binds the review to the exact screenshot bytes, but cannot prove that a person opened them. See [`QA_RUBRIC.md`](QA_RUBRIC.md).
 
 - Added deterministic audience-specific narrative roles and per-slide takeaway, evidence references, media candidates/selection reason, and duration allocation to the Presentation IR workflow and local API.
 - Added a deterministic, local Mermaid flowchart subset converter for native editable PowerPoint shapes/connectors. It preserves Mermaid source in notes, validates shape types, rejects cycles/unsupported constructs and falls back to editable text with a warning; exact limits and test evidence are in [`M14_NATIVE_MERMAID_FLOWCHART_REPORT.md`](M14_NATIVE_MERMAID_FLOWCHART_REPORT.md).

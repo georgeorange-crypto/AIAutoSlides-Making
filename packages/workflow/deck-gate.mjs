@@ -160,11 +160,14 @@ export function approveRepresentativeSlides(plan,{reviewer,note,artifact_sha256}
   return{...plan,representative_review:{reviewer:reviewer.trim(),note:note.trim(),artifact_sha256,reviewed_at:new Date().toISOString()}};
 }
 
-export function validatePageReviews(pageReviews,requiredSlideIds){
+export function validatePageReviews(pageReviews,requiredSlideIds,renderedPageSha256BySlide){
   const errors=[];if(!Array.isArray(pageReviews))return fail(['page_reviews must be an array']);
   const byId=new Map();for(const item of pageReviews){if(!item?.slide_id||byId.has(item.slide_id))errors.push('page_reviews contain missing or duplicate slide_id');else byId.set(item.slide_id,item);}
   const required=[...requiredSlideIds].sort(),provided=[...byId.keys()].sort();if(JSON.stringify(required)!==JSON.stringify(provided))errors.push('page_reviews must cover every required slide exactly once');
+  if(!renderedPageSha256BySlide||typeof renderedPageSha256BySlide!=='object'||Array.isArray(renderedPageSha256BySlide))errors.push('rendered page SHA-256 evidence is missing from the review context');
+  else if(JSON.stringify([...Object.keys(renderedPageSha256BySlide)].sort())!==JSON.stringify(required))errors.push('rendered page SHA-256 evidence must cover every required slide exactly once');
   for(const id of required){const item=byId.get(id);if(!item)continue;
+    const expectedPageHash=renderedPageSha256BySlide?.[id];if(!/^[a-f\d]{64}$/i.test(expectedPageHash||''))errors.push(`${id} has no valid rendered page SHA-256 in the review context`);else if(item.rendered_page_sha256!==expectedPageHash)errors.push(`${id}.rendered_page_sha256 must match the current rendered page image`);
     if(item.status!=='pass'||!item.findings||!item.rechecked)errors.push(`${id} requires status=pass, findings (use "none" when empty), and rechecked=true`);
     if(item.status==='pass'&&!/^(?:none|resolved:\s*\S)/i.test(String(item.findings||'').trim()))errors.push(`${id} cannot pass with unresolved findings; use "none" or "resolved: ..." after rechecking`);
     const checks=item.quality_checks;

@@ -30,6 +30,20 @@ test('Harness records adapter fallback and stops at the hash-bound human review 
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('Harness returns each rendered page image hash against its slide ID for review',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-page-evidence-'));
+  try{
+    const fixtureImage=path.join(process.cwd(),'tests','fixtures','ocr-synthetic.png'),expected=fixture.slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,sha256:hash(fixtureImage)}));
+    const previewRunner=async pptxPath=>{const directory=path.dirname(pptxPath),stem=path.basename(pptxPath,'.pptx');return fixture.slides.map((slide,index)=>{const file=path.join(directory,`${stem}-page-${index+1}.png`);fs.copyFileSync(fixtureImage,file);return{path:file,format:'png',sha256:hash(file),editable:'not-applicable'};});};
+    const recognizerFactory=async()=>({async recognize(){return{text:fixture.slides.flatMap(slide=>[slide.title,...slide.elements.map(element=>element.text||'')]).join(' '),confidence:99,image_width:1600,image_height:900,words:[]};},async close(){}});
+    const result=await runPresentationWorkflow({jobId:'page-evidence-test',presentationIR:fixture,qualityPlan,workspace,outputDir:path.join(workspace,'runs','page-evidence'),preview:true,previewRunner,recognizerFactory,adapters:[adapter('page-evidence',{nativeCharts:true})]});
+    assert.equal(result.preview.length,fixture.slides.length);
+    assert.deepEqual(result.review_context.rendered_page_sha256_by_slide,Object.fromEntries(expected.map(item=>[item.slide_id,item.sha256])));
+    assert.deepEqual(result.review_context.rendered_page_number_by_slide,Object.fromEntries(expected.map(item=>[item.slide_id,item.page])));
+    assert.deepEqual(result.report.critique.rendered_image_screen.pages.map(page=>page.image_sha256),expected.map(item=>item.sha256));
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('Harness does not try a degraded fallback when disabled',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-harness-block-'));
   try{

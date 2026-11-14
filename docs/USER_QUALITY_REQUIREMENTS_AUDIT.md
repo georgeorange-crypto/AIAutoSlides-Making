@@ -2,6 +2,8 @@
 
 Snapshot: `codex/visible-density-gate-20261113` at `f3adbc770932c1b23a1efdfa8cc6c571a2ed0a1a` (2026-11-13). This matrix separates implemented hard gates from visual or semantic judgments they cannot prove. A gate is evidence that a particular failure mode is screened; it is not evidence that a deck is beautiful, correct, or suitable for its audience.
 
+Follow-on update: formal Harness visual approval now also requires the SHA-256 of each reviewed rendered page image, matched against the run's review context, and re-hashes the stored PNG at approval time. Missing, changed, or stale page files are rejected. This closes the stale/different screenshot reference gap; it still cannot prove that a human viewed the image or that the judgment is correct.
+
 | User-reported defect | Formal-path safeguard and evidence | Status and residual risk |
 |---|---|---|
 | 1. Ugly fonts and templates | The selected theme's font families and contrast are checked against emitted PPTX runs; the title must match an emitted text box and remain at least 28 pt. Layout repetition is checked from semantic signatures and emitted object geometry. See `tests/quality-audit.test.mjs` (font, contrast, title hierarchy, layout diversity) and `docs/TITLE_HIERARCHY_REPORT.md`. | **Partial.** These checks rule out some illegible or repetitive outputs. They cannot rate taste, typography pairing, image treatment, or whether a theme looks polished. Page-by-page design review remains necessary. |
@@ -24,4 +26,4 @@ No current evidence supports a claim that all 11 defects are completely solved o
 
 ## Next implementation target
 
-Strengthen the reviewer gate's evidence quality without treating a self-reported `pass` as independent verification: require the page review record to cite concrete emitted page evidence for every applicable dimension, and add adversarial tests showing that missing, generic, or stale evidence cannot approve a deck. Keep human judgment for taste and meaning, while making the proof of that judgment specific to the rendered artifact hash.
+Next, exercise this page-image binding through a complete formal Harness run with real rendered pages, then strengthen slide-level evidence for visual relevance and explanation quality. A matching image hash proves which bytes the review record references; it does not prove a person opened them or that a subjective judgment was sound.
