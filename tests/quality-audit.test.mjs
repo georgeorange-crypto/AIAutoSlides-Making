@@ -295,6 +295,21 @@ test('formal Chinese deck flags English-dominant blocks even with token Chinese 
   assert.ok(!auditDeckQuality(explainedTerms).blockers.some(item=>item.code==='QUALITY_LONG_ENGLISH_BLOCK'),'necessary English technical terms inside substantial Chinese explanation should pass');
 });
 
+test('formal Chinese deck blocks a substantial English passage split across short bullets',()=>{
+  const input=fixture();
+  input.presentationIR.slides[3].elements=[{element_id:'S4-B01',kind:'bullets',items:[
+    'The cache reduces repeated computation and shortens response time.',
+    'Requests reuse stored keys while preserving output quality.'
+  ]}];
+  const result=auditDeckQuality(input);
+  const issue=result.blockers.find(item=>item.code==='QUALITY_ENGLISH_BLOCK_FRAGMENTED');
+  assert.ok(issue,'two short English-dominant bullets totaling at least 16 words must be blocked');
+  assert.equal(issue.fragment_count,2);assert.equal(issue.latin_words,17);
+
+  const short=fixture();short.presentationIR.slides[3].elements=[{element_id:'S4-B01',kind:'bullets',items:['The cache reduces repeated computation and shortens response time.','用中文解释请求如何复用已存储的键并维持输出质量。']}];
+  assert.ok(!auditDeckQuality(short).blockers.some(item=>item.code==='QUALITY_ENGLISH_BLOCK_FRAGMENTED'),'one short technical fragment with Chinese explanation should pass');
+});
+
 test('formal quality audit blocks an omitted agenda, missing section divider, or content with no section mapping',()=>{
   const omittedAgenda=fixture();omittedAgenda.plan.slides[0].narrative_role='opening';
   assert.ok(auditDeckQuality(omittedAgenda).blockers.some(item=>item.code==='QUALITY_AGENDA_PLAN'));
