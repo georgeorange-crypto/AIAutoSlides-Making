@@ -35,6 +35,16 @@ test('formal content audit blocks a sparse page even when a plan tries to lower 
  assert.equal(result.minimum_explanation_units,40);assert.ok(finding);assert.equal(finding.minimum,40);assert.ok(finding.text_units<40);
 });
 
+test('formal content audit rejects repeated prose used to pad a single page to the explanation floor',()=>{
+ const input=fixture(),slide=input.presentationIR.slides.find(item=>item.slide_id==='S2'),sentence='调度器读取请求特征与资源状态，选择执行路径；分支会改变后续处理顺序，并影响最终响应。';
+ slide.elements=[{element_id:'S2-T01',kind:'text',text:`${sentence}${sentence}`}];
+ const result=auditDeckQuality(input),repeat=result.blockers.find(item=>item.code==='QUALITY_EXPLANATION_REPEATED_WITHIN_SLIDE'&&item.slide_id==='S2'),thin=result.blockers.find(item=>item.code==='QUALITY_CONTENT_TOO_THIN'&&item.slide_id==='S2');
+ assert.ok(repeat,'the repeated sentence must be surfaced');assert.equal(repeat.repeated_fragments[0].repetitions,2);
+ assert.ok(thin,'duplicated characters must count only once, leaving this page below 40 explanation units');assert.ok(thin.text_units<40);
+ const shortTerm=fixture(),shortSlide=shortTerm.presentationIR.slides.find(item=>item.slide_id==='S2');shortSlide.elements=[{element_id:'S2-T01',kind:'text',text:'请求路径 请求路径'}];
+ assert.ok(!auditDeckQuality(shortTerm).blockers.some(item=>item.code==='QUALITY_EXPLANATION_REPEATED_WITHIN_SLIDE'&&item.slide_id==='S2'),'short repeated technical labels are not treated as duplicated prose');
+});
+
 test('formal quality audit blocks font families outside the selected theme and missing font measurements',()=>{
  const input=fixture();input.renderedQa.slides[2].fontFaces=['Aptos Display','Comic Sans MS'];
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_FONT_MISMATCH'&&item.slide_id==='S1'));
