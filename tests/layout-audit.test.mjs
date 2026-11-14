@@ -6,7 +6,7 @@ const shape=(x,y,w,h,size=1200,text='Label',font='Aptos')=>`<p:sp><p:spPr><a:xfr
 test('text layout audit identifies bounds, overlaps, and small fonts even in the footer area',()=>{
  const xml=shape(0,0,100000,100000,800)+shape(50000,50000,100000,100000,1200)+shape(200000,0,100000,100000,900)+shape(0,950000,100000,40000,700);
  const report=auditTextLayout(xml,250000,1000000);
- assert.equal(report.textBounds[0].ok,true);assert.equal(report.textBounds[2].ok,false);
+ assert.equal(report.textBounds[0].ok,true);assert.equal(report.textBounds[0].min_font_size_pt,8);assert.equal(report.textBounds[0].unmeasured_run_count,0);assert.equal(report.textBounds[2].ok,false);
  assert.equal(report.overlaps.length,1);assert.deepEqual(report.smallText.map(x=>x.min_font_size_pt),[8,12,9,7]);assert.equal(report.smallText[2].text,'Label');
 });
 

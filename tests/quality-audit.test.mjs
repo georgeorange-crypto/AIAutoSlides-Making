@@ -25,7 +25,7 @@ function fixture({count=5,visualEvery=2,body=longText,role='result'}={}){
   const plannedSlides=[{slide_id:'AGENDA',narrative_role:'agenda'}, {slide_id:'DIV-RESULTS',narrative_role:'section_transition',section_name:'Results'},...contentSlides.map((slide,index)=>({slide_id:slide.slide_id,narrative_role:index===0?'opening_context':role,section_name:'Results',importance:index%2===0?'core':'supporting',priority_ids:index%2===0?['Results']:[],visual_type:index%visualEvery===0?'diagram':'text',layout_intent:index%visualEvery===0?'diagram':'text',evidence_ids:['E1']}))];
   const contentPlan={slides:plannedSlides.map(slide=>({slide_id:slide.slide_id,time_budget_seconds:slide.importance==='core'?60:slide.importance==='supporting'?20:5}))};
   const plan={quality_contract:{...contract},slides:plannedSlides};
-  return{plan,presentationIR:{slides},contentPlan,renderedQa:{theme:{headFontFace:'Aptos Display',bodyFontFace:'Aptos'},slides:slides.map(slide=>({textBoundsPass:true,textOverlaps:[],smallText:[],fontFaces:['Aptos Display','Aptos'],unmeasuredFonts:[],visualGroupBounds:slide.elements.filter(element=>element.kind==='diagram').map(()=>({group_id:`${slide.slide_id}:diagram`,kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,ok:true}))}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',matched_text:slide.section_topics?.map(topic=>topic.title)||[],title_text_overflow_word_count:0,visible_text_occupancy_ratio:slide.elements.some(element=>element.kind==='diagram')?0.055:0.07,visible_text_line_count:4}))}};
+  return{plan,presentationIR:{slides},contentPlan,renderedQa:{theme:{headFontFace:'Aptos Display',bodyFontFace:'Aptos'},slides:slides.map(slide=>({textBounds:[{ok:true,text:slide.title,min_font_size_pt:32,unmeasured_run_count:0,x:100000,y:100000,w:1000000,h:500000}],textBoundsPass:true,textOverlaps:[],smallText:[],fontFaces:['Aptos Display','Aptos'],unmeasuredFonts:[],visualGroupBounds:slide.elements.filter(element=>element.kind==='diagram').map(()=>({group_id:`${slide.slide_id}:diagram`,kind:'diagram',area_ratio:0.2,bounds_area_ratio:0.2,member_count:5,ok:true}))}))},imageReview:{status:'text_detected',pages:slides.map((slide,index)=>({slide_id:slide.slide_id,page:index+1,status:'text_detected',matched_text:slide.section_topics?.map(topic=>topic.title)||[],title_text_overflow_word_count:0,visible_text_occupancy_ratio:slide.elements.some(element=>element.kind==='diagram')?0.055:0.07,visible_text_line_count:4}))}};
 }
 
 test('formal quality audit passes a deck meeting the declared visual, explanation, language, layout, and render constraints',()=>{
@@ -78,6 +78,15 @@ test('formal quality audit blocks rendered title overflow and missing title-fit 
  const input=fixture(),page=input.imageReview.pages.find(item=>item.slide_id==='S1');page.title_text_overflow_word_count=1;page.title_text_overflow_directions={right:1};
  assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_TITLE_TEXT_OVERFLOW'&&item.slide_id==='S1'));
  page.title_text_overflow_word_count=null;assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_TITLE_OVERFLOW_UNMEASURED'&&item.slide_id==='S1'));
+});
+
+test('formal title hierarchy requires a measurable main heading of at least 28 pt',()=>{
+ const input=fixture(),titleBox=input.renderedQa.slides[3].textBounds[0];titleBox.min_font_size_pt=27.9;
+ const small=auditDeckQuality(input).blockers.find(item=>item.code==='QUALITY_TITLE_TOO_SMALL'&&item.slide_id==='S2');
+ assert.ok(small);assert.equal(small.font_size_pt,27.9);assert.equal(small.minimum_font_size_pt,28);
+ titleBox.min_font_size_pt=28;assert.ok(!auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_TITLE_TOO_SMALL'&&item.slide_id==='S2'));
+ titleBox.min_font_size_pt=null;assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_TITLE_FONT_UNMEASURED'&&item.slide_id==='S2'));
+ titleBox.min_font_size_pt=32;titleBox.text='Different visible heading';assert.ok(auditDeckQuality(input).blockers.some(item=>item.code==='QUALITY_TITLE_FONT_UNMEASURED'&&item.slide_id==='S2'));
 });
 
 test('opening-context pages and repeated opening labels cannot bypass content and priority audits',()=>{
@@ -227,7 +236,7 @@ test('rendered geometry diversity catches one real PPTX template relabeled as di
   const pptx=new pptxgen();pptx.layout='LAYOUT_WIDE';
   for(let index=0;index<5;index++){
    const slide=pptx.addSlide();slide.background={color:'F7F9FC'};
-   slide.addText(`Synthetic layout ${index+1}`,{x:0.7,y:0.45,w:12,h:0.65,fontFace:'Aptos Display',fontSize:26,bold:true,color:'17324D'});
+   slide.addText(`Synthetic layout ${index+1}`,{x:0.7,y:0.45,w:12,h:0.65,fontFace:'Aptos Display',fontSize:index===0?20:30,bold:true,color:'17324D'});
    slide.addText(`Panel A explanation ${index+1}: ${longText}`,{x:0.7,y:1.5,w:5.6,h:1.2,fontFace:'Aptos',fontSize:18,color:'243648'});
    slide.addText(`Panel B explanation ${index+1}: ${longText}`,{x:6.9,y:1.5,w:5.6,h:1.2,fontFace:'Aptos',fontSize:18,color:'243648'});
    slide.addText(`Evidence and interpretation ${index+1}: ${longText}`,{x:0.7,y:3.2,w:11.8,h:2.8,fontFace:'Aptos',fontSize:18,color:'243648'});
@@ -237,10 +246,13 @@ test('rendered geometry diversity catches one real PPTX template relabeled as di
   assert.equal(qaRun.status,0,qaRun.stdout+qaRun.stderr);
   const rendered=JSON.parse(fs.readFileSync(path.join(directory,'repeated-template.qa.json'),'utf8')),input=fixture({count:5,visualEvery:99});
   for(const [index,slide] of input.presentationIR.slides.slice(2).entries()){
-   slide.type=types[index];slide.elements=[{element_id:`${slide.slide_id}-VIS`,kind:kinds[index],text:longText}];
+   slide.type=types[index];slide.title=`Synthetic layout ${index+1}`;slide.elements=[{element_id:`${slide.slide_id}-VIS`,kind:kinds[index],text:longText}];
    input.renderedQa.slides[index+2]={...input.renderedQa.slides[index+2],...rendered.slides[index]};
   }
   const result=auditDeckQuality(input),finding=result.blockers.find(item=>item.code==='QUALITY_LAYOUT_DIVERSITY');
+  const smallTitle=result.blockers.find(item=>item.code==='QUALITY_TITLE_TOO_SMALL'&&item.slide_id==='S1');
+  assert.ok(smallTitle);assert.equal(smallTitle.font_size_pt,20);
+  assert.ok(!result.blockers.some(item=>item.code==='QUALITY_TITLE_TOO_SMALL'&&item.slide_id==='S2'),'a measured 30 pt PPTX title must pass the title floor');
   assert.ok(finding,'five differently labeled slides must fail when QA measures the same real PPTX object geometry');
   assert.equal(result.layout_diversity.distinct_signature_count,5);assert.equal(result.layout_diversity.largest_rendered_geometry_share,1);assert.equal(result.layout_diversity.rendered_geometry_measured_slide_count,5);
 
@@ -252,7 +264,7 @@ test('rendered geometry diversity catches one real PPTX template relabeled as di
    [[.6,1.4,5.6,4.6],[6.8,1.4,5.4,1.2],[6.8,3.0,5.4,1.2]]
   ];
   for(const [index,slide] of varied.presentationIR.slides.slice(2).entries()){
-   varied.presentationIR.slides[index+2].type='statement';
+   varied.presentationIR.slides[index+2].type='statement';varied.presentationIR.slides[index+2].title=`Synthetic layout ${index+1}`;
    varied.presentationIR.slides[index+2].elements=[{element_id:`${slide.slide_id}-TXT`,kind:'text',text:longText}];
    const boxes=layouts[index].map(([x,y,w,h])=>({element:'sp',ok:true,x:Math.round(x*914400),y:Math.round(y*914400),w:Math.round(w*914400),h:Math.round(h*914400)}));
    varied.renderedQa.slides[index+2]={...varied.renderedQa.slides[index+2],...rendered.slides[index],elementBounds:boxes};

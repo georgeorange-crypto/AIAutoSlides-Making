@@ -14,6 +14,10 @@ Apply to every generated variant; report `pass`, `fail`, `blocked`, or `not-run`
 
 No aggregate score may conceal a failed hard constraint. Missing external executable or authorized account is `blocked`, not pass.
 
+## Title hierarchy
+
+Every slide title must match an emitted PPTX text box and have an effective font size of at least 28 pt after any persisted PowerPoint `normAutofit` scaling. A missing title match or unmeasurable size blocks formal approval. This enforces a clear headline size floor; it does not prove that the title is well worded, appropriately concise, or visually attractive.
+
 The full-deck layout-diversity gate checks both semantic composition signatures and measured object geometry from the emitted PPTX. It blocks when one body-object arrangement appears on at least 60% of all content pages and geometry is measurable on at least three pages, even if the IR assigns different slide types or element kinds. This narrows a template-relabeling loophole; it does not rate aesthetics or distinguish an intentional, useful recurring grid from monotonous reuse. Review every rendered page for actual visual variety.
 
 ## Architecture diagram logic

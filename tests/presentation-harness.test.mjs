@@ -145,6 +145,23 @@ test('formal Harness reports under-allocated core pages and speaking time',async
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('formal Harness blocks a slide title below the 28 pt hierarchy floor',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-title-size-workflow-'));
+  try{
+    const ir=structuredClone(fixture),slide=ir.slides[1];
+    slide.title='Every stage in the evidence pipeline changes the interpretation of this result, which makes the explanation necessary but too long for a readable slide title';
+    const {pptxgenjsIRAdapter}=await import('../packages/adapters/pptxgenjs-ir.mjs');
+    const result=await runPresentationWorkflow({jobId:'title-size-workflow-test',presentationIR:ir,qualityPlan,workspace,outputDir:path.join(workspace,'runs','title-size'),preview:false,adapters:[pptxgenjsIRAdapter]});
+    const finding=result.report.critique.quality_gate.blockers.find(item=>item.code==='QUALITY_TITLE_TOO_SMALL'&&item.slide_id===slide.slide_id);
+    assert.ok(finding,JSON.stringify(result.report.critique.quality_gate.blockers));
+    assert.equal(finding.font_size_pt,25);assert.equal(result.review_context.quality_gate_status,'fail');
+
+    const control=structuredClone(ir);control.slides[1].title='This authored statement is intentionally kept concise but long enough.';
+    const controlResult=await runPresentationWorkflow({jobId:'title-size-control-test',presentationIR:control,qualityPlan,workspace,outputDir:path.join(workspace,'runs','title-size-control'),preview:false,adapters:[pptxgenjsIRAdapter]});
+    assert.ok(!controlResult.report.critique.quality_gate.blockers.some(item=>item.code==='QUALITY_TITLE_TOO_SMALL'&&item.slide_id===slide.slide_id));
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('formal Harness treats opening-context pages as content for density and priority allocation',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-opening-context-workflow-'));
   try{
