@@ -417,6 +417,18 @@ test('formal quality audit blocks postage-stamp images and charts using rendered
  input.renderedQa.slides[3].elementBounds=[];result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_SIZE_UNMEASURED'&&item.kind==='chart'));
 });
 
+test('formal visual-support gate rejects image alt text unrelated to the slide explanation',()=>{
+ const input=fixture(),slide=input.presentationIR.slides[3];
+ slide.title='Neural accelerator architecture';slide.assertion_title='Neural accelerator architecture maps compute stages';
+ slide.elements[0].text='The neural accelerator architecture connects compute stages to the measured output.';
+ const image={element_id:'IMG-RELEVANT',kind:'image',asset_id:'synthetic-photo',alt:'Neural accelerator architecture photograph',x:7,y:2.5,w:5,h:3};slide.elements.push(image);
+ let result=auditDeckQuality(input);assert.ok(!result.blockers.some(item=>item.code==='QUALITY_IMAGE_RELEVANCE_UNSUPPORTED'&&item.element_id===image.element_id),'descriptive terms tied to the authored explanation should pass the lexical screen');assert.equal(result.image_relevance_screen.find(item=>item.element_id===image.element_id).status,'lexical_match');
+ image.alt='Tropical forest canopy photograph';result=auditDeckQuality(input);
+ const finding=result.blockers.find(item=>item.code==='QUALITY_IMAGE_RELEVANCE_UNSUPPORTED'&&item.element_id===image.element_id);
+ assert.ok(finding,'a sufficiently descriptive but unrelated image must be blocked');assert.equal(finding.slide_id,slide.slide_id);assert.match(finding.recommendation,/Replace the unrelated image/);assert.equal(result.image_relevance_screen.find(item=>item.element_id===image.element_id).status,'unsupported');
+ image.alt='image photo';result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_IMAGE_RELEVANCE_UNMEASURED'&&item.element_id===image.element_id),'generic alt text must not count as relevance evidence');assert.equal(result.image_relevance_screen.find(item=>item.element_id===image.element_id).status,'unmeasured');
+});
+
 test('formal quality audit blocks tiny or unmeasured native diagram shape groups',()=>{
  const input=fixture();input.renderedQa.slides[2].visualGroupBounds=[{group_id:'S1:diagram',kind:'diagram',area_ratio:0.025,bounds_area_ratio:0.2,member_count:4,ok:true}];
  let result=auditDeckQuality(input);assert.ok(result.blockers.some(item=>item.code==='QUALITY_VISUAL_TOO_SMALL'&&item.kind==='diagram'));
