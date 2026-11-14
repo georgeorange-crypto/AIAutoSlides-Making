@@ -79,7 +79,7 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
   else if(new Set(themeFonts).size!==themeFonts.length)themeFonts.splice(1,1);
   if(!imageReview||!Array.isArray(imageReview.pages)||imageReview.status==='not_rendered')blockers.push(issue('QUALITY_RENDER_SCREEN_BLOCKED','DECK','Rendered page images are missing; every page must have a rendered-image screen.',{status:imageReview?.status||'missing'}));
   for(const page of imageReview?.pages||[]){if(page.status==='missing_page_image')blockers.push(issue('QUALITY_RENDER_PAGE_MISSING',page.slide_id,'Rendered page image is missing.',{page:page.page}));else if(page.status==='ocr_failed'||page.status==='no_expected_text')warnings.push(issue('QUALITY_OCR_INCOMPLETE',page.slide_id,'OCR could not fully screen authored text; human page inspection remains required.',{status:page.status}));else if(page.status==='low_text_coverage')warnings.push(issue('QUALITY_OCR_COVERAGE_LOW',page.slide_id,'OCR detected less than the expected authored text; confirm it is visible in the rendered page.',{coverage:page.coverage}));}
-  const slides=presentationIR?.slides||[],content=[],endings=[],repeatedCaveats=new Map();
+  const slides=presentationIR?.slides||[],content=[],endings=[],repeatedCaveats=new Map(),caveatPages=new Set();
   for(const slide of slides){const page=imageReview?.pages?.find(candidate=>candidate.slide_id===slide.slide_id),overflow=page?.title_text_overflow_word_count;if(!Number.isInteger(overflow))blockers.push(issue('QUALITY_TITLE_OVERFLOW_UNMEASURED',slide.slide_id,'Rendered title fit could not be measured against its authored text box.',{reason:page?.title_text_overflow_reason||'missing OCR title evidence'}));else if(overflow>0)blockers.push(issue('QUALITY_TITLE_TEXT_OVERFLOW',slide.slide_id,`OCR detected ${overflow} title word(s) extending beyond their text-box bounds.`,{title_text_overflow_word_count:overflow,title_text_overflow_directions:page?.title_text_overflow_directions||null,recommendation:'Shorten the title, reduce its type size, or enlarge the title box; render again and inspect the page.'}));}
   const sections=Array.isArray(contract.narrative_sections)?contract.narrative_sections:[];
   const expectedSlideCount=Number.isInteger(plan?.task?.expected_slide_count)?plan.task.expected_slide_count:plannedSlides.length;
@@ -138,6 +138,7 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
     if(!/^(agenda|contents|table[_ -]?of[_ -]?contents|目录)$/i.test(role)){
       const clauses=caveatClauses(visible);
       if(clauses.length>=3)blockers.push(issue('QUALITY_CAVEAT_OVERLOAD',id,`${clauses.length} disclaimer-style clauses appear on one page; consolidate them and keep only caveats needed to interpret that page.`,{caveat_clause_count:clauses.length,recommendation:'Keep only caveats needed to interpret this page; state broader study limitations once, concisely, where they best support interpretation.'}));
+      if(clauses.length)caveatPages.add(id);
       for(const clause of clauses){const normalized=clause.normalize('NFC').toLocaleLowerCase().replace(/[\s\p{P}\p{S}]+/gu,'');if(!normalized)continue;const owners=repeatedCaveats.get(normalized)||new Set();owners.add(id);repeatedCaveats.set(normalized,owners);}
     }
     if(ASSISTANT_VOICE.test(visible))blockers.push(issue('QUALITY_ASSISTANT_VOICE',id,'Visible copy reads like instructions or a conversation with the user.',{location:'visible_copy',recommendation:'Rewrite it as presentation content addressed to the audience without assistant-to-user phrasing.'}));
@@ -179,6 +180,8 @@ export function auditDeckQuality({plan,presentationIR,renderedQa,imageReview,con
     }
   }
   for(const owners of repeatedCaveats.values())if(owners.size>=2)blockers.push(issue('QUALITY_CAVEAT_REPETITION',[...owners][0],`The same disclaimer-style clause is repeated on ${owners.size} pages.`,{slide_ids:[...owners],repetition_count:owners.size,recommendation:'State a shared limitation once, then use each page for the evidence, mechanism, or implication that matters there.'}));
+  const nonAgendaSlides=slides.filter(slide=>!AGENDA_ROLE.test(byId.get(slide.slide_id)?.narrative_role||slide.role||'')),caveatPageShare=nonAgendaSlides.length?caveatPages.size/nonAgendaSlides.length:0;
+  if(caveatPages.size>=3&&caveatPageShare>=0.4)blockers.push(issue('QUALITY_CAVEAT_PERVASIVE',[...caveatPages][0],`Disclaimer-style caveats appear on ${caveatPages.size}/${nonAgendaSlides.length} non-agenda pages (${(caveatPageShare*100).toFixed(1)}%), even though the caveats use different wording.`,{slide_ids:[...caveatPages],caveat_page_count:caveatPages.size,non_agenda_page_count:nonAgendaSlides.length,caveat_page_share:Number(caveatPageShare.toFixed(3)),minimum_pages:3,minimum_share:0.4,recommendation:'Keep a caveat on a page only when needed to interpret that page; consolidate broader limitations in one appropriate place.'}));
   let priorityAllocation=null,priorityTopicCoverage=null;
   if(isFullDeck){
     const ranked=content.map(item=>({...item,importanceBand:classifyImportance(item.planned?.importance)})),unranked=ranked.filter(item=>!item.importanceBand);

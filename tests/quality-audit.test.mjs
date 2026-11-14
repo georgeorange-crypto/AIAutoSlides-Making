@@ -251,6 +251,20 @@ test('formal quality audit blocks the same disclaimer repeated on only two pages
  assert.deepEqual(issue?.slide_ids,['S1','S2']);
 });
 
+test('formal quality audit blocks distinct disclaimers spread across a large share of the deck',()=>{
+ const input=fixture({count:4});
+ input.presentationIR.slides.find(slide=>slide.slide_id==='S1').elements[0].text+=' 该结果不代表因果关系。';
+ input.presentationIR.slides.find(slide=>slide.slide_id==='S2').elements[0].text+=' 当前样本不能证明模型在其他机构也有效。';
+ input.presentationIR.slides.find(slide=>slide.slide_id==='S3').elements[0].text+=' 观测到的相关性不意味着处理措施导致结果变化。';
+ const finding=auditDeckQuality(input).blockers.find(item=>item.code==='QUALITY_CAVEAT_PERVASIVE');
+ assert.ok(finding,'unique disclaimer wording must not bypass the deck-wide caveat frequency gate');
+ assert.deepEqual(finding.slide_ids,['S1','S2','S3']);
+ assert.equal(finding.caveat_page_count,3);assert.equal(finding.non_agenda_page_count,5);assert.equal(finding.caveat_page_share,0.6);
+
+ const focused=fixture({count:4});focused.presentationIR.slides.find(slide=>slide.slide_id==='S1').elements[0].text+=' 该结果不代表因果关系。';
+ assert.ok(!auditDeckQuality(focused).blockers.some(item=>item.code==='QUALITY_CAVEAT_PERVASIVE'),'one necessary caveat should not count as pervasive');
+});
+
 test('caveat gates include section transitions while ignoring the navigation-only agenda',()=>{
  const stacked=fixture();stacked.presentationIR.slides[1].elements[0].text+=' 本结论不代表因果关系。不表明适用于所有样本。不能证明其他机制不存在。';
  assert.ok(auditDeckQuality(stacked).blockers.some(item=>item.code==='QUALITY_CAVEAT_OVERLOAD'&&item.slide_id==='DIV-RESULTS'));

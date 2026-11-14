@@ -69,6 +69,20 @@ test('formal Harness reports stacked disclaimer copy as a blocking content findi
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('formal Harness blocks distinct caveats spread across multiple content pages',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-caveat-frequency-workflow-'));
+  try{
+    const ir=structuredClone(fixture);
+    const caveats=['This result does not prove causation.','The sample cannot represent every institution.','This correlation does not establish that the intervention caused improvement.'];
+    for(const [index,caveat] of caveats.entries()){const body=ir.slides[index].elements.find(element=>['text','callout'].includes(element.kind));body.text+=` ${caveat}`;}
+    const result=await runPresentationWorkflow({jobId:'caveat-frequency-workflow-test',presentationIR:ir,qualityPlan,workspace,outputDir:path.join(workspace,'runs','caveat-frequency'),preview:false,adapters:[adapter('only',{nativeCharts:true})]});
+    assert.equal(result.review_context.quality_gate_status,'fail');
+    const finding=result.report.critique.quality_gate.blockers.find(item=>item.code==='QUALITY_CAVEAT_PERVASIVE');
+    assert.ok(finding,'the formal workflow must expose the deck-wide caveat blocker');
+    assert.equal(finding.caveat_page_count,3);
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('formal Harness blocks assistant-facing Chinese copy in the rendered deck path',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-voice-workflow-'));
   try{
