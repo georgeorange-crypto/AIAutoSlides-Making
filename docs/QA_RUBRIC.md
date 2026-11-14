@@ -12,6 +12,10 @@ Apply to every generated variant; report `pass`, `fail`, `blocked`, or `not-run`
 
 No aggregate score may conceal a failed hard constraint. Missing external executable or authorized account is `blocked`, not pass.
 
+## Architecture diagram logic
+
+The formal validator rejects architecture diagrams with fewer than three named components, fewer than two directed relationships, repeated source-to-target arrows, no explicit entry or output component, disconnected components, or nodes outside an entry-to-output path. Edge labels must use a recognized action relationship. These are structural plausibility checks: they cannot establish that the arrows match the real system, that labels describe the right mechanism, or that the chosen abstraction answers the audience's question. Human `diagram_logic` review remains required.
+
 Formal plans require at least 40 visible explanation units per content page; a Han character or a non-Han word counts as one unit. The rendered-density gate separately requires at least two visible body-text lines and a minimum occupancy ratio. Agenda, section-transition, cover, and ending roles use their own structure checks and are not forced to meet the content-page floor.
 
 ## Formal Harness page review

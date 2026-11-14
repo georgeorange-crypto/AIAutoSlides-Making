@@ -37,6 +37,16 @@ test('Harness does not try a degraded fallback when disabled',async()=>{
   }finally{fs.rmSync(workspace,{recursive:true,force:true});}
 });
 
+test('formal Harness rejects a duplicate architecture link before probing a renderer',async()=>{
+  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-harness-diagram-'));let probes=0;
+  try{
+    const ir=structuredClone(fixture),slide=ir.slides[1];slide.type='architecture';slide.elements.push({element_id:'S02-D01',kind:'diagram',groups:[{label:'Request path',x:0.8,y:2.5,w:11.5,h:3.5}],nodes:[{id:'client',label:'Client application',x:1,y:3.5,w:2,h:1},{id:'queue',label:'Request queue',x:4.5,y:3.5,w:2,h:1},{id:'worker',label:'Inference worker',x:8,y:3.5,w:2,h:1}],edges:[{from:'client',to:'queue',label:'queues request'},{from:'client',to:'queue',label:'dispatches request'}]});
+    const neverRoute={manifest:{id:'must-not-run'},async probe(){probes++;return{status:'available'};},async negotiate(){probes++;return{ok:true,formats:['pptx'],capabilities:{}};},async render(){probes++;throw new Error('invalid architecture reached rendering');}};
+    await assert.rejects(()=>runPresentationWorkflow({jobId:'duplicate-architecture-link',presentationIR:ir,workspace,outputDir:path.join(workspace,'runs','duplicate-architecture-link'),preview:false,adapters:[neverRoute]}),/repeats the directed client → queue connection/);
+    assert.equal(probes,0,'invalid graph must fail during IR validation before any renderer is probed');
+  }finally{fs.rmSync(workspace,{recursive:true,force:true});}
+});
+
 test('formal Harness run records a blocking quality gate when render QA or page images are missing',async()=>{
   const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'aiautoslides-quality-workflow-'));
   try{

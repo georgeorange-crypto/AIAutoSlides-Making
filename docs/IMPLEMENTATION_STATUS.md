@@ -257,3 +257,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - OCR word boxes are compared with authored body-text geometry. Two or more recognizable words from authored copy outside the matching text box on any side produce `QUALITY_RENDERED_TEXT_OVERFLOW`; the finding records which edges were crossed.
 - A real PowerPoint 16.0 / Poppler fixture narrows a synthetic body box and disables wrapping/autofit. The rendered S04 line visibly exits to the right; OCR reports 11 matching words outside the right edge and the normal formal gate blocks it.
 - The screen allows a 1.5% page-dimension tolerance and ignores OCR words inside another text box that contains the same text token. OCR can still miss glyphs, text clipped beyond the slide canvas, or spill that cannot be linked to one authored box. Human page review remains required. See `docs/HORIZONTAL_TEXT_OVERFLOW_REPORT.md`.
+
+## Architecture diagram logic gate (2026-11-13)
+
+- Legacy storyboard, canonical Presentation IR, AI planner, and formal Harness validation share the same architecture graph checks: at least three named components, two or more distinct directed links, an explicit entry and output, connected topology, and every component lying on a directed entry-to-output path.
+- Duplicate arrows and directionless cycles are rejected before a renderer is probed. A synthetic negative Harness test verifies the invalid graph never reaches adapter selection; a valid native architecture continues to render as editable shapes.
+- These checks validate graph structure and a bounded action-word vocabulary only. They cannot tell whether a proposed architecture matches a real system or whether its causal story is meaningful to a specific audience. See `docs/ARCHITECTURE_LOGIC_GATE_REPORT.md`.

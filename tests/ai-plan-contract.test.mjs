@@ -51,6 +51,13 @@ test('planner architecture rejects noun-only connectors, placeholder nodes, and 
  assert.ok(auditPlannerQuality(disconnected).findings.some(item=>item.rule_id==='PLAN-DIAGRAM-LOGIC'));
 });
 
+test('planner architecture requires distinct relations and a directionally traversable system path',()=>{
+ const base=structuredClone(response);base.slides[1].visual_needs=[{kind:'architecture',description:'Map the concrete request-processing path between named system components.',evidence_ids:['E1'],nodes:[{id:'N1',label:'Client'},{id:'N2',label:'Gateway'},{id:'N3',label:'Worker'}],edges:[{from:'N1',to:'N2',label:'forwards request'},{from:'N2',to:'N3',label:'dispatches task'}],steps:[]}];
+ assert.equal(auditPlannerQuality(base).findings.some(item=>item.rule_id==='PLAN-DIAGRAM-LOGIC'),false);
+ const repeated=structuredClone(base);repeated.slides[1].visual_needs[0].edges[1]={from:'N1',to:'N2',label:'dispatches task'};assert.ok(auditPlannerQuality(repeated).findings.some(item=>item.rule_id==='PLAN-DIAGRAM-LOGIC'));
+ const cyclic=structuredClone(base);cyclic.slides[1].visual_needs[0].edges=[{from:'N1',to:'N2',label:'forwards request'},{from:'N2',to:'N3',label:'dispatches task'},{from:'N3',to:'N1',label:'returns result'}];assert.ok(auditPlannerQuality(cyclic).findings.some(item=>item.rule_id==='PLAN-DIAGRAM-LOGIC'));
+});
+
 test('planner quality gate checks every requested visual and rejects unsupported bookend visuals',()=>{
   const mixed={...response,slides:response.slides.map((item,index)=>index===1?{...item,visual_needs:[...item.visual_needs,{kind:'data-figure',description:'Use an image-like chart to show the trend.',evidence_ids:['E1'],nodes:[],edges:[],steps:[]}]}:index===0?{...item,visual_needs:[{kind:'process',description:'Show the presentation production stages.',evidence_ids:[],nodes:[],edges:[],steps:['Plan story','Build slides','Review output']}]}:item)};
   const rules=new Set(auditPlannerQuality(mixed).findings.map(item=>item.rule_id));

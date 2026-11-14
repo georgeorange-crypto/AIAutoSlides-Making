@@ -61,6 +61,15 @@ test('native architecture diagrams require specific connected nodes and action-l
  d.slides[1].diagram.nodes[1].label='Task queue';d.slides[1].diagram.edges[1].from='a';d.slides[1].diagram.edges[1].to='b';assert.match(validateDeck(d,ledger).errors.join(' '),/disconnected/);
  d.slides[1].diagram.edges[1].from='missing';assert.match(validateDeck(d,ledger).errors.join(' '),/known node IDs/);
 });
+test('native architecture diagrams need a directional entry-to-output path with distinct relationships',()=>{
+ const d=deepCopy(sample);d.slides[1]={slide_id:'S02',type:'architecture',title:'Hypothetical architecture',evidence_ids:['E1'],diagram:{groups:[{label:'Execution plane',x:1,y:2.5,w:10,h:3.5}],nodes:[{id:'a',label:'Client app',x:1.5,y:3.5,w:2,h:1},{id:'b',label:'Task queue',x:4.5,y:3.5,w:2,h:1},{id:'c',label:'Worker pool',x:8,y:3.5,w:2,h:1}],edges:[{from:'a',to:'b',label:'queues request'},{from:'b',to:'c',label:'dispatches task'}]}};
+ assert.deepEqual(validateDeck(d,ledger).errors,[]);
+ d.slides[1].diagram.edges.pop();assert.match(validateDeck(d,ledger).errors.join(' '),/at least two labeled edges/);
+ d.slides[1].diagram.edges=[{from:'a',to:'b',label:'queues request'},{from:'a',to:'b',label:'dispatches task'}];assert.match(validateDeck(d,ledger).errors.join(' '),/repeats the directed a → b connection/);
+ d.slides[1].diagram.edges=[{from:'a',to:'b',label:'queues request'},{from:'b',to:'c',label:'dispatches task'},{from:'c',to:'a',label:'returns result'}];assert.match(validateDeck(d,ledger).errors.join(' '),/explicit entry component/);
+ d.slides[1].diagram.edges=[{from:'a',to:'b',label:'queues request'},{from:'b',to:'c',label:'dispatches task'},{from:'c',to:'b',label:'returns result'}];assert.match(validateDeck(d,ledger).errors.join(' '),/explicit output component/);
+ d.slides[1].diagram.nodes=[{id:'a',label:'Client application',x:0.1,y:2.4,w:4.3,h:4.4},{id:'b',label:'Request queue',x:4.55,y:2.4,w:4.3,h:4.4},{id:'c',label:'Inference worker',x:9,y:2.4,w:4.2,h:4.4}];d.slides[1].diagram.edges=[{from:'a',to:'b',label:'queues request'},{from:'b',to:'c',label:'dispatches task'}];assert.match(validateDeck(d,ledger).errors.join(' '),/relationship labels cannot fit without overlapping/);
+});
 test('editable table validation enforces shape, evidence, and bounded cell values',()=>{
  const d=deepCopy(sample);d.slides[2]={slide_id:'S03',type:'table',title:'Synthetic comparison table',evidence_ids:['E1'],table:{headers:['Condition','Latency (ms)'],rows:[['Baseline',420],['Cached',315]],caption:'Synthetic values only'}};
  assert.deepEqual(validateDeck(d,ledger).errors,[]);

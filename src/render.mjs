@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import pptxgen from 'pptxgenjs';
 import {codeSegments} from './code-snippet.mjs';
+import {layoutArchitectureEdgeLabels} from '../packages/core/architecture-graph.mjs';
 
 const W = 13.333, H = 7.5;
 const Shape = { roundRect: 'roundRect', line: 'line', ellipse: 'ellipse', rect: 'rect', diamond: 'diamond' };
@@ -174,11 +175,12 @@ function architecture(s,d,t) {
     txt(s,group.label,{x:group.x+0.16,y:group.y+0.08,w:group.w-0.32,h:0.34,fontFace:t.bodyFontFace,fontSize:14,bold:true,color:t.muted,fit:'shrink'});
   }
   const byId=new Map(g.nodes.map(n=>[n.id,n]));
-  for(const edge of g.edges){
+  const edgeLabels=layoutArchitectureEdgeLabels(g.nodes,g.edges,g.groups)||[];
+  for(const [index,edge] of g.edges.entries()){
     const a=byId.get(edge.from),b=byId.get(edge.to),x1=a.x+a.w/2,y1=a.y+a.h/2,x2=b.x+b.w/2,y2=b.y+b.h/2;
     const dx=x2-x1,dy=y2-y1;
       s.addShape(Shape.line,{x:Math.min(x1,x2),y:Math.min(y1,y2),w:Math.max(Math.abs(dx),0.001),h:Math.max(Math.abs(dy),0.001),flipH:dx<0,flipV:dy<0,line:{color:t.accent,width:1.8,endArrowType:'triangle'},objectName});
-    if(edge.label)txt(s,edge.label,{x:(x1+x2)/2-0.90,y:(y1+y2)/2-0.25,w:1.80,h:0.34,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,align:'center',fit:'shrink',objectName});
+    const labelBox=edgeLabels[index];if(edge.label&&labelBox)txt(s,edge.label,{x:labelBox.x,y:labelBox.y,w:labelBox.w,h:labelBox.h,fontFace:t.bodyFontFace,fontSize:14,color:t.muted,align:'center',fit:'shrink',fill:{color:t.background},objectName});
   }
   g.nodes.forEach((node,i)=>{
     const shape=node.shape==='rect'?Shape.rect:node.shape==='diamond'?Shape.diamond:Shape.roundRect;
