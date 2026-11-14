@@ -263,3 +263,9 @@ The verified Phase 1 snapshot was committed as `ee469885d864c217dae3947b892f48a6
 - Legacy storyboard, canonical Presentation IR, AI planner, and formal Harness validation share the same architecture graph checks: at least three named components, two or more distinct directed links, an explicit entry and output, connected topology, and every component lying on a directed entry-to-output path.
 - Duplicate arrows and directionless cycles are rejected before a renderer is probed. A synthetic negative Harness test verifies the invalid graph never reaches adapter selection; a valid native architecture continues to render as editable shapes.
 - These checks validate graph structure and a bounded action-word vocabulary only. They cannot tell whether a proposed architecture matches a real system or whether its causal story is meaningful to a specific audience. See `docs/ARCHITECTURE_LOGIC_GATE_REPORT.md`.
+
+## Emitted PPTX text contrast gate (2026-11-13)
+
+- QA now inspects actual OOXML text-run RGB colors rather than relying only on theme palette pairs. It checks each run against the slide background and known solid fills that overlap the text box, fails ratios below 4.5:1, and blocks cases where the actual background or foreground cannot be measured.
+- Synthetic adversarial checks exercise low-contrast emitted text, text on known panels, and image-backed text with unknown contrast. A full-PPTX fixture proves a custom low-contrast run fails QA even while all selected theme token pairs pass.
+- This is a structural color check, not a rendered-pixel or aesthetic judgment; images, gradients, inherited/scheme colors, and chart-internal labels remain outside its measurable scope and are not silently reported as passing. See `docs/PPTX_TEXT_CONTRAST_REPORT.md`.
